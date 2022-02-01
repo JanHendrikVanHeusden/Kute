@@ -1,2 +1,2 @@
 # Kute
-Kotlin utilities to support common opersations like toString() and equals()/hashCode
+Kotlin utilities to support common operations like `toString()` and `equals()`, `hashCode()`
