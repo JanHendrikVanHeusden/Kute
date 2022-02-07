@@ -1,23 +1,27 @@
 package nl.kute.hashing
 
+import nl.kute.hashing.ThreadDigestHelper.Companion.threadCrc32c
+import nl.kute.hashing.ThreadDigestHelper.Companion.threadDigestByAlgorithm
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.zip.CRC32C as javaUtilCRC32C
 
-fun hash(input: String, digestMethod: DigestMethod): String {
-    return  when (digestMethod) {
-        DigestMethod.JAVA_HASHCODE -> {
-            input.hashCode().toString(16)
-        }
+fun javaHashString(input: Any): String = input.hashCode().toString(16)
+
+fun hashString(input: String, digestMethod: DigestMethod): String {
+    return when (digestMethod) {
+        DigestMethod.JAVA_HASHCODE ->
+            javaHashString(input)
+
         DigestMethod.CRC32C -> {
-            with(DigestHelper.threadCrc32c.get()) {
+            with(threadCrc32c.get()) {
                 this.update(input.toByteArray())
                 this.value.toString(16)
             }
         }
         else -> {
             require(!digestMethod.algorithm.isNullOrBlank()) { "No Digest algorithm specified" }
-            with(DigestHelper.threadDigestByAlgorithm.get(digestMethod.algorithm)!!.get()) {
+            with(threadDigestByAlgorithm[digestMethod.algorithm]!!.get()) {
                 this.update(input.toByteArray())
                 BigInteger(this.digest()).toString(16)
             }
@@ -25,7 +29,7 @@ fun hash(input: String, digestMethod: DigestMethod): String {
     }
 }
 
-private class DigestHelper {
+private class ThreadDigestHelper {
 
     /**
      * [MessageDigest] and [javaUtilCRC32C] are not thread safe.
@@ -39,7 +43,7 @@ private class DigestHelper {
             ThreadLocal.withInitial { MessageDigest.getInstance(algorithm) }
 
         init {
-            DigestMethod.values().map { it.algorithm }.filter { !it.isNullOrBlank() } .forEach {
+            DigestMethod.values().map { it.algorithm }.filter { !it.isNullOrBlank() }.forEach {
                 threadDigestByAlgorithm[it!!] = messageDigestThreadLocal(it)
             }
         }
@@ -58,10 +62,13 @@ private class DigestHelper {
 enum class DigestMethod(val algorithm: String? = null) {
     /** Simply using the java hashCode. Length is 8 or 9 (9 in case of negative values) */
     JAVA_HASHCODE(null),
+
     /** CRC32C is a fast hash methods with compact output (length 8), but security is nearly absent */
     CRC32C(null),
+
     /** SHA1 is considered as one of the better performing hash methods; but not considered secure */
     SHA1("SHA-1"),
+
     /** MD5 is considered as one of the better performing hash methods; but not considered secure */
     MD5("MD5")
 }
