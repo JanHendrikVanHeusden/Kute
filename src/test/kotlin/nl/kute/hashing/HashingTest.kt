@@ -3,7 +3,7 @@ package nl.kute.hashing
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-internal class HashTest {
+internal class HashingTest {
 
     private val testStringShort = "my test string"
     // String of length 335k
