@@ -1,4 +1,4 @@
-package nl.kute.properties
+package nl.kute.reflection
 
 import java.util.*
 import kotlin.reflect.KClass

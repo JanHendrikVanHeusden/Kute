@@ -1,4 +1,4 @@
-package nl.kute.properties
+package nl.kute.reflection
 
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
