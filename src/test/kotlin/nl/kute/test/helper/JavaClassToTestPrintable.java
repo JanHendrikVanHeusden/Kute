@@ -1,4 +1,4 @@
-package nl.kute.printable;
+package nl.kute.test.helper;
 
 /** For use by {@link com.bitacademy.jarvis.shared.com.bitacademy.jarvis.shared.utils.PrintableTest} */
 @SuppressWarnings("unused")

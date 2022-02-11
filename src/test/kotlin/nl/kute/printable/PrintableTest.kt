@@ -1,14 +1,14 @@
 package com.bitacademy.jarvis.shared.com.bitacademy.jarvis.shared.utils
 
-import nl.kute.printable.JavaClassToTestPrintable
 import nl.kute.printable.Printable
+import nl.kute.test.helper.JavaClassToTestPrintable
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class PrintableTest {
 
