@@ -1,9 +1,11 @@
 package nl.kute.printable
 
+import nl.kute.printable.annotation.PrintOption
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.isAccessible
@@ -111,3 +113,5 @@ interface Printable {
         const val maxValueLength: Int = 500
     }
 }
+
+fun Printable.printOption(): PrintOption? = this::class.findAnnotation()

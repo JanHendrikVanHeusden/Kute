@@ -1,6 +1,8 @@
 package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
+import kotlin.reflect.KAnnotatedElement
+import kotlin.reflect.full.findAnnotation
 
 const val printableDefaultNullString: String = "null"
 const val printableDefaultMaxLength: Int = 500
@@ -18,3 +20,5 @@ annotation class PrintOption(
     /** The maximum length of the output. Default is 500 (by [printableDefaultMaxLength]). 0 means: an empty String; negative values mean: no maximum. */
     val maxLength: Int = printableDefaultMaxLength
 )
+
+fun KAnnotatedElement.printOption(): PrintOption? = this.findAnnotation()
