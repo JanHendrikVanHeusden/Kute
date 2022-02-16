@@ -1,6 +1,7 @@
 package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
+import java.lang.annotation.Inherited
 
 /**
  * The [NoPrintOmit] annotation can be placed on properties of classes that implement [Printable],
@@ -11,4 +12,5 @@ import nl.kute.printable.Printable
  */
 @Target(AnnotationTarget.PROPERTY)
 @MustBeDocumented
+@Inherited
 annotation class NoPrintOmit

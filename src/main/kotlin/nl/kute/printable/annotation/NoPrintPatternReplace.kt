@@ -1,6 +1,7 @@
 package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
+import java.lang.annotation.Inherited
 
 /**
  * The [NoPrintPatternReplace] annotation can be placed on properties of classes that implement [Printable],
@@ -19,15 +20,14 @@ import nl.kute.printable.Printable
  */
 @Target(AnnotationTarget.PROPERTY)
 @MustBeDocumented
+@Inherited
 annotation class NoPrintPatternReplace(
     /**
      * The regular expression pattern; groups are allowed.
      * * Invalid regular expression will result in an empty String
      */
     val pattern: String,
-    /**
-     * The replacement expression; regex group replacements in Java style (`$1`, `$2` etc. are allowed)
-     */
+    /** The replacement expression; regex group replacements in Java style (`$1`, `$2` etc. are allowed) */
     val replacement: String
 
 )

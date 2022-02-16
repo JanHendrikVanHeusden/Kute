@@ -1,6 +1,7 @@
 package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
+import java.lang.annotation.Inherited
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.full.findAnnotation
 
@@ -14,6 +15,7 @@ const val printableDefaultMaxLength: Int = 500
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 @MustBeDocumented
+@Inherited
 annotation class PrintOption(
     /** How to show nulls? Default is "`"null"`" (by [printableDefaultNullString]), but you may opt for something else */
     val showNullAs: String = printableDefaultNullString,
