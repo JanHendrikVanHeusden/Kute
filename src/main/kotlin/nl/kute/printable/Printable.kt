@@ -13,10 +13,9 @@ import kotlin.reflect.jvm.isAccessible
 
 // TODO Refactor for use with annotations to specify which properties (not) to include in asString
 /**
- * Interface with easy-to-use methods for [String] representation of data-centric classes
- * (but typically not actual data classes, as they have a decent [toString] method already).
+ * Interface with easy-to-use methods for [String] representation; typically for data-centric classes.
  *
- * For Kotlin classes only; not for Java classes (you may try; no guarantees).
+ * Intended for Kotlin classes only; not for Java classes (you may try; no guarantees).
  * It should work however for Kotlin classes that extend Java classes.
  *
  * Implementing classes are required to override the [toString] method.

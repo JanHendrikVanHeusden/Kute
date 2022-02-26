@@ -2,6 +2,7 @@ package nl.kute.reflection
 
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
+import kotlin.reflect.KVisibility.PRIVATE
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
@@ -17,32 +18,31 @@ fun getPropValue(prop: KProperty0<*>): Any? = prop.get()
  * Get the properties from the hierarchy (see [topDownTypeHierarchy]
  */
 fun Any.propertiesFromHierarchy(
-    includeNonPublic: Boolean = false,
+    includePrivate: Boolean = false,
     propertyFilter: (KProperty1<out Any, *>) -> Boolean = { true }
 ): List<KProperty1<out Any, *>> {
-    val classHierarchy = this.topDownTypeHierarchy()
+    val classHierarchy = this.bottomUpTypeHierarchy()
     val linkedHashSet: LinkedHashSet<KProperty1<out Any, *>> = linkedSetOf()
     return linkedHashSet.also { theSet ->
         theSet.addAll(
-            classHierarchy
-                .map { kClass -> kClass.memberProperties }.flatten()
-                // Property overrides would cause duplicate names. We want to keep the subclass property only.
-                // But distinctBy keeps the first value (would be the topmost superclass property).
-                // To keep the last ones (deepest subclass), reverse it, then call distinctBy
-                .reversed().distinctBy { prop -> prop.name }
-                .reversed() // reverse again to normal order
+            classHierarchy.asSequence()
+                .map { kClass -> kClass.memberProperties
+                    .filter { propertyFilter(it) }
+                    .filter { includePrivate || it.visibility != PRIVATE }
+                }
+                .flatten()
+                // In case of overloads, keep the property of the most specific subclass
+                .distinctBy { prop -> prop.name }
                 .onEach { prop ->
-                    if (includeNonPublic) {
-                        try {
-                            prop.isAccessible = true // to access private or protected ones
-                        } catch (e: Exception) {
-                            // probably due to SecurityManager and/or jig saw boundaries;
-                            // we must adhere, so ignore
-                        }
+                    try {
+                        prop.isAccessible = true // to access private or protected ones
+                    } catch (e: Exception) {
+                        // probably due to SecurityManager and/or jig saw boundaries;
+                        // we must adhere, so ignore
                     }
                 }
                 .filter { it.isAccessible }
-                .filter { propertyFilter(it) }
+                .toList()
         )
     }.toList()
 }

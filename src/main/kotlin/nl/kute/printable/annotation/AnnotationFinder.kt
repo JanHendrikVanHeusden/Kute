@@ -1,7 +1,7 @@
 package nl.kute.printable.annotation
 
+import nl.kute.reflection.bottomUpTypeHierarchy
 import nl.kute.reflection.isToString
-import nl.kute.reflection.topDownTypeHierarchy
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility.PRIVATE
@@ -15,25 +15,29 @@ import kotlin.reflect.jvm.javaGetter
  * Find any annotation of type [A] on the receiver property of `this` class and any of its superclasses.
  * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
  */
-internal inline fun <reified A : Annotation> KProperty<*>.annotationsOfProperty(): List<A> {
-    val annotationList = listOfNotNull(this.findAnnotation<A>())
-    val declaringClass = this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return annotationList
-    val map = declaringClass.kotlin.topDownTypeHierarchy().associateWith { kClass ->
+internal inline fun <reified A : Annotation> KProperty<*>.annotationsOfProperty(): Map<KClass<*>, A> {
+    val declaringClass = this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return mapOf()
+    @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
+    return declaringClass.kotlin.bottomUpTypeHierarchy().associateWith { kClass ->
         kClass.memberProperties
             .filter { prop -> prop.name == this.name && prop.visibility != PRIVATE }
             .map { it.findAnnotation<A>() }.firstOrNull()
-    }.filterValues { annotation -> annotation != null }
-    return listOfNotNull(this.findAnnotation())
+    }.filterValues { annotation -> annotation != null } as Map<KClass<*>, A>
 }
 
-
+/**
+ * Find annotation of type [A], if any, on the receiver property of `this` class and any of its superclasses.
+ * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
+ */
+internal inline fun <reified A : Annotation> KProperty<*>.annotationOfProperty(): A? =
+    this.annotationsOfProperty<A>().values.firstOrNull()
 
 /**
  * Find any annotation of type [A] on the `::toString` methods of `this` class and any of its superclasses.
  * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
  */
 internal inline fun <reified A : Annotation> Any.annotationsOfToString(): List<A> =
-    this::class.topDownTypeHierarchy().reversed().asSequence()
+    this::class.bottomUpTypeHierarchy().asSequence()
         .map { kClass -> kClass.memberFunctions.filter { kFunction -> kFunction.isToString() } }.flatten()
         .map { it.findAnnotation<A>() }
         .filterNotNull()
@@ -45,7 +49,7 @@ internal inline fun <reified A : Annotation> Any.annotationsOfToString(): List<A
  */
 @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
 internal inline fun <reified A : Annotation> Any.annotationsOfClassByClass(): Map<KClass<*>, A> =
-    this::class.topDownTypeHierarchy().reversed().asSequence()
+    this::class.bottomUpTypeHierarchy().asSequence()
         .map { kClass -> kClass to kClass.findAnnotation<A>() }
         .filter { it.second != null }
         .associate { it.first to it.second!! }
@@ -56,7 +60,7 @@ internal inline fun <reified A : Annotation> Any.annotationsOfClassByClass(): Ma
  */
 @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
 internal inline fun <reified A : Annotation> Any.annotationsOfToStringByClass(): Map<KClass<*>, A> =
-    this::class.topDownTypeHierarchy().reversed().asSequence()
+    this::class.bottomUpTypeHierarchy().asSequence()
         .map { kClass ->
             kClass to kClass.memberFunctions.first { it.isToString() }.findAnnotation<A>()
         }
