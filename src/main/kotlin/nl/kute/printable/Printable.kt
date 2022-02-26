@@ -1,11 +1,12 @@
 package nl.kute.printable
 
 import nl.kute.printable.annotation.PrintOption
+import nl.kute.printable.annotation.PrintOption.Defaults.defaultMaxLength
+import nl.kute.printable.annotation.PrintOption.Defaults.defaultNullString
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.isAccessible
@@ -62,6 +63,7 @@ interface Printable {
     }
 
     // To force override of toString()
+    @PrintOption(maxLength = defaultMaxLength, showNullAs = defaultNullString)
     override fun toString(): String
 
     /** @return for [Array]s: [Array.contentDeepToString]; otherwise: [toString] of the property */
@@ -113,5 +115,3 @@ interface Printable {
         const val maxValueLength: Int = 500
     }
 }
-
-fun Printable.printOption(): PrintOption? = this::class.findAnnotation()

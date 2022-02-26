@@ -1,26 +1,31 @@
 package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
+import nl.kute.printable.annotation.PrintOption.Defaults.defaultMaxLength
+import nl.kute.printable.annotation.PrintOption.Defaults.defaultNullString
 import java.lang.annotation.Inherited
-import kotlin.reflect.KAnnotatedElement
-import kotlin.reflect.full.findAnnotation
-
-const val printableDefaultNullString: String = "null"
-const val printableDefaultMaxLength: Int = 500
 
 /**
- * The [PrintOption] annotation can be placed on classes that implement [Printable],
- * or on properties of these classes.
+ * The [PrintOption] annotation can be placed on classes that implement [Printable]:
+ *  * at class level
+ *  * or on properties of these classes.
  * It allows specifying how property values are to be parsed in the [Printable.asString] return value.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 @MustBeDocumented
 @Inherited
 annotation class PrintOption(
-    /** How to show nulls? Default is "`"null"`" (by [printableDefaultNullString]), but you may opt for something else */
-    val showNullAs: String = printableDefaultNullString,
-    /** The maximum length of the output. Default is 500 (by [printableDefaultMaxLength]). 0 means: an empty String; negative values mean: no maximum. */
-    val maxLength: Int = printableDefaultMaxLength
-)
+    /** How to show nulls? Default is "`"null"`" (by [defaultNullString]), but you may opt for something else */
+    val showNullAs: String = defaultNullString,
+    /** The maximum length of the output **per property**. Default is 500 (by [defaultMaxLength]). 0 means: an empty String; negative values mean: [Int.MAX_VALUE], so effectively no maximum. */
+    val maxLength: Int = defaultMaxLength
+) {
+    companion object Defaults {
+        /** Default value for how to represent `null` */
+        const val defaultNullString: String = "null"
 
-fun KAnnotatedElement.printOption(): PrintOption? = this.findAnnotation()
+        /** Default value for the maximum length of the output **per property** */
+        const val defaultMaxLength: Int = 500
+    }
+}
+

@@ -14,13 +14,13 @@ fun Any.getPropValue(prop: KProperty1<Any, *>): Any? = prop.get(this)
 fun getPropValue(prop: KProperty0<*>): Any? = prop.get()
 
 /**
- * Get the properties from the hierarchy (see [classHierarchy]
+ * Get the properties from the hierarchy (see [topDownTypeHierarchy]
  */
 fun Any.propertiesFromHierarchy(
     includeNonPublic: Boolean = false,
     propertyFilter: (KProperty1<out Any, *>) -> Boolean = { true }
 ): List<KProperty1<out Any, *>> {
-    val classHierarchy = this.classHierarchy()
+    val classHierarchy = this.topDownTypeHierarchy()
     val linkedHashSet: LinkedHashSet<KProperty1<out Any, *>> = linkedSetOf()
     return linkedHashSet.also { theSet ->
         theSet.addAll(
