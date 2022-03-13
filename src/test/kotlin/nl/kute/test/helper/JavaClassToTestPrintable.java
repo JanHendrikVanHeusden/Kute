@@ -1,6 +1,6 @@
 package nl.kute.test.helper;
 
-/** For use by {@link com.bitacademy.jarvis.shared.com.bitacademy.jarvis.shared.utils.PrintableTest} */
+/** For use by [PrintableTest] */
 @SuppressWarnings("unused")
 public class JavaClassToTestPrintable {
 

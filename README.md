@@ -45,13 +45,13 @@ The **Kute** library should make your developer-life easier by addressing these 
 A non-exhaustive summary of issues with alternatives
 
 1. ###### Using IDE templates    
-    Of course you can simply generate `toString()`, `equals()` and `hashCode()` using your IDE's templates, and it works as a charm
+    Of course, you can simply generate `toString()`, `equals()` and `hashCode()` using your IDE's templates, and it works as a charm
 
     But then: you can't see at a glance which properties are in there, in which order, and even more important: what is missing!
     And wish you luck if you need to add some property somewhere in the middle!
 
 2. ###### Objects methods for `equals()` and `hashCode()`    
-    Works well... but no help or guarantees to assure that this couple is in in sync
+    Works well... but no help or guarantees to assure that this couple is in sync
    * In sync: such that `hashCode()` does not include properties that `equals()` does not reference
 
 3. ###### `Objects.toString()` not as robust as we want
@@ -61,6 +61,6 @@ A non-exhaustive summary of issues with alternatives
 4. ##### `Comparator`s and `compare()` miss flexibility    
     Designed in past times when requirements weren't changing that fast, and flexibility less needed
 
-5. ###### Usablility    
+5. ###### Usability    
    Usage of libraries like Apache's is not as elegant or flexible as you might want, and all libraries definitely
    miss features we'd like to have

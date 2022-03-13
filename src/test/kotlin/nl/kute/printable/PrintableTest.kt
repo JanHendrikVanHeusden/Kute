@@ -1,6 +1,5 @@
-package com.bitacademy.jarvis.shared.com.bitacademy.jarvis.shared.utils
+package nl.kute.printable
 
-import nl.kute.printable.Printable
 import nl.kute.test.helper.JavaClassToTestPrintable
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat

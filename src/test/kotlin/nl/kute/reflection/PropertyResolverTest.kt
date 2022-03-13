@@ -9,9 +9,9 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility.PRIVATE
 import kotlin.reflect.full.memberProperties
 
+@Suppress("unused") // several properties accessed by reflection only
 internal class PropertyResolverTest {
 
-    @Suppress("unused")
     private interface I0 {
         val i: Int?
         val j: String
@@ -28,7 +28,6 @@ internal class PropertyResolverTest {
         private val j = 65
     }
 
-    @Suppress("unused")
     private abstract class T2(override val x: Int?, override val y: String, override val z: LocalDateTime) :
         T1(x, y, z), I0 {
         abstract val a: Int
@@ -36,7 +35,6 @@ internal class PropertyResolverTest {
         private var p = 'P'
     }
 
-    @Suppress("unused")
     private class T3(
         override var i: Int?,
         override val j: String,
@@ -49,7 +47,6 @@ internal class PropertyResolverTest {
         private val p = "private val"
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun propertiesFromHierarchy() {
         // Arrange
@@ -95,27 +92,29 @@ internal class PropertyResolverTest {
         // Shadowed property should not be included
         assertThat(propertyMap.values.flatten()).doesNotContain(privatePShadowed)
 
-        assertThat(propertyMap)
-            .hasSize(2)
-            .containsExactly(
-                propertyMapEntry(
-                    T3::class, listOf(
-                        T3::a as KProperty1<Any, *>,
-                        T3::i as KProperty1<Any, *>,
-                        T3::j as KProperty1<Any, *>,
-                        T3::k as KProperty1<Any, *>,
-                        privatePString
-                    )
-                ),
-                propertyMapEntry(
-                    T2::class, listOf(
-                        T3::f as KProperty1<Any, *>,
-                        T3::x as KProperty1<Any, *>,
-                        T3::y as KProperty1<Any, *>,
-                        T3::z as KProperty1<Any, *>
-                    )
+        val expected = mapOf(
+            Pair(
+                T3::class,
+                listOf(
+                    T3::a as KProperty1<Any, *>,
+                    T3::i as KProperty1<Any, *>,
+                    T3::j as KProperty1<Any, *>,
+                    T3::k as KProperty1<Any, *>,
+                    privatePString
+                )
+            ),
+            Pair(
+                T2::class,
+                listOf(
+                    T3::f as KProperty1<Any, *>,
+                    T3::x as KProperty1<Any, *>,
+                    T3::y as KProperty1<Any, *>,
+                    T3::z as KProperty1<Any, *>
                 )
             )
+        )
+
+        assertThat(propertyMap).isEqualTo(expected)
     }
 
     @Test
