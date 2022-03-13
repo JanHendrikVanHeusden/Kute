@@ -3,10 +3,6 @@ package nl.kute.reflection.annotation
 import nl.kute.printable.Printable
 import nl.kute.printable.annotation.PrintOption
 import nl.kute.printable.annotation.PrintOption.Defaults.defaultNullString
-import nl.kute.printable.annotation.annotationOf
-import nl.kute.printable.annotation.annotationOfClass
-import nl.kute.printable.annotation.annotationOfProperty
-import nl.kute.printable.annotation.annotationOfToString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KProperty
@@ -73,7 +69,7 @@ internal class AnnotationFinderTest {
         assertThat(printOptByClass.maxLength).isEqualTo(200)
         assertThat(printOptByClass.showNullAs).isEqualTo(defaultNullString)
 
-        val printOptOfObject: PrintOption = with3PrintOptions.annotationOf()!!
+        val printOptOfObject: PrintOption = with3PrintOptions.annotationOfClass()!!
         assertThat(printOptOfObject).isSameAs(printOptByClass)
 
         val kProperty: KProperty<String> = with3PrintOptions::someVal
@@ -99,10 +95,10 @@ internal class AnnotationFinderTest {
         val printOptByClass: PrintOption? = With1PrintOption::class.annotationOfClass()
         assertThat(printOptByClass).isNull()
 
-        val printOptOfObject: PrintOption? = with1PrintOption.annotationOf()
+        val printOptOfObject: PrintOption? = with1PrintOption.annotationOfClass()
         assertThat(printOptOfObject).isNull()
 
-        val printOptOfToString: PrintOption? = with1PrintOption.annotationOf()
+        val printOptOfToString: PrintOption? = with1PrintOption.annotationOfClass()
         assertThat(printOptOfToString).isNull()
     }
 
@@ -117,8 +113,8 @@ internal class AnnotationFinderTest {
         val printOptByClassInheritance2 = WithInheritedPrintOption::class.java.getAnnotation(PrintOption::class.java)
         assertThat(printOptByClassInheritance).isEqualTo(printOptByClass)
 
-        val printOptOfObject: PrintOption = with3PrintOptions.annotationOf()!!
-        val printOptOfObjectByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOf()
+        val printOptOfObject: PrintOption = with3PrintOptions.annotationOfClass()!!
+        val printOptOfObjectByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfClass()
         assertThat(printOptOfObjectByInheritance).isSameAs(printOptOfObject)
 
         val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfProperty()!!
