@@ -6,6 +6,25 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
 /**
+ * Find a member property by name
+ * @return The property with the given name if `public`, `inherited` or `internal`;
+ *         or `private` when declared in the `this` receiver class.
+ *         Or `null` when no such property is found.
+ */
+fun KClass<*>.getMemberProperty(name: String): KProperty1<out Any, *>? =
+    this.memberProperties.firstOrNull { it.name == name }
+
+/**
+ * Find a property by name
+ * @return The property with the given name, regardless of visibility.
+ *         In case of name-shadowed private properties, the property of the most
+ *         specific subclass is returned.
+ *         Or `null` when no such property is found.
+ */
+fun KClass<*>.getPropertyFromHierarchy(name: String): KProperty1<out Any, *>? =
+    this.propertiesFromHierarchy().firstOrNull { it.name == name }
+
+/**
  * Get the properties of the [Any] receiver from its class hierarchy (see [topDownTypeHierarchy]).
  * * In case of property overrides or name-shadowing, only the property from the most specific subclass
  *   is present in the result.
@@ -60,7 +79,7 @@ internal fun KClass<*>.propertiesFromHierarchy(): List<KProperty1<out Any, *>> {
  *   So not only `public` or `protected`, but also `internal` and `private` properties.
  * * The properties may or may not be accessible ([KProperty1.isAccessible])
  */
-fun Any.propertyMapByHierarchy(): Map<KClass<*>?, List<KProperty1<out Any, *>>> =
+internal fun Any.propertyMapByHierarchy(): Map<KClass<*>?, List<KProperty1<out Any, *>>> =
     this::class.propertyMapByHierarchy()
 
 /**
