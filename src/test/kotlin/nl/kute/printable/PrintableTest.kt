@@ -28,13 +28,13 @@ class PrintableTest {
 
         // Assert
         assertThat(classToPrint.toString())
-            .isEqualTo("ClassToPrint(greet=hallo, num=10, printable=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
+            .isEqualTo("ClassToPrint(greet=hallo, num=10, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
         assertThat(classToPrint.asString(ClassToPrint::num))
-            .isEqualTo("ClassToPrint(greet=hallo, printable=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
+            .isEqualTo("ClassToPrint(greet=hallo, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
 
         // Assert that it works on anonymous class
         assertThat(extensionObject.toString())
-            .doesNotContain("printable", "this is another printable") // excluded property
+            .doesNotContain("privateToPrint", "this is another printable") // excluded property
             .contains(
                 "class ",
                 "greet=hallo",
@@ -48,7 +48,7 @@ class PrintableTest {
             .contains(
                 "class ",
                 "greet=hallo",
-                "printable=this is another printable",
+                "privateToPrint=this is another printable",
                 "str=a string",
                 "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
                 "extensionProperty=my extension property",
@@ -59,7 +59,7 @@ class PrintableTest {
         classToPrint.num = 20
         // Assert that updated value is there
         assertThat(classToPrint.toString())
-            .isEqualTo("ClassToPrint(greet=hallo, num=20, printable=2022-01-27, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
+            .isEqualTo("ClassToPrint(greet=hallo, num=20, privateToPrint=2022-01-27, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
     }
 
     @Test
@@ -107,7 +107,7 @@ class PrintableTest {
     }
 
     @Suppress("unused")
-    open class ClassToPrint(val str: String, open var num: Int, private val printable: Printable?) : Printable {
+    open class ClassToPrint(val str: String, open var num: Int, private val privateToPrint: Printable?) : Printable {
         // getter should be called, not the internal value. Private should be included
         @Suppress("SuspiciousVarProperty")
         private var greet: String? = "hi"
@@ -125,7 +125,7 @@ class PrintableTest {
 
     // anonymous nested class
     private val extensionObject: Printable = object : ClassToPrint("a string", 25, anotherPrintable) {
-        override fun toString(): String = asStringExcludingNames("printable")
+        override fun toString(): String = asStringExcludingNames("privateToPrint")
 
         @Suppress("unused")
         private val extensionProperty = "my extension property"
