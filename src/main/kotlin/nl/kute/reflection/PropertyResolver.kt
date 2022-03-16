@@ -3,13 +3,21 @@ package nl.kute.reflection
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.isAccessible
 
 /**
  * Find a member property by name
  * @return The property with the given name if `public`, `inherited` or `internal`;
  *         or `private` when declared in the `this` receiver class.
- *         Or `null` when no such property is found.
+ *         Returns `null` when no such property is found.
+ */
+fun Any.getMemberProperty(name: String): KProperty1<out Any, *>? =
+    this::class.getMemberProperty(name)
+
+/**
+ * Find a member property by name
+ * @return The property with the given name if `public`, `inherited` or `internal`;
+ *         or `private` when declared in the `this` receiver class.
+ *         Returns `null` when no such property is found.
  */
 fun KClass<*>.getMemberProperty(name: String): KProperty1<out Any, *>? =
     this.memberProperties.firstOrNull { it.name == name }
@@ -19,7 +27,17 @@ fun KClass<*>.getMemberProperty(name: String): KProperty1<out Any, *>? =
  * @return The property with the given name, regardless of visibility.
  *         In case of name-shadowed private properties, the property of the most
  *         specific subclass is returned.
- *         Or `null` when no such property is found.
+ *         Returns `null` when no such property is found.
+ */
+fun Any.getPropertyFromHierarchy(name: String): KProperty1<out Any, *>? =
+    this::class.getPropertyFromHierarchy(name)
+
+/**
+ * Find a property by name
+ * @return The property with the given name, regardless of visibility.
+ *         In case of name-shadowed private properties, the property of the most
+ *         specific subclass is returned.
+ *         Returns `null` when no such property is found.
  */
 fun KClass<*>.getPropertyFromHierarchy(name: String): KProperty1<out Any, *>? =
     this.propertiesFromHierarchy().firstOrNull { it.name == name }
@@ -55,15 +73,6 @@ internal fun KClass<*>.propertiesFromHierarchy(): List<KProperty1<out Any, *>> {
                 .flatten()
                 // In case of overloads or name-shadowing, keep the property of the most specific subclass
                 .distinctBy { prop -> prop.name }
-                .onEach { prop ->
-                    try {
-                        prop.isAccessible = true // to access private or protected ones
-                    } catch (e: Exception) {
-                        // probably due to SecurityManager and/or jig saw boundaries;
-                        // we must adhere, so ignore
-                    }
-                }
-                .filter { it.isAccessible }
                 .toList()
         )
     }.toList()
@@ -101,15 +110,6 @@ internal fun KClass<*>.propertyMapByHierarchy(): Map<KClass<*>?, List<KProperty1
             .flatten()
             // In case of overloads or name-shadowing, keep the property of the most specific subclass
             .distinctBy { pair -> pair.second.name }
-            .onEach { pair ->
-                try {
-                    pair.second.isAccessible = true // to access private or protected ones
-                } catch (e: Exception) {
-                    // probably due to SecurityManager and/or jig saw boundaries;
-                    // we must adhere, so ignore
-                }
-            }
-            .filter { it.second.isAccessible }
             .map { Pair(it.second.declaringClass() ?: it.first, it.second) }
             .toList()
     pairList.forEach {

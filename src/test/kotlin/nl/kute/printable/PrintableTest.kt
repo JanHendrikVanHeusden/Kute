@@ -24,7 +24,6 @@ class PrintableTest {
     fun `test Printable and extension object`() {
         // Arrange
         val classToPrint = ClassToPrint("test", 10, aPrintableDate)
-        println(classToPrint.toString())
 
         // Assert
         assertThat(classToPrint.toString())

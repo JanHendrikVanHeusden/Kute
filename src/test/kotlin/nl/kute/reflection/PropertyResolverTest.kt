@@ -47,6 +47,12 @@ internal class PropertyResolverTest {
         private val p = "private val"
     }
 
+    @Suppress("PropertyName")
+    private open class T4() : T3(1, "j", LocalDateTime.MAX, null, "y", LocalDateTime.now()) {
+        val `a value with spaces`: Any = ""
+        var aValueWithUpperCase: Any? = null
+    }
+
     @Test
     fun propertiesFromHierarchy() {
         // Arrange
@@ -109,9 +115,6 @@ internal class PropertyResolverTest {
         val propertyMap: Map<KClass<*>?, List<KProperty1<Any, *>>> =
             T3::class.propertyMapByHierarchy() as Map<KClass<*>?, List<KProperty1<Any, *>>>
 
-        println(propertyMap.map { "${it.key}${it.value.joinToString("\n\t", "\n\t")}" }
-            .joinToString("\n"))
-
         // Assert
         // Shadowed property should not be included
         assertThat(propertyMap.values.flatten()).doesNotContain(privatePShadowed)
@@ -159,6 +162,61 @@ internal class PropertyResolverTest {
     fun `values of propertiesFromHierarchy from class should be equal to those by instance`() {
         val t3 = T3(14, "Hi", LocalDateTime.now(), 14, "Hallo", LocalDateTime.MIN)
         assertThat(t3.propertiesFromHierarchy()).isEqualTo(T3::class.propertiesFromHierarchy())
+    }
+
+    @Test
+    fun `getMemberProperty of class should return member property by name, if present`() {
+        assertThat(T3::class.getMemberProperty("l")).isNull()
+        assertThat(T3::class.getMemberProperty("f")).isEqualTo(T3::f)
+        assertThat(T3::class.getMemberProperty("F")).isNull()
+        assertThat(T3::class.getMemberProperty("not existing")).isNull()
+        assertThat(T4::class.getMemberProperty("a value with spaces")).isEqualTo(T4::`a value with spaces`)
+        assertThat(T4::class.getMemberProperty("a Value with spaces")).isNull()
+        assertThat(T4::class.getMemberProperty("aValueWithUpperCase")).isEqualTo(T4::aValueWithUpperCase)
+        assertThat(T4::class.getMemberProperty("avaluewithuppercase")).isNull()
+    }
+
+    @Test
+    fun `getMemberProperty of instance should return same values as getMemberProperty of class`() {
+        val t3 = T3(null, "", LocalDateTime.MAX, null, "", LocalDateTime.MIN)
+        assertThat(t3.getMemberProperty("l")).isEqualTo(T3::class.getMemberProperty("l"))
+        assertThat(t3.getMemberProperty("f")).isEqualTo(T3::class.getMemberProperty("f"))
+        assertThat(t3.getMemberProperty("not existing")).isEqualTo(T3::class.getMemberProperty("not existing"))
+        val t4 = T4()
+        assertThat(t4.getMemberProperty("a value with spaces")).isEqualTo(T4::class.getMemberProperty("a value with spaces"))
+        assertThat(T4::class.getMemberProperty("a Value with spaces")).isEqualTo(T4::class.getMemberProperty("a Value with spaces"))
+        assertThat(T4::class.getMemberProperty("aValueWithUpperCase")).isEqualTo(T4::class.getMemberProperty("aValueWithUpperCase"))
+        assertThat(T4::class.getMemberProperty("avaluewithuppercase")).isEqualTo(T4::class.getMemberProperty("avaluewithuppercase"))
+    }
+
+    @Test
+    fun `getPropertyFromHierarchy of class should return the most specific property by name, if present`() {
+        assertThat(T3::class.getPropertyFromHierarchy("l"))
+            .isEqualTo(T1::class.memberProperties.first { it.name == "l" && it.visibility == PRIVATE })
+        assertThat(T3::class.getPropertyFromHierarchy("f")).isEqualTo(T3::f)
+        assertThat(T3::class.getPropertyFromHierarchy("F")).isNull()
+        assertThat(T3::class.getPropertyFromHierarchy("not existing")).isNull()
+        assertThat(T4::class.getPropertyFromHierarchy("a value with spaces")).isEqualTo(T4::`a value with spaces`)
+        assertThat(T4::class.getPropertyFromHierarchy("a Value with spaces")).isNull()
+        assertThat(T4::class.getPropertyFromHierarchy("aValueWithUpperCase")).isEqualTo(T4::aValueWithUpperCase)
+        assertThat(T4::class.getPropertyFromHierarchy("avaluewithuppercase")).isNull()
+    }
+
+    @Test
+    fun `getPropertyFromHierarchy of instance should return same values as getPropertyFromHierarchy of class`() {
+        val t3 = T3(null, "", LocalDateTime.MAX, null, "", LocalDateTime.MIN)
+        assertThat(t3.getPropertyFromHierarchy("l")).isEqualTo(T3::class.getPropertyFromHierarchy("l"))
+        assertThat(t3.getPropertyFromHierarchy("f")).isEqualTo(T3::class.getPropertyFromHierarchy("f"))
+        assertThat(t3.getPropertyFromHierarchy("not existing")).isEqualTo(T3::class.getPropertyFromHierarchy("not existing"))
+        val t4 = T4()
+        assertThat(t4.getPropertyFromHierarchy("a value with spaces"))
+            .isEqualTo(T4::class.getPropertyFromHierarchy("a value with spaces"))
+        assertThat(T4::class.getPropertyFromHierarchy("a Value with spaces"))
+            .isEqualTo(T4::class.getPropertyFromHierarchy("a Value with spaces"))
+        assertThat(T4::class.getPropertyFromHierarchy("aValueWithUpperCase"))
+            .isEqualTo(T4::class.getPropertyFromHierarchy("aValueWithUpperCase"))
+        assertThat(T4::class.getPropertyFromHierarchy("avaluewithuppercase"))
+            .isEqualTo(T4::class.getPropertyFromHierarchy("avaluewithuppercase"))
     }
 
 }
