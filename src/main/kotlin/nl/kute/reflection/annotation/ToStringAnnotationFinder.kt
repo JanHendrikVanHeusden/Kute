@@ -1,6 +1,6 @@
 package nl.kute.reflection.annotation
 
-import nl.kute.reflection.bottomUpTypeHierarchy
+import nl.kute.reflection.reverseTypeHierarchy
 import nl.kute.reflection.isToString
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -12,7 +12,7 @@ import kotlin.reflect.full.memberFunctions
  */
 @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
 internal inline fun <reified A : Annotation> Any.annotationsOfToString(): Map<KClass<*>, A> =
-    this::class.bottomUpTypeHierarchy().asSequence()
+    this::class.reverseTypeHierarchy().asSequence()
         .map { kClass ->
             kClass to kClass.memberFunctions.first { it.isToString() }.findAnnotation<A>()
         }

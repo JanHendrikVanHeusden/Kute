@@ -1,6 +1,6 @@
 package nl.kute.reflection.annotation
 
-import nl.kute.reflection.bottomUpTypeHierarchy
+import nl.kute.reflection.reverseTypeHierarchy
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
@@ -10,7 +10,7 @@ import kotlin.reflect.full.findAnnotation
  */
 @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
 internal inline fun <reified A : Annotation> Any.annotationsOfClass(): Map<KClass<*>, A> =
-    this::class.bottomUpTypeHierarchy().asSequence()
+    this::class.reverseTypeHierarchy().asSequence()
         .map { kClass -> kClass to kClass.findAnnotation<A>() }
         .filter { it.second != null }
         .associate { it.first to it.second!! }
