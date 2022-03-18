@@ -2,6 +2,7 @@ package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
 import java.lang.annotation.Inherited
+import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
  * The [NoPrintPatternReplace] annotation can be placed on properties of classes that implement [Printable],
@@ -21,6 +22,7 @@ import java.lang.annotation.Inherited
 @Target(AnnotationTarget.PROPERTY)
 @MustBeDocumented
 @Inherited
+@Retention(RUNTIME)
 annotation class NoPrintPatternReplace(
     /**
      * The regular expression pattern; groups are allowed.

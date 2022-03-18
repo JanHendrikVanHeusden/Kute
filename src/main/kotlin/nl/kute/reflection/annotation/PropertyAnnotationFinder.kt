@@ -1,6 +1,6 @@
 package nl.kute.reflection.annotation
 
-import nl.kute.reflection.bottomUpTypeHierarchy
+import nl.kute.reflection.reverseTypeHierarchy
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility.PRIVATE
@@ -16,7 +16,7 @@ import kotlin.reflect.jvm.javaGetter
 internal inline fun <reified A : Annotation> KProperty<*>.annotationsOfProperty(): Map<KClass<*>, A> {
     val declaringClass = this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return mapOf()
     @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
-    return declaringClass.kotlin.bottomUpTypeHierarchy().associateWith { kClass ->
+    return declaringClass.kotlin.reverseTypeHierarchy().associateWith { kClass ->
         kClass.memberProperties
             .filter { prop -> prop.name == this.name && prop.visibility != PRIVATE }
             .map { it.findAnnotation<A>() }.firstOrNull()

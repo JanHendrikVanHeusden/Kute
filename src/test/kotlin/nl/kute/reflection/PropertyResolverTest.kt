@@ -48,7 +48,7 @@ internal class PropertyResolverTest {
     }
 
     @Suppress("PropertyName")
-    private open class T4() : T3(1, "j", LocalDateTime.MAX, null, "y", LocalDateTime.now()) {
+    private open class T4 : T3(1, "j", LocalDateTime.MAX, null, "y", LocalDateTime.now()) {
         val `a value with spaces`: Any = ""
         var aValueWithUpperCase: Any? = null
     }

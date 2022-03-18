@@ -27,7 +27,7 @@ internal class HashingTest {
     fun `test that results of hash methods adhere to expected formats`() {
         var hashResults: MutableSet<String>
 
-        digestMethodPatterns.forEach { digestMethod, pattern ->
+        digestMethodPatterns.forEach { (digestMethod, pattern) ->
             hashResults = mutableSetOf()
 
             // nested helper method for assertion

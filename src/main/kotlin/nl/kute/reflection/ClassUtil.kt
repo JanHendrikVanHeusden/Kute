@@ -33,22 +33,22 @@ fun Any.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>>
  * 3. any interfaces, in order of hierarchy; super interfaces first
  * @return class hierarchy as an unmodifiable list
  */
-fun KClass<*>.bottomUpTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
-    this.java.bottomUpTypeHierarchy(includeInterfaces).map { it.kotlin }
+fun KClass<*>.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+    this.java.reverseTypeHierarchy(includeInterfaces).map { it.kotlin }
 
 /**
  * Gets the class hierarchy of the [Class]
- * @see KClass.bottomUpTypeHierarchy
+ * @see KClass.reverseTypeHierarchy
  */
-fun Class<*>.bottomUpTypeHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
+fun Class<*>.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
     this.topDownTypeHierarchy(includeInterfaces).reversed()
 
 /**
  * Gets the class hierarchy of the object's [KClass]
- * @see KClass.bottomUpTypeHierarchy
+ * @see KClass.reverseTypeHierarchy
  */
-fun Any.bottomUpTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
-    this::class.java.bottomUpTypeHierarchy(includeInterfaces).map { it.kotlin }
+fun Any.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+    this::class.java.reverseTypeHierarchy(includeInterfaces).map { it.kotlin }
 
 // Kotlin's method `KClass.supertypes` returns classes as well as interfaces.
 // That's quite inconvenient for us: we want to keep these separate.

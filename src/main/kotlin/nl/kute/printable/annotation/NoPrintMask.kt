@@ -2,6 +2,7 @@ package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
 import java.lang.annotation.Inherited
+import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
  * The [NoPrintMask] annotation can be placed on properties of classes that implement [Printable],
@@ -13,6 +14,7 @@ import java.lang.annotation.Inherited
 @Target(AnnotationTarget.PROPERTY)
 @MustBeDocumented
 @Inherited
+@Retention(RUNTIME)
 annotation class NoPrintMask(
     /** The char to use for masking */
     val mask: Char = '*',

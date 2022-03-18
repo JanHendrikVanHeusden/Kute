@@ -4,6 +4,7 @@ import nl.kute.printable.Printable
 import nl.kute.printable.annotation.PrintOption.Defaults.defaultMaxLength
 import nl.kute.printable.annotation.PrintOption.Defaults.defaultNullString
 import java.lang.annotation.Inherited
+import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
  * The [PrintOption] annotation can be placed on classes that implement [Printable]:
@@ -14,6 +15,7 @@ import java.lang.annotation.Inherited
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 @MustBeDocumented
 @Inherited
+@Retention(RUNTIME)
 annotation class PrintOption(
     /** How to show nulls? Default is "`"null"`" (by [defaultNullString]), but you may opt for something else */
     val showNullAs: String = defaultNullString,
