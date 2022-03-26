@@ -1,7 +1,7 @@
 package nl.kute.reflection.annotation
 
-import nl.kute.reflection.reverseTypeHierarchy
 import nl.kute.reflection.isToString
+import nl.kute.reflection.reverseTypeHierarchy
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberFunctions
@@ -10,7 +10,6 @@ import kotlin.reflect.full.memberFunctions
  * Find any annotation of type [A] on the `::toString` methods of `this` class and any of its superclasses.
  * The entries are ordered by key ([KClass]) from lowest to highest level, so from subclass to superclasses / interfaces.
  */
-@Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
 internal inline fun <reified A : Annotation> Any.annotationsOfToString(): Map<KClass<*>, A> =
     this::class.reverseTypeHierarchy().asSequence()
         .map { kClass ->

@@ -3,7 +3,6 @@ package nl.kute.reflection.annotation
 import nl.kute.printable.annotation.PrintOption
 import org.apiguardian.api.API
 import org.assertj.core.api.Assertions.assertThat
-import org.checkerframework.checker.units.qual.A
 import org.junit.jupiter.api.Test
 import java.lang.annotation.Inherited
 
@@ -28,7 +27,7 @@ internal class ClassAnnotationFinderTest {
     private open class T3 : T2()
 
     /**
-     * Find the annotation of type [A] on the `this` class or any of its superclasses;
+     * Find the annotation of type `A` on the `this` class or any of its superclasses;
      * the annotation at the lowest level is returned, if present at all
      */
     @Test
@@ -58,7 +57,7 @@ internal class ClassAnnotationFinderTest {
     }
 
     /**
-     * Find any annotation of type [A] on `this` class and any of its superclasses.
+     * Find any annotation of type `A` on `this` class and any of its superclasses.
      * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
      */
     @Test
@@ -77,7 +76,7 @@ internal class ClassAnnotationFinderTest {
     }
 
     /**
-     * Find any annotation of type [A] on `this` class and any of its superclasses.
+     * Find any annotation of type `A` on `this` class and any of its superclasses.
      * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
      */
     @Test
@@ -96,7 +95,7 @@ internal class ClassAnnotationFinderTest {
     }
 
     /**
-     * Find any annotation of type [A] on `this` class and any of its superclasses.
+     * Find any annotation of type `A` on `this` class and any of its superclasses.
      * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
      */
     @Test
