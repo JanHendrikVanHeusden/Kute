@@ -1,44 +1,47 @@
 package nl.kute.hashing
 
+import nl.kute.hashing.DigestMethod.CRC32C
+import nl.kute.hashing.DigestMethod.JAVA_HASHCODE
 import nl.kute.hashing.ThreadDigestHelper.Companion.threadCrc32c
 import nl.kute.hashing.ThreadDigestHelper.Companion.threadDigestByAlgorithm
-import java.math.BigInteger
 import java.nio.charset.Charset
 import java.security.MessageDigest
+import java.util.HexFormat
 import java.util.zip.CRC32C as javaUtilCRC32C
+
+val hexFormat: HexFormat = HexFormat.of()
 
 /**
  * Create a hex String based on the [input] object's [hashCode] method
  * @param input The [Any] object to create as hash String for
- * @return The [input]'s [hashCode] as a hexadecimal String
- *         consisting of characters `0..9`, `a..f`, optionally prepended by a minus sign `-`
+ * @return The [input]'s [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`
  */
-fun javaHashString(input: Any): String = input.hashCode().toString(16)
+fun javaHashString(input: Any): String = hexFormat.toHexDigits(input.hashCode())
 
 /**
  * Create a hash String for the given [input] String
  * @param input The [String] to create as hash for
  * @param digestMethod The [DigestMethod] to create the hash with
  * @param charset The [Charset] of the input [String]; default is [Charset.defaultCharset].
- * @return The hash String, as a hexadecimal String
- *         consisting of characters `0..9`, `a..f`, optionally prepended by a minus sign `-`
+ * @return The hash String as a hexadecimal String, consisting of characters `0..9`, `a..f`
  */
 fun hashString(input: String, digestMethod: DigestMethod, charset: Charset = Charset.defaultCharset()): String {
     return when (digestMethod) {
-        DigestMethod.JAVA_HASHCODE ->
+        JAVA_HASHCODE ->
             javaHashString(input)
 
-        DigestMethod.CRC32C -> {
+        CRC32C -> {
             with(threadCrc32c.get()) {
                 this.update(input.toByteArray(charset))
-                this.value.toString(16)
+                val result = hexFormat.toHexDigits(this.value).trimStart('0')
+                if (result == "") "0" else result
             }
         }
         else -> {
             require(!digestMethod.algorithm.isNullOrBlank()) { "No Digest algorithm specified" }
             with(threadDigestByAlgorithm[digestMethod.algorithm]!!.get()) {
                 this.update(input.toByteArray(charset))
-                BigInteger(this.digest()).toString(16)
+                hexFormat.formatHex(this.digest())
             }
         }
     }
@@ -55,25 +58,25 @@ fun hashString(input: String, digestMethod: DigestMethod, charset: Charset = Cha
 enum class DigestMethod(val algorithm: String? = null) {
     /**
      * Simply using the java hashCode.
-     * Length is 8 or 9 when represented as a hex String (9 in case of negative values).
+     * Length is 8 when represented as a hex String.
      */
     JAVA_HASHCODE(null),
 
     /**
      * CRC32C is a fast hash methods with compact output (length 1 to 8), but security is nearly absent.
-     * The resulting hex String may be 0, but never a negative value.
+     * The resulting hex String may be `0`.
      */
     CRC32C(null),
 
     /**
      * SHA1 is considered as one of the better performing hash methods; but not considered secure.
-     * Length is 39 or 40 when represented as a hex String, optionally prepended by a minus sign.
+     * Length is 40 when represented as a hex String.
      */
     SHA1("SHA-1"),
 
     /**
      * MD5 is considered as one of the better performing hash methods; but not considered secure
-     * Length is 39 or 40 when represented as a hex String, optionally prepended by a minus sign.
+     * Length is 32 when represented as a hex String.
      */
     MD5("MD5")
 }

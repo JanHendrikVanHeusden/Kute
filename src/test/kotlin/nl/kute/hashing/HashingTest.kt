@@ -1,13 +1,17 @@
 package nl.kute.hashing
 
+import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.charset.Charset
 import java.time.LocalDateTime
+import java.util.HexFormat
+import kotlin.math.pow
 import kotlin.random.Random
 
 internal class HashingTest {
 
+    private val hexFormat: HexFormat = HexFormat.of()
     private val testStringShort = "my test string"
 
     // String of length ~335k
@@ -17,10 +21,10 @@ internal class HashingTest {
     /** Expected output patterns by digest method */
     private val digestMethodPatterns =
         mapOf(
-            DigestMethod.JAVA_HASHCODE to Regex("^-?(\\d|[a-f]){1,8}$"),
-            DigestMethod.CRC32C to Regex("^-?(\\d|[a-f]){1,8}$"),
-            DigestMethod.SHA1 to Regex("^-?(\\d|[a-f]){39,40}$"),
-            DigestMethod.MD5 to Regex("^-?(\\d|[a-f]){31,32}$")
+            DigestMethod.JAVA_HASHCODE to Regex("^(\\d|[a-f]){8}$"),
+            DigestMethod.CRC32C to Regex("^(\\d|[a-f]){1,8}$"),
+            DigestMethod.SHA1 to Regex("^(\\d|[a-f]){40}$"),
+            DigestMethod.MD5 to Regex("^(\\d|[a-f]){32}$")
         )
 
     @Test
@@ -58,9 +62,16 @@ internal class HashingTest {
             assertHashFormat(testStringShort)
 
             var strLong = testStringLong
-            repeat(40) {
+            repeat(100) {
                 strLong += "something"
                 assertHashFormat(strLong)
+            }
+            (1..20).forEach {
+                // Lengths up to 1_048_576 (generation & assertion of strings larger than that takes too long)
+                val length = 2.0.pow(it.toDouble()).toInt()
+                repeat(3) {
+                    assertHashFormat(RandomStringUtils.random(length))
+                }
             }
         }
     }
@@ -68,25 +79,25 @@ internal class HashingTest {
     @Test
     fun `test that String hashing with JAVA_HASHCODE digest yields same result as java hashCode`() {
         val hashShortString = hashString(testStringShort, DigestMethod.JAVA_HASHCODE)
-        assertThat(hashShortString).isEqualTo(testStringShort.hashCode().toString(16))
+        assertThat(hashShortString).isEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
 
         val hashLongString = hashString(testStringLong, DigestMethod.JAVA_HASHCODE)
-        assertThat(hashLongString).isEqualTo(testStringLong.hashCode().toString(16))
+        assertThat(hashLongString).isEqualTo(hexFormat.toHexDigits(testStringLong.hashCode()))
     }
 
     @Test
     fun `test that String hashing with CRC32C yields different result as java hashCode`() {
         val hashShortString = hashString(testStringShort, DigestMethod.CRC32C)
-        assertThat(hashShortString).isNotEqualTo(testStringShort.hashCode().toString(16))
+        assertThat(hashShortString).isNotEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
 
         val hashLongString = hashString(testStringLong, DigestMethod.CRC32C)
-        assertThat(hashLongString).isNotEqualTo(testStringLong.hashCode().toString(16))
+        assertThat(hashLongString).isNotEqualTo(hexFormat.toHexDigits(testStringLong.hashCode()))
     }
 
     @Test
     fun `test that Object hashing with javaHashCode yields same result as java hashCode`() {
         listOf(Any(), LocalDateTime.now(), Random.nextInt(), Random.nextBytes(200)).forEach {
-            assertThat(javaHashString(it)).isEqualTo(it.hashCode().toString(16))
+            assertThat(javaHashString(it)).isEqualTo(hexFormat.toHexDigits(it.hashCode()))
         }
     }
 
