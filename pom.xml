@@ -19,7 +19,7 @@
 
         <!-- java, kotlin -->
         <java.version>17</java.version>
-        <java.target.version>17</java.target.version>
+        <java.target.version>14</java.target.version>
         <kotlin.version>1.6.10</kotlin.version>
 
         <!-- maven -->

@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 /**
  * Gets the class hierarchy of the `this` receiver, ordered like this:
  * 1. any interfaces, in order of hierarchy; super interfaces first
- * 2. any super classes, in order of hierarchy, up to but excluding [Any]; super classes first
+ * 2. any super types, in order of hierarchy, up to but excluding [Any]; super types first
  * 3. the class itself
  * @return class hierarchy as an unmodifiable list
  */

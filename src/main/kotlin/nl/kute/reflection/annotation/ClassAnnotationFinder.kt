@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 /**
- * Find the annotation of type [A] on the `this` class or any of its superclasses;
+ * Find the annotation of type [A] on the `this` class or its super types;
  * the annotation at the lowest level is returned, if present at all.
  * @return The result respects the `@Inherited` meta annotation.
  *         So the requested annotation (if present at all) is returned only if either:
@@ -18,11 +18,13 @@ internal inline fun <reified A : Annotation> KClass<*>.annotationOfClass(): A? =
     this.java.getAnnotation(A::class.java)
 
 /**
- * Find any annotation of type [A] on `this` class and any of its superclasses.
- * The annotations are returned regardless whether marked as `@Inherited`
- * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
+ * Find any annotation of type [A] on `this` class and its super types.
+ * * The annotations are returned regardless whether marked as `@Inherited`
+ * * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
+ * @param includeInterfaces * if `true`, annotations of super interfaces are included in the result
+ *                          * if `false`, annotations of super interfaces are not included in the result
  */
-internal inline fun <reified A : Annotation> KClass<*>.annotationsOfClass(includeInterfaces: Boolean = false): Map<KClass<*>, A> =
+internal inline fun <reified A : Annotation> KClass<*>.annotationsOfClass(includeInterfaces: Boolean = true): Map<KClass<*>, A> =
     this.reverseTypeHierarchy().asSequence()
         .map { kClass -> kClass to kClass.findAnnotation<A>() }
         .filter { includeInterfaces || !it.first.java.isInterface }

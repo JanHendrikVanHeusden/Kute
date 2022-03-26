@@ -1,21 +1,20 @@
 package nl.kute.reflection.annotation
 
-import nl.kute.reflection.reverseTypeHierarchy
 import kotlin.reflect.KClass
-import kotlin.reflect.full.findAnnotation
 
 /**
- * Find any annotation of type [A] on `this` class and any of its superclasses.
- * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
+ * Find any annotation of type [A] on `this` class and its super types.
+ * * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
+ * * The annotations are returned regardless whether marked as `@Inherited`
+ * @param includeInterfaces * if `true`, annotations of super interfaces are included in the result
+ *                          * if `false`, annotations of super interfaces are not included in the result
  */
-internal inline fun <reified A : Annotation> Any.annotationsOfClass(): Map<KClass<*>, A> =
-    this::class.reverseTypeHierarchy().asSequence()
-        .map { kClass -> kClass to kClass.findAnnotation<A>() }
-        .filter { it.second != null }
-        .associate { it.first to it.second!! }
+internal inline fun <reified A : Annotation> Any.annotationsOfClass(includeInterfaces: Boolean = true): Map<KClass<*>, A> =
+    this::class.annotationsOfClass(includeInterfaces)
 
 /**
- * Find the annotation of type [A] on `this` object or any of its supertypes;
+ * Find the annotation of type [A] on `this` object or its super types.
  * the annotation at the lowest level (deepest subclass) where it is defined is returned, if present at all
  */
-internal inline fun <reified A : Annotation> Any.annotationOfClass(): A? = this::class.annotationOfClass()
+internal inline fun <reified A : Annotation> Any.annotationOfClass(): A? =
+    this::class.annotationOfClass()

@@ -27,7 +27,7 @@ internal class ClassAnnotationFinderTest {
     private open class T3 : T2()
 
     /**
-     * Find the annotation of type `A` on the `this` class or any of its superclasses;
+     * Find the annotation of type `A` on the `this` class or its super types;
      * the annotation at the lowest level is returned, if present at all
      */
     @Test
@@ -57,27 +57,37 @@ internal class ClassAnnotationFinderTest {
     }
 
     /**
-     * Find any annotation of type `A` on `this` class and any of its superclasses.
-     * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
+     * Find any annotation of type `A` on `this` class and its super classes.
+     * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
      */
     @Test
-    fun `annotationsOfClass should return the annotations in order from subclass to superclass, and exclude interfaces`() {
+    fun `annotationsOfClass should return the annotations in order, and include or exclude interfaces as specified`() {
         val t2expected = PrintOption(showNullAs = "T2", maxLength = 200)
         val t0expected = PrintOption(showNullAs = "T0", maxLength = 100)
+        val iExpected = PrintOption(showNullAs = "I", maxLength = 10)
 
         val printOptionAnnotations = T3::class.annotationsOfClass<PrintOption>()
         assertThat(printOptionAnnotations)
-            .hasSize(2)
-            .isEqualTo(T3::class.annotationsOfClass<PrintOption>(includeInterfaces = false))
+            .hasSize(3)
+            .isEqualTo(T3::class.annotationsOfClass<PrintOption>(includeInterfaces = true))
 
-        val pairList = printOptionAnnotations.map { Pair(it.key, it.value) }.toList()
+        var pairList = printOptionAnnotations.toList()
+        assertThat(pairList[0]).isEqualTo(Pair(T2::class, t2expected))
+        assertThat(pairList[1]).isEqualTo(Pair(T0::class, t0expected))
+        assertThat(pairList[2]).isEqualTo(Pair(I::class, iExpected))
+
+        val printOptionAnnotationsNoInterface = T3::class.annotationsOfClass<PrintOption>(false)
+        assertThat(printOptionAnnotationsNoInterface)
+            .hasSize(2)
+
+        pairList = printOptionAnnotationsNoInterface.toList()
         assertThat(pairList[0]).isEqualTo(Pair(T2::class, t2expected))
         assertThat(pairList[1]).isEqualTo(Pair(T0::class, t0expected))
     }
 
     /**
-     * Find any annotation of type `A` on `this` class and any of its superclasses.
-     * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
+     * Find any annotation of type `A` on `this` class and its super types.
+     * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
      */
     @Test
     fun `annotationsOfClass should find annotations regardless of Inherited annotation`() {
@@ -95,8 +105,8 @@ internal class ClassAnnotationFinderTest {
     }
 
     /**
-     * Find any annotation of type `A` on `this` class and any of its superclasses.
-     * The annotations are ordered from lowest to highest level, so from subclass to superclasses / interfaces.
+     * Find any annotation of type `A` on `this` class and its super types.
+     * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
      */
     @Test
     fun `annotationsOfClass should include annotations on interface if specified so`() {

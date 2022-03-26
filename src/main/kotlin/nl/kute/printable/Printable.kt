@@ -101,7 +101,7 @@ interface Printable {
     private fun getClassHierarchy(theClass: KClass<Any> = this::class as KClass<Any>): Set<KClass<Any>> {
         val kClasses: MutableSet<KClass<Any>> = linkedSetOf()
         theClass.superclasses.filterNot { it == Any::class }.forEach {
-            // add superclasses first
+            // add super types first
             kClasses.addAll(getClassHierarchy(it as KClass<Any>))
         }
         // ad self; so additional subclass properties are appended at the end
