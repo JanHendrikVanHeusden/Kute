@@ -20,25 +20,25 @@
         <!-- java, kotlin -->
         <java.version>17</java.version>
         <java.target.version>14</java.target.version>
-        <kotlin.version>1.6.10</kotlin.version>
+        <kotlin.version>1.8.21</kotlin.version>
 
         <!-- maven -->
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.target.version}</maven.compiler.target>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
 
         <!-- test -->
-        <mockito-kotlin.version>4.0.0</mockito-kotlin.version>
+        <mockito-kotlin.version>4.1.0</mockito-kotlin.version>
         <mockito-inline.version>4.2.0</mockito-inline.version>
         <archunit.version>0.19.0</archunit.version>
-        <org-junit-jupiter.version>5.8.2</org-junit-jupiter.version>
-        <org-assertj.version>3.22.0</org-assertj.version>
+        <org-junit-jupiter.version>5.9.3</org-junit-jupiter.version>
+        <org-assertj.version>3.24.2</org-assertj.version>
         <commons-lang3.version>3.12.0</commons-lang3.version> <!-- Test only! -->
 
         <!-- dev/ops stuff -->
-        <owasp.version>7.0.1</owasp.version>
+        <owasp.version>8.2.1</owasp.version>
         <ktlint.version>0.43.2</ktlint.version>
     </properties>
 
