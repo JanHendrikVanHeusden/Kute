@@ -1,4 +1,4 @@
-package nl.kute.test.helper;
+package nl.kute.test.java.printable;
 
 /** For use by [PrintableTest] */
 @SuppressWarnings("unused")

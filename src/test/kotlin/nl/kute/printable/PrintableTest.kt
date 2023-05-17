@@ -1,6 +1,6 @@
 package nl.kute.printable
 
-import nl.kute.test.helper.JavaClassToTestPrintable
+import nl.kute.test.java.printable.JavaClassToTestPrintable
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
