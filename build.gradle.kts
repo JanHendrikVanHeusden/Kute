@@ -1,6 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import org.jetbrains.dokka.gradle.DokkaTask
 import java.util.Locale
 
 group = "nl.kute"
@@ -20,11 +19,15 @@ repositories {
 }
 
 plugins {
-    kotlin("jvm") version "1.8.10"
+    // Do not use 1.8.21, it gives this problem:
+    //    Unable to find a variant of org.jetbrains.kotlin:kotlin-test:1.8.21 providing
+    //    the requested capability org.jetbrains.kotlin:kotlin-test-framework-junit5
+    kotlin("jvm") version "1.8.20"
+
     `java-library`
     `maven-publish`
     id("org.owasp.dependencycheck") version "8.2.1"
-    id("com.github.ben-manes.versions") version "+"
+    id("com.github.ben-manes.versions") version "0.46.0"
     id("jacoco")
     id("idea")
     id("org.jetbrains.dokka") version "1.8.10"
@@ -34,7 +37,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.4.30")
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.8.10")
 
     // Used in tests only.
     // Do not use it in source code, packaged Kute should not rely on any external dependency
@@ -42,7 +45,7 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("io.kotest:kotest-runner-junit5:5.6.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.6.2")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.3")
@@ -90,12 +93,15 @@ dependencyCheck {
 }
 
 tasks.withType<DependencyUpdatesTask> {
+    // In Gradle widget, this task can be found under Tasks -> help
+    // (do not confuse with tasks under `owasp dependency-check`
     outputDir = "build/reports/dependencies"
     reportfileName = "dependencies-report" // .txt will be added implicitly
     rejectVersionIf {
         isVersionNonStable(this.candidate.version) && !isVersionNonStable(this.currentVersion)
     }
 }
+
 
 fun isVersionNonStable(version: String): Boolean {
     val hasStableKeyword = listOf("RELEASE", "FINAL", "GA")
