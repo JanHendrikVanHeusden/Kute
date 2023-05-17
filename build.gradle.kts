@@ -7,6 +7,31 @@ version = "1.0-SNAPSHOT"
 description = "Kute"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        jvmTarget = "17"
+    }
+}
+
+sourceSets.main {
+    java.srcDirs("src/main/kotlin")
+}
+
+sourceSets.test {
+    // To tell Gradle not to look in "src/test/java" (for Java classes)
+    java.srcDirs("src/test/kotlin")
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform() // JUnit 5
+}
+
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -18,65 +43,56 @@ repositories {
     }
 }
 
+fun property(name: String) = properties[name] as String
+
 plugins {
-    // Do not use 1.8.21, it gives this problem:
-    //    Unable to find a variant of org.jetbrains.kotlin:kotlin-test:1.8.21 providing
-    //    the requested capability org.jetbrains.kotlin:kotlin-test-framework-junit5
-    kotlin("jvm") version "1.8.20"
+    // Values retrieved from gradle.properties
+    // This seems about the only way; you cannot retrieve them otherwise from outside the plugins' scope
+    val kotlinVersion: String by System.getProperties()
+    val owaspDependencyCheckVersion: String by System.getProperties()
+    val dependencyCheckVersion: String by System.getProperties()
+    val dokkaVersion: String by System.getProperties()
+
+    kotlin("jvm") version kotlinVersion
 
     `java-library`
     `maven-publish`
-    id("org.owasp.dependencycheck") version "8.2.1"
-    id("com.github.ben-manes.versions") version "0.46.0"
+    id("org.owasp.dependencycheck") version owaspDependencyCheckVersion
+    id("com.github.ben-manes.versions") version dependencyCheckVersion
     id("jacoco")
     id("idea")
-    id("org.jetbrains.dokka") version "1.8.10"
+    id("org.jetbrains.dokka") version dokkaVersion
 }
 
 dependencies {
+    val dokkaVersion by System.getProperties()
+    val jupiterVersion by System.getProperties()
+    val kotestRunnerVersion by System.getProperties()
+    val mockitoKotlinVersion by System.getProperties()
+    val assertJVersion by System.getProperties()
+    val commonsLangVersion by System.getProperties()
+
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.8.10")
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 
     // Used in tests only.
     // Do not use it in source code, packaged Kute should not rely on any external dependency
-    testImplementation("org.apache.commons:commons-lang3:3.12.0")
+    testImplementation("org.apache.commons:commons-lang3:$commonsLangVersion")
 
+    // These inherit version from Kotlin version
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("io.kotest:kotest-runner-junit5:5.6.2")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestRunnerVersion")
 
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
-    testImplementation("org.assertj:assertj-core:3.24.2")
-}
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
 
-sourceSets.main {
-    java.srcDirs("src/main/kotlin")
-}
-
-sourceSets.test {
-    // To tell Gradle does not to look in "src/test/java" (for Java classes)
-    java.srcDirs("src/test/kotlin")
-}
-
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
-    }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
+    testImplementation("org.assertj:assertj-core:$assertJVersion")
 }
 
 dependencyCheck {
