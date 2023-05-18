@@ -95,11 +95,14 @@ class PrintableTest {
     }
 
     @Test
-    fun `properties with loooooooooooong values should be capped at 500 chars`() {
+    fun `loooooooooooong array string representations should be capped at 500 chars`() {
         val array = IntArray(1000).map { it.toString() }.toTypedArray()
         val classWithArrayString = ClassWithArray(array).asString()
         assertThat(classWithArrayString.length).isEqualTo(500 + ClassWithArray::class.simpleName!!.length + "(array=)".length)
+    }
 
+    @Test
+    fun `properties with loooooooooooong values should be capped at 500 chars`() {
         val longStr = RandomStringUtils.randomAlphabetic(800)
         assertThat(ClassToPrint(longStr, 1, null).toString().length)
             .isEqualTo(ClassToPrint("", 1, null).toString().length + 500)

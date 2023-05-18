@@ -14,10 +14,9 @@ internal fun <V: Any?> getPropValue(property: KProperty0<V>): V? {
 
 internal fun <V: Any?> getPropValueSafe(property: KProperty0<V>): V? {
     return try {
+        // Might throw IllegalAccessException if a SecurityManager is active
         getPropValue(property)
     } catch (e: Exception) {
-        // Might throw IllegalAccessException if a SecurityManager is active
-        // TODO: add logging
         null
     }
 }
@@ -34,8 +33,8 @@ internal fun <T: Any, V: Any?> T.getPropValueSafe(property: KProperty1<T, V>): V
     return try {
         this.getPropValue(property)
     } catch (e: Exception) {
-        // Might throw IllegalAccessException if a SecurityManager is active
-        // TODO: add logging
+        // no logging framework present, so we only can use standard output
+        println("${e.javaClass.simpleName} occurred when retrieving value of property [${this.javaClass.canonicalName}.${property.name}]; exception message = [${e.message}]")
         null
     }
 }

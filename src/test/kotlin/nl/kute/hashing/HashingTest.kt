@@ -3,6 +3,8 @@ package nl.kute.hashing
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import java.nio.charset.Charset
 import java.time.LocalDateTime
 import java.util.HexFormat
@@ -101,25 +103,32 @@ internal class HashingTest {
         }
     }
 
-    @Test
-    fun `test that encodings are taken into account as expected`() {
+    @ParameterizedTest
+    @EnumSource(DigestMethod::class)
+    fun `test that encodings are taken into account as expected`(digestMethod: DigestMethod) {
         val str1 = "¥⒂"
         val str2 = "¬"
-        // java hash is wilfully ignorant of encoding
-        var hashGB2312 = hashString(str1, DigestMethod.JAVA_HASHCODE, charset = Charset.forName("GB2312"))
-        var hashUTF8 = hashString(str1, DigestMethod.JAVA_HASHCODE, charset = Charset.forName("UTF8"))
-        assertThat(hashGB2312).isEqualTo(hashUTF8)
+        if (digestMethod == DigestMethod.JAVA_HASHCODE) {
+            // java hash is wilfully ignorant of encoding
+            val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
+            val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
+            assertThat(hash1GB2312).isEqualTo(hash1UTF8)
+        }
+        else {
+            // other digesters take character set in account
+                val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
+                val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
+                assertThat(hash1GB2312).isNotEqualTo(hash1UTF8)
 
-        // other digesters take character set in account
-        DigestMethod.values().filter { it != DigestMethod.JAVA_HASHCODE }.forEach {
-            hashGB2312 = hashString(str1, it, charset = Charset.forName("GB2312"))
-            hashUTF8 = hashString(str1, it, charset = Charset.forName("UTF8"))
-            assertThat(hashGB2312).isNotEqualTo(hashUTF8)
-
-            val hashISO88591 = hashString(str2, DigestMethod.MD5, Charset.forName("ISO-8859-1"))
-            hashUTF8 = hashString(str2, DigestMethod.MD5, Charset.forName("UTF8"))
-            assertThat(hashISO88591).isNotEqualTo(hashUTF8)
+                val hash2ISO88591 = hashString(str2, digestMethod, Charsets.ISO_8859_1)
+                val hash2UTF8 = hashString(str2, digestMethod, Charsets.UTF_8)
+                assertThat(hash2ISO88591).isNotEqualTo(hash2UTF8)
         }
     }
 
+    @ParameterizedTest
+    @EnumSource(DigestMethod::class)
+    fun `test null safety of hashing`(digestMethod: DigestMethod) {
+        assertThat(hashString(null, digestMethod, Charsets.UTF_8)).isNull()
+    }
 }

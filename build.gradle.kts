@@ -66,7 +66,6 @@ plugins {
 }
 
 dependencies {
-    val kotlinCoroutinesVersion by System.getProperties()
     val dokkaVersion by System.getProperties()
     val jupiterVersion by System.getProperties()
     val kotestRunnerVersion by System.getProperties()
@@ -76,7 +75,6 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 
@@ -92,6 +90,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
 
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
