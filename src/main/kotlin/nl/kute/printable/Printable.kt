@@ -143,7 +143,6 @@ interface Printable {
     }
 }
 
-class PrintableClass: Printable {
+class DefaultPrintable: Printable {
     override fun toString(): String = asString()
-
 }
