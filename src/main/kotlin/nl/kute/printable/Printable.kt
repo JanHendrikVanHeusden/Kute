@@ -142,7 +142,3 @@ interface Printable {
         const val maxValueLength: Int = 500
     }
 }
-
-class DefaultPrintable: Printable {
-    override fun toString(): String = asString()
-}
