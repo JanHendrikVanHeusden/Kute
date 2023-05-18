@@ -25,16 +25,17 @@ fun javaHashString(input: Any): String = hexFormat.toHexDigits(input.hashCode())
  * @param charset The [Charset] of the input [String]; default is [Charset.defaultCharset].
  * @return The hash String as a hexadecimal String, consisting of characters `0..9`, `a..f`
  */
-fun hashString(input: String, digestMethod: DigestMethod, charset: Charset = Charset.defaultCharset()): String {
+fun hashString(input: String?, digestMethod: DigestMethod, charset: Charset = Charset.defaultCharset()): String? {
+    if (input == null) {
+        return null
+    }
     return when (digestMethod) {
         JAVA_HASHCODE ->
             javaHashString(input)
 
         CRC32C -> {
             with(threadCrc32c.get()) {
-                this.update(input.toByteArray(charset))
-                val result = hexFormat.toHexDigits(this.value).trimStart('0')
-                if (result == "") "0" else result
+                hashCrc32C(input, charset)
             }
         }
         else -> {
@@ -46,6 +47,15 @@ fun hashString(input: String, digestMethod: DigestMethod, charset: Charset = Cha
         }
     }
 }
+
+@Synchronized // Crc32C is not thread safe
+// FIXME: make coroutine safe
+private fun javaUtilCRC32C.hashCrc32C(input: String, charset: Charset): String {
+    this.update(input.toByteArray(charset))
+    val result = hexFormat.toHexDigits(this.value).trimStart('0')
+    return if (result == "") "0" else result
+}
+
 
 /**
  * Hash algorithms; typical usage is to avoid exposing sensitive or personally identifiable data in logging etc.
@@ -91,6 +101,8 @@ private class ThreadDigestHelper {
         val threadDigestByAlgorithm: MutableMap<String, ThreadLocal<MessageDigest>> = mutableMapOf()
         val threadCrc32c: ThreadLocal<javaUtilCRC32C> = ThreadLocal.withInitial { javaUtilCRC32C() }
 
+        @Synchronized
+        // FIXME: make coroutine safe
         private fun messageDigestThreadLocal(algorithm: String): ThreadLocal<MessageDigest> =
             ThreadLocal.withInitial { MessageDigest.getInstance(algorithm) }
 

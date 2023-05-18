@@ -1,5 +1,6 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
 
 group = "nl.kute"
@@ -65,6 +66,7 @@ plugins {
 }
 
 dependencies {
+    val kotlinCoroutinesVersion by System.getProperties()
     val dokkaVersion by System.getProperties()
     val jupiterVersion by System.getProperties()
     val kotestRunnerVersion by System.getProperties()
@@ -74,6 +76,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 

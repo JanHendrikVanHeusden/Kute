@@ -4,7 +4,7 @@ import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.isAccessible
 
-internal fun <V: Any?> getPropValue(property: KProperty0<V>): V {
+internal fun <V: Any?> getPropValue(property: KProperty0<V>): V? {
     if (!property.isAccessible) {
         // Might throw IllegalAccessException otherwise
         property.isAccessible = true
@@ -22,7 +22,7 @@ internal fun <V: Any?> getPropValueSafe(property: KProperty0<V>): V? {
     }
 }
 
-internal fun <T: Any, V: Any?> T.getPropValue(property: KProperty1<T, V>): V {
+internal fun <T: Any, V: Any?> T.getPropValue(property: KProperty1<T, V>): V? {
     if (!property.isAccessible) {
         // Might throw IllegalAccessException otherwise
         property.isAccessible = true

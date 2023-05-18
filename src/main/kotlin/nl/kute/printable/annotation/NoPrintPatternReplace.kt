@@ -1,8 +1,11 @@
 package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
+import nl.kute.reflection.annotation.annotationOfProperty
+import nl.kute.reflection.getPropValueSafe
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.reflect.KProperty1
 
 /**
  * The [NoPrintPatternReplace] annotation can be placed on properties of classes that implement [Printable],
@@ -33,3 +36,16 @@ annotation class NoPrintPatternReplace(
     val replacement: String
 
 )
+
+fun <T: Any, V: Any?>replacePattern(obj: T, prop: KProperty1<T, V>): String? {
+    val strVal = (obj.getPropValueSafe(prop) ?: return null).toString()
+    with (prop.annotationOfProperty<NoPrintPatternReplace>() ?: return strVal) {
+        return try {
+            strVal.replace(Regex(pattern), replacement)
+        } catch (e: Exception) {
+            // no logging framework present, so we only can use standard output
+            println("${e.javaClass.simpleName} occurred when replacing value using pattern $pattern; exception message = [${e.message}]")
+            ""
+        }
+    }
+}

@@ -1,12 +1,22 @@
 package nl.kute.printable
 
+import nl.kute.hashing.hashString
+import nl.kute.printable.annotation.NoPrintHash
+import nl.kute.printable.annotation.NoPrintMask
+import nl.kute.printable.annotation.NoPrintOmit
+import nl.kute.printable.annotation.NoPrintPatternReplace
 import nl.kute.printable.annotation.PrintOption
 import nl.kute.printable.annotation.PrintOption.Defaults.defaultMaxLength
 import nl.kute.printable.annotation.PrintOption.Defaults.defaultNullString
+import nl.kute.printable.annotation.defaultDigestMethod
+import nl.kute.printable.annotation.mask
+import nl.kute.printable.annotation.replacePattern
+import nl.kute.reflection.annotation.annotationOfProperty
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.isAccessible
@@ -56,8 +66,9 @@ interface Printable {
             ?: (propertiesFromHierarchy().also { propertyCache[this::class as KClass<Any>] = it })
         return properties
             .filterNot { propNamesToExclude.contains(it.name) }
+            .filterNot { it.hasAnnotation<NoPrintOmit>() }
             .joinToString(", ", prefix = "${this::class.simpleName ?: this::class.toString()}(", ")") {
-                "${it.name}=${getPropValue(it).take(maxValueLength)}"
+                "${it.name}=${getPropValueString(it)?.take(maxValueLength)}"
             }
     }
 
@@ -66,13 +77,29 @@ interface Printable {
     override fun toString(): String
 
     /** @return for [Array]s: [Array.contentDeepToString]; otherwise: [toString] of the property */
-    private fun getPropValue(prop: KProperty1<Any, *>): String {
-        val value = prop.get(this) ?: return "null"
-        return if (value is Array<*>)
+    private fun getPropValueString(prop: KProperty1<Any, *>): String? {
+        val value: Any? = prop.get(this)
+        if (value is Array<*>)
             @Suppress("UNCHECKED_CAST")
-            (prop.get(this) as Array<out Any>).contentDeepToString()
-        else
-            value.toString()
+            return (prop.get(this) as Array<out Any>).contentDeepToString()
+        else {
+            var strValue = value?.toString()
+            if (prop.hasAnnotation<NoPrintOmit>()) {
+                return "";
+            }
+            if (prop.hasAnnotation<NoPrintPatternReplace>()) {
+                strValue = replacePattern(this, prop)!!
+            }
+            if (prop.hasAnnotation<NoPrintMask>()) {
+                strValue = mask(this, prop)
+            }
+            if (prop.hasAnnotation<NoPrintHash>()) {
+                val digestMethod = prop.annotationOfProperty<NoPrintHash>()?.digestMethod ?: defaultDigestMethod
+                strValue = hashString(strValue, digestMethod)
+            }
+            return strValue
+        }
+
     }
 
     private fun propertiesFromHierarchy(): Collection<KProperty1<Any, *>> {

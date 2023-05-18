@@ -5,6 +5,8 @@ import nl.kute.printable.Printable
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
+val defaultDigestMethod = DigestMethod.CRC32C
+
 /**
  * The [NoPrintHash] annotation can be placed on properties of classes that implement [Printable],
  * to indicate that the property is included in the return value of [Printable.asString], but

@@ -38,11 +38,11 @@ internal class HashingTest {
             fun assertHashFormat(input: String) {
                 // assert that results adhere to expected format
                 with(hashString(input, digestMethod)) {
-                    assertThat(pattern.matches(this))
+                    assertThat(this?.let { pattern.matches(it) })
                         .`as`("$digestMethod hash result [$this] does not match \"${pattern.pattern}\"; input = \"$input\"")
                         .isTrue
                     // convert from hex string to numeric; wrong format would cause NumberFormatException
-                    this.toBigInteger(radix = 16)
+                    this?.toBigInteger(radix = 16)
 
                     // duplicates (collisions) are definitely possible and acceptable,
                     // especially for the smaller hashes (java hash and CRC32(c)).
