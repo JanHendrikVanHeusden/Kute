@@ -73,6 +73,7 @@ interface Printable {
     }
 
     // To force override of toString()
+    // Note that an interface is not allowed to override a method of `Any`, so we can't provide a default implementation :-(
     @PrintOption(maxLength = defaultMaxLength, showNullAs = defaultNullString)
     override fun toString(): String
 
@@ -85,7 +86,7 @@ interface Printable {
         else {
             var strValue = value?.toString()
             if (prop.hasAnnotation<NoPrintOmit>()) {
-                return "";
+                return ""
             }
             if (prop.hasAnnotation<NoPrintPatternReplace>()) {
                 strValue = replacePattern(this, prop)!!
@@ -140,4 +141,9 @@ interface Printable {
         private val propertyCache: MutableMap<KClass<Any>, Collection<KProperty1<Any, *>>> = ConcurrentHashMap()
         const val maxValueLength: Int = 500
     }
+}
+
+class PrintableClass: Printable {
+    override fun toString(): String = asString()
+
 }
