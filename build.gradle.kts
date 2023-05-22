@@ -1,4 +1,3 @@
-
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
@@ -15,23 +14,9 @@ tasks.withType<KotlinCompile> {
     }
 }
 
-sourceSets.main {
-    java.srcDirs("src/main/kotlin")
-}
-
-sourceSets.test {
-    // To tell Gradle not to look in "src/test/java" (for Java classes)
-    java.srcDirs("src/test/kotlin")
-}
-
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
-
-tasks.withType<Test> {
-    useJUnitPlatform() // JUnit 5
-}
-
 
 repositories {
     mavenLocal()
@@ -43,8 +28,6 @@ repositories {
         url = uri("https://jitpack.io")
     }
 }
-
-fun property(name: String) = properties[name] as String
 
 plugins {
     // Values retrieved from gradle.properties
@@ -67,34 +50,7 @@ plugins {
 
 dependencies {
     val dokkaVersion by System.getProperties()
-    val jupiterVersion by System.getProperties()
-    val kotestRunnerVersion by System.getProperties()
-    val mockitoKotlinVersion by System.getProperties()
-    val assertJVersion by System.getProperties()
-    val commonsLangVersion by System.getProperties()
-
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
-
-    // Used in tests only.
-    // Do not use it in source code, packaged Kute should not rely on any external dependency
-    testImplementation("org.apache.commons:commons-lang3:$commonsLangVersion")
-
-    // These inherit version from Kotlin version
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestRunnerVersion")
-
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
-
-    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
-    testImplementation("org.assertj:assertj-core:$assertJVersion")
 }
 
 dependencyCheck {
