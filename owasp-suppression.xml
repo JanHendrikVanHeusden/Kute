@@ -22,6 +22,69 @@
     </suppress>
 
 
+    <!-- Suppress temporarily, Gson is not packaged currently, currently used by IntelliJ / code analysis only -->
+    <suppress until="2023-11-16Z">
+        <notes><![CDATA[
+   file name: kotlin-analysis-intellij-1.8.10.jar (shaded: com.google.code.gson:gson:2.8.8)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
+        <cve>CVE-2022-25647</cve>
+    </suppress>
+
+    <!-- Suppress temporarily, protobuf is not packaged currently, currently used by IntelliJ / code analysis only -->
+    <suppress until="2023-11-16Z">
+        <notes><![CDATA[
+   file name: kotlin-analysis-intellij-1.8.10.jar (shaded: com.google.protobuf:protobuf-java:2.6.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
+        <cpe>cpe:/a:google:protobuf-java</cpe>
+    </suppress>
+    <suppress until="2023-11-16Z">
+        <notes><![CDATA[
+   file name: kotlin-analysis-intellij-1.8.10.jar (shaded: com.google.protobuf:protobuf-java:2.6.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-3509</vulnerabilityName>
+    </suppress>
+    <suppress until="2023-11-16Z">
+        <notes><![CDATA[
+   file name: kotlin-analysis-intellij-1.8.10.jar (shaded: com.google.protobuf:protobuf-java:2.6.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
+        <vulnerabilityName>CVE-2021-22569</vulnerabilityName>
+    </suppress>
+
+
+    <!-- Suppress temporarily, currently used by Dokka only (not packaged) -->
+    <suppress until="2023-11-16Z">
+        <notes><![CDATA[
+   file name: woodstox-core-6.2.4.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.woodstox/woodstox\-core@.*$</packageUrl>
+        <cpe>cpe:/a:fasterxml:woodstox</cpe>
+    </suppress>
+    <suppress until="2023-11-16Z">
+        <notes><![CDATA[
+   file name: woodstox-core-6.2.4.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.woodstox/woodstox\-core@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-40152</vulnerabilityName>
+    </suppress>
+    <suppress until="2023-11-16Z">
+        <notes><![CDATA[
+   file name: gfm-template-processing-plugin-1.8.10.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.dokka/gfm\-template\-processing\-plugin@.*$</packageUrl>
+        <cve>CVE-2018-1000840</cve>
+    </suppress>
+    <suppress until="2023-11-16Z">
+        <notes><![CDATA[
+   file name: jekyll-template-processing-plugin-1.8.10.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.dokka/jekyll\-template\-processing\-plugin@.*$</packageUrl>
+        <cpe>cpe:/a:processing:processing</cpe>
+    </suppress>
+
     <!-- Suppress, Maven itself is not packaged -->
     <suppress>
         <notes><![CDATA[
@@ -44,7 +107,6 @@
         <packageUrl regex="true">^pkg:maven/org\.apache\.maven\.shared/maven\-shared\-utils@.*$</packageUrl>
         <cve>CVE-2022-29599</cve>
     </suppress>
-
 
     <!-- Suppress, H2 is not packaged, used by dependency check only -->
     <suppress>
