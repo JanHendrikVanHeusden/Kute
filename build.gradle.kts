@@ -10,7 +10,7 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 }
 
@@ -27,6 +27,7 @@ repositories {
     maven {
         url = uri("https://jitpack.io")
     }
+    gradlePluginPortal()
 }
 
 plugins {
@@ -46,6 +47,7 @@ plugins {
     id("jacoco")
     id("idea")
     id("org.jetbrains.dokka") version dokkaVersion
+    id("com.google.devtools.ksp") version "1.8.20-1.0.11"
 }
 
 dependencies {

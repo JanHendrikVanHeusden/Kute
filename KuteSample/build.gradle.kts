@@ -18,15 +18,17 @@ tasks.withType<Test> {
 }
 
 sourceSets.main {
-    kotlin.srcDirs("src/main/kotlin")
+    kotlin.srcDirs(
+        "src/main/kotlin",
+        "$buildDir/generated/ksp/main/kotlin/nl/kute/sample/generated" // to make ksp generated classes visible for the IDE
+    )
 }
 
 sourceSets.test {
-    kotlin.srcDirs("src/main/kotlin")
-    // To tell Gradle not to look in "src/test/java" for Java classes
-    // (we have a few Java classes there as test objects to verify that functionality also works
-    // with Kotlin classes that inherit from Java classes)
-    java.srcDirs("src/test/kotlin")
+    kotlin.srcDirs(
+        "src/main/kotlin",
+        "$buildDir/generated/ksp/test/kotlin/nl/kute/sample/generated" // to make ksp generated classes visible for the IDE
+    )
 }
 
 repositories {
@@ -45,6 +47,8 @@ plugins {
     `maven-publish`
     id("jacoco")
     id("idea")
+    id("com.google.devtools.ksp") version "1.8.20-1.0.11"
+
     id("org.jetbrains.dokka") version dokkaVersion
 }
 
@@ -55,6 +59,11 @@ dependencies {
     val mockitoKotlinVersion by System.getProperties()
     val assertJVersion by System.getProperties()
     val commonsLangVersion by System.getProperties()
+
+    implementation((project(":KuteCore"))) // to get access to the annotations in KuteCore
+
+    implementation(project(":KuteAnnotationProcessor")) // the annotation processor, which uses KSP
+    ksp(project(":KuteAnnotationProcessor")) // to make KSP work
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
