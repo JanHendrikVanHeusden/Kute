@@ -1,14 +1,14 @@
 package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
-import nl.kute.reflection.annotation.annotationOfProperty
-import nl.kute.reflection.getPropValueSafe
+import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
+import nl.kute.reflection.getPropValue
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.reflect.KProperty1
 
 /**
- * The [NoPrintMask] annotation can be placed on properties of classes that implement [Printable],
+ * The [PrintMask] annotation can be placed on properties of classes that implement [Printable],
  * to indicate that the property is included in the return value of [Printable.asString], but
  * with its value masked.
  * * Typical usage is to keep sensitive or personally identifiable out of logging etc.
@@ -18,7 +18,7 @@ import kotlin.reflect.KProperty1
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-annotation class NoPrintMask(
+annotation class PrintMask(
     /** At which character index (inclusive) masking should start? */
     val startMaskAt: Int = 0,
 
@@ -39,15 +39,15 @@ annotation class NoPrintMask(
 )
 
 fun <T: Any, V: Any?> mask(obj: T, prop: KProperty1<T, V>): String? {
-    val propVal: V? = obj.getPropValueSafe(prop)
-    with(prop.annotationOfProperty<NoPrintMask>() ?: return null) {
+    val propVal: V? = obj.getPropValue(prop)
+    with(prop.annotationOfPropertyInHierarchy<PrintMask>() ?: return null) {
         var strVal: String
         strVal = if (propVal == null) {
             if (maskNulls) { "null" } else { return null }
         } else {
             propVal.toString()
         }
-        var maskedLength = strVal.length;
+        var maskedLength = strVal.length
         if (maxLength >= 0 && strVal.length > maxLength) {
             maskedLength = maxLength
         }

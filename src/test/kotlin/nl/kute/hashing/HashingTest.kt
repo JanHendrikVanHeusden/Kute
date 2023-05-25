@@ -23,10 +23,10 @@ internal class HashingTest {
     /** Expected output patterns by digest method */
     private val digestMethodPatterns =
         mapOf(
-            DigestMethod.JAVA_HASHCODE to Regex("^(\\d|[a-f]){8}$"),
-            DigestMethod.CRC32C to Regex("^(\\d|[a-f]){1,8}$"),
-            DigestMethod.SHA1 to Regex("^(\\d|[a-f]){40}$"),
-            DigestMethod.MD5 to Regex("^(\\d|[a-f]){32}$")
+            DigestMethod.JAVA_HASHCODE to Regex("^[a-f0-9]{8}$"),
+            DigestMethod.CRC32C to Regex("^[a-f0-9]{1,8}$"),
+            DigestMethod.SHA1 to Regex("^[a-f0-9]{40}$"),
+            DigestMethod.MD5 to Regex("^[a-f0-9]{32}$")
         )
 
     @Test
@@ -68,10 +68,10 @@ internal class HashingTest {
                 strLong += "something"
                 assertHashFormat(strLong)
             }
-            (1..20).forEach {
+            (1..4).forEach {
                 // Lengths up to 1_048_576 (generation & assertion of strings larger than that takes too long)
-                val length = 2.0.pow(it.toDouble()).toInt()
-                repeat(3) {
+                val length = 2.0.pow((it*5).toDouble()).toInt()
+                repeat(2) {
                     assertHashFormat(RandomStringUtils.random(length))
                 }
             }

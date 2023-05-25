@@ -1,16 +1,21 @@
 package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
-import nl.kute.printable.annotation.PrintOption.Defaults.defaultMaxLength
-import nl.kute.printable.annotation.PrintOption.Defaults.defaultNullString
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
+
+/** Default value for how to represent `null` */
+const val defaultNullString: String = "null"
+
+/** Default value for the maximum length of the output **per property** */
+const val defaultMaxStringValueLength: Int = 500
 
 /**
  * The [PrintOption] annotation can be placed on classes that implement [Printable]:
  *  * at class level
- *  * or on properties of these classes.
- * It allows specifying how property values are to be parsed in the [Printable.asString] return value.
+ *  * on properties of these classes
+ *  * on the [toString] method of these classes
+ * It allows specifying how property values are to be parsed in the [Printable.asStringExcluding] return value.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 @MustBeDocumented
@@ -19,15 +24,12 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 annotation class PrintOption(
     /** How to show nulls? Default is "`"null"`" (by [defaultNullString]), but you may opt for something else */
     val showNullAs: String = defaultNullString,
-    /** The maximum length of the output **per property**. Default is 500 (by [defaultMaxLength]). 0 means: an empty String; negative values mean: [Int.MAX_VALUE], so effectively no maximum. */
-    val maxLength: Int = defaultMaxLength
+    /** The maximum String value length **per property**.
+     * Default is 500 (by [defaultMaxStringValueLength]). 0 means: an empty String; negative values mean: [Int.MAX_VALUE], so effectively no maximum. */
+    val propMaxStringValueLength: Int = defaultMaxStringValueLength
 ) {
-    companion object Defaults {
-        /** Default value for how to represent `null` */
-        const val defaultNullString: String = "null"
-
-        /** Default value for the maximum length of the output **per property** */
-        const val defaultMaxLength: Int = 500
+    companion object DefaultOption {
+        /** [PrintOption] to be used if no explicit [PrintOption] annotation is specified  */
+        val defaultPrintOption = PrintOption(showNullAs = defaultNullString, propMaxStringValueLength = defaultMaxStringValueLength)
     }
 }
-

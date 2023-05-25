@@ -6,6 +6,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
+// TODO: caching of properties
+
 /**
  * Find a member property by name
  * @return The property with the given name if `public`, `inherited` or `internal`;

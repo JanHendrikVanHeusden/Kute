@@ -11,17 +11,19 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+        jvmTarget = java.sourceCompatibility.toString()
     }
 }
 
 sourceSets.main {
-    java.srcDirs("src/main/kotlin")
+    kotlin.srcDirs("src/main/kotlin")
 }
 
 sourceSets.test {
     // To tell Gradle not to look in "src/test/java" (for Java classes)
+    // Only a few Java classes exist within Kute for test purposes, to construct Java objects that are extended by Kotlin classes
     java.srcDirs("src/test/kotlin")
+    kotlin.srcDirs("src/test/kotlin")
 }
 
 tasks.withType<JavaCompile> {

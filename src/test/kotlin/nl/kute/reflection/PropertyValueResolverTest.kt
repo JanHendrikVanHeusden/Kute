@@ -2,7 +2,6 @@ package nl.kute.reflection
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import java.time.LocalDateTime
@@ -56,23 +55,6 @@ internal class PropertyValueResolverTest {
     @Test
     fun getPropValueSafe() {
         val t3 = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX)
-        assertThat(getPropValueSafe(t3::x)).isEqualTo(12)
-        assertThat(getPropValueSafe(t3::z)).isEqualTo(LocalDateTime.MIN)
-        assertThat(getPropValueSafe(t3::z)).isEqualTo(LocalDateTime.MIN)
-        assertThat(getPropValueSafe(t3::i)).isEqualTo(28)
-        t3.i = null
-        assertThat(getPropValueSafe(t3::i)).isNull()
-
-        @Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
-        val throwingProperty: KProperty0<Unit> = mock {
-            on { get() } doThrow RuntimeException()
-        }
-        assertThat(getPropValueSafe(throwingProperty)).isNull()
-    }
-
-    @Test
-    fun getPropValue() {
-        val t3 = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX)
         assertThat(getPropValue(t3::x)).isEqualTo(12)
         assertThat(getPropValue(t3::z)).isEqualTo(LocalDateTime.MIN)
         assertThat(getPropValue(t3::z)).isEqualTo(LocalDateTime.MIN)
@@ -80,15 +62,11 @@ internal class PropertyValueResolverTest {
         t3.i = null
         assertThat(getPropValue(t3::i)).isNull()
 
-        @Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
         val throwingProperty: KProperty0<Unit> = mock {
             on { get() } doThrow RuntimeException()
         }
-        // The exception thrown is not the one as specified in the mock above, but an NPE due to missing stubbing
-        // -> You actually can't properly stub KProperty (several methods are final)
-        //
-        // So the assertion here only demonstrates that exceptions are not handled
-        assertThrows<Exception> { getPropValue(throwingProperty) }
+        // Demonstrate that it's safe
+        assertThat(getPropValue(throwingProperty)).isNull()
     }
 
 }

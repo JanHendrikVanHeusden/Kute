@@ -2,6 +2,8 @@ package nl.kute.reflection
 
 import kotlin.reflect.KClass
 
+// TODO: caching of class hierarchies
+
 /**
  * Gets the class hierarchy of the `this` receiver, ordered like this:
  * 1. any interfaces, in order of hierarchy; super interfaces first
@@ -9,21 +11,21 @@ import kotlin.reflect.KClass
  * 3. the class itself
  * @return class hierarchy as an unmodifiable list
  */
-fun KClass<*>.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+internal fun KClass<*>.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
     this.java.topDownTypeHierarchy(includeInterfaces).map { it.kotlin }
 
 /**
  * Gets the class hierarchy of the [Class]
  * @see KClass.topDownTypeHierarchy
  */
-fun Class<*>.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
+internal fun Class<*>.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
     getTopDownTypeHierarchy(this, includeInterfaces).sortedBy { !it.isInterface }
 
 /**
  * Gets the class hierarchy of the object's [KClass]
  * @see KClass.topDownTypeHierarchy
  */
-fun Any.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+internal fun Any.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
     this::class.java.topDownTypeHierarchy(includeInterfaces).map { it.kotlin }
 
 /**
@@ -33,21 +35,21 @@ fun Any.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>>
  * 3. any interfaces, in order of hierarchy; super interfaces first
  * @return class hierarchy as an unmodifiable list
  */
-fun KClass<*>.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+internal fun KClass<*>.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
     this.java.reverseTypeHierarchy(includeInterfaces).map { it.kotlin }
 
 /**
  * Gets the class hierarchy of the [Class]
  * @see KClass.reverseTypeHierarchy
  */
-fun Class<*>.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
+internal fun Class<*>.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
     this.topDownTypeHierarchy(includeInterfaces).reversed()
 
 /**
  * Gets the class hierarchy of the object's [KClass]
  * @see KClass.reverseTypeHierarchy
  */
-fun Any.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+internal fun Any.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
     this::class.java.reverseTypeHierarchy(includeInterfaces).map { it.kotlin }
 
 // Kotlin's method `KClass.supertypes` returns classes as well as interfaces.

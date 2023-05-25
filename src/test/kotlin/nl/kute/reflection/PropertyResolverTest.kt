@@ -95,7 +95,6 @@ internal class PropertyResolverTest {
         val anonQ = anon::class.memberProperties.first { it.name == "q" }
         val properties = anon.propertiesFromHierarchy()
         val propertiesT3 = T3::class.propertiesFromHierarchy().toMutableList()
-        @Suppress("UNCHECKED_CAST")
         assertThat(properties).isEqualTo(propertiesT3.also { it.add(0, anonQ) })
     }
 
@@ -111,13 +110,14 @@ internal class PropertyResolverTest {
         // shadowed by T3.p, so should not be included
         val privatePShadowed = T2::class.memberProperties
             .first { it.name == "p" && it.visibility == PRIVATE } as KProperty1<Any, *>
+
         // Act
         val propertyMap: Map<KClass<*>?, List<KProperty1<Any, *>>> =
             T3::class.propertyMapByHierarchy() as Map<KClass<*>?, List<KProperty1<Any, *>>>
 
         // Assert
-        // Shadowed property should not be included
         assertThat(propertyMap.values.flatten()).doesNotContain(privatePShadowed)
+            .`as`("Shadowed property should not be included")
 
         val expected = mapOf(
             Pair(

@@ -8,7 +8,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 val defaultDigestMethod = DigestMethod.CRC32C
 
 /**
- * The [NoPrintHash] annotation can be placed on properties of classes that implement [Printable],
+ * The [PrintHash] annotation can be placed on properties of classes that implement [Printable],
  * to indicate that the property is included in the return value of [Printable.asString], but
  * with its value replaced by its hash value.
  * * Typical usage is to keep sensitive or personally identifiable out of logging etc.
@@ -23,5 +23,5 @@ val defaultDigestMethod = DigestMethod.CRC32C
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-annotation class NoPrintHash(val digestMethod: DigestMethod = DigestMethod.CRC32C)
+annotation class PrintHash(val digestMethod: DigestMethod = DigestMethod.CRC32C)
 

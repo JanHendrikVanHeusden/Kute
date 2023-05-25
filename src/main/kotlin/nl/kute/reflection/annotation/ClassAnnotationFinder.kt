@@ -4,6 +4,8 @@ import nl.kute.reflection.reverseTypeHierarchy
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
+// TODO: caching of annotations
+
 /**
  * Find the annotation of type [A] on the `this` class or its super types;
  * the annotation at the lowest level is returned, if present at all.

@@ -11,7 +11,7 @@ import java.util.UUID
 
 class PrintableTest {
 
-    private val names: Array<String> = arrayOf("Bob", "Thomas", "Marcel", "Ties", "Jan-Hendrik")
+    private val names: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
 
     private val aPrintableDate: Printable = object : Printable {
         override fun toString(): String = LocalDate.of(2022, 1, 27).toString()
@@ -28,7 +28,7 @@ class PrintableTest {
         // Assert
         assertThat(classToPrint.toString())
             .isEqualTo("ClassToPrint(greet=hallo, num=10, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
-        assertThat(classToPrint.asString(ClassToPrint::num))
+        assertThat(classToPrint.asStringExcluding(ClassToPrint::num))
             .isEqualTo("ClassToPrint(greet=hallo, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
 
         // Assert that it works on anonymous class

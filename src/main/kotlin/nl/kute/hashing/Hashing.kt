@@ -14,7 +14,7 @@ private val hexFormat: HexFormat = HexFormat.of()
  * @param input The [Any] object to create as hash String for
  * @return The [input]'s [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`
  */
-fun javaHashString(input: Any): String = hexFormat.toHexDigits(input.hashCode())
+internal fun javaHashString(input: Any): String = hexFormat.toHexDigits(input.hashCode())
 
 private fun JavaUtilCRC32C.hashCrc32C(input: String, charset: Charset): String {
     this.update(input.toByteArray(charset))

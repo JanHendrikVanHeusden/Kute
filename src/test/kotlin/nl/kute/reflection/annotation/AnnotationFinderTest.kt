@@ -2,42 +2,42 @@ package nl.kute.reflection.annotation
 
 import nl.kute.printable.Printable
 import nl.kute.printable.annotation.PrintOption
-import nl.kute.printable.annotation.PrintOption.Defaults.defaultNullString
+import nl.kute.printable.annotation.defaultNullString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 @Suppress("unused") // several properties accessed by reflection only
 internal class AnnotationFinderTest {
 
-    @PrintOption(maxLength = 200)
-    private open class With3PrintOptions(@PrintOption(maxLength = 100) open val someVal: String) : Printable {
-        @PrintOption(maxLength = 250, showNullAs = "<null>")
-        override fun toString(): String = asString()
+    @PrintOption(propMaxStringValueLength = 200)
+    private open class With3PrintOptions(@PrintOption(propMaxStringValueLength = 100) open val someVal: String) : Printable {
+        @PrintOption(propMaxStringValueLength = 250, showNullAs = "<null>")
+        override fun toString(): String = asStringExcluding()
     }
 
-    private open class With1PrintOption(@PrintOption(maxLength = 100) val someVal: String) : Printable {
-        override fun toString(): String = asString()
+    private open class With1PrintOption(@PrintOption(propMaxStringValueLength = 100) val someVal: String) : Printable {
+        override fun toString(): String = asStringExcluding()
     }
 
     private open class WithInheritedPrintOption(override val someVal: String) : With3PrintOptions(someVal) {
-        override fun toString(): String = asString()
+        override fun toString(): String = asStringExcluding()
 
-        @PrintOption(maxLength = 999999, showNullAs = "")
+        @PrintOption(propMaxStringValueLength = 999999, showNullAs = "")
         @Suppress("unused", "UNUSED_PARAMETER")
         fun toString(iets: String) {}
     }
 
     private open class ClassWithMethodParamSubtypeInheritance<T : Number> : Printable {
-        @PrintOption(maxLength = 50, showNullAs = "")
+        @PrintOption(propMaxStringValueLength = 50, showNullAs = "")
         open fun getList(inList: List<T>): List<T> = emptyList()
 
-        @PrintOption(maxLength = 15, showNullAs = "geen getal")
+        @PrintOption(propMaxStringValueLength = 15, showNullAs = "geen getal")
         open fun getNum(inNum: T): T? = null
 
         open fun doList(inList: List<T>) {}
 
-        @PrintOption(maxLength = 250, showNullAs = "<null>")
-        override fun toString(): String = asString()
+        @PrintOption(propMaxStringValueLength = 250, showNullAs = "<null>")
+        override fun toString(): String = asStringExcluding()
     }
 
     @Suppress("RedundantOverride")
@@ -62,22 +62,22 @@ internal class AnnotationFinderTest {
         val with3PrintOptions = With3PrintOptions("my val")
 
         val printOptByClass: PrintOption = With3PrintOptions::class.annotationOfClass()!!
-        assertThat(printOptByClass.maxLength).isEqualTo(200)
+        assertThat(printOptByClass.propMaxStringValueLength).isEqualTo(200)
         assertThat(printOptByClass.showNullAs).isEqualTo(defaultNullString)
 
         val printOptOfObject: PrintOption = with3PrintOptions.annotationOfClass()!!
         assertThat(printOptOfObject).isSameAs(printOptByClass)
 
-        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfProperty()!!
-        assertThat(printOptOfProperty.maxLength).isEqualTo(100)
+        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfPropertyInHierarchy()!!
+        assertThat(printOptOfProperty.propMaxStringValueLength).isEqualTo(100)
         assertThat(printOptOfProperty.showNullAs).isEqualTo(defaultNullString)
 
         val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToString()!!
-        assertThat(printOptOfToString.maxLength).isEqualTo(250)
+        assertThat(printOptOfToString.propMaxStringValueLength).isEqualTo(250)
         assertThat(printOptOfToString.showNullAs).isEqualTo("<null>")
 
-        val printOptOfProperty1: PrintOption = With1PrintOption::someVal.annotationOfProperty()!!
-        assertThat(printOptOfProperty1.maxLength).isEqualTo(100)
+        val printOptOfProperty1: PrintOption = With1PrintOption::someVal.annotationOfPropertyInHierarchy()!!
+        assertThat(printOptOfProperty1.propMaxStringValueLength).isEqualTo(100)
         assertThat(printOptOfProperty1.showNullAs).isEqualTo(defaultNullString)
     }
 
@@ -109,9 +109,9 @@ internal class AnnotationFinderTest {
         val printOptOfObjectByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfClass()
         assertThat(printOptOfObjectByInheritance).isSameAs(printOptOfObject)
 
-        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfProperty()!!
+        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfPropertyInHierarchy()!!
         val printOptOfPropertyByInheritance: PrintOption? =
-            with3PrintOptionsByInheritance::someVal.annotationOfProperty()!!
+            with3PrintOptionsByInheritance::someVal.annotationOfPropertyInHierarchy()!!
         assertThat(printOptOfPropertyByInheritance).isSameAs(printOptOfProperty)
 
         val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToString()!!

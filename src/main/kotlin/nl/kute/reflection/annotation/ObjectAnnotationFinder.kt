@@ -2,6 +2,8 @@ package nl.kute.reflection.annotation
 
 import kotlin.reflect.KClass
 
+// TODO: caching of annotations
+
 /**
  * Find any annotation of type [A] on `this` class and its super types.
  * * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
@@ -9,6 +11,7 @@ import kotlin.reflect.KClass
  * @param includeInterfaces * if `true`, annotations of super interfaces are included in the result
  *                          * if `false`, annotations of super interfaces are not included in the result
  */
+@Suppress("unused")
 internal inline fun <reified A : Annotation> Any.annotationsOfClass(includeInterfaces: Boolean = true): Map<KClass<*>, A> =
     this::class.annotationsOfClass(includeInterfaces)
 

@@ -6,6 +6,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberFunctions
 
+// TODO: caching of annotations
+
 /**
  * Find any annotation of type [A] on the `::toString` methods of `this` class and its super types.
  * The entries are ordered by key ([KClass]) from lowest to highest level, so from subclass to super class / super interface.

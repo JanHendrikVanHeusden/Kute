@@ -11,16 +11,16 @@ internal class ClassAnnotationFinderTest {
     // A bunch of classes with some random annotations sprinkled
     // Obviously, retention must be "runtime" in order to detect it
 
-    @PrintOption(showNullAs = "I", maxLength = 10)
+    @PrintOption(showNullAs = "I", propMaxStringValueLength = 10)
     private interface I
 
     @API(status = API.Status.INTERNAL, consumers = [])
-    @PrintOption(showNullAs = "T0", maxLength = 100)
+    @PrintOption(showNullAs = "T0", propMaxStringValueLength = 100)
     private open class T0 : IllegalArgumentException(), I
 
     private open class T1 : T0()
 
-    @PrintOption(showNullAs = "T2", maxLength = 200)
+    @PrintOption(showNullAs = "T2", propMaxStringValueLength = 200)
     @API(status = API.Status.STABLE, consumers = [])
     private open class T2 : T1()
 
@@ -62,9 +62,9 @@ internal class ClassAnnotationFinderTest {
      */
     @Test
     fun `annotationsOfClass should return the annotations in order, and include or exclude interfaces as specified`() {
-        val t2expected = PrintOption(showNullAs = "T2", maxLength = 200)
-        val t0expected = PrintOption(showNullAs = "T0", maxLength = 100)
-        val iExpected = PrintOption(showNullAs = "I", maxLength = 10)
+        val t2expected = PrintOption(showNullAs = "T2", propMaxStringValueLength = 200)
+        val t0expected = PrintOption(showNullAs = "T0", propMaxStringValueLength = 100)
+        val iExpected = PrintOption(showNullAs = "I", propMaxStringValueLength = 10)
 
         val printOptionAnnotations = T3::class.annotationsOfClass<PrintOption>()
         assertThat(printOptionAnnotations)
@@ -110,9 +110,9 @@ internal class ClassAnnotationFinderTest {
      */
     @Test
     fun `annotationsOfClass should include annotations on interface if specified so`() {
-        val t2expected = PrintOption(showNullAs = "T2", maxLength = 200)
-        val t0expected = PrintOption(showNullAs = "T0", maxLength = 100)
-        val iExpected = PrintOption(showNullAs = "I", maxLength = 10)
+        val t2expected = PrintOption(showNullAs = "T2", propMaxStringValueLength = 200)
+        val t0expected = PrintOption(showNullAs = "T0", propMaxStringValueLength = 100)
+        val iExpected = PrintOption(showNullAs = "I", propMaxStringValueLength = 10)
 
         val printOptionAnnotations = T3::class.annotationsOfClass<PrintOption>(includeInterfaces = true)
         assertThat(printOptionAnnotations).hasSize(3)

@@ -1,15 +1,15 @@
 package nl.kute.printable.annotation
 
 import nl.kute.printable.Printable
-import nl.kute.reflection.annotation.annotationOfProperty
-import nl.kute.reflection.getPropValueSafe
+import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
+import nl.kute.reflection.getPropValue
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.reflect.KProperty1
 
 /**
- * The [NoPrintPatternReplace] annotation can be placed on properties of classes that implement [Printable],
- * to indicate that the property is included in the return value of [Printable.asString], but
+ * The [PrintPatternReplace] annotation can be placed on properties of classes that implement [Printable],
+ * to indicate that the property is included in the return value of [Printable.asStringExcluding], but
  * with its value replaced.
  * * Typical usage is to keep value parts with sensitive or personally identifiable out of logging etc.;
  *   e.g.
@@ -26,7 +26,7 @@ import kotlin.reflect.KProperty1
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-annotation class NoPrintPatternReplace(
+annotation class PrintPatternReplace(
     /**
      * The regular expression pattern; groups are allowed.
      * * Invalid regular expression will result in an empty String
@@ -38,8 +38,8 @@ annotation class NoPrintPatternReplace(
 )
 
 fun <T: Any, V: Any?>replacePattern(obj: T, prop: KProperty1<T, V>): String? {
-    val strVal = (obj.getPropValueSafe(prop) ?: return null).toString()
-    with (prop.annotationOfProperty<NoPrintPatternReplace>() ?: return strVal) {
+    val strVal = (obj.getPropValue(prop) ?: return null).toString()
+    with (prop.annotationOfPropertyInHierarchy<PrintPatternReplace>() ?: return strVal) {
         return try {
             strVal.replace(Regex(pattern), replacement)
         } catch (e: Exception) {

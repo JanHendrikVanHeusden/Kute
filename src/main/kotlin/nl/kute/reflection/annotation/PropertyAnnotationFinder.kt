@@ -9,6 +9,8 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 
+// TODO: caching of annotations
+
 /**
  * Find any annotation of type [A] on the receiver property of `this` class and its super types.
  * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
@@ -27,6 +29,9 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationsOfProperty(
  * Find annotation of type [A], if any, on the receiver property of `this` class and any of its super types.
  * * The annotations are ordered from lowest to highest level, so from subclass to super classes / super interface.
  */
-internal inline fun <reified A : Annotation> KProperty<*>.annotationOfProperty(): A? =
+internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertyInHierarchy(): A? =
     this.annotationsOfProperty<A>().values.firstOrNull()
+
+internal inline fun <reified A : Annotation> KProperty<*>.hasAnnotationInHierarchy(): Boolean =
+    this.annotationOfPropertyInHierarchy<A>() != null
 

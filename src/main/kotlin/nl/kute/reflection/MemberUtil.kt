@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package nl.kute.reflection
 
 import kotlin.reflect.KClass
