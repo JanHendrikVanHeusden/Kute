@@ -14,8 +14,9 @@ import kotlin.reflect.jvm.javaGetter
 /** Is the `this` [KFunction] the `toString` method? */
 internal fun KFunction<*>.isToString(): Boolean = this.name == "toString" && this.parameters.size == 1 // return value
 
+@Suppress("UNNECESSARY_SAFE_CALL") // nullability may occur in tests due to mocks that force contrived exceptions
 internal fun KProperty<*>.declaringClass(): KClass<*>? =
-    this.javaGetter?.declaringClass?.kotlin ?: this.javaField?.declaringClass?.kotlin
+    this?.javaGetter?.declaringClass?.kotlin ?: this?.javaField?.declaringClass?.kotlin
 
 internal fun KProperty<*>.isPrivate() = this.visibility == PRIVATE
 internal fun KProperty<*>.isProtected() = this.visibility == PROTECTED

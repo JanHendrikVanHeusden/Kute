@@ -66,7 +66,9 @@ internal class PropertyValueResolverTest {
             on { get() } doThrow RuntimeException()
         }
         // Demonstrate that it's safe
-        assertThat(getPropValue(throwingProperty)).isNull()
+        assertThat(getPropValue(throwingProperty))
+            .`as`("Should be safe even with contrived exception")
+            .isNull()
     }
 
 }

@@ -10,7 +10,8 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
+        // the jvm-default-all argument lets Java classes recognise default methods in Kotlin interfaces
+        freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=all")
         jvmTarget = java.sourceCompatibility.toString()
     }
 }

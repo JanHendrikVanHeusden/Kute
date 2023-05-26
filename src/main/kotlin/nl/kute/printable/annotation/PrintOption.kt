@@ -1,6 +1,5 @@
 package nl.kute.printable.annotation
 
-import nl.kute.printable.Printable
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
@@ -11,11 +10,11 @@ const val defaultNullString: String = "null"
 const val defaultMaxStringValueLength: Int = 500
 
 /**
- * The [PrintOption] annotation can be placed on classes that implement [Printable]:
- *  * at class level
- *  * on properties of these classes
+ * The [PrintOption] annotation can be placed:
+ *  * on classes
  *  * on the [toString] method of these classes
- * It allows specifying how property values are to be parsed in the [Printable.asStringExcluding] return value.
+ *  * on properties of these classes
+ * It allows specifying how property values are to be parsed in the [nl.kute.core.asString] return value.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 @MustBeDocumented

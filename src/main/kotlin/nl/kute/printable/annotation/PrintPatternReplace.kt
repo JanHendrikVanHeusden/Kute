@@ -1,6 +1,5 @@
 package nl.kute.printable.annotation
 
-import nl.kute.printable.Printable
 import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
 import nl.kute.reflection.getPropValue
 import java.lang.annotation.Inherited
@@ -8,9 +7,8 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.reflect.KProperty1
 
 /**
- * The [PrintPatternReplace] annotation can be placed on properties of classes that implement [Printable],
- * to indicate that the property is included in the return value of [Printable.asStringExcluding], but
- * with its value replaced.
+ * The [PrintPatternReplace] annotation can be placed on properties to indicate that the property is included
+ * in the return value of [nl.kute.core.asString], but with its value replaced.
  * * Typical usage is to keep value parts with sensitive or personally identifiable out of logging etc.;
  *   e.g.
  *      * you may want to hide parts of phone numbers, but such that the leading and trailing digits are kept
@@ -44,7 +42,8 @@ fun <T: Any, V: Any?>replacePattern(obj: T, prop: KProperty1<T, V>): String? {
             strVal.replace(Regex(pattern), replacement)
         } catch (e: Exception) {
             // no logging framework present, so we only can use standard output
-            println("${e.javaClass.simpleName} occurred when replacing value using pattern $pattern; exception message = [${e.message}]")
+            // NB: the property value is not included in the log message, to avoid exposing a value that the caller intended to replace
+            println("${e.javaClass.simpleName} occurred when replacing a value using pattern $pattern; exception message = [${e.message}]")
             ""
         }
     }

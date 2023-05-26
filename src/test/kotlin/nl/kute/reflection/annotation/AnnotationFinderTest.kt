@@ -1,8 +1,8 @@
 package nl.kute.reflection.annotation
 
-import nl.kute.printable.Printable
 import nl.kute.printable.annotation.PrintOption
 import nl.kute.printable.annotation.defaultNullString
+import nl.kute.core.asStringExcluding
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test
 internal class AnnotationFinderTest {
 
     @PrintOption(propMaxStringValueLength = 200)
-    private open class With3PrintOptions(@PrintOption(propMaxStringValueLength = 100) open val someVal: String) : Printable {
+    private open class With3PrintOptions(@PrintOption(propMaxStringValueLength = 100) open val someVal: String) {
         @PrintOption(propMaxStringValueLength = 250, showNullAs = "<null>")
         override fun toString(): String = asStringExcluding()
     }
 
-    private open class With1PrintOption(@PrintOption(propMaxStringValueLength = 100) val someVal: String) : Printable {
+    private open class With1PrintOption(@PrintOption(propMaxStringValueLength = 100) val someVal: String) {
         override fun toString(): String = asStringExcluding()
     }
 
@@ -27,7 +27,7 @@ internal class AnnotationFinderTest {
         fun toString(iets: String) {}
     }
 
-    private open class ClassWithMethodParamSubtypeInheritance<T : Number> : Printable {
+    private open class ClassWithMethodParamSubtypeInheritance<T : Number> {
         @PrintOption(propMaxStringValueLength = 50, showNullAs = "")
         open fun getList(inList: List<T>): List<T> = emptyList()
 

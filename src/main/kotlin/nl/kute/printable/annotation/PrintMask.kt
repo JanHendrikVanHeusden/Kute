@@ -1,6 +1,5 @@
 package nl.kute.printable.annotation
 
-import nl.kute.printable.Printable
 import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
 import nl.kute.reflection.getPropValue
 import java.lang.annotation.Inherited
@@ -8,9 +7,8 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.reflect.KProperty1
 
 /**
- * The [PrintMask] annotation can be placed on properties of classes that implement [Printable],
- * to indicate that the property is included in the return value of [Printable.asString], but
- * with its value masked.
+ * The [PrintMask] annotation can be placed on properties to indicate that the property is
+ * included in the return value of [nl.kute.core.asString], but with its value masked.
  * * Typical usage is to keep sensitive or personally identifiable out of logging etc.
  * * This may limit exposure of such data, but on its own it must not be considered as a security feature.
  */
