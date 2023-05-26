@@ -2,29 +2,63 @@ package nl.kute.hashing
 
 import nl.kute.hashing.DigestMethod.CRC32C
 import nl.kute.hashing.DigestMethod.JAVA_HASHCODE
+import nl.kute.util.toByteArray
+import nl.kute.util.toHex
 import java.nio.charset.Charset
 import java.security.MessageDigest
-import java.util.HexFormat
 import java.util.zip.CRC32C as JavaUtilCRC32C
 
-private val hexFormat: HexFormat = HexFormat.of()
+/**
+ * With Java 17, we would use `java.util.HexFormat`, like below.
+ * But that's Java 17, and we want to be able to run on Java 11+
+ * ```
+ * private val hexFormat: HexFormat = HexFormat.of()
+ *
+ * internal fun javaHashString(input: Any): String = hexFormat.toHexDigits(input.hashCode())
+ *
+ *
+ * private fun JavaUtilCRC32C.hashCrc32C(input: String, charset: Charset): String {
+ *     this.update(input.toByteArray(charset))
+ *     val result = hexFormat.toHexDigits(this.value).trimStart('0')
+ *     return if (result == "") "0" else result
+ * }
+ *
+ * private fun MessageDigest.hashByAlgorithm(input: String, charset: Charset): String? {
+ *     this.update(input.toByteArray(charset))
+ *     return hexFormat.formatHex(this.digest())
+ * }
+ * ```
+ */
 
 /**
  * Create a hex String based on the [input] object's [hashCode] method
  * @param input The [Any] object to create as hash String for
  * @return The [input]'s [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`
  */
-internal fun javaHashString(input: Any): String = hexFormat.toHexDigits(input.hashCode())
+internal fun javaHashString(input: Any): String = input.hashCode().toByteArray().toHex()
 
+
+/**
+ * Create a hex String based on the [input] object's [hashCode] method using `CRC32C`
+ * @param input The [String] object to create as hash String for
+ * @param charset The [Charset] of the [input] String
+ * @return The [input]'s [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`
+ */
 private fun JavaUtilCRC32C.hashCrc32C(input: String, charset: Charset): String {
     this.update(input.toByteArray(charset))
-    val result = hexFormat.toHexDigits(this.value).trimStart('0')
+    val result = this.value.toByteArray().toHex().trimStart('0')
     return if (result == "") "0" else result
 }
 
-private fun MessageDigest.hashByAlgorithm(input: String, charset: Charset): String? {
+/**
+ * Create a hex String based on the [input] object's [hashCode] method using the receiver [MessageDigest]
+ * @param input The [String] object to create as hash String for
+ * @param charset The [Charset] of the [input] String
+ * @return The [input]'s [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`
+ */
+private fun MessageDigest.hashByAlgorithm(input: String, charset: Charset): String {
     this.update(input.toByteArray(charset))
-    return hexFormat.formatHex(this.digest())
+    return this.digest().toHex()
 }
 
 /**
@@ -34,7 +68,7 @@ private fun MessageDigest.hashByAlgorithm(input: String, charset: Charset): Stri
  * @param charset The [Charset] of the input [String]; default is [Charset.defaultCharset].
  * @return The hash String as a hexadecimal String, consisting of characters `0..9`, `a..f`
  */
-fun hashString(input: String?, digestMethod: DigestMethod, charset: Charset = Charset.defaultCharset()): String? {
+internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Charset = Charset.defaultCharset()): String? {
     return if (input == null) null
     else try {
         when (digestMethod) {
@@ -52,7 +86,8 @@ fun hashString(input: String?, digestMethod: DigestMethod, charset: Charset = Ch
 }
 
 /**
- * Hash algorithms; typical usage is to avoid exposing sensitive or personally identifiable data in logging etc.
+ * Hash algorithms; typical usage within Kute is to avoid exposing sensitive or personally identifiable data
+ * in logging etc.
  * * **Note that hashing data like this is *NOT* meant to be a security mechanism.**
  *     It is just a way to avoid that plain text data is exposed in logging etc.,
  *     and should only be used like that.

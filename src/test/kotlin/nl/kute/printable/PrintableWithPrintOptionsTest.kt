@@ -1,5 +1,6 @@
 package nl.kute.printable
 
+import nl.kute.core.asString
 import nl.kute.printable.annotation.PrintHash
 import nl.kute.printable.annotation.PrintMask
 import nl.kute.printable.annotation.PrintOmit
@@ -7,7 +8,6 @@ import nl.kute.printable.annotation.PrintOption
 import nl.kute.printable.annotation.PrintPatternReplace
 import nl.kute.printable.annotation.defaultMaxStringValueLength
 import nl.kute.printable.annotation.defaultNullString
-import nl.kute.core.asString
 import nl.kute.reflection.annotation.annotationOfClass
 import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
 import nl.kute.reflection.annotation.annotationOfToString
@@ -303,7 +303,6 @@ class PrintableWithPrintOptionsTest {
         // arrange
         val maxStringLenght = 10
         val theObjectToPrint = ClassWithPrintOptionsOnPropertyAndToString()
-        println(theObjectToPrint)
         assertThat(theObjectToPrint.propWithPrintOption.length).isGreaterThan(maxStringLenght)
 
         assertThat(theObjectToPrint.annotationOfClass<PrintOption>()).isNull()

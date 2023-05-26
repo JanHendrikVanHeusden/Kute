@@ -6,12 +6,17 @@ import kotlin.reflect.KProperty
 
 /**
  * Interface with easy-to-use methods for [String] representation; typically for data-centric classes.
- *
- * * Intended for Kotlin classes in first place.
- * * Methods should work in Java-classes as well, insofar no Kotlin specific types are involved
- *    * Specifically, [asStringExcluding] uses [KProperty] arguments that do not exist in Java;
+ *  * Intended for **Kotlin** classes in first place.
+ *  * Methods should work in **Java**-classes as well, insofar no Kotlin specific types are involved
+ *     * Specifically, [asStringExcluding] uses [KProperty] arguments that do not exist in Java;
  *      one can use [asStringExcludingNames] instead
- *
+ * ---
+ * Implementing this interface with its default methods is a functionally equal alternative
+ * for directly calling the static methods:
+ *  * [Any.asString]
+ *  * [Any.asStringExcluding]
+ *  * [Any.asStringExcludingNames]
+ * ---
  */
 interface PrintableI {
 

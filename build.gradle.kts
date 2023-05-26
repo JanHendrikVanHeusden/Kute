@@ -6,13 +6,18 @@ import java.util.Locale
 group = "nl.kute"
 version = "1.0-SNAPSHOT"
 description = "Kute"
-java.sourceCompatibility = JavaVersion.VERSION_17
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+    println("Running on JVM version: ${JavaVersion.current()}")
+}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        // the jvm-default-all argument lets Java classes recognise default methods in Kotlin interfaces
+        // * the jsr-305=strict setting enforces strict nullability checks
+        // * the jvm-default-all argument lets Java classes recognise default methods in Kotlin interfaces
         freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=all")
-        jvmTarget = java.sourceCompatibility.toString()
+        jvmTarget = java.targetCompatibility.toString()
     }
 }
 

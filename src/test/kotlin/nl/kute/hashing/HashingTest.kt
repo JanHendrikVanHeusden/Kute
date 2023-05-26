@@ -1,5 +1,7 @@
 package nl.kute.hashing
 
+import nl.kute.util.toByteArray
+import nl.kute.util.toHex
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -7,13 +9,14 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.nio.charset.Charset
 import java.time.LocalDateTime
-import java.util.HexFormat
 import kotlin.math.pow
 import kotlin.random.Random
 
 internal class HashingTest {
 
-    private val hexFormat: HexFormat = HexFormat.of()
+    // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
+    // private val hexFormat: HexFormat = HexFormat.of()
+
     private val testStringShort = "my test string"
 
     // String of length ~335k
@@ -79,27 +82,56 @@ internal class HashingTest {
     }
 
     @Test
+    fun `test MD5 hash`() {
+        // as verified by an online MD5 generator
+        assertThat(hashString("This is a string to test MD5", DigestMethod.MD5, Charset.defaultCharset()))
+            .isEqualTo("f38ee19be50bdd71d7a64066f60fcf24")
+    }
+
+    @Test
+    fun `test SHA1 hash`() {
+        // as verified by an online SHA1 generator
+        assertThat(hashString("This is a string to test SHA1", DigestMethod.SHA1, Charset.defaultCharset()))
+            .isEqualTo("f8e1709fdc12217e524496eafbcb110b1a9485b9")
+    }
+
+    @Test
+    fun `test CRC32C hash`() {
+        // as verified by an online CRC32C generator
+        assertThat(hashString("This is a string to test CRC32C", DigestMethod.CRC32C, Charset.defaultCharset()))
+            .isEqualTo("59c26997")
+    }
+
+    @Test
     fun `test that String hashing with JAVA_HASHCODE digest yields same result as java hashCode`() {
         val hashShortString = hashString(testStringShort, DigestMethod.JAVA_HASHCODE)
-        assertThat(hashShortString).isEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
+        // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
+        // assertThat(hashShortString).isEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
+        assertThat(hashShortString).isEqualTo(testStringShort.hashCode().toByteArray().toHex())
 
         val hashLongString = hashString(testStringLong, DigestMethod.JAVA_HASHCODE)
-        assertThat(hashLongString).isEqualTo(hexFormat.toHexDigits(testStringLong.hashCode()))
+        // assertThat(hashLongString).isEqualTo(hexFormat.toHexDigits(testStringLong.hashCode()))
+        assertThat(hashLongString).isEqualTo(testStringLong.hashCode().toByteArray().toHex())
     }
 
     @Test
     fun `test that String hashing with CRC32C yields different result as java hashCode`() {
         val hashShortString = hashString(testStringShort, DigestMethod.CRC32C)
-        assertThat(hashShortString).isNotEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
+        // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
+        // assertThat(hashShortString).isNotEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
+        assertThat(hashShortString).isNotEqualTo(testStringShort.hashCode().toByteArray().toHex())
 
         val hashLongString = hashString(testStringLong, DigestMethod.CRC32C)
-        assertThat(hashLongString).isNotEqualTo(hexFormat.toHexDigits(testStringLong.hashCode()))
+        // assertThat(hashLongString).isNotEqualTo(hexFormat.toHexDigits(testStringLong.hashCode()))
+        assertThat(hashLongString).isNotEqualTo(testStringLong.hashCode().toByteArray().toHex())
     }
 
     @Test
     fun `test that Object hashing with javaHashCode yields same result as java hashCode`() {
         listOf(Any(), LocalDateTime.now(), Random.nextInt(), Random.nextBytes(200)).forEach {
-            assertThat(javaHashString(it)).isEqualTo(hexFormat.toHexDigits(it.hashCode()))
+            // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
+            // assertThat(javaHashString(it)).isEqualTo(hexFormat.toHexDigits(it.hashCode()))
+            assertThat(javaHashString(it)).isEqualTo(it.hashCode().toByteArray().toHex())
         }
     }
 
@@ -131,4 +163,5 @@ internal class HashingTest {
     fun `test null safety of hashing`(digestMethod: DigestMethod) {
         assertThat(hashString(null, digestMethod, Charsets.UTF_8)).isNull()
     }
+
 }
