@@ -1,13 +1,13 @@
 package nl.kute.printable
 
 import nl.kute.core.asString
-import nl.kute.printable.annotation.PrintHash
-import nl.kute.printable.annotation.PrintMask
-import nl.kute.printable.annotation.PrintOmit
-import nl.kute.printable.annotation.PrintOption
-import nl.kute.printable.annotation.PrintPatternReplace
-import nl.kute.printable.annotation.defaultMaxStringValueLength
-import nl.kute.printable.annotation.defaultNullString
+import nl.kute.printable.annotation.modifiy.PrintHash
+import nl.kute.printable.annotation.modifiy.PrintMask
+import nl.kute.printable.annotation.modifiy.PrintOmit
+import nl.kute.printable.annotation.option.PrintOption
+import nl.kute.printable.annotation.modifiy.PrintPatternReplace
+import nl.kute.printable.annotation.option.defaultMaxStringValueLength
+import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.reflection.annotation.annotationOfClass
 import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
 import nl.kute.reflection.annotation.annotationOfToString

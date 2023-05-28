@@ -1,4 +1,4 @@
-package nl.kute.printable.annotation
+package nl.kute.printable.annotation.modifiy
 
 import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
 import nl.kute.reflection.getPropValue

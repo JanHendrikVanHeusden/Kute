@@ -1,6 +1,6 @@
 package nl.kute.reflection.annotation
 
-import nl.kute.printable.annotation.PrintOption
+import nl.kute.printable.annotation.option.PrintOption
 import org.apiguardian.api.API
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

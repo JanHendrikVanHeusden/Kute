@@ -1,4 +1,4 @@
-package nl.kute.printable.annotation
+package nl.kute.printable.annotation.modifiy
 
 import nl.kute.hashing.DigestMethod
 import java.lang.annotation.Inherited

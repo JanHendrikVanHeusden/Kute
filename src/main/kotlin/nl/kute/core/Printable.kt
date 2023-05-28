@@ -3,14 +3,14 @@
 package nl.kute.core
 
 import nl.kute.hashing.hashString
-import nl.kute.printable.annotation.PrintHash
-import nl.kute.printable.annotation.PrintMask
-import nl.kute.printable.annotation.PrintOmit
-import nl.kute.printable.annotation.PrintOption
-import nl.kute.printable.annotation.PrintPatternReplace
-import nl.kute.printable.annotation.defaultDigestMethod
-import nl.kute.printable.annotation.mask
-import nl.kute.printable.annotation.replacePattern
+import nl.kute.printable.annotation.modifiy.PrintHash
+import nl.kute.printable.annotation.modifiy.PrintMask
+import nl.kute.printable.annotation.modifiy.PrintOmit
+import nl.kute.printable.annotation.modifiy.PrintPatternReplace
+import nl.kute.printable.annotation.modifiy.defaultDigestMethod
+import nl.kute.printable.annotation.modifiy.mask
+import nl.kute.printable.annotation.modifiy.replacePattern
+import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.reflection.annotation.annotationOfClass
 import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
 import nl.kute.reflection.annotation.annotationOfToString
@@ -33,7 +33,7 @@ import kotlin.reflect.jvm.isAccessible
  * * Private properties are included
  * * String value of individual properties is capped at 500; see @[PrintOption] to override the default
  * @return A String representation of the receiver object, including class name and property names + values;
- * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation`
+ * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
  * @see [asStringExcluding]
  * @see [asStringExcludingNames]
  */
@@ -50,7 +50,7 @@ fun Any.asString(): String {
  * E.g. `override fun toString() = `[asStringExcluding]`(::myExcludedProp1, ::myExcludedProp2)`
  * **NB:** Excluding properties will not work from Java classes; use [asStringExcludingNames] instead
  * @return A String representation of the receiver object, including class name and property names + values;
- * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation`
+ * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
  * @see [asStringExcludingNames]
  * @see [asString]
  */
@@ -69,7 +69,7 @@ fun Any.asStringExcluding(vararg propsToExclude: KProperty<*>): String {
  * E.g. use it when not calling from inside the class:
  * `someObjectWithPrivateProps.`[asStringExcludingNames]`("myExcludedPrivateProp1", "myExcludedProp2")
  * @return A String representation of the receiver object, including class name and property names + values;
- * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation`
+ * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
  * @see [asString]
  * @see [asStringExcluding]
  */

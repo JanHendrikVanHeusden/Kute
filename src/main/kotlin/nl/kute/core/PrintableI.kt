@@ -1,6 +1,6 @@
 package nl.kute.core
 
-import nl.kute.printable.annotation.PrintOption
+import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.util.asString
 import kotlin.reflect.KProperty
 
@@ -26,7 +26,8 @@ interface PrintableI {
      * * Private properties are included
      * * String value of individual properties is capped at (default) 500; see @[PrintOption] to override the default
      * @return A String representation of the [PrintableI], including class name and property names + values;
-     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation`
+     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify
+     * `
      * @see [asStringExcluding]
      * @see [asStringExcludingNames]
      */
@@ -41,7 +42,7 @@ interface PrintableI {
      * E.g. `override fun toString() = `[asStringExcluding]`(::myExcludedProp1, ::myExcludedProp2)`
      * **NB:** Excluding properties will not work from Java classes; use [asStringExcludingNames] instead
      * @return A String representation of the [PrintableI], including class name and property names + values;
-     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation`
+     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
      * @see [asStringExcluding]
      * @see [asStringExcludingNames]
      */
@@ -59,7 +60,7 @@ interface PrintableI {
      * E.g. use it when not calling from inside the class:
      * `someObjectWithPrivateProps.`[asStringExcludingNames]`("myExcludedPrivateProp1", "myExcludedProp2")
      * @return A String representation of the [PrintableI], including class name and property names + values;
-     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation`
+     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
      * @see [asString]
      * @see [asStringExcluding]
      */

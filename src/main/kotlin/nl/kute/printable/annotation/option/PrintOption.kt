@@ -1,4 +1,4 @@
-package nl.kute.printable.annotation
+package nl.kute.printable.annotation.option
 
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME

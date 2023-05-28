@@ -1,7 +1,7 @@
 package nl.kute.reflection.annotation
 
-import nl.kute.printable.annotation.PrintOption
-import nl.kute.printable.annotation.defaultNullString
+import nl.kute.printable.annotation.option.PrintOption
+import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.core.asStringExcluding
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
