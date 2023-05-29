@@ -1,8 +1,8 @@
 package nl.kute.reflection.annotation
 
+import nl.kute.core.asString
 import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.defaultNullString
-import nl.kute.core.asStringExcluding
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,15 +12,15 @@ internal class AnnotationFinderTest {
     @PrintOption(propMaxStringValueLength = 200)
     private open class With3PrintOptions(@PrintOption(propMaxStringValueLength = 100) open val someVal: String) {
         @PrintOption(propMaxStringValueLength = 250, showNullAs = "<null>")
-        override fun toString(): String = asStringExcluding()
+        override fun toString(): String = asString()
     }
 
     private open class With1PrintOption(@PrintOption(propMaxStringValueLength = 100) val someVal: String) {
-        override fun toString(): String = asStringExcluding()
+        override fun toString(): String = asString()
     }
 
     private open class WithInheritedPrintOption(override val someVal: String) : With3PrintOptions(someVal) {
-        override fun toString(): String = asStringExcluding()
+        override fun toString(): String = asString()
 
         @PrintOption(propMaxStringValueLength = 999999, showNullAs = "")
         @Suppress("unused", "UNUSED_PARAMETER")
@@ -37,7 +37,7 @@ internal class AnnotationFinderTest {
         open fun doList(inList: List<T>) {}
 
         @PrintOption(propMaxStringValueLength = 250, showNullAs = "<null>")
-        override fun toString(): String = asStringExcluding()
+        override fun toString(): String = asString()
     }
 
     @Suppress("RedundantOverride")

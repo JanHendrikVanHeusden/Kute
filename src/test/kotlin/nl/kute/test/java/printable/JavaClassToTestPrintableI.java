@@ -24,7 +24,7 @@ public class JavaClassToTestPrintableI implements PrintableI {
     }
 
     public String testIt() {
-        return asStringExcluding();
+        return asString();
     }
 
     public String getStr() {
