@@ -8,9 +8,9 @@ import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.modifiy.PrintPatternReplace
 import nl.kute.printable.annotation.option.defaultMaxStringValueLength
 import nl.kute.printable.annotation.option.defaultNullString
-import nl.kute.reflection.annotation.annotationOfClass
-import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
-import nl.kute.reflection.annotation.annotationOfToString
+import nl.kute.reflection.annotationfinder.annotationOfClass
+import nl.kute.reflection.annotationfinder.annotationOfPropertyInHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfToString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

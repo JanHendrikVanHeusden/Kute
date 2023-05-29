@@ -11,10 +11,10 @@ import nl.kute.printable.annotation.modifiy.defaultDigestMethod
 import nl.kute.printable.annotation.modifiy.mask
 import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.PrintOption
-import nl.kute.reflection.annotation.annotationOfClass
-import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
-import nl.kute.reflection.annotation.annotationOfToString
-import nl.kute.reflection.annotation.hasAnnotationInHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfClass
+import nl.kute.reflection.annotationfinder.annotationOfPropertyInHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfToString
+import nl.kute.reflection.annotationfinder.hasAnnotationInHierarchy
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
 import java.util.concurrent.ConcurrentHashMap

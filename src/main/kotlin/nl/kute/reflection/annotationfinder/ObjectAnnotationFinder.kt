@@ -1,4 +1,4 @@
-package nl.kute.reflection.annotation
+package nl.kute.reflection.annotationfinder
 
 import kotlin.reflect.KClass
 

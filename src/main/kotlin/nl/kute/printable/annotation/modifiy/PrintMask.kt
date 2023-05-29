@@ -1,6 +1,6 @@
 package nl.kute.printable.annotation.modifiy
 
-import nl.kute.reflection.annotation.annotationOfPropertyInHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfPropertyInHierarchy
 import nl.kute.reflection.getPropValue
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME

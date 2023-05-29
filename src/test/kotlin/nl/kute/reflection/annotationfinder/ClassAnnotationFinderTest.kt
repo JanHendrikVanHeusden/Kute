@@ -1,4 +1,4 @@
-package nl.kute.reflection.annotation
+package nl.kute.reflection.annotationfinder
 
 import nl.kute.printable.annotation.NonInheritedTestAnnotation
 import nl.kute.printable.annotation.option.PrintOption
