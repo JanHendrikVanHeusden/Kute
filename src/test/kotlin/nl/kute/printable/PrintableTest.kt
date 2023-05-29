@@ -35,5 +35,5 @@ class PrintableTest {
     }
 
     @Suppress("ArrayInDataClass") // suppress warning that equals and hashCode should be overridden
-    private data class DataClassWithArray(val array: Array<String>)
+    private data class DataClassWithArray(private val array: Array<String>)
 }

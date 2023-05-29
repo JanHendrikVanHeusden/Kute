@@ -141,7 +141,12 @@ private fun Any.getPropValueString(prop: KProperty1<Any, *>): String? {
 
 }
 
-private fun Any.propertiesFromHierarchy(): Collection<KProperty1<Any, *>> {
+/**
+ * Retrieve the class's properties, in hierarchy.
+ * * In case of overriding properties, only the ones of the deepest subclass are included.
+ *  @return the properties as requested
+ */
+internal fun Any.propertiesFromHierarchy(): Collection<KProperty1<Any, *>> {
     @Suppress("UNCHECKED_CAST")
     val classHierarchy = getClassHierarchy(this::class as KClass<Any>)
     val linkedHashSet: LinkedHashSet<KProperty1<Any, *>> = linkedSetOf()

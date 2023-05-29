@@ -1,8 +1,11 @@
 package nl.kute.reflection.annotationfinder
 
 import nl.kute.core.asString
+import nl.kute.printable.annotation.modifiy.PrintHash
+import nl.kute.printable.annotation.modifiy.PrintMask
 import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.defaultNullString
+import nl.kute.reflection.getPropertyFromHierarchy
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -56,6 +59,48 @@ internal class AnnotationFinderTest {
         override fun <Z : Number> getNum(num: Z): Int = 12
     }
 
+    open private class ClassWithAnnotationOnPrivateProperty {
+        @PrintOption(propMaxStringValueLength = 5)
+        @PrintHash
+        private val myPrivateVal = "value of my private val"
+        override fun toString(): String = asString()
+    }
+
+    open private class ClassWithAnnotationOnPublicPrivatePropertyThatMasksPrivateProperty: ClassWithAnnotationOnPrivateProperty() {
+        @PrintOption(propMaxStringValueLength = 200)
+        @PrintMask
+        val myPrivateVal = "value of the masking public val"
+        override fun toString(): String = asString()
+    }
+
+    @Test
+    fun `find annotations on private property`() {
+        val obj = ClassWithAnnotationOnPrivateProperty()
+        val privateProp = obj.getPropertyFromHierarchy("myPrivateVal")!!
+
+        val hashAnnotation: PrintHash = privateProp.annotationsOfProperty<PrintHash>()[obj::class]!!
+        assertThat(hashAnnotation).isNotNull
+
+        val optionAnnotation: PrintOption = privateProp.annotationsOfProperty<PrintOption>()[obj::class]!!
+        assertThat(optionAnnotation).isNotNull
+        assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(5)
+    }
+
+    @Test
+    fun `find annotations on public property that masks private property`() {
+        val obj = ClassWithAnnotationOnPublicPrivatePropertyThatMasksPrivateProperty()
+        val privateProp = obj.getPropertyFromHierarchy("myPrivateVal")!!
+
+        val hashAnnotation: PrintHash? = privateProp.annotationsOfProperty<PrintHash>()[obj::class]
+        assertThat(hashAnnotation).isNull()
+
+        val maskAnnotation: PrintMask = privateProp.annotationsOfProperty<PrintMask>()[obj::class]!!
+        assertThat(maskAnnotation).isNotNull
+
+        val optionAnnotation: PrintOption = privateProp.annotationsOfProperty<PrintOption>()[obj::class]!!
+        assertThat(optionAnnotation).isNotNull
+        assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(200)
+    }
 
     @Test
     fun `find PrintOption on class, property, method`() {
