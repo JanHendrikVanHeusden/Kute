@@ -3,11 +3,14 @@ package nl.kute.reflection.annotationfinder
 import nl.kute.core.asString
 import nl.kute.printable.annotation.modifiy.PrintHash
 import nl.kute.printable.annotation.modifiy.PrintMask
+import nl.kute.printable.annotation.modifiy.PrintPatternReplace
 import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.reflection.getPropertyFromHierarchy
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.data.MapEntry
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
 
 @Suppress("unused") // several properties accessed by reflection only
 internal class AnnotationFinderTest {
@@ -51,26 +54,55 @@ internal class AnnotationFinderTest {
         override fun toString(): String = super.toString()
     }
 
-    private open class SimpleTopClass {
-        open fun <T : Number> getNum(num: T): Number = 12
-    }
-
-    private open class SimpleSubClass : SimpleTopClass() {
-        override fun <Z : Number> getNum(num: Z): Int = 12
-    }
-
-    open private class ClassWithAnnotationOnPrivateProperty {
+    private open class ClassWithAnnotationOnPrivateProperty {
         @PrintOption(propMaxStringValueLength = 5)
         @PrintHash
         private val myPrivateVal = "value of my private val"
         override fun toString(): String = asString()
     }
 
-    open private class ClassWithAnnotationOnPublicPrivatePropertyThatMasksPrivateProperty: ClassWithAnnotationOnPrivateProperty() {
+    private open class ClassWithAnnotationOnPublicPrivatePropertyThatMasksPrivateProperty: ClassWithAnnotationOnPrivateProperty() {
         @PrintOption(propMaxStringValueLength = 200)
         @PrintMask
         val myPrivateVal = "value of the masking public val"
         override fun toString(): String = asString()
+    }
+
+    private interface I {
+        @PrintPatternReplace(pattern = "I", replacement = "i")
+        val prop: String
+        @PrintOption(propMaxStringValueLength = 0)
+        override fun toString(): String
+    }
+    private open class C1: I {
+        @PrintPatternReplace(pattern = "C1", replacement = "c1")
+        override val prop: String = "C1"
+        @PrintOption(propMaxStringValueLength = 1)
+        override fun toString(): String = "C1"
+    }
+    private open class C2: C1() {
+        @PrintPatternReplace(pattern = "C2", replacement = "c2")
+        override val prop: String = "C2"
+        @PrintOption(propMaxStringValueLength = 2)
+        override fun toString(): String = "C2"
+    }
+    private open class C3: C2() {
+        @PrintPatternReplace(pattern = "C3", replacement = "c3")
+        override val prop: String = "C3"
+        @PrintOption(propMaxStringValueLength = 3)
+        override fun toString(): String = "C3"
+    }
+
+    @Test
+    fun `find property annotations in class hierarchy in expected order`() {
+        val annotationMap: Map<KClass<*>, PrintPatternReplace> = C3::prop.annotationsOfProperty<PrintPatternReplace>()
+        // contract of annotationsOfProperty explicitly states the order, let's test it!
+        assertThat(annotationMap.entries).containsExactly(
+            MapEntry.entry(C3::class, PrintPatternReplace(pattern = "C3", replacement = "c3")),
+            MapEntry.entry(C2::class, PrintPatternReplace(pattern = "C2", replacement = "c2")),
+            MapEntry.entry(C1::class, PrintPatternReplace(pattern = "C1", replacement = "c1")),
+            MapEntry.entry(I::class, PrintPatternReplace(pattern = "I", replacement = "i")),
+        )
     }
 
     @Test

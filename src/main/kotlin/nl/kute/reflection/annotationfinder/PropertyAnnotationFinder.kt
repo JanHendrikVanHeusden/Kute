@@ -18,6 +18,7 @@ import kotlin.reflect.jvm.javaGetter
  */
 internal inline fun <reified A : Annotation> KProperty<*>.annotationsOfProperty(): Map<KClass<*>, A> {
     val declaringClass: Class<out Any> = this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return mapOf()
+    // The contract of the `associateWith` method explicitly states that the order is preserved
     @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
     return declaringClass.kotlin.reverseTypeHierarchy().associateWith { kClass ->
         kClass.memberProperties
@@ -35,4 +36,3 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertyIn
 
 internal inline fun <reified A : Annotation> KProperty<*>.hasAnnotationInHierarchy(): Boolean =
     this.annotationOfPropertyInHierarchy<A>() != null
-

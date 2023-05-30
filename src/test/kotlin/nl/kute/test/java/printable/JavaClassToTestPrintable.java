@@ -1,18 +1,18 @@
 package nl.kute.test.java.printable;
 
-import nl.kute.core.PrintableI;
+import nl.kute.core.Printable;
 import org.jetbrains.annotations.NotNull;
 
 /** For use by [PrintableTest] */
 @SuppressWarnings("unused")
-public class JavaClassToTestPrintableI implements PrintableI {
+public class JavaClassToTestPrintable implements Printable {
 
     private String str;
     private int num;
     @SuppressWarnings("FieldCanBeLocal")
     private final String[] names;
 
-    public JavaClassToTestPrintableI(String str, int num, String[] names) {
+    public JavaClassToTestPrintable(String str, int num, String[] names) {
         this.str = str;
         this.num = num;
         this.names = names;
@@ -44,6 +44,6 @@ public class JavaClassToTestPrintableI implements PrintableI {
     }
 
     public static void main(String[] args) {
-        System.out.println(new JavaClassToTestPrintableI("my string", 12, new String[]{"these", "are", "my", "names"}));
+        System.out.println(new JavaClassToTestPrintable("my string", 12, new String[]{"these", "are", "my", "names"}));
     }
 }

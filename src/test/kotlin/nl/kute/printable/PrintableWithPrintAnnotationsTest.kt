@@ -1,11 +1,12 @@
 package nl.kute.printable
 
+import nl.kute.core.Printable
 import nl.kute.core.asString
 import nl.kute.printable.annotation.modifiy.PrintHash
 import nl.kute.printable.annotation.modifiy.PrintMask
 import nl.kute.printable.annotation.modifiy.PrintOmit
-import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.modifiy.PrintPatternReplace
+import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.defaultMaxStringValueLength
 import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.reflection.annotationfinder.annotationOfClass
@@ -14,8 +15,9 @@ import nl.kute.reflection.annotationfinder.annotationOfToString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import kotlin.reflect.full.findAnnotation
 
-class PrintableWithPrintOptionsTest {
+class PrintableWithPrintAnnotationsTest {
 
     @Test
     fun `test Printable with PrintOptions`() {
@@ -320,6 +322,57 @@ class PrintableWithPrintOptionsTest {
             .isEqualTo("ClassWithPrintOptionsOnPropertyAndToString(propWithPrintOption=${theObjectToPrint.propWithPrintOption.take(maxStringLenght)})")
     }
 
+    @Test
+    fun `test replace & mask 1`() {
+        val phony = Phony()
+        assertThat(phony.toString())
+            .`as`("Masking should be applied according to ${Phony::phoneNumberMask1.findAnnotation<PrintMask>()}")
+            .contains("phoneNumberMask1= +31 6 123********9 0 ")
+            .doesNotContain(phony.phoneNumberMask1)
+
+            .`as`("Masking should be applied according to ${Phony::phoneNumberMask2.findAnnotation<PrintMask>()}")
+            .contains("phoneNumberMask2= +31 6 123 45 ****9 0 ")
+            .doesNotContain(phony.phoneNumberMask2)
+
+            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask3.findAnnotation<PrintMask>()}")
+            .contains("phoneNumberMask3=**********************")
+            .doesNotContain(phony.phoneNumberMask3)
+
+            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask4.findAnnotation<PrintMask>()}")
+            .contains("phoneNumberMask4=**********************")
+            .doesNotContain(phony.phoneNumberMask4)
+
+            .`as`("Should apply full masking by default ${Phony::phoneNumberMask5.findAnnotation<PrintMask>()}")
+            .contains("phoneNumberMask5=**********************")
+            .doesNotContain(phony.phoneNumberMask5)
+
+            .`as`("Should apply partial masking by custom mask 'x' ${Phony::phoneNumberMask6.findAnnotation<PrintMask>()}")
+            .contains("phoneNumberMask6= +xxxx 123 45 67 89 0 ")
+            .doesNotContain(phony.phoneNumberMask6)
+
+            .`as`("Masking should be applied according to ${Phony::phoneNumberMask7.findAnnotation<PrintMask>()}")
+            .contains("phoneNumberMask7= +31******")
+            .doesNotContain(phony.phoneNumberMask7)
+
+            .`as`("Pattern replacement should be applied according to ${Phony::phoneNumberPatternReplace.findAnnotation<PrintPatternReplace>()}")
+            .contains("phoneNumberPatternReplace= +31 6 123 ****89 0")
+            .doesNotContain(phony.phoneNumberPatternReplace)
+    }
+
+    @Test
+    fun `test replace & mask 2`() {
+        val banky = Banky()
+        assertThat(banky.asString())
+            .`as`("Pattern replacement should be applied according to ")
+            .contains("phoneNumberPatternReplace=NL37<bank>*****48739")
+            .doesNotContain(banky.phoneNumberPatternReplace)
+
+        assertThat(banky.asString())
+            .`as`("Mask should adhere to minLength=4, even with maxLength=2")
+            .containsPattern("""\bcountryCode=\*{4}([),])""")
+            .doesNotContain("countryCode=${banky.countryCode}")
+    }
+
     @PrintOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
     private open class ClassWithNonDefaultPrintOptions {
 
@@ -383,6 +436,49 @@ class PrintableWithPrintOptionsTest {
         val propWithPrintOption: String = "I am a property with @PrintOption"
 
         @PrintOption(propMaxStringValueLength = 5)
+        override fun toString(): String = asString()
+    }
+
+    private class Phony {
+        @PrintOmit
+        private val phoneNumber: String = " +31 6 123 45 67 89 0 "
+
+        @PrintPatternReplace(pattern = """(\d\s*){4}((\d\s*){3}\s*)$""", replacement = "****$2")
+        val phoneNumberPatternReplace = phoneNumber
+
+        @PrintMask(startMaskAt = 10, endMaskAt = -4)
+        val phoneNumberMask1 = phoneNumber
+
+        @PrintMask(startMaskAt = -8, endMaskAt = -4)
+        val phoneNumberMask2 = phoneNumber
+
+        // Should fully mask, because end of masking is before start of it
+        @PrintMask(startMaskAt = 12, endMaskAt = -12)
+        val phoneNumberMask3 = phoneNumber
+
+        // Should fully mask, because end of masking is before start of it
+        @PrintMask(startMaskAt = 25, endMaskAt = 8)
+        val phoneNumberMask4 = phoneNumber
+
+        // Should fully mask (default)
+        @PrintMask
+        val phoneNumberMask5 = phoneNumber
+
+        @PrintMask(startMaskAt = 2, endMaskAt = 6, mask = 'x')
+        val phoneNumberMask6 = phoneNumber
+
+        @PrintMask(startMaskAt = 4, maxLength = 10)
+        val phoneNumberMask7 = phoneNumber
+
+        override fun toString() = asString()
+    }
+
+    private class Banky: Printable {
+        @PrintPatternReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2")
+        val phoneNumberPatternReplace = "NL37DUMM5273748739"
+
+        @PrintMask(minLength = 4, maxLength = 2)
+        val countryCode = "NL"
         override fun toString(): String = asString()
     }
 }

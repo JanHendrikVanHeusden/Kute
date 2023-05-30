@@ -11,7 +11,7 @@ import kotlin.reflect.KProperty1
  * in the return value of [nl.kute.core.asString], but with its value replaced.
  * * Typical usage is to keep value parts with sensitive or personally identifiable out of logging etc.;
  *   e.g.
- *      * you may want to hide parts of phone numbers, but such that the leading and trailing digits are kept
+ *      * you may want to hide parts of phone numbers, but such that the leading and trailing digits are kept;
  *      * in IBAN European bank numbers you may want to keep the country and bank identifiers, but hide the personal part
  *      * in a URL, you may for instance keep the URL data but leave out query parameters (or the opposite)
  * * This may limit exposure of such data, but on its own it must not be considered as a security feature.
@@ -19,6 +19,10 @@ import kotlin.reflect.KProperty1
  * As always with regular expressions:
  *  * Usage with lengthy data may have a significant performance penalty!
  *     * Design your expressions properly; stay away from so-called catastrophic backtracking!
+ *       > [https://regex101.com/r/iXSKTs/1/debugger](https://regex101.com/r/iXSKTs/1/debugger),
+ *       > [https://www.regular-expressions.info/catastrophic.html](https://www.regular-expressions.info/catastrophic.html)
+ * @param pattern The regular expression to replace
+ * @param replacement The replacement; back references are allowed.
  */
 @Target(AnnotationTarget.PROPERTY)
 @MustBeDocumented

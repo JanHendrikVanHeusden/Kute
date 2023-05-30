@@ -4,6 +4,8 @@ import nl.kute.reflection.annotationfinder.annotationOfPropertyInHierarchy
 import nl.kute.reflection.getPropValue
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.reflect.KProperty1
 
 /**
@@ -11,6 +13,9 @@ import kotlin.reflect.KProperty1
  * included in the return value of [nl.kute.core.asString], but with its value masked.
  * * Typical usage is to keep sensitive or personally identifiable out of logging etc.
  * * This may limit exposure of such data, but on its own it must not be considered as a security feature.
+ *
+ * * If the position of [startMaskAt] is after that of [endMaskAt], the full [String] will be masked.
+ * * If [minLength]` >  `[maxLength], [minLength] is used
  */
 @Target(AnnotationTarget.PROPERTY)
 @MustBeDocumented
@@ -29,14 +34,14 @@ annotation class PrintMask(
     /** Should nulls be masked too? If `false`, nulls will be shown */
     val maskNulls: Boolean = true,
 
-    /** The minimum length of the masked value */
-    val minLength: Int = -1,
+    /** The minimum length of the masked value; so masking of `"ab"` with [minLength] of `6` will result in `******` */
+    val minLength: Int = 0,
 
-    /** The maximum length of the masked value */
+    /** The maximum length of the masked value. If less than the [String]'s length, the [String] will be truncated */
     val maxLength: Int = Int.MAX_VALUE,
 )
 
-fun <T: Any, V: Any?> mask(obj: T, prop: KProperty1<T, V>): String? {
+fun <T : Any, V : Any?> mask(obj: T, prop: KProperty1<T, V>): String? {
     val propVal: V? = obj.getPropValue(prop)
     with(prop.annotationOfPropertyInHierarchy<PrintMask>() ?: return null) {
         var strVal: String
@@ -45,25 +50,28 @@ fun <T: Any, V: Any?> mask(obj: T, prop: KProperty1<T, V>): String? {
         } else {
             propVal.toString()
         }
-        var maskedLength = strVal.length
-        if (maxLength >= 0 && strVal.length > maxLength) {
-            maskedLength = maxLength
+        val strLength = strVal.length
+        var returnLength = strLength
+        if (maxLength >= 0 && strLength > maxLength) {
+            returnLength = maxLength
         }
-        if (minLength >= 0 && maskedLength < minLength) {
-            maskedLength = minLength
+        if (minLength >= 0 && returnLength < minLength) {
+            returnLength = minLength
         }
-        if (maskedLength > strVal.length) {
-            strVal = strVal + mask.toString().repeat(maskedLength - strVal.length)
-        } else if (maskedLength < strVal.length) {
-            strVal = strVal.take(maskedLength)
+        if (returnLength > strLength) {
+            strVal = strVal + mask.toString().repeat(returnLength - strLength)
+        } else if (returnLength < strLength) {
+            strVal = strVal.take(returnLength)
         }
 
-        if ((startMaskAt in 0 until maskedLength-1 || endMaskAt in 0 until maskedLength) && endMaskAt > startMaskAt ) {
-            val startAt = maxOf(startMaskAt, 0)
-            val endAt = minOf(endMaskAt, maskedLength)
+        val maskStart = if (startMaskAt >= 0) { startMaskAt } else { max(0, strLength + startMaskAt) }
+        val maskEnd = if (endMaskAt >= 0) { endMaskAt } else { max(0, strLength + endMaskAt) }
+        if (maskStart in 0 until returnLength - 1 && maskEnd > maskStart) {
+            val startAt = max(maskStart, 0)
+            val endAt = min(maskEnd, returnLength)
             return strVal.replaceRange(startAt until endAt, mask.toString().repeat(endAt - startAt))
         } else {
-            return mask.toString().repeat(maskedLength)
+            return mask.toString().repeat(returnLength)
         }
     }
 }

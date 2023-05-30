@@ -10,7 +10,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *     * It may also be used keep sensitive or personally identifiable out of logging etc.
  *     * This may limit exposure of such data; but on its own it must **not** be considered a security feature.
  */
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
+@Target(AnnotationTarget.PROPERTY)
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
