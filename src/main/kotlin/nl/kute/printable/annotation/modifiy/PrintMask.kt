@@ -34,10 +34,10 @@ annotation class PrintMask(
     /** Should nulls be masked too? If `false`, nulls will be shown */
     val maskNulls: Boolean = true,
 
-    /** The minimum length of the masked value; so masking of `"ab"` with [minLength] of `6` will result in `******` */
+    /** The minimum length of the resulting value; so masking of `"ab"` with [minLength] of `6` will result in `******` */
     val minLength: Int = 0,
 
-    /** The maximum length of the masked value. If less than the [String]'s length, the [String] will be truncated */
+    /** The maximum length of the resulting value. If less than the [String]'s length, the [String] will be truncated */
     val maxLength: Int = Int.MAX_VALUE,
 )
 

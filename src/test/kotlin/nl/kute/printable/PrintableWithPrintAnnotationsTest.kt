@@ -364,8 +364,8 @@ class PrintableWithPrintAnnotationsTest {
         val banky = Banky()
         assertThat(banky.asString())
             .`as`("Pattern replacement should be applied according to ")
-            .contains("phoneNumberPatternReplace=NL37<bank>*****48739")
-            .doesNotContain(banky.phoneNumberPatternReplace)
+            .contains("bankNumberPatternReplace=NL37<bank>*****48739")
+            .doesNotContain(banky.bankNumberPatternReplace)
 
         assertThat(banky.asString())
             .`as`("Mask should adhere to minLength=4, even with maxLength=2")
@@ -475,7 +475,7 @@ class PrintableWithPrintAnnotationsTest {
 
     private class Banky: Printable {
         @PrintPatternReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2")
-        val phoneNumberPatternReplace = "NL37DUMM5273748739"
+        val bankNumberPatternReplace = "NL37DUMM5273748739"
 
         @PrintMask(minLength = 4, maxLength = 2)
         val countryCode = "NL"
