@@ -1,6 +1,6 @@
 package nl.kute.printable.annotation.modifiy
 
-import nl.kute.reflection.annotationfinder.annotationOfPropertyInHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfPropertyFromHierarchy
 import nl.kute.reflection.getPropValue
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
@@ -43,7 +43,7 @@ annotation class PrintMask(
 
 fun <T : Any, V : Any?> mask(obj: T, prop: KProperty1<T, V>): String? {
     val propVal: V? = obj.getPropValue(prop)
-    with(prop.annotationOfPropertyInHierarchy<PrintMask>() ?: return null) {
+    with(prop.annotationOfPropertyFromHierarchy<PrintMask>() ?: return null) {
         var strVal: String
         strVal = if (propVal == null) {
             if (maskNulls) { "null" } else { return null }

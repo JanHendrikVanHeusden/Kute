@@ -11,13 +11,18 @@ import nl.kute.printable.annotation.modifiy.defaultDigestMethod
 import nl.kute.printable.annotation.modifiy.mask
 import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.PrintOption
-import nl.kute.reflection.annotationfinder.annotationOfClass
-import nl.kute.reflection.annotationfinder.annotationOfPropertyInHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfToString
+import nl.kute.reflection.annotationfinder.annotationOfClassInheritance
+import nl.kute.reflection.annotationfinder.annotationOfPropertyFromHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfPropertyFromReverseHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfReverseClassHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfToStringFromHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfToStringFromReverseHierarchy
 import nl.kute.reflection.annotationfinder.hasAnnotationInHierarchy
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -26,6 +31,8 @@ import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.isAccessible
 
 // Static stuff (package level) only
+
+const val maxValueLength: Int = 500
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -75,15 +82,15 @@ fun Any.asStringExcluding(vararg propsToExclude: KProperty<*>): String {
  */
 fun Any.asStringExcludingNames(vararg propNamesToExclude: String): String {
     try {
-        val classPrintOption: PrintOption = this.annotationOfToString() ?: annotationOfClass() ?: PrintOption.defaultPrintOption
-        val maxValLengthClass: Int
-        with(classPrintOption) {
-            maxValLengthClass = if (propMaxStringValueLength in 0 until maxValueLength) {
-                propMaxStringValueLength
-            } else {
-                maxValueLength
-            }
-        }
+//        val classPrintOption: PrintOption = this.annotationOfToStringFromHierarchy() ?: annotationOfClassInheritance() ?: PrintOption.defaultPrintOption
+//        val maxValLengthClass: Int
+//        with(classPrintOption) {
+//            maxValLengthClass = if (propMaxStringValueLength in 0 until maxValueLength) {
+//                propMaxStringValueLength
+//            } else {
+//                maxValueLength
+//            }
+//        }
         // try to get properties from cache first; not found? retrieve and add to cache
         val properties: Collection<KProperty1<Any, *>> = propertyCache[this::class]
             ?: (propertiesFromHierarchy().also { propertyCache[this::class] = it })
@@ -91,16 +98,10 @@ fun Any.asStringExcludingNames(vararg propNamesToExclude: String): String {
             .filterNot { propNamesToExclude.contains(it.name) }
             .filterNot { it.hasAnnotationInHierarchy<PrintOmit>() }
             .joinToString(", ", prefix = "${this::class.simpleName ?: this::class.toString()}(", ")") {
-                val propPrintOption: PrintOption = it.annotationOfPropertyInHierarchy() ?: classPrintOption
-                val maxValLengthProp: Int
-                with(propPrintOption) {
-                    maxValLengthProp = if (propMaxStringValueLength >= 0) {
-                        propMaxStringValueLength
-                    } else {
-                        maxValLengthClass
-                    }
-                }
-                "${it.name}=${getPropValueString(it)?.take(maxValLengthProp) ?: propPrintOption.showNullAs}"
+                val printOption: PrintOption = it.effectiveOverrideableAnnotation<PrintOption>() ?: PrintOption.defaultPrintOption
+                val maxValLengthProp = min(max(printOption.propMaxStringValueLength, 0), maxValueLength)
+//                    if (printOption.propMaxStringValueLength >= 0) { printOption.propMaxStringValueLength } else { maxValueLength }
+                "${it.name}=${getPropValueString(it)?.take(maxValLengthProp) ?: printOption.showNullAs}"
             }
     } catch (e: Exception) {
         // We have no logger in the Kute project; we don't want to interfere with the caller project's logger
@@ -133,7 +134,7 @@ private fun Any.getPropValueString(prop: KProperty1<Any, *>): String? {
             strValue = mask(this, prop)
         }
         if (prop.hasAnnotationInHierarchy<PrintHash>()) {
-            val digestMethod = prop.annotationOfPropertyInHierarchy<PrintHash>()?.digestMethod ?: defaultDigestMethod
+            val digestMethod = prop.annotationOfPropertyFromHierarchy<PrintHash>()?.digestMethod ?: defaultDigestMethod
             strValue = hashString(strValue, digestMethod)
         }
         return strValue
@@ -168,6 +169,28 @@ internal fun Any.propertiesFromHierarchy(): Collection<KProperty1<Any, *>> {
     }
 }
 
+internal inline fun <reified A: Annotation> KProperty<*>.effectiveNonOverrideableAnnotation(): A? =
+    annotationOfPropertyFromHierarchy<A>()
+        ?: annotationOfToStringFromHierarchy<A>()
+        ?: annotationOfClassInheritance<A>()
+
+internal inline fun <reified A: Annotation> KProperty<*>.effectiveOverrideableAnnotation(): A? =
+    annotationOfPropertyFromReverseHierarchy<A>()
+        ?: annotationOfToStringFromReverseHierarchy<A>()
+        ?: annotationOfReverseClassHierarchy<A>()
+
+fun KProperty<*>.effectivePrintAnnotations(): Set<Annotation> {
+    val effectiveAnnotations: MutableSet<Annotation> = mutableSetOf()
+    val printOption: PrintOption = effectiveOverrideableAnnotation() ?: PrintOption.defaultPrintOption
+    effectiveAnnotations.add(printOption)
+
+    effectiveNonOverrideableAnnotation<PrintOmit>()?.let { effectiveAnnotations.add(it) }
+    effectiveNonOverrideableAnnotation<PrintPatternReplace>()?.let { effectiveAnnotations.add(it) }
+    effectiveNonOverrideableAnnotation<PrintMask>()?.let { effectiveAnnotations.add(it) }
+    effectiveNonOverrideableAnnotation<PrintHash>()?.let { effectiveAnnotations.add(it) }
+    return effectiveAnnotations
+}
+
 @Suppress("UNCHECKED_CAST")
 private fun Any.getClassHierarchy(theClass: KClass<Any> = this::class as KClass<Any>): Set<KClass<Any>> {
     val kClasses: MutableSet<KClass<Any>> = linkedSetOf()
@@ -181,4 +204,3 @@ private fun Any.getClassHierarchy(theClass: KClass<Any> = this::class as KClass<
 }
 
 private val propertyCache: MutableMap<KClass<*>, Collection<KProperty1<Any, *>>> = ConcurrentHashMap()
-const val maxValueLength: Int = 500

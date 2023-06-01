@@ -95,7 +95,7 @@ internal class AnnotationFinderTest {
 
     @Test
     fun `find property annotations in class hierarchy in expected order`() {
-        val annotationMap: Map<KClass<*>, PrintPatternReplace> = C3::prop.annotationsOfProperty<PrintPatternReplace>()
+        val annotationMap: Map<KClass<*>, PrintPatternReplace> = C3::prop.annotationsOfPropertyHierarchy<PrintPatternReplace>()
         // contract of annotationsOfProperty explicitly states the order, let's test it!
         assertThat(annotationMap.entries).containsExactly(
             MapEntry.entry(C3::class, PrintPatternReplace(pattern = "C3", replacement = "c3")),
@@ -110,10 +110,10 @@ internal class AnnotationFinderTest {
         val obj = ClassWithAnnotationOnPrivateProperty()
         val privateProp = obj.getPropertyFromHierarchy("myPrivateVal")!!
 
-        val hashAnnotation: PrintHash = privateProp.annotationsOfProperty<PrintHash>()[obj::class]!!
+        val hashAnnotation: PrintHash = privateProp.annotationsOfPropertyHierarchy<PrintHash>()[obj::class]!!
         assertThat(hashAnnotation).isNotNull
 
-        val optionAnnotation: PrintOption = privateProp.annotationsOfProperty<PrintOption>()[obj::class]!!
+        val optionAnnotation: PrintOption = privateProp.annotationsOfPropertyHierarchy<PrintOption>()[obj::class]!!
         assertThat(optionAnnotation).isNotNull
         assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(5)
     }
@@ -123,13 +123,13 @@ internal class AnnotationFinderTest {
         val obj = ClassWithAnnotationOnPublicPrivatePropertyThatMasksPrivateProperty()
         val privateProp = obj.getPropertyFromHierarchy("myPrivateVal")!!
 
-        val hashAnnotation: PrintHash? = privateProp.annotationsOfProperty<PrintHash>()[obj::class]
+        val hashAnnotation: PrintHash? = privateProp.annotationsOfPropertyHierarchy<PrintHash>()[obj::class]
         assertThat(hashAnnotation).isNull()
 
-        val maskAnnotation: PrintMask = privateProp.annotationsOfProperty<PrintMask>()[obj::class]!!
+        val maskAnnotation: PrintMask = privateProp.annotationsOfPropertyHierarchy<PrintMask>()[obj::class]!!
         assertThat(maskAnnotation).isNotNull
 
-        val optionAnnotation: PrintOption = privateProp.annotationsOfProperty<PrintOption>()[obj::class]!!
+        val optionAnnotation: PrintOption = privateProp.annotationsOfPropertyHierarchy<PrintOption>()[obj::class]!!
         assertThat(optionAnnotation).isNotNull
         assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(200)
     }
@@ -138,22 +138,22 @@ internal class AnnotationFinderTest {
     fun `find PrintOption on class, property, method`() {
         val with3PrintOptions = With3PrintOptions("my val")
 
-        val printOptByClass: PrintOption = With3PrintOptions::class.annotationOfClass()!!
+        val printOptByClass: PrintOption = With3PrintOptions::class.annotationOfClassInheritance()!!
         assertThat(printOptByClass.propMaxStringValueLength).isEqualTo(200)
         assertThat(printOptByClass.showNullAs).isEqualTo(defaultNullString)
 
-        val printOptOfObject: PrintOption = with3PrintOptions.annotationOfClass()!!
+        val printOptOfObject: PrintOption = with3PrintOptions.annotationOfClassInheritance()!!
         assertThat(printOptOfObject).isSameAs(printOptByClass)
 
-        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfPropertyInHierarchy()!!
+        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfPropertyFromHierarchy()!!
         assertThat(printOptOfProperty.propMaxStringValueLength).isEqualTo(100)
         assertThat(printOptOfProperty.showNullAs).isEqualTo(defaultNullString)
 
-        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToString()!!
+        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToStringFromHierarchy()!!
         assertThat(printOptOfToString.propMaxStringValueLength).isEqualTo(250)
         assertThat(printOptOfToString.showNullAs).isEqualTo("<null>")
 
-        val printOptOfProperty1: PrintOption = With1PrintOption::someVal.annotationOfPropertyInHierarchy()!!
+        val printOptOfProperty1: PrintOption = With1PrintOption::someVal.annotationOfPropertyFromHierarchy()!!
         assertThat(printOptOfProperty1.propMaxStringValueLength).isEqualTo(100)
         assertThat(printOptOfProperty1.showNullAs).isEqualTo(defaultNullString)
     }
@@ -162,13 +162,13 @@ internal class AnnotationFinderTest {
     fun `find no PrintOption where not defined`() {
         val with1PrintOption = With1PrintOption("my val")
 
-        val printOptByClass: PrintOption? = With1PrintOption::class.annotationOfClass()
+        val printOptByClass: PrintOption? = With1PrintOption::class.annotationOfClassInheritance()
         assertThat(printOptByClass).isNull()
 
-        val printOptOfObject: PrintOption? = with1PrintOption.annotationOfClass()
+        val printOptOfObject: PrintOption? = with1PrintOption.annotationOfClassInheritance()
         assertThat(printOptOfObject).isNull()
 
-        val printOptOfToString: PrintOption? = with1PrintOption.annotationOfClass()
+        val printOptOfToString: PrintOption? = with1PrintOption.annotationOfClassInheritance()
         assertThat(printOptOfToString).isNull()
     }
 
@@ -178,21 +178,21 @@ internal class AnnotationFinderTest {
         val with3PrintOptionsByInheritance = WithInheritedPrintOption("my val on inherited")
         assertThat(with3PrintOptionsByInheritance).isInstanceOf(With3PrintOptions::class.java)
 
-        val printOptByClass: PrintOption = With3PrintOptions::class.annotationOfClass()!!
-        val printOptByClassInheritance: PrintOption? = WithInheritedPrintOption::class.annotationOfClass()
+        val printOptByClass: PrintOption = With3PrintOptions::class.annotationOfClassInheritance()!!
+        val printOptByClassInheritance: PrintOption? = WithInheritedPrintOption::class.annotationOfClassInheritance()
         assertThat(printOptByClassInheritance).isEqualTo(printOptByClass)
 
-        val printOptOfObject: PrintOption = with3PrintOptions.annotationOfClass()!!
-        val printOptOfObjectByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfClass()
+        val printOptOfObject: PrintOption = with3PrintOptions.annotationOfClassInheritance()!!
+        val printOptOfObjectByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfClassInheritance()
         assertThat(printOptOfObjectByInheritance).isSameAs(printOptOfObject)
 
-        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfPropertyInHierarchy()!!
+        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfPropertyFromHierarchy()!!
         val printOptOfPropertyByInheritance: PrintOption? =
-            with3PrintOptionsByInheritance::someVal.annotationOfPropertyInHierarchy()!!
+            with3PrintOptionsByInheritance::someVal.annotationOfPropertyFromHierarchy()!!
         assertThat(printOptOfPropertyByInheritance).isSameAs(printOptOfProperty)
 
-        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToString()!!
-        val printOptOfToStringByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfToString()
+        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToStringFromHierarchy()!!
+        val printOptOfToStringByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfToStringFromHierarchy()
         assertThat(printOptOfToStringByInheritance).isSameAs(printOptOfToString)
     }
 

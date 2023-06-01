@@ -1,6 +1,6 @@
 package nl.kute.printable.annotation.modifiy
 
-import nl.kute.reflection.annotationfinder.annotationOfPropertyInHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfPropertyFromHierarchy
 import nl.kute.reflection.getPropValue
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
@@ -41,7 +41,7 @@ annotation class PrintPatternReplace(
 
 fun <T: Any, V: Any?>replacePattern(obj: T, prop: KProperty1<T, V>): String? {
     val strVal = (obj.getPropValue(prop) ?: return null).toString()
-    with (prop.annotationOfPropertyInHierarchy<PrintPatternReplace>() ?: return strVal) {
+    with (prop.annotationOfPropertyFromHierarchy<PrintPatternReplace>() ?: return strVal) {
         return try {
             strVal.replace(Regex(pattern), replacement)
         } catch (e: Exception) {

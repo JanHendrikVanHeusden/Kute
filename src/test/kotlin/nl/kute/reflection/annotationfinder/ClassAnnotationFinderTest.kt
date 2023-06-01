@@ -31,27 +31,27 @@ internal class ClassAnnotationFinderTest {
      * the annotation at the lowest level is returned, if present at all
      */
     @Test
-    fun `annotationOfClass should return the annotation of the deepest subclass`() {
-        val anno2: NonInheritedTestAnnotation? = T2::class.annotationOfClass()
+    fun `annotationOfClassInheritance should return the annotation of the deepest subclass`() {
+        val anno2: NonInheritedTestAnnotation? = T2::class.annotationOfClassInheritance()
         assertThat(anno2).isNotNull
         assertThat(anno2!!.option).isEqualTo(NonInheritedTestAnnotation.Option.OPTION_2)
 
         // not inherited, so not found on subclass
         assertThat(NonInheritedTestAnnotation::class.java.isAnnotationPresent(Inherited::class.java)).isFalse
-        val anno3: NonInheritedTestAnnotation? = T3::class.annotationOfClass()
+        val anno3: NonInheritedTestAnnotation? = T3::class.annotationOfClassInheritance()
         assertThat(anno3).isNull()
 
-        val printOption0: PrintOption? = T0::class.annotationOfClass()
+        val printOption0: PrintOption? = T0::class.annotationOfClassInheritance()
         assertThat(printOption0).isNotNull
         assertThat(printOption0!!.showNullAs).isEqualTo("T0")
 
-        val printOption2: PrintOption? = T2::class.annotationOfClass()
+        val printOption2: PrintOption? = T2::class.annotationOfClassInheritance()
         assertThat(printOption2).isNotNull
         assertThat(printOption2!!.showNullAs).isEqualTo("T2")
 
         // inherited, so should be found on subclass
         assertThat(PrintOption::class.java.isAnnotationPresent(Inherited::class.java)).isTrue
-        val printOption3: PrintOption? = T3::class.annotationOfClass()
+        val printOption3: PrintOption? = T3::class.annotationOfClassInheritance()
         assertThat(printOption3).isNotNull
         assertThat(printOption3!!.showNullAs).isEqualTo("T2")
     }
@@ -61,22 +61,22 @@ internal class ClassAnnotationFinderTest {
      * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
      */
     @Test
-    fun `annotationsOfClass should return the annotations in order, and include or exclude interfaces as specified`() {
+    fun `annotationsOfClassHierarchy should return the annotations in order, and include or exclude interfaces as specified`() {
         val t2expected = PrintOption(showNullAs = "T2", propMaxStringValueLength = 200)
         val t0expected = PrintOption(showNullAs = "T0", propMaxStringValueLength = 100)
         val iExpected = PrintOption(showNullAs = "I", propMaxStringValueLength = 10)
 
-        val printOptionAnnotations = T3::class.annotationsOfClass<PrintOption>()
+        val printOptionAnnotations = T3::class.annotationsOfClassHierarchy<PrintOption>()
         assertThat(printOptionAnnotations)
             .hasSize(3)
-            .isEqualTo(T3::class.annotationsOfClass<PrintOption>(includeInterfaces = true))
+            .isEqualTo(T3::class.annotationsOfClassHierarchy<PrintOption>(includeInterfaces = true))
 
         var pairList = printOptionAnnotations.toList()
         assertThat(pairList[0]).isEqualTo(Pair(T2::class, t2expected))
         assertThat(pairList[1]).isEqualTo(Pair(T0::class, t0expected))
         assertThat(pairList[2]).isEqualTo(Pair(I::class, iExpected))
 
-        val printOptionAnnotationsNoInterface = T3::class.annotationsOfClass<PrintOption>(false)
+        val printOptionAnnotationsNoInterface = T3::class.annotationsOfClassHierarchy<PrintOption>(false)
         assertThat(printOptionAnnotationsNoInterface)
             .hasSize(2)
 
@@ -90,10 +90,10 @@ internal class ClassAnnotationFinderTest {
      * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
      */
     @Test
-    fun `annotationsOfClass should find annotations regardless of Inherited annotation`() {
+    fun `annotationsOfClassHierarchy should find annotations regardless of Inherited annotation`() {
         assertThat(NonInheritedTestAnnotation::class.java.isAnnotationPresent(Inherited::class.java)).isFalse
 
-        val foundAnnotations = T3::class.annotationsOfClass<NonInheritedTestAnnotation>()
+        val foundAnnotations = T3::class.annotationsOfClassHierarchy<NonInheritedTestAnnotation>()
         assertThat(foundAnnotations).hasSize(2)
 
         val pairList = foundAnnotations.toList()
@@ -108,12 +108,27 @@ internal class ClassAnnotationFinderTest {
      * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
      */
     @Test
-    fun `annotationsOfClass should include annotations on interface if specified so`() {
+    fun `annotationsOfClassInheritance should find annotations with regard to Inherited annotation`() {
+        assertThat(NonInheritedTestAnnotation::class.java.isAnnotationPresent(Inherited::class.java)).isFalse
+
+        val foundAnnotation: NonInheritedTestAnnotation = T2::class.annotationOfClassInheritance<NonInheritedTestAnnotation>()!!
+        assertThat(foundAnnotation).isNotNull()
+
+        val notFoundBecauseNotInherited: NonInheritedTestAnnotation? = T3::class.annotationOfClassInheritance<NonInheritedTestAnnotation>()
+        assertThat(notFoundBecauseNotInherited).isNull()
+    }
+
+    /**
+     * Find any annotation of type `A` on `this` class and its super types.
+     * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
+     */
+    @Test
+    fun `annotationsOfClassHierarchy should include annotations on interface if specified so`() {
         val t2expected = PrintOption(showNullAs = "T2", propMaxStringValueLength = 200)
         val t0expected = PrintOption(showNullAs = "T0", propMaxStringValueLength = 100)
         val iExpected = PrintOption(showNullAs = "I", propMaxStringValueLength = 10)
 
-        val printOptionAnnotations = T3::class.annotationsOfClass<PrintOption>(includeInterfaces = true)
+        val printOptionAnnotations = T3::class.annotationsOfClassHierarchy<PrintOption>(includeInterfaces = true)
         assertThat(printOptionAnnotations).hasSize(3)
 
         val pairList = printOptionAnnotations.map { Pair(it.key, it.value) }.toList()
