@@ -18,6 +18,7 @@ import nl.kute.reflection.annotationfinder.annotationOfReverseClassHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringFromHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringFromReverseHierarchy
 import nl.kute.reflection.annotationfinder.hasAnnotationInHierarchy
+import nl.kute.reflection.declaringClass
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
 import java.util.concurrent.ConcurrentHashMap
@@ -171,13 +172,13 @@ internal fun Any.propertiesFromHierarchy(): Collection<KProperty1<Any, *>> {
 
 internal inline fun <reified A: Annotation> KProperty<*>.effectiveNonOverrideableAnnotation(): A? =
     annotationOfPropertyFromHierarchy<A>()
-        ?: annotationOfToStringFromHierarchy<A>()
-        ?: annotationOfClassInheritance<A>()
+        ?: this.declaringClass()?.annotationOfToStringFromHierarchy<A>()
+        ?: this.declaringClass()?.annotationOfClassInheritance<A>()
 
 internal inline fun <reified A: Annotation> KProperty<*>.effectiveOverrideableAnnotation(): A? =
     annotationOfPropertyFromReverseHierarchy<A>()
-        ?: annotationOfToStringFromReverseHierarchy<A>()
-        ?: annotationOfReverseClassHierarchy<A>()
+        ?: this.declaringClass()?.annotationOfToStringFromReverseHierarchy<A>()
+        ?: this.declaringClass()?.annotationOfReverseClassHierarchy<A>()
 
 fun KProperty<*>.effectivePrintAnnotations(): Set<Annotation> {
     val effectiveAnnotations: MutableSet<Annotation> = mutableSetOf()
