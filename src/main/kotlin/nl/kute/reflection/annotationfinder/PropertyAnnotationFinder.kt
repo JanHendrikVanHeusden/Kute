@@ -2,7 +2,7 @@ package nl.kute.reflection.annotationfinder
 
 import nl.kute.reflection.declaringClass
 import nl.kute.reflection.isPrivate
-import nl.kute.reflection.reverseTypeHierarchy
+import nl.kute.reflection.subSuperHierarchy
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.findAnnotation
@@ -20,7 +20,7 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationsOfPropertyH
     val declaringClass: Class<out Any> = this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return mapOf()
     // The contract of the `associateWith` method explicitly states that the order is preserved
     @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
-    return declaringClass.kotlin.reverseTypeHierarchy().associateWith { kClass ->
+    return declaringClass.kotlin.subSuperHierarchy().associateWith { kClass ->
         kClass.memberProperties
             .filter { prop -> prop.name == this.name && (prop.declaringClass()!!.java == declaringClass || !prop.isPrivate()) }
             .firstNotNullOfOrNull { it.findAnnotation<A>() }
@@ -42,7 +42,7 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertyFr
  *   api will always return the same interface), but undefined in that no explicit rule is defined on which interface will
  *   be ranked highest in case of same-level interfaces
  */
-internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertyFromReverseHierarchy(): A? =
+internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertyFromSuperSubHierarchy(): A? =
     this.annotationsOfPropertyHierarchy<A>().values.lastOrNull()
 
 

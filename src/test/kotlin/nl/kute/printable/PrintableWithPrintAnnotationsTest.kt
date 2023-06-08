@@ -11,7 +11,7 @@ import nl.kute.printable.annotation.option.defaultMaxStringValueLength
 import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.reflection.annotationfinder.annotationOfClassInheritance
 import nl.kute.reflection.annotationfinder.annotationOfPropertyFromHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfToStringFromHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -79,7 +79,7 @@ class PrintableWithPrintAnnotationsTest {
         assertThat(printOptionClass.showNullAs).isEqualTo(nullStrClass)
         assertThat(printOptionClass.propMaxStringValueLength).isEqualTo(6)
         // The @PrintOption of `toString()` should take prevalence over that of the class
-        val printOptionToString: PrintOption = theObjectToPrint.annotationOfToStringFromHierarchy()!!
+        val printOptionToString: PrintOption = theObjectToPrint.annotationOfToStringSubSuperHierarchy()!!
         assertThat(printOptionToString.showNullAs).isEqualTo(defaultNullString)
         assertThat(printOptionToString.propMaxStringValueLength).isEqualTo(defaultMaxStringValueLength)
 
@@ -183,7 +183,7 @@ class PrintableWithPrintAnnotationsTest {
         assertThat(printOptionClass.showNullAs).isEqualTo(defaultNullString)
         assertThat(printOptionClass.propMaxStringValueLength).isEqualTo(2)
         // The @PrintOption of `toString()` in the superclass should still take prevalence over that of the subclass
-        val printOptionToString: PrintOption = theObjectToPrint.annotationOfToStringFromHierarchy()!!
+        val printOptionToString: PrintOption = theObjectToPrint.annotationOfToStringSubSuperHierarchy()!!
         assertThat(printOptionToString.showNullAs).isEqualTo(defaultNullString)
         assertThat(printOptionToString.propMaxStringValueLength).isEqualTo(defaultMaxStringValueLength)
 
@@ -233,7 +233,7 @@ class PrintableWithPrintAnnotationsTest {
         // arrange
         val theObjectToPrint = SubSubClassOfPrintOptionsToStringWithPrintOptionsOnToString()
 
-        val printOptionToString: PrintOption = theObjectToPrint.annotationOfToStringFromHierarchy()!!
+        val printOptionToString: PrintOption = theObjectToPrint.annotationOfToStringSubSuperHierarchy()!!
         assertThat(printOptionToString.showNullAs).isEqualTo(defaultNullString)
         assertThat(printOptionToString.propMaxStringValueLength).isEqualTo(2)
 
@@ -286,7 +286,7 @@ class PrintableWithPrintAnnotationsTest {
         assertThat(theObjectToPrint.propWithPrintOption.length).isGreaterThan(maxStringLenght)
 
         assertThat(theObjectToPrint.annotationOfClassInheritance<PrintOption>()).isNull()
-        assertThat(theObjectToPrint.annotationOfToStringFromHierarchy<PrintOption>()).isNull()
+        assertThat(theObjectToPrint.annotationOfToStringSubSuperHierarchy<PrintOption>()).isNull()
         with(theObjectToPrint::propWithPrintOption.annotationOfPropertyFromHierarchy<PrintOption>()!!) {
             assertThat(this.propMaxStringValueLength).isEqualTo(maxStringLenght)
         }
@@ -308,7 +308,7 @@ class PrintableWithPrintAnnotationsTest {
         assertThat(theObjectToPrint.propWithPrintOption.length).isGreaterThan(maxStringLenght)
 
         assertThat(theObjectToPrint.annotationOfClassInheritance<PrintOption>()).isNull()
-        assertThat(theObjectToPrint.annotationOfToStringFromHierarchy<PrintOption>()!!.propMaxStringValueLength).isLessThan(maxStringLenght)
+        assertThat(theObjectToPrint.annotationOfToStringSubSuperHierarchy<PrintOption>()!!.propMaxStringValueLength).isLessThan(maxStringLenght)
         with(theObjectToPrint::propWithPrintOption.annotationOfPropertyFromHierarchy<PrintOption>()!!) {
             assertThat(this.propMaxStringValueLength).isEqualTo(maxStringLenght)
         }

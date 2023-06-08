@@ -33,8 +33,8 @@ internal fun <T: Any> KClass<T>.getMemberProperty(name: String): KProperty1<out 
  *         specific subclass is returned.
  *         Returns `null` when no such property is found.
  */
-internal fun Any.getPropertyFromHierarchy(name: String): KProperty1<out Any, *>? =
-    this::class.getPropertyFromHierarchy(name)
+internal fun Any.getPropertyFromSubSuperHierarchy(name: String): KProperty1<out Any, *>? =
+    this::class.getPropertyFromSubSuperHierarchy(name)
 
 /**
  * Find a property by name
@@ -43,11 +43,11 @@ internal fun Any.getPropertyFromHierarchy(name: String): KProperty1<out Any, *>?
  *         specific subclass is returned.
  *         Returns `null` when no such property is found.
  */
-internal fun KClass<*>.getPropertyFromHierarchy(name: String): KProperty1<out Any, *>? =
-    this.propertiesFromHierarchy().firstOrNull { it.name == name }
+internal fun KClass<*>.getPropertyFromSubSuperHierarchy(name: String): KProperty1<out Any, *>? =
+    this.propertiesFromSubSuperHierarchy().firstOrNull { it.name == name }
 
 /**
- * Get the properties of the [Any] receiver from its class hierarchy (see [reverseTypeHierarchy]).
+ * Get the properties of the [Any] receiver from its class hierarchy (see [subSuperHierarchy]).
  * * In case of property overrides or name-shadowing, only the property from the most specific subclass
  *   is present in the result.
  *     * This implies that the properties are unique by name.
@@ -55,11 +55,11 @@ internal fun KClass<*>.getPropertyFromHierarchy(name: String): KProperty1<out An
  *   So not only `public` or `protected`, but also `internal` and `private` properties.
  * * The properties may or may not be accessible (KProperty1.isAccessible])
  */
-internal fun Any.propertiesFromHierarchy(): List<KProperty1<out Any, *>> =
-    this::class.propertiesFromHierarchy()
+internal fun Any.propertiesFromSubSuperHierarchy(): List<KProperty1<out Any, *>> =
+    this::class.propertiesFromSubSuperHierarchy()
 
 /**
- * Get the properties from the class hierarchy (see [reverseTypeHierarchy]).
+ * Get the properties from the class hierarchy (see [subSuperHierarchy]).
  * * In case of property overrides or name-shadowing, only the property from the most specific subclass
  *   is present in the result.
  *     * This implies that the properties are unique by name.
@@ -67,15 +67,30 @@ internal fun Any.propertiesFromHierarchy(): List<KProperty1<out Any, *>> =
  *   So not only `public` or `protected`, but also `internal` and `private` properties.
  * * The properties may or may not be accessible ([KProperty1.isAccessible])
  */
-internal fun KClass<*>.propertiesFromHierarchy(): List<KProperty1<out Any, *>> {
-    val classHierarchy = this.reverseTypeHierarchy()
+internal fun KClass<*>.propertiesFromSubSuperHierarchy(): List<KProperty1<out Any, *>> =
+    propertiesFromHierarchy(mostSuper = false)
+
+/**
+ * Get the properties from the class hierarchy (see [subSuperHierarchy]).
+ * * In case of property overrides or name-shadowing, only the property from the most specific subclass
+ *   is present in the result.
+ *     * This implies that the properties are unique by name.
+ * * The resulting properties are returned regardless of visibility.
+ *   So not only `public` or `protected`, but also `internal` and `private` properties.
+ * * The properties may or may not be accessible ([KProperty1.isAccessible])
+ */
+internal fun KClass<*>.propertiesFromSuperSubHierarchy(): List<KProperty1<out Any, *>> =
+    propertiesFromHierarchy(mostSuper = true)
+
+private fun KClass<*>.propertiesFromHierarchy(mostSuper: Boolean): List<KProperty1<out Any, *>> {
+    val classHierarchy = if (mostSuper) this.superSubHierarchy() else this.subSuperHierarchy()
     val linkedHashSet: LinkedHashSet<KProperty1<out Any, *>> = linkedSetOf()
     return linkedHashSet.also { theSet ->
         theSet.addAll(
             classHierarchy.asSequence()
                 .map { kClass -> kClass.memberProperties }
                 .flatten()
-                // In case of overloads or name-shadowing, keep the property of the most specific subclass
+                // In case of overloads or name-shadowing, keep the property that is first in the hierarchy
                 .distinctBy { prop -> prop.name }
                 .toList()
         )
@@ -83,7 +98,7 @@ internal fun KClass<*>.propertiesFromHierarchy(): List<KProperty1<out Any, *>> {
 }
 
 /**
- * Get the properties from the class hierarchy (see [reverseTypeHierarchy]),
+ * Get the properties from the class hierarchy (see [subSuperHierarchy]),
  * mapped by the property's declaring class.
  * * In case of property overrides or name-shadowing, only the property from the most specific subclass
  *   is present in the result.
@@ -92,11 +107,11 @@ internal fun KClass<*>.propertiesFromHierarchy(): List<KProperty1<out Any, *>> {
  *   So not only `public` or `protected`, but also `internal` and `private` properties.
  * * The properties may or may not be accessible ([KProperty1.isAccessible])
  */
-internal fun Any.propertyMapByHierarchy(): Map<KClass<*>?, List<KProperty1<out Any, *>>> =
-    this::class.propertyMapByHierarchy()
+internal fun Any.propertyMapBySubSuperHierarchy(): Map<KClass<*>?, List<KProperty1<out Any, *>>> =
+    this::class.propertyMapBySubSuperHierarchy()
 
 /**
- * Get the properties from the class hierarchy (see [reverseTypeHierarchy]),
+ * Get the properties from the class hierarchy (see [subSuperHierarchy]),
  * mapped by the property's declaring class.
  * * In case of property overrides or name-shadowing, only the property from the most specific subclass
  *   is present in the result.
@@ -105,8 +120,8 @@ internal fun Any.propertyMapByHierarchy(): Map<KClass<*>?, List<KProperty1<out A
  *   So not only `public` or `protected`, but also `internal` and `private` properties.
  * * The properties may or may not be accessible ([KProperty1.isAccessible])
  */
-internal fun KClass<*>.propertyMapByHierarchy(): Map<KClass<*>?, List<KProperty1<out Any, *>>> {
-    val classHierarchy = this.reverseTypeHierarchy()
+internal fun KClass<*>.propertyMapBySubSuperHierarchy(): Map<KClass<*>?, List<KProperty1<out Any, *>>> {
+    val classHierarchy = this.subSuperHierarchy()
     val linkedHashMap: LinkedHashMap<KClass<*>?, MutableList<KProperty1<out Any, *>>> = LinkedHashMap()
     val pairList: List<Pair<KClass<*>, KProperty1<out Any, *>>> =
         classHierarchy.asSequence()

@@ -6,7 +6,7 @@ import nl.kute.printable.annotation.modifiy.PrintMask
 import nl.kute.printable.annotation.modifiy.PrintPatternReplace
 import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.defaultNullString
-import nl.kute.reflection.getPropertyFromHierarchy
+import nl.kute.reflection.getPropertyFromSubSuperHierarchy
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.MapEntry
 import org.junit.jupiter.api.Test
@@ -108,7 +108,7 @@ internal class AnnotationFinderTest {
     @Test
     fun `find annotations on private property`() {
         val obj = ClassWithAnnotationOnPrivateProperty()
-        val privateProp = obj.getPropertyFromHierarchy("myPrivateVal")!!
+        val privateProp = obj.getPropertyFromSubSuperHierarchy("myPrivateVal")!!
 
         val hashAnnotation: PrintHash = privateProp.annotationsOfPropertyHierarchy<PrintHash>()[obj::class]!!
         assertThat(hashAnnotation).isNotNull
@@ -121,7 +121,7 @@ internal class AnnotationFinderTest {
     @Test
     fun `find annotations on public property that masks private property`() {
         val obj = ClassWithAnnotationOnPublicPrivatePropertyThatMasksPrivateProperty()
-        val privateProp = obj.getPropertyFromHierarchy("myPrivateVal")!!
+        val privateProp = obj.getPropertyFromSubSuperHierarchy("myPrivateVal")!!
 
         val hashAnnotation: PrintHash? = privateProp.annotationsOfPropertyHierarchy<PrintHash>()[obj::class]
         assertThat(hashAnnotation).isNull()
@@ -149,7 +149,7 @@ internal class AnnotationFinderTest {
         assertThat(printOptOfProperty.propMaxStringValueLength).isEqualTo(100)
         assertThat(printOptOfProperty.showNullAs).isEqualTo(defaultNullString)
 
-        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToStringFromHierarchy()!!
+        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToStringSubSuperHierarchy()!!
         assertThat(printOptOfToString.propMaxStringValueLength).isEqualTo(250)
         assertThat(printOptOfToString.showNullAs).isEqualTo("<null>")
 
@@ -191,8 +191,8 @@ internal class AnnotationFinderTest {
             with3PrintOptionsByInheritance::someVal.annotationOfPropertyFromHierarchy()!!
         assertThat(printOptOfPropertyByInheritance).isSameAs(printOptOfProperty)
 
-        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToStringFromHierarchy()!!
-        val printOptOfToStringByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfToStringFromHierarchy()
+        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToStringSubSuperHierarchy()!!
+        val printOptOfToStringByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfToStringSubSuperHierarchy()
         assertThat(printOptOfToStringByInheritance).isSameAs(printOptOfToString)
     }
 

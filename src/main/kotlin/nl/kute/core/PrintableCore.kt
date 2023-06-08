@@ -11,16 +11,16 @@ import nl.kute.printable.annotation.modifiy.defaultDigestMethod
 import nl.kute.printable.annotation.modifiy.mask
 import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.PrintOption
-import nl.kute.reflection.annotationfinder.annotationOfClassHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfSubSuperClassHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfClassInheritance
 import nl.kute.reflection.annotationfinder.annotationOfPropertyFromHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfPropertyFromReverseHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfReverseClassHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfToStringFromHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfToStringFromReverseHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfPropertyFromSuperSubHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfSuperSubHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfToStringSuperSubHierarchy
 import nl.kute.reflection.annotationfinder.hasAnnotationInHierarchy
 import nl.kute.reflection.declaringClass
-import nl.kute.reflection.propertiesFromHierarchy
+import nl.kute.reflection.propertiesFromSubSuperHierarchy
 import nl.kute.util.asString
 import nl.kute.util.ifNull
 import nl.kute.util.lineEnd
@@ -188,16 +188,28 @@ enum class PrintModifyingAnnotations(val annotationClass: KClass<out Annotation>
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 internal fun <C: Any> KClass<C>.effectivePrintModifyingAnnotations(): Map<KProperty1<C, *>, Set<Annotation>> {
     val resultMap = mutableMapOf<KProperty1<C, *>, MutableSet<Annotation>>()
-    val printOptionClassAnnotation: PrintOption? = annotationOfToStringFromHierarchy() ?: annotationOfClassHierarchy()
-    @Suppress("UNCHECKED_CAST")
-    (propertiesFromHierarchy() as List<KProperty1<C, *>>).forEach { prop ->
-        (prop.annotationOfPropertyFromHierarchy() ?: printOptionClassAnnotation)?.let {
+
+    val printOmitClassAnnotation: PrintOmit? = annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperClassHierarchy()
+    val printOptionClassAnnotation: PrintOption? = annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperClassHierarchy()
+
+    (propertiesFromSubSuperHierarchy() as List<KProperty1<C, *>>).forEach { prop ->
+        (prop.annotationOfPropertyFromHierarchy() ?: printOmitClassAnnotation)?.let { annotation ->
             resultMap[prop].ifNull {
-                resultMap[prop] = mutableSetOf(it)
-                resultMap[prop]
-            }
+                resultMap[prop] = mutableSetOf()
+                resultMap[prop]!!
+            }.also { it.add(annotation) }
+        }
+    }
+
+    (propertiesFromSubSuperHierarchy() as List<KProperty1<C, *>>).forEach { prop ->
+        (prop.annotationOfPropertyFromHierarchy() ?: printOptionClassAnnotation)?.let { annotation ->
+            resultMap[prop].ifNull {
+                resultMap[prop] = mutableSetOf()
+                resultMap[prop]!!
+            }.also { it.add(annotation) }
         }
     }
     return resultMap
@@ -219,13 +231,13 @@ fun main() {
 
 internal inline fun <reified A: Annotation> KProperty<*>.effectiveNonOverrideableAnnotation(): A? =
     annotationOfPropertyFromHierarchy<A>()
-        ?: this.declaringClass()?.annotationOfToStringFromHierarchy<A>()
+        ?: this.declaringClass()?.annotationOfToStringSubSuperHierarchy<A>()
         ?: this.declaringClass()?.annotationOfClassInheritance<A>()
 
 internal inline fun <reified A: Annotation> KProperty<*>.effectiveOverrideableAnnotation(): A? =
-    annotationOfPropertyFromReverseHierarchy<A>()
-        ?: this.declaringClass()?.annotationOfToStringFromReverseHierarchy<A>()
-        ?: this.declaringClass()?.annotationOfReverseClassHierarchy<A>()
+    annotationOfPropertyFromSuperSubHierarchy<A>()
+        ?: this.declaringClass()?.annotationOfToStringSuperSubHierarchy<A>()
+        ?: this.declaringClass()?.annotationOfSuperSubHierarchy<A>()
 
 fun KProperty<*>.effectivePrintAnnotations(): Set<Annotation> {
     val effectiveAnnotations: MutableSet<Annotation> = mutableSetOf()

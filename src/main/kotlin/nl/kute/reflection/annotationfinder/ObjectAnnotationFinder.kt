@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
  *                          * if `false`, annotations of super interfaces are not included in the result
  */
 internal inline fun <reified A : Annotation> Any.annotationsOfClassHierarchy(includeInterfaces: Boolean = true): Map<KClass<*>, A> =
-    this::class.annotationsOfClassHierarchy(includeInterfaces)
+    this::class.annotationsOfSubSuperClassHierarchy(includeInterfaces)
 
 /**
  * Find any annotation of type [A] on `this` class and its super types.
@@ -24,7 +24,7 @@ internal inline fun <reified A : Annotation> Any.annotationsOfClassHierarchy(inc
  *                          * if `false`, annotations of super interfaces are not included in the result
  */
 internal inline fun <reified A : Annotation> Any.annotationOfClassHierarchy(includeInterfaces: Boolean = true): A? =
-    this::class.annotationsOfClassHierarchy<A>(includeInterfaces).entries.firstOrNull()?.value
+    this::class.annotationsOfSubSuperClassHierarchy<A>(includeInterfaces).entries.firstOrNull()?.value
 
 /**
  * Find any annotations of type [A] on `this` class and its super types.
@@ -32,7 +32,7 @@ internal inline fun <reified A : Annotation> Any.annotationOfClassHierarchy(incl
  * * The annotations are returned regardless whether marked as `@Inherited`
  */
 internal inline fun <reified A : Annotation> Any.annotationsOfReverseClassHierarchy(): Map<KClass<*>, A> =
-    this::class.annotationsOfReverseClassHierarchy<A>()
+    this::class.annotationsOfSuperSubHierarchy<A>()
 
 /**
  * Find any annotation of type [A] on `this` class and its super types.
@@ -43,7 +43,7 @@ internal inline fun <reified A : Annotation> Any.annotationsOfReverseClassHierar
  *   be ranked highest in case of same-level interfaces
  */
 internal inline fun <reified A : Annotation> Any.annotationOfReverseClassHierarchy(): A? =
-    this::class.annotationsOfReverseClassHierarchy<A>().entries.firstOrNull()?.value
+    this::class.annotationsOfSuperSubHierarchy<A>().entries.firstOrNull()?.value
 
 
 /**

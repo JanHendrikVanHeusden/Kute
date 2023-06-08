@@ -1,7 +1,7 @@
 package nl.kute.reflection.annotationfinder
 
-import nl.kute.reflection.reverseTypeHierarchy
-import nl.kute.reflection.topDownTypeHierarchy
+import nl.kute.reflection.subSuperHierarchy
+import nl.kute.reflection.superSubHierarchy
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
@@ -14,15 +14,15 @@ import kotlin.reflect.full.findAnnotation
  * @param includeInterfaces * if `true`, annotations of super interfaces are included in the result
  *                          * if `false`, annotations of super interfaces are not included in the result
  */
-internal inline fun <reified A : Annotation> KClass<*>.annotationsOfClassHierarchy(includeInterfaces: Boolean = true): Map<KClass<*>, A> =
-    this.reverseTypeHierarchy().asSequence()
+internal inline fun <reified A : Annotation> KClass<*>.annotationsOfSubSuperClassHierarchy(includeInterfaces: Boolean = true): Map<KClass<*>, A> =
+    this.subSuperHierarchy().asSequence()
         .map { kClass -> kClass to kClass.findAnnotation<A>() }
         .filter { includeInterfaces || !it.first.java.isInterface }
         .filter { it.second != null }
         .associate { it.first to it.second!! }
 
-internal inline fun <reified A : Annotation> KClass<*>.annotationOfClassHierarchy(): A? =
-    this.annotationsOfClassHierarchy<A>().firstNotNullOfOrNull { it.value }
+internal inline fun <reified A : Annotation> KClass<*>.annotationOfSubSuperClassHierarchy(): A? =
+    this.annotationsOfSubSuperClassHierarchy<A>().firstNotNullOfOrNull { it.value }
 
 /**
  * Find any annotation of type [A] on `this` class and its super types.
@@ -32,14 +32,14 @@ internal inline fun <reified A : Annotation> KClass<*>.annotationOfClassHierarch
 *   api will always return the same interface), but undefined in that no explicit rule is defined on which interface will
 *   be ranked hightest in case of same-level interfaces
 */
-internal inline fun <reified A : Annotation> KClass<*>.annotationsOfReverseClassHierarchy(): Map<KClass<*>, A> =
-    this.topDownTypeHierarchy().asSequence()
+internal inline fun <reified A : Annotation> KClass<*>.annotationsOfSuperSubHierarchy(): Map<KClass<*>, A> =
+    this.superSubHierarchy().asSequence()
         .map { kClass -> kClass to kClass.findAnnotation<A>() }
         .filter { it.second != null }
         .associate { it.first to it.second!! }
 
-internal inline fun <reified A : Annotation> KClass<*>.annotationOfReverseClassHierarchy(): A? =
-    this.annotationsOfReverseClassHierarchy<A>().firstNotNullOfOrNull { it.value }
+internal inline fun <reified A : Annotation> KClass<*>.annotationOfSuperSubHierarchy(): A? =
+    this.annotationsOfSuperSubHierarchy<A>().firstNotNullOfOrNull { it.value }
 
 /**
  * Find the annotation of type [A] on the `this` class or its super types;

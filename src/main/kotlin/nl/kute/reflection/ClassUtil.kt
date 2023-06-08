@@ -11,22 +11,22 @@ import kotlin.reflect.KClass
  * 3. the class itself
  * @return class hierarchy as an unmodifiable list
  */
-internal fun KClass<*>.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
-    this.java.topDownTypeHierarchy(includeInterfaces).map { it.kotlin }
+internal fun KClass<*>.superSubHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+    this.java.superSubHierarchy(includeInterfaces).map { it.kotlin }
 
 /**
  * Gets the class hierarchy of the [Class]
- * @see KClass.topDownTypeHierarchy
+ * @see KClass.subSuperHierarchy
  */
-internal fun Class<*>.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
-    getTopDownTypeHierarchy(this, includeInterfaces).sortedBy { !it.isInterface }
+internal fun Class<*>.superSubHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
+    getSuperSubHierarchy(this, includeInterfaces).sortedBy { !it.isInterface }
 
-/**
- * Gets the class hierarchy of the object's [KClass]
- * @see KClass.topDownTypeHierarchy
- */
-internal fun Any.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
-    this::class.java.topDownTypeHierarchy(includeInterfaces).map { it.kotlin }
+///**
+// * Gets the class hierarchy of the object's [KClass]
+// * @see KClass.reverseHierarchy
+// */
+//internal fun Any.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+//    this::class.java.reverseTypeHierarchy(includeInterfaces).map { it.kotlin }
 
 /**
  * Gets the class hierarchy of the `this` receiver, ordered like this:
@@ -35,51 +35,51 @@ internal fun Any.topDownTypeHierarchy(includeInterfaces: Boolean = true): List<K
  * 3. any interfaces, in order of hierarchy; super interfaces first
  * @return class hierarchy as an unmodifiable list
  */
-internal fun KClass<*>.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
-    this.java.reverseTypeHierarchy(includeInterfaces).map { it.kotlin }
+internal fun KClass<*>.subSuperHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+    this.java.subSuperHierarchy(includeInterfaces).map { it.kotlin }
 
 /**
  * Gets the class hierarchy of the [Class]
- * @see KClass.reverseTypeHierarchy
+ * @see KClass.subSuperHierarchy
  */
-internal fun Class<*>.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
-    this.topDownTypeHierarchy(includeInterfaces).reversed()
+internal fun Class<*>.subSuperHierarchy(includeInterfaces: Boolean = true): List<Class<*>> =
+    this.superSubHierarchy(includeInterfaces).reversed()
 
 /**
  * Gets the class hierarchy of the object's [KClass]
- * @see KClass.reverseTypeHierarchy
+ * @see KClass.subSuperHierarchy
  */
-internal fun Any.reverseTypeHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
-    this::class.java.reverseTypeHierarchy(includeInterfaces).map { it.kotlin }
+internal fun Any.subSuperHierarchy(includeInterfaces: Boolean = true): List<KClass<*>> =
+    this::class.java.subSuperHierarchy(includeInterfaces).map { it.kotlin }
 
 // Kotlin's method `KClass.supertypes` returns classes as well as interfaces.
 // That's quite inconvenient for us: we want to keep these separate.
 // Going  via the Java Class makes it easier to keep this separate
-private fun getTopDownTypeHierarchy(theClass: Class<*>, includeInterfaces: Boolean = true): Set<Class<*>> {
+private fun getSuperSubHierarchy(theClass: Class<*>, includeInterfaces: Boolean = true): Set<Class<*>> {
     if (theClass == Any::class.java || theClass == Object::class.java) {
         return emptySet()
     }
     if (theClass.isInterface) {
-        return if (includeInterfaces) getTopDownInterfaceHierarchy(theClass) else emptySet()
+        return if (includeInterfaces) getSuperSubInterfaceHierarchy(theClass) else emptySet()
     }
 
     val classHierarchy: MutableSet<Class<*>> = linkedSetOf()
-    classHierarchy.addAll(getTopDownTypeHierarchy(theClass.superclass, includeInterfaces))
+    classHierarchy.addAll(getSuperSubHierarchy(theClass.superclass, includeInterfaces))
     classHierarchy.add(theClass)
     if (!includeInterfaces) {
         return classHierarchy
     }
     val interfaceHierarchy: MutableSet<Class<*>> = linkedSetOf()
-    theClass.interfaces.forEach { interfaceHierarchy.addAll(getTopDownInterfaceHierarchy(it)) }
+    theClass.interfaces.forEach { interfaceHierarchy.addAll(getSuperSubInterfaceHierarchy(it)) }
     return classHierarchy + interfaceHierarchy
 }
 
-private fun getTopDownInterfaceHierarchy(theInterface: Class<*>): Set<Class<*>> {
+private fun getSuperSubInterfaceHierarchy(theInterface: Class<*>): Set<Class<*>> {
     if (!theInterface.isInterface) {
         return emptySet()
     }
     val hierarchy: MutableSet<Class<*>> = linkedSetOf()
-    theInterface.interfaces.forEach { hierarchy.addAll(getTopDownInterfaceHierarchy(it)) }
+    theInterface.interfaces.forEach { hierarchy.addAll(getSuperSubInterfaceHierarchy(it)) }
     hierarchy.add(theInterface)
     return hierarchy
 }

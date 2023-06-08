@@ -66,17 +66,17 @@ internal class ClassAnnotationFinderTest {
         val t0expected = PrintOption(showNullAs = "T0", propMaxStringValueLength = 100)
         val iExpected = PrintOption(showNullAs = "I", propMaxStringValueLength = 10)
 
-        val printOptionAnnotations = T3::class.annotationsOfClassHierarchy<PrintOption>()
+        val printOptionAnnotations = T3::class.annotationsOfSubSuperClassHierarchy<PrintOption>()
         assertThat(printOptionAnnotations)
             .hasSize(3)
-            .isEqualTo(T3::class.annotationsOfClassHierarchy<PrintOption>(includeInterfaces = true))
+            .isEqualTo(T3::class.annotationsOfSubSuperClassHierarchy<PrintOption>(includeInterfaces = true))
 
         var pairList = printOptionAnnotations.toList()
         assertThat(pairList[0]).isEqualTo(Pair(T2::class, t2expected))
         assertThat(pairList[1]).isEqualTo(Pair(T0::class, t0expected))
         assertThat(pairList[2]).isEqualTo(Pair(I::class, iExpected))
 
-        val printOptionAnnotationsNoInterface = T3::class.annotationsOfClassHierarchy<PrintOption>(false)
+        val printOptionAnnotationsNoInterface = T3::class.annotationsOfSubSuperClassHierarchy<PrintOption>(false)
         assertThat(printOptionAnnotationsNoInterface)
             .hasSize(2)
 
@@ -93,7 +93,7 @@ internal class ClassAnnotationFinderTest {
     fun `annotationsOfClassHierarchy should find annotations regardless of Inherited annotation`() {
         assertThat(NonInheritedTestAnnotation::class.java.isAnnotationPresent(Inherited::class.java)).isFalse
 
-        val foundAnnotations = T3::class.annotationsOfClassHierarchy<NonInheritedTestAnnotation>()
+        val foundAnnotations = T3::class.annotationsOfSubSuperClassHierarchy<NonInheritedTestAnnotation>()
         assertThat(foundAnnotations).hasSize(2)
 
         val pairList = foundAnnotations.toList()
@@ -128,7 +128,7 @@ internal class ClassAnnotationFinderTest {
         val t0expected = PrintOption(showNullAs = "T0", propMaxStringValueLength = 100)
         val iExpected = PrintOption(showNullAs = "I", propMaxStringValueLength = 10)
 
-        val printOptionAnnotations = T3::class.annotationsOfClassHierarchy<PrintOption>(includeInterfaces = true)
+        val printOptionAnnotations = T3::class.annotationsOfSubSuperClassHierarchy<PrintOption>(includeInterfaces = true)
         assertThat(printOptionAnnotations).hasSize(3)
 
         val pairList = printOptionAnnotations.map { Pair(it.key, it.value) }.toList()
