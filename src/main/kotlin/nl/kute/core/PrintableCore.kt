@@ -11,6 +11,7 @@ import nl.kute.printable.annotation.modifiy.defaultDigestMethod
 import nl.kute.printable.annotation.modifiy.mask
 import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.PrintOption
+import nl.kute.reflection.annotationfinder.annotationOfClassHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfClassInheritance
 import nl.kute.reflection.annotationfinder.annotationOfPropertyFromHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertyFromReverseHierarchy
@@ -19,7 +20,9 @@ import nl.kute.reflection.annotationfinder.annotationOfToStringFromHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringFromReverseHierarchy
 import nl.kute.reflection.annotationfinder.hasAnnotationInHierarchy
 import nl.kute.reflection.declaringClass
+import nl.kute.reflection.propertiesFromHierarchy
 import nl.kute.util.asString
+import nl.kute.util.ifNull
 import nl.kute.util.lineEnd
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
@@ -93,8 +96,8 @@ fun Any.asStringExcludingNames(vararg propNamesToExclude: String): String {
 //            }
 //        }
         // try to get properties from cache first; not found? retrieve and add to cache
-        val properties: Collection<KProperty1<Any, *>> = propertyCache[this::class]
-            ?: (propertiesFromHierarchy().also { propertyCache[this::class] = it })
+        val properties: Collection<KProperty1<Any, *>> = propertyCache[this::class] /* FIXME !! */!!
+//            ?: (propertiesFromHierarchy().also { propertyCache[this::class] = it })
         return properties
             .filterNot { propNamesToExclude.contains(it.name) }
             .filterNot { it.hasAnnotationInHierarchy<PrintOmit>() }
@@ -168,6 +171,50 @@ internal fun Any.propertiesFromHierarchy(): Collection<KProperty1<Any, *>> {
                 .reversed() // reverse again to normal order
         )
     }
+}
+
+enum class PrintModifyingAnnotations(val annotationClass: KClass<out Annotation>, val overrideable: Boolean) {
+    Omit(PrintOmit::class, true),
+    Hash(PrintHash::class, false),
+    Mask(PrintMask::class, false),
+    PatternReplace(PrintPatternReplace::class, false);
+
+    companion object {
+        val overrideableAnnotations: Set<PrintModifyingAnnotations> =
+            PrintModifyingAnnotations.values().filter { it.overrideable }.toSet()
+
+        val nonOverrideableAnnotations: Set<PrintModifyingAnnotations> =
+            PrintModifyingAnnotations.values().filterNot { it.overrideable }.toSet()
+    }
+}
+
+internal fun <C: Any> KClass<C>.effectivePrintModifyingAnnotations(): Map<KProperty1<C, *>, Set<Annotation>> {
+    val resultMap = mutableMapOf<KProperty1<C, *>, MutableSet<Annotation>>()
+    val printOptionClassAnnotation: PrintOption? = annotationOfToStringFromHierarchy() ?: annotationOfClassHierarchy()
+    @Suppress("UNCHECKED_CAST")
+    (propertiesFromHierarchy() as List<KProperty1<C, *>>).forEach { prop ->
+        (prop.annotationOfPropertyFromHierarchy() ?: printOptionClassAnnotation)?.let {
+            resultMap[prop].ifNull {
+                resultMap[prop] = mutableSetOf(it)
+                resultMap[prop]
+            }
+        }
+    }
+    return resultMap
+}
+
+private open class C1 (@PrintOption(propMaxStringValueLength = 1) open val c: String = "c1")
+private open class C2 (@PrintOption(propMaxStringValueLength = 2) override val c: String = "c2"): C1(c)
+
+@PrintOption(propMaxStringValueLength = 3)
+private open class C3 : C2() {
+    @PrintOption(propMaxStringValueLength = 4)
+    override fun toString(): String = asString()
+}
+
+fun main() {
+    val resultMap = C3::class.effectivePrintModifyingAnnotations()
+    println(resultMap)
 }
 
 internal inline fun <reified A: Annotation> KProperty<*>.effectiveNonOverrideableAnnotation(): A? =
