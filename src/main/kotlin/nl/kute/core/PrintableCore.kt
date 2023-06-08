@@ -13,8 +13,8 @@ import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperClassHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfClassInheritance
-import nl.kute.reflection.annotationfinder.annotationOfPropertyFromHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfPropertyFromSuperSubHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSuperSubHierarchy
@@ -138,7 +138,7 @@ private fun Any.getPropValueString(prop: KProperty1<Any, *>): String? {
             strValue = mask(this, prop)
         }
         if (prop.hasAnnotationInHierarchy<PrintHash>()) {
-            val digestMethod = prop.annotationOfPropertyFromHierarchy<PrintHash>()?.digestMethod ?: defaultDigestMethod
+            val digestMethod = prop.annotationOfPropertySubSuperHierarchy<PrintHash>()?.digestMethod ?: defaultDigestMethod
             strValue = hashString(strValue, digestMethod)
         }
         return strValue
@@ -196,7 +196,7 @@ internal fun <C: Any> KClass<C>.effectivePrintModifyingAnnotations(): Map<KPrope
     val printOptionClassAnnotation: PrintOption? = annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperClassHierarchy()
 
     (propertiesFromSubSuperHierarchy() as List<KProperty1<C, *>>).forEach { prop ->
-        (prop.annotationOfPropertyFromHierarchy() ?: printOmitClassAnnotation)?.let { annotation ->
+        (prop.annotationOfPropertySubSuperHierarchy() ?: printOmitClassAnnotation)?.let { annotation ->
             resultMap[prop].ifNull {
                 resultMap[prop] = mutableSetOf()
                 resultMap[prop]!!
@@ -205,7 +205,7 @@ internal fun <C: Any> KClass<C>.effectivePrintModifyingAnnotations(): Map<KPrope
     }
 
     (propertiesFromSubSuperHierarchy() as List<KProperty1<C, *>>).forEach { prop ->
-        (prop.annotationOfPropertyFromHierarchy() ?: printOptionClassAnnotation)?.let { annotation ->
+        (prop.annotationOfPropertySubSuperHierarchy() ?: printOptionClassAnnotation)?.let { annotation ->
             resultMap[prop].ifNull {
                 resultMap[prop] = mutableSetOf()
                 resultMap[prop]!!
@@ -230,12 +230,12 @@ fun main() {
 }
 
 internal inline fun <reified A: Annotation> KProperty<*>.effectiveNonOverrideableAnnotation(): A? =
-    annotationOfPropertyFromHierarchy<A>()
+    annotationOfPropertySubSuperHierarchy<A>()
         ?: this.declaringClass()?.annotationOfToStringSubSuperHierarchy<A>()
         ?: this.declaringClass()?.annotationOfClassInheritance<A>()
 
 internal inline fun <reified A: Annotation> KProperty<*>.effectiveOverrideableAnnotation(): A? =
-    annotationOfPropertyFromSuperSubHierarchy<A>()
+    annotationOfPropertySuperSubHierarchy<A>()
         ?: this.declaringClass()?.annotationOfToStringSuperSubHierarchy<A>()
         ?: this.declaringClass()?.annotationOfSuperSubHierarchy<A>()
 

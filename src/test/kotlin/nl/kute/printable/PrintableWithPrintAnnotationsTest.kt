@@ -10,7 +10,7 @@ import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.defaultMaxStringValueLength
 import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.reflection.annotationfinder.annotationOfClassInheritance
-import nl.kute.reflection.annotationfinder.annotationOfPropertyFromHierarchy
+import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -287,7 +287,7 @@ class PrintableWithPrintAnnotationsTest {
 
         assertThat(theObjectToPrint.annotationOfClassInheritance<PrintOption>()).isNull()
         assertThat(theObjectToPrint.annotationOfToStringSubSuperHierarchy<PrintOption>()).isNull()
-        with(theObjectToPrint::propWithPrintOption.annotationOfPropertyFromHierarchy<PrintOption>()!!) {
+        with(theObjectToPrint::propWithPrintOption.annotationOfPropertySubSuperHierarchy<PrintOption>()!!) {
             assertThat(this.propMaxStringValueLength).isEqualTo(maxStringLenght)
         }
 
@@ -309,7 +309,7 @@ class PrintableWithPrintAnnotationsTest {
 
         assertThat(theObjectToPrint.annotationOfClassInheritance<PrintOption>()).isNull()
         assertThat(theObjectToPrint.annotationOfToStringSubSuperHierarchy<PrintOption>()!!.propMaxStringValueLength).isLessThan(maxStringLenght)
-        with(theObjectToPrint::propWithPrintOption.annotationOfPropertyFromHierarchy<PrintOption>()!!) {
+        with(theObjectToPrint::propWithPrintOption.annotationOfPropertySubSuperHierarchy<PrintOption>()!!) {
             assertThat(this.propMaxStringValueLength).isEqualTo(maxStringLenght)
         }
 

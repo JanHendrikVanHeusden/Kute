@@ -31,7 +31,7 @@ internal inline fun <reified A : Annotation> Any.annotationOfClassHierarchy(incl
  * * The annotations are ordered from higest to lowest level, so from super class / super interface to subclass.
  * * The annotations are returned regardless whether marked as `@Inherited`
  */
-internal inline fun <reified A : Annotation> Any.annotationsOfReverseClassHierarchy(): Map<KClass<*>, A> =
+internal inline fun <reified A : Annotation> Any.annotationsOfSuperSubHierarchy(): Map<KClass<*>, A> =
     this::class.annotationsOfSuperSubHierarchy<A>()
 
 /**
@@ -42,7 +42,7 @@ internal inline fun <reified A : Annotation> Any.annotationsOfReverseClassHierar
  *   api will always return the same interface), but undefined in that no explicit rule is defined on which interface will
  *   be ranked highest in case of same-level interfaces
  */
-internal inline fun <reified A : Annotation> Any.annotationOfReverseClassHierarchy(): A? =
+internal inline fun <reified A : Annotation> Any.annotationOfSuperSubHierarchy(): A? =
     this::class.annotationsOfSuperSubHierarchy<A>().entries.firstOrNull()?.value
 
 
