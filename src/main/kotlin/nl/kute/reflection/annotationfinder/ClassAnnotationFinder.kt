@@ -21,6 +21,9 @@ internal inline fun <reified A : Annotation> KClass<*>.annotationsOfClassHierarc
         .filter { it.second != null }
         .associate { it.first to it.second!! }
 
+internal inline fun <reified A : Annotation> KClass<*>.annotationOfClassHierarchy(): A? =
+    this.annotationsOfClassHierarchy<A>().firstNotNullOfOrNull { it.value }
+
 /**
  * Find any annotation of type [A] on `this` class and its super types.
  * * The annotations are returned regardless whether marked as `@Inherited`
@@ -34,6 +37,9 @@ internal inline fun <reified A : Annotation> KClass<*>.annotationsOfReverseClass
         .map { kClass -> kClass to kClass.findAnnotation<A>() }
         .filter { it.second != null }
         .associate { it.first to it.second!! }
+
+internal inline fun <reified A : Annotation> KClass<*>.annotationOfReverseClassHierarchy(): A? =
+    this.annotationsOfReverseClassHierarchy<A>().firstNotNullOfOrNull { it.value }
 
 /**
  * Find the annotation of type [A] on the `this` class or its super types;
