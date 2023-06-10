@@ -198,8 +198,7 @@ internal fun <C: Any> KClass<C>.effectivePrintModifyingAnnotations(): Map<KPrope
     (propertiesFromSubSuperHierarchy() as List<KProperty1<C, *>>).forEach { prop ->
         (prop.annotationOfPropertySubSuperHierarchy() ?: printOmitClassAnnotation)?.let { annotation ->
             resultMap[prop].ifNull {
-                resultMap[prop] = mutableSetOf()
-                resultMap[prop]!!
+                mutableSetOf<Annotation>().also { resultMap[prop] = it }
             }.also { it.add(annotation) }
         }
     }
