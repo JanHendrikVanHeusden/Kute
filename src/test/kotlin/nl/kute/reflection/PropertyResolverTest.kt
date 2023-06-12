@@ -1,14 +1,13 @@
+@file:Suppress("unused")  // several properties accessed by reflection only
+
 package nl.kute.reflection
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import kotlin.reflect.KClass
-import kotlin.reflect.KProperty1
 import kotlin.reflect.KVisibility.PRIVATE
 import kotlin.reflect.full.memberProperties
 
-@Suppress("unused") // several properties accessed by reflection only
 internal class PropertyResolverTest {
 
     private interface I0 {
@@ -54,37 +53,16 @@ internal class PropertyResolverTest {
     }
 
     @Test
-    fun propertiesFromHierarchy() {
-        // Arrange
-        val t3 = T3(14, "Hi", LocalDateTime.now(), 14, "Hallo", LocalDateTime.MIN)
-
-        val privatePString = T3::class.memberProperties
-            .first { it.name == "p" && it.visibility == PRIVATE }
-        val privateLazy = T1::class.memberProperties
-            .first { it.name == "l" && it.visibility == PRIVATE }
-        // shadowed by T3.p, so should not be included
-        val privatePShadowed = T2::class.memberProperties
-            .first { it.name == "p" && it.visibility == PRIVATE }
-
-        // Act
-        val properties = t3.propertiesFromSubSuperHierarchy()
-
-        // Assert
-        // Shadowed property should not be included
-        assertThat(properties).doesNotContain(privatePShadowed)
-        assertThat(properties)
-            .containsExactly(T3::a, T3::i, T3::j, T3::k, privatePString, T3::f, T3::x, T3::y, T3::z, privateLazy)
-    }
-
-    @Test
     fun `propertiesFromHierarchy on abstract class or interface`() {
         assertThat(I0::class.propertiesFromSubSuperHierarchy()).containsExactly(I0::i, I0::j, I0::k)
-        val privatePChar = T2::class.memberProperties
-            .first { it.name == "p" && it.visibility == PRIVATE }
         val privateL = T1::class.memberProperties
             .first { it.name == "l" && it.visibility == PRIVATE }
+        val privatePChar = T2::class.memberProperties
+            .first { it.name == "p" && it.visibility == PRIVATE }
+
+        assertThat(T1::class.propertiesFromSubSuperHierarchy()).contains(privateL)
         assertThat(T2::class.propertiesFromSubSuperHierarchy())
-            .isEqualTo(listOf(T2::a, T2::f, privatePChar, T2::x, T2::y, T2::z, T2::i, T2::j, T2::k, privateL))
+            .isEqualTo(listOf(T2::a, T2::f, privatePChar, T2::x, T2::y, T2::z, T2::i, T2::j, T2::k))
     }
 
     @Test
@@ -92,131 +70,16 @@ internal class PropertyResolverTest {
         val anon = object : T3(1, "", LocalDateTime.MIN, null, "y", LocalDateTime.MAX) {
             val q = 'q'
         }
-        val anonQ = anon::class.memberProperties.first { it.name == "q" }
-        val properties = anon.propertiesFromSubSuperHierarchy()
-        val propertiesT3 = T3::class.propertiesFromSubSuperHierarchy().toMutableList()
-        assertThat(properties).isEqualTo(propertiesT3.also { it.add(0, anonQ) })
-    }
+        val propertiesAnon = anon::class.propertiesFromSubSuperHierarchy()
+        val propQAnon = anon::class.memberProperties.first { it.name == "q" }
 
-    @Suppress("UNCHECKED_CAST")
-    @Test
-    fun propertyMapByHierarchy() {
-        // Arrange
-        val privatePString = T3::class.memberProperties
-            .first { it.name == "p" && it.visibility == PRIVATE } as KProperty1<Any, *>
-        val privateLazy = T1::class.memberProperties
-            .first { it.name == "l" && it.visibility == PRIVATE } as KProperty1<Any, *>
+        val propertiesT3 = T3::class.propertiesFromSubSuperHierarchy()
+        val propP = T3::class.memberProperties.first { it.name == "p" }
+        assertThat(propertiesT3).contains(propP)
+        assertThat(propertiesT3.firstOrNull { it.name == "q" }).isNull()
 
-        // shadowed by T3.p, so should not be included
-        val privatePShadowed = T2::class.memberProperties
-            .first { it.name == "p" && it.visibility == PRIVATE } as KProperty1<Any, *>
-
-        // Act
-        val propertyMap: Map<KClass<*>?, List<KProperty1<Any, *>>> =
-            T3::class.propertyMapBySubSuperHierarchy() as Map<KClass<*>?, List<KProperty1<Any, *>>>
-
-        // Assert
-        assertThat(propertyMap.values.flatten()).doesNotContain(privatePShadowed)
-            .`as`("Shadowed property should not be included")
-
-        val expected = mapOf(
-            Pair(
-                T3::class,
-                listOf(
-                    T3::a as KProperty1<Any, *>,
-                    T3::i as KProperty1<Any, *>,
-                    T3::j as KProperty1<Any, *>,
-                    T3::k as KProperty1<Any, *>,
-                    privatePString
-                )
-            ),
-            Pair(
-                T2::class,
-                listOf(
-                    T3::f as KProperty1<Any, *>,
-                    T3::x as KProperty1<Any, *>,
-                    T3::y as KProperty1<Any, *>,
-                    T3::z as KProperty1<Any, *>
-                )
-            ),
-            Pair(T1::class, listOf(privateLazy))
-        )
-
-        assertThat(propertyMap).isEqualTo(expected)
-    }
-
-    @Test
-    fun `values of propertyMapByHierarchy should correspond exactly in same order with propertiesFromHierarchy`() {
-        val t3 = T3(14, "Hi", LocalDateTime.now(), 14, "Hallo", LocalDateTime.MIN)
-        assertThat(t3.propertyMapBySubSuperHierarchy().values.flatten()).isEqualTo(t3.propertiesFromSubSuperHierarchy())
-        assertThat(T2::class.propertyMapBySubSuperHierarchy().values.flatten()).isEqualTo(T2::class.propertiesFromSubSuperHierarchy())
-    }
-
-    @Test
-    fun `values of propertyMapByHierarchy from class should be equal to those by instance`() {
-        val t3 = T3(14, "Hi", LocalDateTime.now(), 14, "Hallo", LocalDateTime.MIN)
-        assertThat(t3.propertyMapBySubSuperHierarchy()).isEqualTo(T3::class.propertyMapBySubSuperHierarchy())
-    }
-
-    @Test
-    fun `values of propertiesFromHierarchy from class should be equal to those by instance`() {
-        val t3 = T3(14, "Hi", LocalDateTime.now(), 14, "Hallo", LocalDateTime.MIN)
-        assertThat(t3.propertiesFromSubSuperHierarchy()).isEqualTo(T3::class.propertiesFromSubSuperHierarchy())
-    }
-
-    @Test
-    fun `getMemberProperty of class should return member property by name, if present`() {
-        assertThat(T3::class.getMemberProperty("l")).isNull()
-        assertThat(T3::class.getMemberProperty("f")).isEqualTo(T3::f)
-        assertThat(T3::class.getMemberProperty("F")).isNull()
-        assertThat(T3::class.getMemberProperty("not existing")).isNull()
-        assertThat(T4::class.getMemberProperty("a value with spaces")).isEqualTo(T4::`a value with spaces`)
-        assertThat(T4::class.getMemberProperty("a Value with spaces")).isNull()
-        assertThat(T4::class.getMemberProperty("aValueWithUpperCase")).isEqualTo(T4::aValueWithUpperCase)
-        assertThat(T4::class.getMemberProperty("avaluewithuppercase")).isNull()
-    }
-
-    @Test
-    fun `getMemberProperty of instance should return same values as getMemberProperty of class`() {
-        val t3 = T3(null, "", LocalDateTime.MAX, null, "", LocalDateTime.MIN)
-        assertThat(t3.getMemberProperty("l")).isEqualTo(T3::class.getMemberProperty("l"))
-        assertThat(t3.getMemberProperty("f")).isEqualTo(T3::class.getMemberProperty("f"))
-        assertThat(t3.getMemberProperty("not existing")).isEqualTo(T3::class.getMemberProperty("not existing"))
-        val t4 = T4()
-        assertThat(t4.getMemberProperty("a value with spaces")).isEqualTo(T4::class.getMemberProperty("a value with spaces"))
-        assertThat(T4::class.getMemberProperty("a Value with spaces")).isEqualTo(T4::class.getMemberProperty("a Value with spaces"))
-        assertThat(T4::class.getMemberProperty("aValueWithUpperCase")).isEqualTo(T4::class.getMemberProperty("aValueWithUpperCase"))
-        assertThat(T4::class.getMemberProperty("avaluewithuppercase")).isEqualTo(T4::class.getMemberProperty("avaluewithuppercase"))
-    }
-
-    @Test
-    fun `getPropertyFromHierarchy of class should return the most specific property by name, if present`() {
-        assertThat(T3::class.getPropertyFromSubSuperHierarchy("l"))
-            .isEqualTo(T1::class.memberProperties.first { it.name == "l" && it.visibility == PRIVATE })
-        assertThat(T3::class.getPropertyFromSubSuperHierarchy("f")).isEqualTo(T3::f)
-        assertThat(T3::class.getPropertyFromSubSuperHierarchy("F")).isNull()
-        assertThat(T3::class.getPropertyFromSubSuperHierarchy("not existing")).isNull()
-        assertThat(T4::class.getPropertyFromSubSuperHierarchy("a value with spaces")).isEqualTo(T4::`a value with spaces`)
-        assertThat(T4::class.getPropertyFromSubSuperHierarchy("a Value with spaces")).isNull()
-        assertThat(T4::class.getPropertyFromSubSuperHierarchy("aValueWithUpperCase")).isEqualTo(T4::aValueWithUpperCase)
-        assertThat(T4::class.getPropertyFromSubSuperHierarchy("avaluewithuppercase")).isNull()
-    }
-
-    @Test
-    fun `getPropertyFromHierarchy of instance should return same values as getPropertyFromHierarchy of class`() {
-        val t3 = T3(null, "", LocalDateTime.MAX, null, "", LocalDateTime.MIN)
-        assertThat(t3.getPropertyFromSubSuperHierarchy("l")).isEqualTo(T3::class.getPropertyFromSubSuperHierarchy("l"))
-        assertThat(t3.getPropertyFromSubSuperHierarchy("f")).isEqualTo(T3::class.getPropertyFromSubSuperHierarchy("f"))
-        assertThat(t3.getPropertyFromSubSuperHierarchy("not existing")).isEqualTo(T3::class.getPropertyFromSubSuperHierarchy("not existing"))
-        val t4 = T4()
-        assertThat(t4.getPropertyFromSubSuperHierarchy("a value with spaces"))
-            .isEqualTo(T4::class.getPropertyFromSubSuperHierarchy("a value with spaces"))
-        assertThat(T4::class.getPropertyFromSubSuperHierarchy("a Value with spaces"))
-            .isEqualTo(T4::class.getPropertyFromSubSuperHierarchy("a Value with spaces"))
-        assertThat(T4::class.getPropertyFromSubSuperHierarchy("aValueWithUpperCase"))
-            .isEqualTo(T4::class.getPropertyFromSubSuperHierarchy("aValueWithUpperCase"))
-        assertThat(T4::class.getPropertyFromSubSuperHierarchy("avaluewithuppercase"))
-            .isEqualTo(T4::class.getPropertyFromSubSuperHierarchy("avaluewithuppercase"))
+        assertThat(propertiesAnon).contains(propQAnon)
+        assertThat(propertiesAnon.firstOrNull { it.name == "p" }).isNull()
     }
 
 }

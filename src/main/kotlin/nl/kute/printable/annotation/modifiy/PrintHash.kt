@@ -1,10 +1,9 @@
 package nl.kute.printable.annotation.modifiy
 
 import nl.kute.hashing.DigestMethod
+import nl.kute.hashing.hashString
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
-
-val defaultDigestMethod = DigestMethod.CRC32C
 
 /**
  * The [PrintHash] annotation can be placed on properties to indicate that the property is included
@@ -18,4 +17,8 @@ val defaultDigestMethod = DigestMethod.CRC32C
 @Inherited
 @Retention(RUNTIME)
 annotation class PrintHash(val digestMethod: DigestMethod = DigestMethod.CRC32C)
+
+fun PrintHash?.hashString(strVal: String?): String? =
+    if (this == null) strVal else hashString(strVal, digestMethod)
+
 

@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import java.time.LocalDateTime
-import kotlin.reflect.KProperty0
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
 
 @Suppress("unused") // several properties accessed by reflection only
 internal class PropertyValueResolverTest {
@@ -55,18 +56,22 @@ internal class PropertyValueResolverTest {
     @Test
     fun getPropValueSafe() {
         val t3 = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX)
-        assertThat(getPropValue(t3::x)).isEqualTo(12)
-        assertThat(getPropValue(t3::z)).isEqualTo(LocalDateTime.MIN)
-        assertThat(getPropValue(t3::z)).isEqualTo(LocalDateTime.MIN)
-        assertThat(getPropValue(t3::i)).isEqualTo(28)
-        t3.i = null
-        assertThat(getPropValue(t3::i)).isNull()
-
-        val throwingProperty: KProperty0<Unit> = mock {
-            on { get() } doThrow RuntimeException()
+        val properties: Collection<KProperty1<T3, *>> = T3::class.memberProperties
+        fun getPropByName(name: String): KProperty1<T3, *> {
+            return properties.first{ it.name == name }
         }
+        assertThat(t3.getPropValue(getPropByName("x"))).isEqualTo(12)
+        assertThat(t3.getPropValue(getPropByName("z"))).isEqualTo(LocalDateTime.MIN)
+        assertThat(t3.getPropValue(getPropByName("i"))).isEqualTo(28)
+        t3.i = null
+        assertThat(t3.getPropValue(getPropByName("i"))).isNull()
+
+        val throwingProperty: KProperty1<T3, *> = mock {
+            on { this.get(t3) } doThrow RuntimeException()
+        }
+
         // Demonstrate that it's safe
-        assertThat(getPropValue(throwingProperty))
+        assertThat(t3.getPropValue(throwingProperty))
             .`as`("Should be safe even with contrived exception")
             .isNull()
     }

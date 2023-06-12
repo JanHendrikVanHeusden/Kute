@@ -1,7 +1,11 @@
 package nl.kute.printable
 
 import nl.kute.core.Printable
-import nl.kute.core.asString
+import nl.kute.hashing.DigestMethod
+import nl.kute.printable.annotation.modifiy.PrintHash
+import nl.kute.printable.annotation.modifiy.PrintMask
+import nl.kute.printable.annotation.modifiy.PrintOmit
+import nl.kute.printable.annotation.modifiy.PrintPatternReplace
 import nl.kute.test.java.printable.JavaClassToTestPrintable
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -35,21 +39,10 @@ class PrintableTest {
 
         // Assert that it works on anonymous class
         assertThat(extensionObject.toString())
-            .doesNotContain("privateToPrint", "this is another printable") // excluded property
+            .doesNotContain("privateToPrint", "this is another printable", // // excluded properties
+                "greet=hallo", "privateToPrint=this is another printable") // private properties
             .contains(
                 "class ",
-                "greet=hallo",
-                "str=a string",
-                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
-                "extensionProperty=my extension property",
-                "num=80", // overridden value
-            )
-
-        assertThat(extensionObject.asString())
-            .contains(
-                "class ",
-                "greet=hallo",
-                "privateToPrint=this is another printable",
                 "str=a string",
                 "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
                 "extensionProperty=my extension property",
@@ -78,8 +71,22 @@ class PrintableTest {
     fun `test with Kotlin subclass of Java class`() {
         val kotlinSubClass = KotlinClassToTestPrintable("my str", 35, "this is another", names)
         assertThat(JavaClassToTestPrintable::class.java.isAssignableFrom(kotlinSubClass.javaClass))
-        assertThat(kotlinSubClass.toString()).isEqualTo("KotlinClassToTestPrintable(str=my str, num=35, anotherStr=this is another, names=${names.contentDeepToString()})")
-        assertThat(kotlinSubClass.asString()).isEqualTo("KotlinClassToTestPrintable(str=my str, num=35, anotherStr=this is another, names=${names.contentDeepToString()})")
+        assertThat(kotlinSubClass.toString()).isEqualTo("KotlinClassToTestPrintable(anotherStr=this is another, names=${names.contentDeepToString()})")
+    }
+
+    @Test
+    fun `overriding of annotations should not be possible`() {
+        val person = Person()
+        val personString = person.toString()
+        assertThat(personString)
+            // according to annotations on interface properties, not on subclass;
+            // so the "overriding" annotations are not honored
+            .contains("iban=NL99 BANK *****0 7906")
+            .contains("password=**********")
+            .contains("phoneNumber=06123***789")
+            .matches(""".+?\bsocialSecurityNumber=[a-f0-9]{40}\b.*""")
+            // according to PrintOmit annotation on subclass
+            .doesNotContain("mailAddress")
     }
 
     // ------------------------------------
@@ -93,9 +100,9 @@ class PrintableTest {
         override fun toString(): String = "this is another printable"
     }
 
-    @Suppress("unused")
-    open private class ClassToPrint(val str: String, open var num: Int, private val privateToPrint: Any?): Printable {
-        // getter should be called, not the internal value. Private should be included
+    @Suppress("unused", "SameReturnValue")
+    private open class ClassToPrint(val str: String, open var num: Int, private val privateToPrint: Any?): Printable {
+        // getter should be called, not the internal value. Private should be included, but not for subclasses
         @Suppress("SuspiciousVarProperty")
         private var greet: String? = "hi"
             get() = "hallo"
@@ -125,4 +132,43 @@ class PrintableTest {
         override fun toString() = asString()
     }
 
+    interface PersonallyIdentifiableData: Printable {
+        @PrintMask(startMaskAt = 5, endMaskAt = -3)
+        val phoneNumber: String
+
+        @PrintPatternReplace("""\s*([a-zA-Z]{2})\s*\d{2}\s*[a-zA-Z]{4}\s*((\d|\s){6})(.*)""", """$1\99 BANK *****$4""")
+        val iban: String
+
+        @PrintHash(DigestMethod.CRC32C)
+        val mailAddress: String
+
+        @PrintHash(DigestMethod.SHA1)
+        val socialSecurityNumber: String
+
+        @PrintMask(minLength = 10, maxLength = 10)
+        val password: Array<Char>
+    }
+
+    class Person: PersonallyIdentifiableData {
+        // Trying to override the annotations on the interface should not be possible:
+        // the annotations in the overriding class should be ignored (except for PrintOption)
+
+        @PrintMask(startMaskAt = 0, endMaskAt = 0)
+        override val phoneNumber: String = "06123456789"
+
+        @PrintPatternReplace("""(.*)""", """$1""")
+        override val iban: String = "NL29 ABNA 6708 40 7906"
+
+        @PrintOmit
+        override val mailAddress: String = "someone@example.com"
+
+        @PrintHash(DigestMethod.JAVA_HASHCODE)
+        override val socialSecurityNumber: String = "617247018"
+
+        @PrintMask(minLength = 0, maxLength = Int.MAX_VALUE, startMaskAt = 0, endMaskAt = Int.MAX_VALUE)
+        override val password: Array<Char> =
+            arrayOf('m', 'y', ' ', 'v', 'e', 'r', 'y', ' ', 's', 'e', 'c', 'r', 'e', 't', ' ', 'p', 'a', 's', 's', 'w', 'o', 'r', 'd')
+
+        override fun toString(): String = asString()
+    }
 }

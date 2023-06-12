@@ -22,7 +22,9 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationsOfPropertyS
     @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
     return declaringClass.kotlin.subSuperHierarchy().associateWith { kClass ->
         kClass.memberProperties
-            .filter { prop -> prop.name == this.name && (prop.declaringClass()!!.java == declaringClass || !prop.isPrivate()) }
+            .filter { prop -> prop.name == this.name
+                    // include private properties only if in the class itself, not if it's in a superclass
+                    && (prop.declaringClass()!!.java == declaringClass || !prop.isPrivate()) }
             .firstNotNullOfOrNull { it.findAnnotation<A>() }
     }.filterValues { annotation -> annotation != null } as Map<KClass<*>, A>
 }
@@ -46,7 +48,3 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertySu
 internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertySuperSubHierarchy(): A? =
     this.annotationsOfPropertySubSuperHierarchy<A>().values
         .lastOrNull()
-
-
-internal inline fun <reified A : Annotation> KProperty<*>.hasAnnotationInHierarchy(): Boolean =
-    this.annotationOfPropertySubSuperHierarchy<A>() != null

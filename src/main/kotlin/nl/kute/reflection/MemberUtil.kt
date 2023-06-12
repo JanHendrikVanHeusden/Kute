@@ -11,7 +11,7 @@ import kotlin.reflect.KVisibility.PUBLIC
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 
-/** Is the `this` [KFunction] the `toString` method? */
+/** @return is the `this` [KFunction] the `toString` method? */
 internal fun KFunction<*>.isToString(): Boolean = this.name == "toString" && this.parameters.size == 1 // return value
 
 @Suppress("UNNECESSARY_SAFE_CALL") // nullability may occur in tests due to mocks that force contrived exceptions

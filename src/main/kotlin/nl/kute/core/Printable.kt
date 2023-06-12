@@ -23,7 +23,7 @@ interface Printable {
     /**
      * Mimics the format of Kotlin data class's [toString] method.
      * * Super-class properties are included
-     * * Private properties are included
+     * * Private properties are included (but not in subclasses)
      * * String value of individual properties is capped at (default) 500; see @[PrintOption] to override the default
      * @return A String representation of the [Printable], including class name and property names + values;
      * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify
@@ -36,7 +36,7 @@ interface Printable {
     /**
      * Mimics the format of Kotlin data class's [toString] method.
      * * Super-class properties are included
-     * * Private properties are included
+     * * Private properties are included (but not in subclasses)
      * * String value of individual properties is capped at 500; see @[PrintOption] to override the default
      * @param propsToExclude accessible properties that you don't want to be included in the result.
      * E.g. `override fun toString() = `[asStringExcluding]`(::myExcludedProp1, ::myExcludedProp2)`
@@ -46,13 +46,14 @@ interface Printable {
      * @see [asStringExcluding]
      * @see [asStringExcludingNames]
      */
-    fun asStringExcluding(vararg propsToExclude: KProperty<*>): String = (this as Any).asStringExcluding(*propsToExclude)
+    fun asStringExcluding(vararg propsToExclude: KProperty<*>): String =
+        (this as Any).asStringExcluding(*propsToExclude)
 
 
     /**
      * Mimics the format of Kotlin data class's [toString] method.
      * * Super-class properties are included
-     * * Private properties are included
+     * * Private properties are included (but not in subclasses)
      * * String value of individual properties is capped at 500; see @[PrintOption] to override the default
      *
      * This method allows you to exclude any properties by name, including inaccessible private ones.

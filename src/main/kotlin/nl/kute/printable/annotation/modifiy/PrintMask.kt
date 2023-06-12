@@ -1,12 +1,9 @@
 package nl.kute.printable.annotation.modifiy
 
-import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
-import nl.kute.reflection.getPropValue
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.reflect.KProperty1
 
 /**
  * The [PrintMask] annotation can be placed on properties to indicate that the property is
@@ -41,37 +38,46 @@ annotation class PrintMask(
     val maxLength: Int = Int.MAX_VALUE,
 )
 
-fun <T : Any, V : Any?> mask(obj: T, prop: KProperty1<T, V>): String? {
-    val propVal: V? = obj.getPropValue(prop)
-    with(prop.annotationOfPropertySubSuperHierarchy<PrintMask>() ?: return null) {
-        var strVal: String
-        strVal = if (propVal == null) {
-            if (maskNulls) { "null" } else { return null }
+fun PrintMask?.mask(strVal: String?): String? {
+    if (this == null) {
+        return strVal
+    }
+    else {
+        var retVal = strVal ?: if (maskNulls) {
+            "null"
         } else {
-            propVal.toString()
+            return null
         }
-        val strLength = strVal.length
+        val strLength = retVal.length
         var returnLength = strLength
-        if (maxLength >= 0 && strLength > maxLength) {
+        if (maxLength in 0 until strLength) {
             returnLength = maxLength
         }
         if (minLength >= 0 && returnLength < minLength) {
             returnLength = minLength
         }
         if (returnLength > strLength) {
-            strVal = strVal + mask.toString().repeat(returnLength - strLength)
+            retVal += mask.toString().repeat(returnLength - strLength)
         } else if (returnLength < strLength) {
-            strVal = strVal.take(returnLength)
+            retVal = retVal.take(returnLength)
         }
 
-        val maskStart = if (startMaskAt >= 0) { startMaskAt } else { max(0, strLength + startMaskAt) }
-        val maskEnd = if (endMaskAt >= 0) { endMaskAt } else { max(0, strLength + endMaskAt) }
-        if (maskStart in 0 until returnLength - 1 && maskEnd > maskStart) {
+        val maskStart = if (startMaskAt >= 0) {
+            startMaskAt
+        } else {
+            max(0, strLength + startMaskAt)
+        }
+        val maskEnd = if (endMaskAt >= 0) {
+            endMaskAt
+        } else {
+            max(0, strLength + endMaskAt)
+        }
+        return if (maskStart in 0 until returnLength - 1 && maskEnd > maskStart) {
             val startAt = max(maskStart, 0)
             val endAt = min(maskEnd, returnLength)
-            return strVal.replaceRange(startAt until endAt, mask.toString().repeat(endAt - startAt))
+            retVal.replaceRange(startAt until endAt, mask.toString().repeat(endAt - startAt))
         } else {
-            return mask.toString().repeat(returnLength)
+            mask.toString().repeat(returnLength)
         }
     }
 }
