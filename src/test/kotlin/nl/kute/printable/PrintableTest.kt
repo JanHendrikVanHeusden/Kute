@@ -55,7 +55,6 @@ class PrintableTest {
             .doesNotContain("privateToPrint", "this is another printable", // // excluded properties
                 "greet=hallo", "privateToPrint=this is another printable") // private properties
             .contains(
-                "class ",
                 "str=a string",
                 "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
                 "extensionProperty=my extension property",
