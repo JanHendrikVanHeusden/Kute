@@ -2,6 +2,7 @@ package nl.kute.printable
 
 import nl.kute.core.Printable
 import nl.kute.core.asString
+import nl.kute.core.asStringWithOnly
 import nl.kute.hashing.DigestMethod
 import nl.kute.printable.annotation.modifiy.PrintHash
 import nl.kute.printable.annotation.modifiy.PrintMask
@@ -208,6 +209,14 @@ class PrintableTest {
                 .`as`("Protected attribute shown in subclass ${it::class.simpleName} output")
                 .contains(protectedAttrOutput)
         }
+    }
+
+    @Test
+    fun `test asStringWithOnly`() {
+        val testObj = ClassToPrint(num = 12, privateToPrint = UUID.randomUUID(), str = "this is str")
+        val testObj2 = aPrintableDate
+        val someString = "just some string"
+        println(testObj.asStringWithOnly(testObj::num, "aPrintableDate" to testObj2, someString))
     }
 
     // ------------------------------------

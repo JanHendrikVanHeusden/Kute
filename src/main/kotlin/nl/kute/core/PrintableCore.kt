@@ -26,11 +26,16 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.hasAnnotation
 
 // Static stuff (package level) only
 
 const val maxValueLength: Int = 500
+
+private val regexPackage = Regex(""".+\.(.*)$""")
+private fun String.cleanClassName() = this.replace(regexPackage, "$1")
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -44,6 +49,32 @@ const val maxValueLength: Int = 500
  */
 fun Any.asString(): String {
     return asStringExcluding()
+}
+
+fun Any.asStringWithOnly(vararg props: Any): String {
+    return props
+        .filterNot { prop -> prop is KProperty0<*> && prop.hasAnnotation<PrintOmit>() }
+        .joinToString(
+            separator = ", ",
+            prefix = "${this::class.simpleName ?: this::class.toString()}(",
+            postfix = ")"
+        ) {
+            // fixme: take annotations into account!
+            when (it) {
+                is KProperty0<*> -> {
+                    "${it.name}=${it.get()}"
+                }
+
+                is Pair<*, *> -> {
+                    "${it.first}=${it.second}"
+                }
+
+                else -> {
+                    // if not a property or a pair, we just don't know the variable name, so the only thing we have is the class name
+                    "${it::class.simpleName ?: it::class.toString().cleanClassName()}=${it}"
+                }
+            }
+        }
 }
 
 /**
@@ -87,9 +118,9 @@ fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String
                 .filterNot { propNamesToExclude.contains(it.key.name) }
                 .filterNot { entry -> entry.value.any { annotation -> annotation is PrintOmit } }
                 .entries.joinToString(
-                    ", ",
-                    prefix = "${this::class.simpleName ?: this::class.toString()}(",
-                    ")"
+                    separator = ", ",
+                    prefix = "${this::class.simpleName ?: this::class.toString().cleanClassName()}(",
+                    postfix = ")"
                 ) { entry ->
                     @Suppress("UNCHECKED_CAST")
                     val prop = entry.key as KProperty1<T, *>
@@ -97,11 +128,7 @@ fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String
                     val printOption: PrintOption =
                         (annotationSet.firstOrNull { it is PrintOption } ?: defaultPrintOption) as PrintOption
                     val maxValLengthProp = min(max(printOption.propMaxStringValueLength, 0), maxValueLength)
-                    "${prop.name}=${
-                        getPropValueString(
-                            prop,
-                            annotationSet
-                        )?.take(maxValLengthProp) ?: printOption.showNullAs
+                    "${prop.name}=${getPropValueString(prop, annotationSet)?.take(maxValLengthProp) ?: printOption.showNullAs
                     }"
                 }
         } catch (e: Exception) {
