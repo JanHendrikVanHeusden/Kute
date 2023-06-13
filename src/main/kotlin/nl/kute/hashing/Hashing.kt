@@ -2,6 +2,7 @@ package nl.kute.hashing
 
 import nl.kute.hashing.DigestMethod.CRC32C
 import nl.kute.hashing.DigestMethod.JAVA_HASHCODE
+import nl.kute.util.asString
 import nl.kute.util.toByteArray
 import nl.kute.util.toHex
 import java.nio.charset.Charset
@@ -80,7 +81,8 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
         }
     } catch (t: Throwable) {
         // no logging framework present, so we only can use standard output
-        println("${t.javaClass.simpleName} occurred when hashing with digestMethod $digestMethod; exception message = [${t.message}]")
+        // The property's value is probably sensitive, so make sure not to use the value in the error message
+        println("${t.javaClass.simpleName} occurred when hashing with digestMethod $digestMethod; exception: [${t.asString()}]")
         null
     }
 }

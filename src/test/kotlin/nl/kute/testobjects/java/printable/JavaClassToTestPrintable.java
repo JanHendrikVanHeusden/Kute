@@ -1,4 +1,4 @@
-package nl.kute.test.java.printable;
+package nl.kute.testobjects.java.printable;
 
 import nl.kute.core.Printable;
 import org.jetbrains.annotations.NotNull;

@@ -39,10 +39,11 @@ private fun <T: Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean): List
             classHierarchy.asSequence()
                 .map { kClass -> kClass.memberProperties }
                 .flatten()
+                // include private properties only if in the class itself, not if it's in a superclass
+                // note that Kotlin regards protected and properties as private! (also with Java package level)
+                .filter { !it.isPrivate() || it.declaringClass() == this }
                 // In case of overloads or name-shadowing, keep the property that is first in the hierarchy
                 .distinctBy { prop -> prop.name }
-                // include private properties only if in the class itself, not if it's in a superclass
-                .filter { !it.isPrivate() || it.declaringClass() == this }
                 .toList() as List<KProperty1<T, *>>
         )
     }.toList()

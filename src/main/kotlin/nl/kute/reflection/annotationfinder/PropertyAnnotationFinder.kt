@@ -24,6 +24,7 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationsOfPropertyS
         kClass.memberProperties
             .filter { prop -> prop.name == this.name
                     // include private properties only if in the class itself, not if it's in a superclass
+                    // note that Kotlin regards private properties with protected getters as private! (also with Java package level)
                     && (prop.declaringClass()!!.java == declaringClass || !prop.isPrivate()) }
             .firstNotNullOfOrNull { it.findAnnotation<A>() }
     }.filterValues { annotation -> annotation != null } as Map<KClass<*>, A>

@@ -1,12 +1,24 @@
 package nl.kute.printable
 
 import nl.kute.core.Printable
+import nl.kute.core.asString
 import nl.kute.hashing.DigestMethod
 import nl.kute.printable.annotation.modifiy.PrintHash
 import nl.kute.printable.annotation.modifiy.PrintMask
 import nl.kute.printable.annotation.modifiy.PrintOmit
 import nl.kute.printable.annotation.modifiy.PrintPatternReplace
-import nl.kute.test.java.printable.JavaClassToTestPrintable
+import nl.kute.testobjects.java.printable.JavaClassToTestPrintable
+import nl.kute.testobjects.java.printable.packagevisibility.JavaClassWithPackageLevelProperty
+import nl.kute.testobjects.java.printable.packagevisibility.KotlinSubSubClassOfJavaClassWithAccessiblePackageLevelProperty
+import nl.kute.testobjects.java.printable.packagevisibility.SubClassOfJavaClassWithAccessiblePackageLevelProperty
+import nl.kute.testobjects.java.printable.packagevisibility.sub.KotlinSubSubClassOfJavaClassWithNotAccessiblePackageLevelProperty
+import nl.kute.testobjects.java.printable.packagevisibility.sub.SubClassOfJavaClassWithNotAccessiblePackageLevelProperty
+import nl.kute.testobjects.java.printable.protectedvisibility.JavaClassWithProtectedProperty
+import nl.kute.testobjects.java.printable.protectedvisibility.KotlinSubSubClassOfJavaJavaClassWithProtectedProperty
+import nl.kute.testobjects.java.printable.protectedvisibility.SubClassOfJavaClassWithProtectedProperty
+import nl.kute.testobjects.java.printable.protectedvisibility.SubSubClassOfClassWithProtectedProperty
+import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
+import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -89,6 +101,115 @@ class PrintableTest {
             .doesNotContain("mailAddress")
     }
 
+    /**
+     * This test demonstrates the behaviour with accessible or inaccessible package level properties
+     * with Java classes, and Java and Kotlin subclasses of these.
+     * As Kute is meant for Kotlin, the behaviour with Java is taken as a matter of fact:
+     * Kotlin does not know or honour package visibility.
+     *
+     * So this test demonstrates the behaviour rather than prescribing it; and it demonstrates that
+     * at least Kute can be used properly in conjunction with Java.
+     */
+    @Test
+    fun `output with Java class with package visibility property`() {
+        val objToTest = JavaClassWithPackageLevelProperty()
+        val subObjToTestNotAccessibleProp = SubClassOfJavaClassWithNotAccessiblePackageLevelProperty()
+        val subSubObjToTestNotAccessibleProp = KotlinSubSubClassOfJavaClassWithNotAccessiblePackageLevelProperty()
+
+        val subObjToTestAccessibleProp = SubClassOfJavaClassWithAccessiblePackageLevelProperty()
+        val subSubObjToTestAccessibleProp = KotlinSubSubClassOfJavaClassWithAccessiblePackageLevelProperty()
+
+        val packLevelAttrOutput = "myPackageLevelAttribute=my package level attribute"
+        val publicAttrOutput = "myPublicAccessibleString=my public accessible String"
+
+        assertThat(objToTest.asString())
+            .contains(publicAttrOutput)
+
+        assertThat(objToTest.asString())
+            .`as`("Package level attribute is included in class where it is defined")
+            .contains(packLevelAttrOutput)
+
+        listOf(
+            subObjToTestNotAccessibleProp,
+            subSubObjToTestNotAccessibleProp,
+            subObjToTestAccessibleProp,
+            subSubObjToTestAccessibleProp
+        ).forEach {
+            assertThat(it.asString())
+                .`as`("public instance variable should be shown in subclass ${it::class.simpleName} output")
+                .contains(publicAttrOutput)
+                .`as`("Package level attribute is not shown for ${it::class.simpleName}, Kotlin regards this as private even when accessible in Java class")
+                .doesNotContain(packLevelAttrOutput)
+        }
+    }
+
+    /**
+     * This test demonstrates the behaviour with accessible or inaccessible protected properties
+     * with Java classes, and Java and Kotlin subclasses of these.
+     * As Kute is meant for Kotlin, the behaviour with Java is taken as a matter of fact:
+     * Kotlin handles protected properties differently (getter accessible from subclass, property itself not accessible).
+     *
+     * So this test demonstrates the behaviour rather than prescribing it; and it demonstrates that
+     * at least Kute can be used properly in conjunction with Java.
+     */
+    @Test
+    fun `output with Java class with protected visibility property`() {
+
+        val objToTest = JavaClassWithProtectedProperty()
+        val subObjToTestProtectedProp = SubClassOfJavaClassWithProtectedProperty()
+        val subSubObjToTestProtectedProp = KotlinSubSubClassOfJavaJavaClassWithProtectedProperty()
+
+        val protectedAttrOutput = "myProtectedAttribute=my protected attribute"
+        val publicAttrOutput = "myPublicAccessibleString=my public accessible String"
+
+        assertThat(objToTest.asString())
+            .contains(publicAttrOutput)
+
+        assertThat(objToTest.asString())
+            .`as`("Protected attribute is included in class where it is defined")
+            .contains(protectedAttrOutput)
+
+        listOf(
+            subObjToTestProtectedProp,
+            subSubObjToTestProtectedProp
+        ).forEach {
+            assertThat(it.asString())
+                .`as`("public instance variable should be shown in subclass ${it::class.simpleName} output")
+                .contains(publicAttrOutput)
+                .`as`("Protected attribute shown in subclass ${it::class.simpleName} output because the instance variable is protected (not just the getter)")
+                .contains(protectedAttrOutput)
+        }
+    }
+
+    @Test
+    fun `output with Kotlin class with protected visibility property`() {
+
+        val objToTest = ClassWithProtectedProperty()
+        val subObjToTestProtectedProp = SubClassOfClassWithProtectedProperty()
+        val subSubObjToTestProtectedProp = SubSubClassOfClassWithProtectedProperty()
+
+        val protectedAttrOutput = "myProtectedAttribute=my protected attribute"
+        val publicAttrOutput = "myPublicAccessibleString=my public accessible String"
+
+        assertThat(objToTest.asString())
+            .contains(publicAttrOutput)
+
+        assertThat(objToTest.asString())
+            .`as`("Protected attribute is included in class where it is defined")
+            .contains(protectedAttrOutput)
+
+        listOf(
+            subObjToTestProtectedProp,
+            subSubObjToTestProtectedProp
+        ).forEach {
+            assertThat(it.asString())
+                .`as`("public instance variable should be shown in subclass ${it::class.simpleName} output")
+                .contains(publicAttrOutput)
+                .`as`("Protected attribute shown in subclass ${it::class.simpleName} output")
+                .contains(protectedAttrOutput)
+        }
+    }
+
     // ------------------------------------
     // Classes etc. to be used in the tests
     // ------------------------------------
@@ -132,7 +253,7 @@ class PrintableTest {
         override fun toString() = asString()
     }
 
-    interface PersonallyIdentifiableData: Printable {
+    private interface PersonallyIdentifiableData: Printable {
         @PrintMask(startMaskAt = 5, endMaskAt = -3)
         val phoneNumber: String
 
@@ -149,7 +270,7 @@ class PrintableTest {
         val password: Array<Char>
     }
 
-    class Person: PersonallyIdentifiableData {
+    private class Person: PersonallyIdentifiableData {
         // Trying to override the annotations on the interface should not be possible:
         // the annotations in the overriding class should be ignored (except for PrintOption)
 

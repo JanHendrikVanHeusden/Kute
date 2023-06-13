@@ -80,25 +80,43 @@ fun Any.asStringExcluding(vararg propsToExclude: KProperty<*>): String {
  */
 fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String {
     try {
-        val annotationsByProperty = this::class.propertiesWithPrintModifyingAnnotations()
+        try {
+            val annotationsByProperty = this::class.propertiesWithPrintModifyingAnnotations()
 
-        return annotationsByProperty
-            .filterNot { propNamesToExclude.contains(it.key.name) }
-            .filterNot { entry -> entry.value.any { annotation -> annotation is PrintOmit } }
-            .entries.joinToString(", ", prefix = "${this::class.simpleName ?: this::class.toString()}(", ")") { entry ->
-                @Suppress("UNCHECKED_CAST")
-                val prop = entry.key as KProperty1<T, *>
-                val annotationSet = entry.value
-                val printOption: PrintOption = (annotationSet.firstOrNull { it is PrintOption } ?: defaultPrintOption) as PrintOption
-                val maxValLengthProp = min(max(printOption.propMaxStringValueLength, 0), maxValueLength)
-                "${prop.name}=${getPropValueString(prop, annotationSet)?.take(maxValLengthProp) ?: printOption.showNullAs}"
-            }
-    } catch (e: Exception) {
-        // We have no logger in the Kute project; we don't want to interfere with the caller project's logger
-        // So we can only return a value that describes what happened.
-        return "ERROR: Exception ${e.javaClass.simpleName} occurred when building string value for object of class ${this.javaClass};$lineEnd${e.asString()}"
-    } catch (t: Throwable) {
-        return "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when building string value for object of class ${this.javaClass};$lineEnd${t.asString()}"
+            return annotationsByProperty
+                .filterNot { propNamesToExclude.contains(it.key.name) }
+                .filterNot { entry -> entry.value.any { annotation -> annotation is PrintOmit } }
+                .entries.joinToString(
+                    ", ",
+                    prefix = "${this::class.simpleName ?: this::class.toString()}(",
+                    ")"
+                ) { entry ->
+                    @Suppress("UNCHECKED_CAST")
+                    val prop = entry.key as KProperty1<T, *>
+                    val annotationSet = entry.value
+                    val printOption: PrintOption =
+                        (annotationSet.firstOrNull { it is PrintOption } ?: defaultPrintOption) as PrintOption
+                    val maxValLengthProp = min(max(printOption.propMaxStringValueLength, 0), maxValueLength)
+                    "${prop.name}=${
+                        getPropValueString(
+                            prop,
+                            annotationSet
+                        )?.take(maxValLengthProp) ?: printOption.showNullAs
+                    }"
+                }
+        } catch (e: Exception) {
+            // We have no logger in the Kute project; we don't want to interfere with the caller project's logger
+            // So we can only return a value that describes what happened.
+            return "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${e.asString()}"
+                .also { println(it) }
+        } catch (t: Throwable) {
+            return "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${t.asString()}"
+                .also { println(it) }
+        }
+    }
+    catch (t: Throwable) {
+        @Suppress("UNNECESSARY_SAFE_CALL")
+        return "FATAL ERROR: Unhandled Throwable ${t?.javaClass} occurred when retrieving string value"
     }
 }
 

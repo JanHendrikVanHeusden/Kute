@@ -1,5 +1,6 @@
 package nl.kute.printable.annotation.modifiy
 
+import nl.kute.core.asString
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
@@ -42,8 +43,8 @@ fun PrintPatternReplace?.replacePattern(strVal: String?): String? =
             strVal?.replace(Regex(pattern), replacement)
         } catch (e: Exception) {
             // no logging framework present, so we only can use standard output
-            // NB: the property value is not included in the log message, to avoid exposing a value that the caller intended to replace
-            println("${e.javaClass.simpleName} occurred when replacing a value using pattern $pattern; exception message = [${e.message}]")
+            // The property's value is probably sensitive, so make sure not to use the value in the error message
+            println("${e.javaClass.simpleName} occurred when replacing a value using pattern $pattern; exception: [${e.asString()}]")
             ""
         }
     }
