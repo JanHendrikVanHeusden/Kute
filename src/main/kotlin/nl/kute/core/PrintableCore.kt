@@ -5,6 +5,7 @@
 
 package nl.kute.core
 
+import nl.kute.log.log
 import nl.kute.printable.annotation.modifiy.PrintHash
 import nl.kute.printable.annotation.modifiy.PrintMask
 import nl.kute.printable.annotation.modifiy.PrintOmit
@@ -14,6 +15,7 @@ import nl.kute.printable.annotation.modifiy.mask
 import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.PrintOption.DefaultOption.defaultPrintOption
+import nl.kute.printable.annotation.option.applyOption
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
@@ -22,8 +24,6 @@ import nl.kute.reflection.getPropValue
 import nl.kute.reflection.propertiesFromSubSuperHierarchy
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
@@ -32,10 +32,8 @@ import kotlin.reflect.full.hasAnnotation
 
 // Static stuff (package level) only
 
-const val maxValueLength: Int = 500
-
 private val regexPackage = Regex(""".+\.(.*)$""")
-private fun String.cleanClassName() = this.replace(regexPackage, "$1")
+private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -52,11 +50,12 @@ fun Any.asString(): String {
 }
 
 fun Any.asStringWithOnly(vararg props: Any): String {
+    // FIXME: honour annotations
     return props
         .filterNot { prop -> prop is KProperty0<*> && prop.hasAnnotation<PrintOmit>() }
         .joinToString(
             separator = ", ",
-            prefix = "${this::class.simpleName ?: this::class.toString()}(",
+            prefix = "${this::class.simpleName ?: this::class.toString().simplifyClassName()}(",
             postfix = ")"
         ) {
             // fixme: take annotations into account!
@@ -71,7 +70,7 @@ fun Any.asStringWithOnly(vararg props: Any): String {
 
                 else -> {
                     // if not a property or a pair, we just don't know the variable name, so the only thing we have is the class name
-                    "${it::class.simpleName ?: it::class.toString().cleanClassName()}=${it}"
+                    "${it::class.simpleName ?: it::class.toString().simplifyClassName()}=${it}"
                 }
             }
         }
@@ -113,32 +112,28 @@ fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String
     try {
         try {
             val annotationsByProperty = this::class.propertiesWithPrintModifyingAnnotations()
-
             return annotationsByProperty
                 .filterNot { propNamesToExclude.contains(it.key.name) }
                 .filterNot { entry -> entry.value.any { annotation -> annotation is PrintOmit } }
                 .entries.joinToString(
                     separator = ", ",
-                    prefix = "${this::class.simpleName ?: this::class.toString().cleanClassName()}(",
+                    prefix = "${this::class.simpleName ?: this::class.toString().simplifyClassName()}(",
                     postfix = ")"
                 ) { entry ->
                     @Suppress("UNCHECKED_CAST")
                     val prop = entry.key as KProperty1<T, *>
                     val annotationSet = entry.value
-                    val printOption: PrintOption =
-                        (annotationSet.firstOrNull { it is PrintOption } ?: defaultPrintOption) as PrintOption
-                    val maxValLengthProp = min(max(printOption.propMaxStringValueLength, 0), maxValueLength)
-                    "${prop.name}=${getPropValueString(prop, annotationSet)?.take(maxValLengthProp) ?: printOption.showNullAs
+                    "${prop.name}=${getPropValueString(prop, annotationSet)
                     }"
                 }
         } catch (e: Exception) {
             // We have no logger in the Kute project; we don't want to interfere with the caller project's logger
             // So we can only return a value that describes what happened.
             return "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${e.asString()}"
-                .also { println(it) }
+                .also { log(it) }
         } catch (t: Throwable) {
             return "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${t.asString()}"
-                .also { println(it) }
+                .also { log(it) }
         }
     }
     catch (t: Throwable) {
@@ -152,7 +147,7 @@ fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String
  *  * otherwise: the [toString] value of the property, modified if needed by annotations @[PrintOmit],
  *  @[PrintPatternReplace], @[PrintMask], @[PrintHash]
  */
-private fun <T: Any> T.getPropValueString(prop: KProperty1<T, *>, annotations:  Set<Annotation>): String? {
+internal fun <T: Any> T.getPropValueString(prop: KProperty1<T, *>, annotations:  Set<Annotation>): String? {
     val value: Any? = this.getPropValue(prop)
     var strValue = if (value is Array<*>)
         value.contentDeepToString()
@@ -168,9 +163,12 @@ private fun <T: Any> T.getPropValueString(prop: KProperty1<T, *>, annotations:  
     val printPatternReplace = annotations.firstOrNull { it is PrintPatternReplace } as PrintPatternReplace?
     val printMask = annotations.firstOrNull { it is PrintMask } as PrintMask?
     val printHash = annotations.firstOrNull { it is PrintHash } as PrintHash?
+    val printOption = annotations.first { it is PrintOption } as PrintOption
+    // ?.take(maxValLengthProp) ?: printOption.showNullAs
     strValue = printPatternReplace.replacePattern(strValue)
     strValue = printMask.mask(strValue)
     strValue = printHash.hashString(strValue)
+    strValue = printOption.applyOption(strValue)
     return strValue
 }
 

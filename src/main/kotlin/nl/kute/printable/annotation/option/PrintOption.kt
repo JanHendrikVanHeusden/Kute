@@ -32,3 +32,6 @@ annotation class PrintOption(
         val defaultPrintOption = PrintOption(showNullAs = defaultNullString, propMaxStringValueLength = defaultMaxStringValueLength)
     }
 }
+
+fun PrintOption.applyOption(strVal: String?): String =
+    strVal?.take(propMaxStringValueLength) ?: showNullAs

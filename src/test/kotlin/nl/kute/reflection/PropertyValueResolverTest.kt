@@ -1,6 +1,10 @@
 package nl.kute.reflection
 
+import nl.kute.log.logger
+import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -10,6 +14,12 @@ import kotlin.reflect.full.memberProperties
 
 @Suppress("unused") // several properties accessed by reflection only
 internal class PropertyValueResolverTest {
+
+    @BeforeEach
+    @AfterEach
+    fun setUp() {
+        resetStdOutLogger()
+    }
 
     private interface I0 {
         val i: Int?
@@ -66,6 +76,10 @@ internal class PropertyValueResolverTest {
         t3.i = null
         assertThat(t3.getPropValue(getPropByName("i"))).isNull()
 
+        // set StringBuffer to retrieve log message
+        val logBuffer = StringBuffer()
+        logger = { msg -> logBuffer.append(msg).append("\n")}
+
         val throwingProperty: KProperty1<T3, *> = mock {
             on { this.get(t3) } doThrow RuntimeException()
         }
@@ -74,6 +88,8 @@ internal class PropertyValueResolverTest {
         assertThat(t3.getPropValue(throwingProperty))
             .`as`("Should be safe even with contrived exception")
             .isNull()
+        // examine the logging, to verify that the exception was actually hit
+        assertThat(logBuffer).contains("Exception occurred when retrieving value of property")
     }
 
 }

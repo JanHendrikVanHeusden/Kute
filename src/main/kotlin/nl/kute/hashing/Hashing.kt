@@ -1,35 +1,19 @@
 package nl.kute.hashing
 
+/**
+ * With Java 17, we would use `java.util.HexFormat`, like below.
+ * But that's Java 17, and we want to be able to run on Java 11+
+ */
+
 import nl.kute.hashing.DigestMethod.CRC32C
 import nl.kute.hashing.DigestMethod.JAVA_HASHCODE
+import nl.kute.log.logWithCaller
 import nl.kute.util.asString
 import nl.kute.util.toByteArray
 import nl.kute.util.toHex
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.util.zip.CRC32C as JavaUtilCRC32C
-
-/**
- * With Java 17, we would use `java.util.HexFormat`, like below.
- * But that's Java 17, and we want to be able to run on Java 11+
- * ```
- * private val hexFormat: HexFormat = HexFormat.of()
- *
- * internal fun javaHashString(input: Any): String = hexFormat.toHexDigits(input.hashCode())
- *
- *
- * private fun JavaUtilCRC32C.hashCrc32C(input: String, charset: Charset): String {
- *     this.update(input.toByteArray(charset))
- *     val result = hexFormat.toHexDigits(this.value).trimStart('0')
- *     return if (result == "") "0" else result
- * }
- *
- * private fun MessageDigest.hashByAlgorithm(input: String, charset: Charset): String? {
- *     this.update(input.toByteArray(charset))
- *     return hexFormat.formatHex(this.digest())
- * }
- * ```
- */
 
 /**
  * Create a hex String based on the [input] object's [hashCode] method
@@ -80,9 +64,8 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
             else -> (digestMethod.instanceProvider!!.invoke() as MessageDigest).hashByAlgorithm(input, charset)
         }
     } catch (t: Throwable) {
-        // no logging framework present, so we only can use standard output
         // The property's value is probably sensitive, so make sure not to use the value in the error message
-        println("${t.javaClass.simpleName} occurred when hashing with digestMethod $digestMethod; exception: [${t.asString()}]")
+        logWithCaller( "Hashing.hashString()", "${t.javaClass.simpleName} occurred when hashing with digestMethod $digestMethod; exception: [${t.asString()}]")
         null
     }
 }

@@ -215,6 +215,7 @@ class PrintableTest {
         val testObj = ClassToPrint(num = 12, privateToPrint = UUID.randomUUID(), str = "this is str")
         val testObj2 = aPrintableDate
         val someString = "just some string"
+        // FIXME: WIP
         println(testObj.asStringWithOnly(testObj::num, "aPrintableDate" to testObj2, someString))
     }
 
