@@ -28,7 +28,11 @@ annotation class PrintMask(
     /** The char to use for masking */
     val mask: Char = '*',
 
-    /** Should nulls be masked too? If `false`, nulls will be shown */
+    /**
+     * Should nulls be masked too?
+     *  * when `true`, nulls will be replaced by `"null"` and then be masked
+     *  * when `false`, nulls will be left as `null`
+     */
     val maskNulls: Boolean = true,
 
     /** The minimum length of the resulting value; so masking of `"ab"` with [minLength] of `6` will result in `******` */
@@ -38,7 +42,7 @@ annotation class PrintMask(
     val maxLength: Int = Int.MAX_VALUE,
 )
 
-fun PrintMask?.mask(strVal: String?): String? {
+internal fun PrintMask?.mask(strVal: String?): String? {
     if (this == null) {
         return strVal
     } else {
@@ -71,7 +75,7 @@ fun PrintMask?.mask(strVal: String?): String? {
         } else {
             max(0, strLength + endMaskAt)
         }
-        return if (maskStart in 0 until returnLength - 1 && maskEnd > maskStart) {
+        return if (maskStart in 0 until returnLength && maskEnd > maskStart) {
             val startAt = max(maskStart, 0)
             val endAt = min(maskEnd, returnLength)
             retVal.replaceRange(startAt until endAt, mask.toString().repeat(endAt - startAt))

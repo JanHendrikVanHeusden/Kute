@@ -33,11 +33,11 @@ annotation class PrintPatternReplace(
      * * Invalid regular expression will result in an empty String
      */
     val pattern: String,
-    /** The replacement expression; regex group replacements in Java style (`$1`, `$2` etc. are allowed) */
+    /** The replacement expression; supports regex group capture in Java style (`$1`, `$2` etc.) */
     val replacement: String
 )
 
-fun PrintPatternReplace?.replacePattern(strVal: String?): String? =
+internal fun PrintPatternReplace?.replacePattern(strVal: String?): String? =
     if (this == null) strVal else {
         try {
             // caching of Regex by pattern would be nice here, to avoid compiling same patterns over and over.

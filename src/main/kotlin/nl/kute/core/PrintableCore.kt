@@ -181,29 +181,29 @@ internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<
     val resultMap: Map<KProperty<*>, MutableSet<Annotation>> =
         propertiesFromSubSuperHierarchy().associateWith { mutableSetOf() }
 
-    resultMap
-        .forEach { (prop, annotations) ->
-            (prop.annotationOfPropertySuperSubHierarchy<PrintOmit>())?.let { annotation ->
-                annotations.add(annotation)
-                // any further annotations are meaningless because output will be omitted when PrintOmit is present
-                return@forEach
-            }
-            (prop.annotationOfPropertySuperSubHierarchy<PrintHash>())?.let { annotation ->
-                annotations.add(annotation)
-            }
-            (prop.annotationOfPropertySuperSubHierarchy<PrintMask>())?.let { annotation ->
-                annotations.add(annotation)
-            }
-            (prop.annotationOfPropertySuperSubHierarchy<PrintPatternReplace>())?.let { annotation ->
-                annotations.add(annotation)
-            }
-            // PrintOption from lowest subclass in hierarchy with this annotation
-            val printOptionClassAnnotation =
-                this.annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: defaultPrintOption
-            (prop.annotationOfPropertySubSuperHierarchy() ?: printOptionClassAnnotation).let { annotation ->
-                annotations.add(annotation)
-            }
-        }
-
+    resultMap.forEach { (prop, annotations) -> collectPropertyAnnotations(prop, annotations) }
     return resultMap
+}
+
+private fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {
+    (prop.annotationOfPropertySuperSubHierarchy<PrintOmit>())?.let { annotation ->
+        annotations.add(annotation)
+        // any further annotations are meaningless because output will be omitted when PrintOmit is present
+        return
+    }
+    (prop.annotationOfPropertySuperSubHierarchy<PrintHash>())?.let { annotation ->
+        annotations.add(annotation)
+    }
+    (prop.annotationOfPropertySuperSubHierarchy<PrintMask>())?.let { annotation ->
+        annotations.add(annotation)
+    }
+    (prop.annotationOfPropertySuperSubHierarchy<PrintPatternReplace>())?.let { annotation ->
+        annotations.add(annotation)
+    }
+    // PrintOption from lowest subclass in hierarchy with this annotation
+    val printOptionClassAnnotation =
+        this.annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: defaultPrintOption
+    (prop.annotationOfPropertySubSuperHierarchy() ?: printOptionClassAnnotation).let { annotation ->
+        annotations.add(annotation)
+    }
 }

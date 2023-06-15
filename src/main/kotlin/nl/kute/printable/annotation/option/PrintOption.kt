@@ -34,5 +34,5 @@ annotation class PrintOption(
     }
 }
 
-fun PrintOption.applyOption(strVal: String?): String =
+internal fun PrintOption.applyOption(strVal: String?): String =
     strVal?.take(propMaxStringValueLength) ?: showNullAs
