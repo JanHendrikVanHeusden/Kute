@@ -64,7 +64,7 @@ internal class PropertyValueResolverTest {
     }
 
     @Test
-    fun getPropValueSafe() {
+    fun `test getPropValue`() {
         val t3 = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX)
         val properties: Collection<KProperty1<T3, *>> = T3::class.memberProperties
         fun getPropByName(name: String): KProperty1<T3, *> {
@@ -75,6 +75,11 @@ internal class PropertyValueResolverTest {
         assertThat(t3.getPropValue(getPropByName("i"))).isEqualTo(28)
         t3.i = null
         assertThat(t3.getPropValue(getPropByName("i"))).isNull()
+    }
+
+    @Test
+    fun `no exception should be raised from getPropValue`() {
+        val t3 = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX)
 
         // set StringBuffer to retrieve log message
         val logBuffer = StringBuffer()

@@ -213,10 +213,19 @@ class PrintableTest {
     @Test
     fun `test asStringWithOnly`() {
         val testObj = ClassToPrint(num = 12, privateToPrint = UUID.randomUUID(), str = "this is str")
-        val testObj2 = aPrintableDate
+        val testObj2 = ClassWithExtensionProperty("a str")
+        val testObj3 = ClassWithExtensionProperties()
+        val testDateObj = aPrintableDate
         val someString = "just some string"
         // FIXME: WIP
-        println(testObj.asStringWithOnly(testObj::num, "aPrintableDate" to testObj2, someString))
+        val numProp = testObj::num
+        println(testObj.asStringWithOnly(numProp, "aPrintableDate" to testDateObj, someString, testObj2::str))
+        println(testObj.asStringWithOnly(/*numProp,*/ /*String::extProp,*/ "Good morning".extensionPropAtPackage))
+        println(testObj.asStringWithOnly(/*numProp,*/ /*String::extProp,*/))
+        println(testObj2)
+        println(testObj2.asString())
+        println(testObj3.asString())
+        println(testObj3.asStringWithOnly(testObj3::extPropPackageLevel))
     }
 
     // ------------------------------------
@@ -301,4 +310,24 @@ class PrintableTest {
 
         override fun toString(): String = asString()
     }
+
+    @Suppress("unused", "SameReturnValue")
+    private data class ClassWithExtensionProperty(val str: String) {
+        val String.extensionPropAtClass: String
+            get() = "$this; I am a class-level extension property"
+    }
+
+    @Suppress("unused", "SameReturnValue")
+    class ClassWithExtensionProperties {
+        @Suppress("UnusedReceiverParameter")
+        val String.extProp: String
+            get() = "I am a class-level extension property"
+
+        val extPropPackageLevel = String::extensionPropAtPackage
+
+        val extPropClassLevel = "a String".extProp
+    }
 }
+
+private val String.extensionPropAtPackage: String
+    get() = "$this; I am a package extension property"

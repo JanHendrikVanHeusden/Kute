@@ -17,7 +17,7 @@ class KotlinLoggerTest {
     }
 
     @Test
-    fun testLog() {
+    fun `basic test of log method`() {
         // Arrange
         logger = { msg -> stringLog = msg }
         val msg = "msg from testLog()"
@@ -28,7 +28,7 @@ class KotlinLoggerTest {
     }
 
     @Test
-    fun testLogWithCaller() {
+    fun `basic test of logWithCaller`() {
         // Arrange
         logger = { msg -> stringLog = msg }
         val msg = "msg from testLog()"
@@ -40,7 +40,7 @@ class KotlinLoggerTest {
     }
 
     @Test
-    fun setLogger() {
+    fun `test of setting the logger`() {
         // Arrange
         // Buffer to store the log message in
         val logBuffer = StringBuffer()
@@ -63,6 +63,28 @@ class KotlinLoggerTest {
         // assert
         assertThat(logBuffer.toString()).isEqualTo(logMsg1) // unchanged
         assertThat(stringLog).isEqualTo(logMsg2)
+    }
+
+    @Test
+    fun `test that erroneous logger will be rejected`() {
+        // Arrange
+        // Buffer to store the log message in
+        val logBuffer = StringBuffer()
+        val goodLogger: (String) -> Unit = { msg -> logBuffer.append(msg) }
+        logger = goodLogger
+        val testMsg = "This should work"
+        log(testMsg)
+        assertThat(logBuffer.toString()).endsWith(testMsg)
+        assertThat(logger).isSameAs(goodLogger)
+        logBuffer.setLength(0) // clear the buffer
+
+        val wrongLogger: (String) -> Unit = { msg -> throw Exception("this is not a good logger") }
+
+        // act
+        logger = wrongLogger
+        // assert
+        assertThat(logger).isSameAs(goodLogger)
+        assertThat(logBuffer).contains("logger will not be changed!")
     }
 
 }

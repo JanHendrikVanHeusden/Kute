@@ -52,7 +52,7 @@ fun Any.asString(): String {
 fun Any.asStringWithOnly(vararg props: Any): String {
     // FIXME: honour annotations
     return props
-        .filterNot { prop -> prop is KProperty0<*> && prop.hasAnnotation<PrintOmit>() }
+        .filterNot { prop -> prop is KProperty<*> && prop.hasAnnotation<PrintOmit>() }
         .joinToString(
             separator = ", ",
             prefix = "${this::class.simpleName ?: this::class.toString().simplifyClassName()}(",
@@ -61,13 +61,15 @@ fun Any.asStringWithOnly(vararg props: Any): String {
             // fixme: take annotations into account!
             when (it) {
                 is KProperty0<*> -> {
-                    "${it.name}=${it.get()}"
+                    "${it.name}=${this.getPropValue(it)}"
+                }
+                is KProperty1<*, *> -> {
+                    "${it.name}=${this.getPropValue(it)}"
                 }
 
                 is Pair<*, *> -> {
                     "${it.first}=${it.second}"
                 }
-
                 else -> {
                     // if not a property or a pair, we just don't know the variable name, so the only thing we have is the class name
                     "${it::class.simpleName ?: it::class.toString().simplifyClassName()}=${it}"
@@ -147,7 +149,7 @@ fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String
  *  * otherwise: the [toString] value of the property, modified if needed by annotations @[PrintOmit],
  *  @[PrintPatternReplace], @[PrintMask], @[PrintHash]
  */
-internal fun <T: Any> T.getPropValueString(prop: KProperty1<T, *>, annotations:  Set<Annotation>): String? {
+internal fun <T: Any> T.getPropValueString(prop: KProperty<*>, annotations:  Set<Annotation>): String? {
     val value: Any? = this.getPropValue(prop)
     var strValue = if (value is Array<*>)
         value.contentDeepToString()
@@ -160,11 +162,10 @@ internal fun <T: Any> T.getPropValueString(prop: KProperty1<T, *>, annotations: 
     if (annotations.any { it is PrintOmit }) {
         return ""
     }
-    val printPatternReplace = annotations.firstOrNull { it is PrintPatternReplace } as PrintPatternReplace?
-    val printMask = annotations.firstOrNull { it is PrintMask } as PrintMask?
-    val printHash = annotations.firstOrNull { it is PrintHash } as PrintHash?
-    val printOption = annotations.first { it is PrintOption } as PrintOption
-    // ?.take(maxValLengthProp) ?: printOption.showNullAs
+    val printPatternReplace: PrintPatternReplace? = annotations.findAnnotation()
+    val printMask: PrintMask? = annotations.findAnnotation()
+    val printHash: PrintHash? = annotations.findAnnotation()
+    val printOption: PrintOption = annotations.findAnnotation()!! // always present
     strValue = printPatternReplace.replacePattern(strValue)
     strValue = printMask.mask(strValue)
     strValue = printHash.hashString(strValue)
@@ -172,9 +173,12 @@ internal fun <T: Any> T.getPropValueString(prop: KProperty1<T, *>, annotations: 
     return strValue
 }
 
-internal fun <T: Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty1<T, *>, Set<Annotation>> {
+private inline fun <reified A: Annotation> Set<Annotation>.findAnnotation(): A? =
+    this.firstOrNull {it is A} as A?
+
+internal fun <T: Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
     // map each property to an (empty yet) mutable set of annotations
-    val resultMap: Map<KProperty1<T, *>, MutableSet<Annotation>> =
+    val resultMap: Map<KProperty<*>, MutableSet<Annotation>> =
         propertiesFromSubSuperHierarchy().associateWith { mutableSetOf() }
 
     resultMap
