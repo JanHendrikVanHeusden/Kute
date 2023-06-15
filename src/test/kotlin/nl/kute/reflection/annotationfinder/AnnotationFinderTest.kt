@@ -51,8 +51,10 @@ internal class AnnotationFinderTest {
     private open class SubClassWithMethodParamSubtypeInheritance : ClassWithMethodParamSubtypeInheritance<Int>() {
         override fun getList(inList: List<Int>): ArrayList<Int> = ArrayList()
         override fun getNum(inNum: Int): Int = 12
+
         @Suppress("EmptyMethod") // several properties accessed by reflection only
         override fun doList(inList: List<Int>) {}
+
         override fun toString(): String = super.toString()
     }
 
@@ -63,7 +65,7 @@ internal class AnnotationFinderTest {
         override fun toString(): String = asString()
     }
 
-    private open class ClassWithAnnotationOnPublicPropertyThatMasksPrivateProperty: ClassWithAnnotationOnPrivateProperty() {
+    private open class ClassWithAnnotationOnPublicPropertyThatMasksPrivateProperty : ClassWithAnnotationOnPrivateProperty() {
         @PrintOption(propMaxStringValueLength = 200)
         @PrintMask
         val myPrivateVal = "value of the masking public val"
@@ -73,24 +75,31 @@ internal class AnnotationFinderTest {
     private interface I {
         @PrintPatternReplace(pattern = "I", replacement = "i")
         val prop: String
+
         @PrintOption(propMaxStringValueLength = 0)
         override fun toString(): String
     }
-    private open class C1: I {
+
+    private open class C1 : I {
         @PrintPatternReplace(pattern = "C1", replacement = "c1")
         override val prop: String = "C1"
+
         @PrintOption(propMaxStringValueLength = 1)
         override fun toString(): String = "C1"
     }
-    private open class C2: C1() {
+
+    private open class C2 : C1() {
         @PrintPatternReplace(pattern = "C2", replacement = "c2")
         override val prop: String = "C2"
+
         @PrintOption(propMaxStringValueLength = 2)
         override fun toString(): String = "C2"
     }
-    private open class C3: C2() {
+
+    private open class C3 : C2() {
         @PrintPatternReplace(pattern = "C3", replacement = "c3")
         override val prop: String = "C3"
+
         @PrintOption(propMaxStringValueLength = 3)
         override fun toString(): String = "C3"
     }
@@ -116,7 +125,8 @@ internal class AnnotationFinderTest {
         val hashAnnotation: PrintHash = privateProp.annotationsOfPropertySubSuperHierarchy<PrintHash>()[obj::class]!!
         assertThat(hashAnnotation).isNotNull
 
-        val optionAnnotation: PrintOption = privateProp.annotationsOfPropertySubSuperHierarchy<PrintOption>()[obj::class]!!
+        val optionAnnotation: PrintOption =
+            privateProp.annotationsOfPropertySubSuperHierarchy<PrintOption>()[obj::class]!!
         assertThat(optionAnnotation).isNotNull
         assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(5)
     }
@@ -132,7 +142,8 @@ internal class AnnotationFinderTest {
         val maskAnnotation: PrintMask = privateProp.annotationsOfPropertySubSuperHierarchy<PrintMask>()[obj::class]!!
         assertThat(maskAnnotation).isNotNull
 
-        val optionAnnotation: PrintOption = privateProp.annotationsOfPropertySubSuperHierarchy<PrintOption>()[obj::class]!!
+        val optionAnnotation: PrintOption =
+            privateProp.annotationsOfPropertySubSuperHierarchy<PrintOption>()[obj::class]!!
         assertThat(optionAnnotation).isNotNull
         assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(200)
     }
@@ -141,7 +152,7 @@ internal class AnnotationFinderTest {
     fun `find PrintOption on class, property, method`() {
         val with3PrintOptions = With3PrintOptions("my val")
 
-        val printOptByClass: PrintOption = With3PrintOptions::class.annotationOfSubSuperHierarchy() !!
+        val printOptByClass: PrintOption = With3PrintOptions::class.annotationOfSubSuperHierarchy()!!
         assertThat(printOptByClass.propMaxStringValueLength).isEqualTo(200)
         assertThat(printOptByClass.showNullAs).isEqualTo(defaultNullString)
 

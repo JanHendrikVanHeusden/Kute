@@ -63,6 +63,7 @@ fun Any.asStringWithOnly(vararg props: Any): String {
                 is KProperty0<*> -> {
                     "${it.name}=${this.getPropValue(it)}"
                 }
+
                 is KProperty1<*, *> -> {
                     "${it.name}=${this.getPropValue(it)}"
                 }
@@ -70,6 +71,7 @@ fun Any.asStringWithOnly(vararg props: Any): String {
                 is Pair<*, *> -> {
                     "${it.first}=${it.second}"
                 }
+
                 else -> {
                     // if not a property or a pair, we just don't know the variable name, so the only thing we have is the class name
                     "${it::class.simpleName ?: it::class.toString().simplifyClassName()}=${it}"
@@ -110,7 +112,7 @@ fun Any.asStringExcluding(vararg propsToExclude: KProperty<*>): String {
  * @see [asString]
  * @see [asStringExcluding]
  */
-fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String {
+fun <T : Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String {
     try {
         try {
             val annotationsByProperty = this::class.propertiesWithPrintModifyingAnnotations()
@@ -122,8 +124,7 @@ fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String
                     prefix = "${this::class.simpleName ?: this::class.toString().simplifyClassName()}(",
                     postfix = ")"
                 ) { entry ->
-                    @Suppress("UNCHECKED_CAST")
-                    val prop = entry.key as KProperty1<T, *>
+                    val prop = entry.key
                     val annotationSet = entry.value
                     "${prop.name}=${getPropValueString(prop, annotationSet)
                     }"
@@ -137,8 +138,7 @@ fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String
             return "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${t.asString()}"
                 .also { log(it) }
         }
-    }
-    catch (t: Throwable) {
+    } catch (t: Throwable) {
         @Suppress("UNNECESSARY_SAFE_CALL")
         return "FATAL ERROR: Unhandled Throwable ${t?.javaClass} occurred when retrieving string value"
     }
@@ -149,7 +149,7 @@ fun <T: Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String
  *  * otherwise: the [toString] value of the property, modified if needed by annotations @[PrintOmit],
  *  @[PrintPatternReplace], @[PrintMask], @[PrintHash]
  */
-internal fun <T: Any> T.getPropValueString(prop: KProperty<*>, annotations:  Set<Annotation>): String? {
+internal fun <T : Any> T.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): String? {
     val value: Any? = this.getPropValue(prop)
     var strValue = if (value is Array<*>)
         value.contentDeepToString()
@@ -173,10 +173,10 @@ internal fun <T: Any> T.getPropValueString(prop: KProperty<*>, annotations:  Set
     return strValue
 }
 
-private inline fun <reified A: Annotation> Set<Annotation>.findAnnotation(): A? =
-    this.firstOrNull {it is A} as A?
+private inline fun <reified A : Annotation> Set<Annotation>.findAnnotation(): A? =
+    this.firstOrNull { it is A } as A?
 
-internal fun <T: Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
+internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
     // map each property to an (empty yet) mutable set of annotations
     val resultMap: Map<KProperty<*>, MutableSet<Annotation>> =
         propertiesFromSubSuperHierarchy().associateWith { mutableSetOf() }

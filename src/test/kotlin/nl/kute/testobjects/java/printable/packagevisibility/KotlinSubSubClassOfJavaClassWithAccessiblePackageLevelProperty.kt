@@ -1,3 +1,4 @@
 package nl.kute.testobjects.java.printable.packagevisibility
 
-class KotlinSubSubClassOfJavaClassWithAccessiblePackageLevelProperty: SubClassOfJavaClassWithAccessiblePackageLevelProperty()
+class KotlinSubSubClassOfJavaClassWithAccessiblePackageLevelProperty :
+    SubClassOfJavaClassWithAccessiblePackageLevelProperty()

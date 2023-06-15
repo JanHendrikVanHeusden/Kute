@@ -52,8 +52,10 @@ class PrintableTest {
 
         // Assert that it works on anonymous class
         assertThat(extensionObject.toString())
-            .doesNotContain("privateToPrint", "this is another printable", // // excluded properties
-                "greet=hallo", "privateToPrint=this is another printable") // private properties
+            .doesNotContain(
+                "privateToPrint", "this is another printable", // excluded properties
+                "greet=hallo", "privateToPrint=this is another printable" // private properties
+            )
             .contains(
                 "str=a string",
                 "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
@@ -240,7 +242,7 @@ class PrintableTest {
     }
 
     @Suppress("unused", "SameReturnValue")
-    private open class ClassToPrint(val str: String, open var num: Int, private val privateToPrint: Any?): Printable {
+    private open class ClassToPrint(val str: String, open var num: Int, private val privateToPrint: Any?) : Printable {
         // getter should be called, not the internal value. Private should be included, but not for subclasses
         @Suppress("SuspiciousVarProperty")
         private var greet: String? = "hi"
@@ -271,7 +273,7 @@ class PrintableTest {
         override fun toString() = asString()
     }
 
-    private interface PersonallyIdentifiableData: Printable {
+    private interface PersonallyIdentifiableData : Printable {
         @PrintMask(startMaskAt = 5, endMaskAt = -3)
         val phoneNumber: String
 
@@ -288,7 +290,7 @@ class PrintableTest {
         val password: Array<Char>
     }
 
-    private class Person: PersonallyIdentifiableData {
+    private class Person : PersonallyIdentifiableData {
         // Trying to override the annotations on the interface should not be possible:
         // the annotations in the overriding class should be ignored (except for PrintOption)
 

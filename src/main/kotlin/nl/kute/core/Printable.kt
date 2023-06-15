@@ -65,7 +65,8 @@ interface Printable {
      * @see [asString]
      * @see [asStringExcluding]
      */
-    fun asStringExcludingNames(vararg propNamesToExclude: String): String = (this as Any).asStringExcludingNames(*propNamesToExclude)
+    fun asStringExcludingNames(vararg propNamesToExclude: String): String =
+        (this as Any).asStringExcludingNames(*propNamesToExclude)
 
     /**
      * Abstract override of [toString], so implementing classes are forced to implement it

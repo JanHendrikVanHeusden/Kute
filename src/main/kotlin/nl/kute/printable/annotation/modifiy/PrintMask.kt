@@ -41,8 +41,7 @@ annotation class PrintMask(
 fun PrintMask?.mask(strVal: String?): String? {
     if (this == null) {
         return strVal
-    }
-    else {
+    } else {
         var retVal = strVal ?: if (maskNulls) {
             "null"
         } else {

@@ -11,14 +11,14 @@ import kotlin.reflect.KClass
  * 3. the class itself
  * @return class hierarchy as an unmodifiable list
  */
-internal fun <T: Any> KClass<T>.superSubHierarchy(includeInterfaces: Boolean = true): List<KClass<in T>> =
+internal fun <T : Any> KClass<T>.superSubHierarchy(includeInterfaces: Boolean = true): List<KClass<in T>> =
     this.java.superSubHierarchy(includeInterfaces).map { it.kotlin }
 
 /**
  * Gets the class hierarchy of the [Class]
  * @see KClass.subSuperHierarchy
  */
-internal fun <T: Any> Class<T>.superSubHierarchy(includeInterfaces: Boolean = true): List<Class<in T>> =
+internal fun <T : Any> Class<T>.superSubHierarchy(includeInterfaces: Boolean = true): List<Class<in T>> =
     getSuperSubHierarchy(this, includeInterfaces).sortedBy { !it.isInterface }
 
 /**
@@ -28,14 +28,14 @@ internal fun <T: Any> Class<T>.superSubHierarchy(includeInterfaces: Boolean = tr
  * 3. any interfaces, in order of hierarchy; super interfaces first
  * @return class hierarchy as an unmodifiable list
  */
-internal fun <T: Any> KClass<T>.subSuperHierarchy(includeInterfaces: Boolean = true): List<KClass<in T>> =
+internal fun <T : Any> KClass<T>.subSuperHierarchy(includeInterfaces: Boolean = true): List<KClass<in T>> =
     this.java.subSuperHierarchy(includeInterfaces).map { it.kotlin }
 
 /**
  * Gets the class hierarchy of the [Class]
  * @see KClass.subSuperHierarchy
  */
-internal fun <T: Any> Class<T>.subSuperHierarchy(includeInterfaces: Boolean = true): List<Class<in T>> =
+internal fun <T : Any> Class<T>.subSuperHierarchy(includeInterfaces: Boolean = true): List<Class<in T>> =
     this.superSubHierarchy(includeInterfaces).reversed()
 
 /**
@@ -43,13 +43,13 @@ internal fun <T: Any> Class<T>.subSuperHierarchy(includeInterfaces: Boolean = tr
  * @see KClass.subSuperHierarchy
  */
 @Suppress("UNCHECKED_CAST")
-internal fun <T: Any> T.subSuperHierarchy(includeInterfaces: Boolean = true): List<KClass<in T>> =
+internal fun <T : Any> T.subSuperHierarchy(includeInterfaces: Boolean = true): List<KClass<in T>> =
     (this::class.java.subSuperHierarchy(includeInterfaces) as List<Class<in T>>).map { it.kotlin }
 
 // Kotlin's method `KClass.supertypes` returns classes as well as interfaces.
 // That's quite inconvenient for us: we want to keep these separate.
 // Going  via the Java Class makes it easier to keep this separate
-private fun <T: Any> getSuperSubHierarchy(theClass: Class<T>, includeInterfaces: Boolean = true): Set<Class<in T>> {
+private fun <T : Any> getSuperSubHierarchy(theClass: Class<T>, includeInterfaces: Boolean = true): Set<Class<in T>> {
     if (theClass == Any::class.java || theClass == Object::class.java) {
         return emptySet()
     }
@@ -71,7 +71,7 @@ private fun <T: Any> getSuperSubHierarchy(theClass: Class<T>, includeInterfaces:
     return classHierarchy + interfaceHierarchy
 }
 
-private fun <T: Any> getSuperSubInterfaceHierarchy(theInterface: Class<T>): Set<Class<in T>> {
+private fun <T : Any> getSuperSubInterfaceHierarchy(theInterface: Class<T>): Set<Class<in T>> {
     if (!theInterface.isInterface) {
         return emptySet()
     }

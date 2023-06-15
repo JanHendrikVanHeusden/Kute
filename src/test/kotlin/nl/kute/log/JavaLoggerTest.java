@@ -36,7 +36,7 @@ public class JavaLoggerTest {
         // Arrange
         KuteLog.setLogConsumer(createStringLogger());
         String msg = "msg from testLog()";
-        String caller= "I am the caller";
+        String caller = "I am the caller";
         // Act
         KuteLog.logWithCaller(caller, msg);
         // Assert

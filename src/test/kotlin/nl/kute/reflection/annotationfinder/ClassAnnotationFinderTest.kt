@@ -68,7 +68,8 @@ internal class ClassAnnotationFinderTest {
         val t0expected = PrintOption(showNullAs = "T0", propMaxStringValueLength = 100)
         val iExpected = PrintOption(showNullAs = "I", propMaxStringValueLength = 10)
 
-        val printOptionAnnotations: Map<KClass<*>, PrintOption> = T3::class.annotationsOfSubSuperHierarchy<PrintOption>()
+        val printOptionAnnotations: Map<KClass<*>, PrintOption> =
+            T3::class.annotationsOfSubSuperHierarchy<PrintOption>()
         assertThat(printOptionAnnotations)
             .hasSize(3)
 

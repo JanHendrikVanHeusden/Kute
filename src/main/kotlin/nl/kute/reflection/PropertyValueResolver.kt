@@ -32,11 +32,15 @@ private fun <T : Any, V : Any?> T.getPropValueNonSafe(property: KProperty0<V>?):
 internal fun <T : Any, V : Any?> T.getPropValue(property: KProperty<V>?): V? {
     return try {
         when (property) {
-            is KProperty0<V> -> { this.getPropValueNonSafe(property) }
+            is KProperty0<V> -> {
+                this.getPropValueNonSafe(property)
+            }
+
             is KProperty1<*, *> -> {
                 @Suppress("UNCHECKED_CAST")
                 this.getPropValueNonSafe(property as KProperty1<T, V>)
             }
+
             else -> {
                 "Unsupported property type ${property!!::class}".let {
                     log(it)

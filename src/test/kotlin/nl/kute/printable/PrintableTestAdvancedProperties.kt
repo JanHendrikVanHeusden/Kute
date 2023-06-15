@@ -100,7 +100,7 @@ class PrintableTestAdvancedProperties {
     /** Demonstrates that companion vars are not included in the output */
     @Test
     fun `test with companion object`() {
-         val testObj = ClassWithCompanionObject()
+        val testObj = ClassWithCompanionObject()
 
         assertThat(testObj.asString()).isEqualTo("ClassWithCompanionObject(instanceVar=my instance var)")
 
@@ -125,6 +125,7 @@ class PrintableTestAdvancedProperties {
             initializationCounter++
             "I am lazily initialized"
         }
+
         companion object {
             var initializationCounter: Int = 0
         }
@@ -142,7 +143,7 @@ class PrintableTestAdvancedProperties {
         override fun toString(): String = asString()
     }
 
-    private class PropertyDelegate: ReadWriteProperty<Any, Int> {
+    private class PropertyDelegate : ReadWriteProperty<Any, Int> {
 
         var myDelegateVal = 0
 
@@ -185,6 +186,7 @@ class PrintableTestAdvancedProperties {
     private class ClassWithPropertyGet {
 
         var getCounter: Int = 0
+
         @Suppress("SuspiciousVarProperty")
         var hallo: String = "hallo internal value"
             get() {
@@ -195,6 +197,7 @@ class PrintableTestAdvancedProperties {
 
     private class ClassWithCompanionObject {
         var instanceVar: String = "my instance var"
+
         companion object {
             var companionVar: String = "my companion var"
         }

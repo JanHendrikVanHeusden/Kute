@@ -76,8 +76,7 @@ internal fun KProperty<*>?.handlePropValException(exception: Exception) {
                 log(baseErrMsg)
             }
         }
-    }
-    catch (e1: Exception) {
+    } catch (e1: Exception) {
         // Should never happen - just as a last resort
         try {
             logger.invoke(baseErrMsg)

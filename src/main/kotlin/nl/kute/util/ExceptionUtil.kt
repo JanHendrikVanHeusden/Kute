@@ -7,7 +7,8 @@ package nl.kute.util
  * @return The topmost [maxStackTraceLines] stack trace entries as a formatted String; max returned length is 1000
  */
 fun Throwable.stackTraceLinesAsString(maxStackTraceLines: Int = 5): String =
-    if (maxStackTraceLines <= 0) "" else this.stackTrace.take(maxStackTraceLines).joinToString(separator = "$lineEnd\t at ", prefix = "\t at ", postfix = "$lineEnd\t..." , limit = 1000)
+    if (maxStackTraceLines <= 0) "" else this.stackTrace.take(maxStackTraceLines)
+        .joinToString(separator = "$lineEnd\t at ", prefix = "\t at ", postfix = "$lineEnd\t...", limit = 1000)
 
 /**
  * @param maxStackTraceLines The maximum number of stack trace lines to be included in the result; default = 5.

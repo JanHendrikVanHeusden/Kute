@@ -69,6 +69,7 @@ class PrintableWithPrintAnnotationsTest {
             .doesNotContain("noPrint=")
             .doesNotContain(noPrint)
     }
+
     @Test
     fun `test subclass with PrintOptions using annotation on toString`() {
         // arrange
@@ -306,7 +307,8 @@ class PrintableWithPrintAnnotationsTest {
         val theObjectToPrint = ClassWithPrintOptionsOnPropertyAndToString()
         assertThat(theObjectToPrint.propWithPrintOption.length).isGreaterThan(maxStringLenght)
 
-        assertThat(theObjectToPrint::class.annotationOfToStringSubSuperHierarchy<PrintOption>()!!.propMaxStringValueLength).isLessThan(maxStringLenght)
+        assertThat(theObjectToPrint::class.annotationOfToStringSubSuperHierarchy<PrintOption>()!!.propMaxStringValueLength)
+            .isLessThan(maxStringLenght)
         with(theObjectToPrint::propWithPrintOption.annotationOfPropertySubSuperHierarchy<PrintOption>()!!) {
             assertThat(this.propMaxStringValueLength).isEqualTo(maxStringLenght)
         }
@@ -391,7 +393,7 @@ class PrintableWithPrintAnnotationsTest {
         override fun toString(): String = asString()
     }
 
-    private open class SubClassWithPrintOptionsToString: ClassWithNonDefaultPrintOptions() {
+    private open class SubClassWithPrintOptionsToString : ClassWithNonDefaultPrintOptions() {
 
         override val noPrint: Any = "should not print this"
 
@@ -400,21 +402,22 @@ class PrintableWithPrintAnnotationsTest {
     }
 
     @PrintOption(showNullAs = "nothing here")
-    private open class SubClassWithPrintOptionsOnClass: ClassWithNonDefaultPrintOptions() {
+    private open class SubClassWithPrintOptionsOnClass : ClassWithNonDefaultPrintOptions() {
 
         @PrintHash // Should not override the super method's @PrintOmit annotation, so should not be included
         override val noPrint: Any = "should not print this"
     }
 
     @PrintOption(propMaxStringValueLength = 2)
-    private open class SubSubClassOfPrintOptionsToStringWithPrintOptionsOnClass: SubClassWithPrintOptionsToString() {
+    private open class SubSubClassOfPrintOptionsToStringWithPrintOptionsOnClass : SubClassWithPrintOptionsToString() {
 
         @PrintHash
         override val aDateWithMonthMasked = super.aDateWithMonthMasked
         override fun toString(): String = asString()
     }
 
-    private open class SubSubClassOfPrintOptionsToStringWithPrintOptionsOnToString: SubClassWithPrintOptionsToString() {
+    private open class SubSubClassOfPrintOptionsToStringWithPrintOptionsOnToString :
+        SubClassWithPrintOptionsToString() {
 
         @PrintOption(propMaxStringValueLength = 2)
         override fun toString(): String = asString()
@@ -471,7 +474,7 @@ class PrintableWithPrintAnnotationsTest {
         override fun toString() = asString()
     }
 
-    private class Banky: Printable {
+    private class Banky : Printable {
         @PrintPatternReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2")
         val bankNumberPatternReplace = "NL37DUMM5273748739"
 

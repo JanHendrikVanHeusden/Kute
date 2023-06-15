@@ -65,7 +65,10 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
         }
     } catch (t: Throwable) {
         // The property's value is probably sensitive, so make sure not to use the value in the error message
-        logWithCaller( "Hashing.hashString()", "${t.javaClass.simpleName} occurred when hashing with digestMethod $digestMethod; exception: [${t.asString()}]")
+        logWithCaller(
+            "Hashing.hashString()",
+            "${t.javaClass.simpleName} occurred when hashing with digestMethod $digestMethod; exception: [${t.asString()}]"
+        )
         null
     }
 }

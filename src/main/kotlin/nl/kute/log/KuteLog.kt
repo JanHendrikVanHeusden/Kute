@@ -1,4 +1,5 @@
 @file:JvmName("KuteLog")
+
 package nl.kute.log
 
 import nl.kute.util.asString
@@ -31,10 +32,12 @@ var logger: (String) -> Unit = stdOutLogger
             newLogger("")
             field = newLogger // when no exception occurred
         } catch (e: Exception) {
-            field.invoke("""Tried to set logger, but logger caused exception ${e::class}.
+            field.invoke(
+                """Tried to set logger, but logger caused exception ${e::class}.
                 | logger will not be changed!
                 | ${e.asString()}
-                | """.trimMargin())
+                | """.trimMargin()
+            )
         }
     }
 

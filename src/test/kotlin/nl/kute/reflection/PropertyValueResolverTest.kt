@@ -68,7 +68,7 @@ internal class PropertyValueResolverTest {
         val t3 = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX)
         val properties: Collection<KProperty1<T3, *>> = T3::class.memberProperties
         fun getPropByName(name: String): KProperty1<T3, *> {
-            return properties.first{ it.name == name }
+            return properties.first { it.name == name }
         }
         assertThat(t3.getPropValue(getPropByName("x"))).isEqualTo(12)
         assertThat(t3.getPropValue(getPropByName("z"))).isEqualTo(LocalDateTime.MIN)
@@ -83,7 +83,7 @@ internal class PropertyValueResolverTest {
 
         // set StringBuffer to retrieve log message
         val logBuffer = StringBuffer()
-        logger = { msg -> logBuffer.append(msg).append("\n")}
+        logger = { msg -> logBuffer.append(msg).append("\n") }
 
         val throwingProperty: KProperty1<T3, *> = mock {
             on { this.get(t3) } doThrow RuntimeException()

@@ -73,7 +73,7 @@ internal class HashingTest {
             }
             (1..4).forEach {
                 // Lengths up to 1_048_576 (generation & assertion of strings larger than that takes too long)
-                val length = 2.0.pow((it*5).toDouble()).toInt()
+                val length = 2.0.pow((it * 5).toDouble()).toInt()
                 repeat(2) {
                     assertHashFormat(RandomStringUtils.random(length))
                 }
@@ -137,7 +137,7 @@ internal class HashingTest {
 
     @ParameterizedTest
     @EnumSource(DigestMethod::class)
-    fun `test that encodings are taken into account as expected`(digestMethod: DigestMethod) {
+    fun `verify that encodings are taken into account as expected`(digestMethod: DigestMethod) {
         val str1 = "¥⒂"
         val str2 = "¬"
         if (digestMethod == DigestMethod.JAVA_HASHCODE) {
@@ -145,16 +145,15 @@ internal class HashingTest {
             val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
             val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
             assertThat(hash1GB2312).isEqualTo(hash1UTF8)
-        }
-        else {
+        } else {
             // other digesters take character set in account
-                val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
-                val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
-                assertThat(hash1GB2312).isNotEqualTo(hash1UTF8)
+            val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
+            val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
+            assertThat(hash1GB2312).isNotEqualTo(hash1UTF8)
 
-                val hash2ISO88591 = hashString(str2, digestMethod, Charsets.ISO_8859_1)
-                val hash2UTF8 = hashString(str2, digestMethod, Charsets.UTF_8)
-                assertThat(hash2ISO88591).isNotEqualTo(hash2UTF8)
+            val hash2ISO88591 = hashString(str2, digestMethod, Charsets.ISO_8859_1)
+            val hash2UTF8 = hashString(str2, digestMethod, Charsets.UTF_8)
+            assertThat(hash2ISO88591).isNotEqualTo(hash2UTF8)
         }
     }
 

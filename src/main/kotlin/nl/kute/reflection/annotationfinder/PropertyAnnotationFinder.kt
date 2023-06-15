@@ -17,15 +17,18 @@ import kotlin.reflect.jvm.javaGetter
  * * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
  */
 internal inline fun <reified A : Annotation> KProperty<*>.annotationsOfPropertySubSuperHierarchy(): Map<KClass<*>, A> {
-    val declaringClass: Class<out Any> = this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return mapOf()
+    val declaringClass: Class<out Any> =
+        this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return mapOf()
     // The contract of the `associateWith` method explicitly states that the order is preserved
     @Suppress("UNCHECKED_CAST") // For cast of Map<KClass<*>, A?> to Map<KClass<*>, A>
     return declaringClass.kotlin.subSuperHierarchy().associateWith { kClass ->
         kClass.memberProperties
-            .filter { prop -> prop.name == this.name
-                    // include private properties only if in the class itself, not if it's in a superclass
-                    // note that Kotlin regards private properties with protected getters as private! (also with Java package level)
-                    && (prop.declaringClass()!!.java == declaringClass || !prop.isPrivate()) }
+            .filter { prop ->
+                prop.name == this.name
+                        // include private properties only if in the class itself, not if it's in a superclass
+                        // note that Kotlin regards private properties with protected getters as private! (also with Java package level)
+                        && (prop.declaringClass()!!.java == declaringClass || !prop.isPrivate())
+            }
             .firstNotNullOfOrNull { it.findAnnotation<A>() }
     }.filterValues { annotation -> annotation != null } as Map<KClass<*>, A>
 }

@@ -29,7 +29,8 @@ annotation class PrintOption(
 ) {
     companion object DefaultOption {
         /** [PrintOption] to be used if no explicit [PrintOption] annotation is specified  */
-        val defaultPrintOption = PrintOption(showNullAs = defaultNullString, propMaxStringValueLength = defaultMaxStringValueLength)
+        val defaultPrintOption =
+            PrintOption(showNullAs = defaultNullString, propMaxStringValueLength = defaultMaxStringValueLength)
     }
 }
 

@@ -3,6 +3,7 @@
 package nl.kute.reflection
 
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -15,9 +16,9 @@ import kotlin.reflect.full.memberProperties
  *     * This implies that the properties are unique by name.
  * * The resulting properties are returned regardless of visibility.
  *   So not only `public` or `protected`, but also `internal` and `private` properties.
- * * The properties may or may not be accessible ([KProperty1.isAccessible])
+ * * The properties may or may not be accessible ([KProperty.isAccessible])
  */
-internal fun <T: Any> KClass<T>.propertiesFromSubSuperHierarchy(): List<KProperty1<T, *>> =
+internal fun <T : Any> KClass<T>.propertiesFromSubSuperHierarchy(): List<KProperty<*>> =
     propertiesFromHierarchy(mostSuper = false)
 
 /**
@@ -27,10 +28,10 @@ internal fun <T: Any> KClass<T>.propertiesFromSubSuperHierarchy(): List<KPropert
  *     * This implies that the properties are unique by name.
  * * The resulting properties are returned regardless of visibility.
  *   So not only `public` or `protected`, but also `internal` and `private` properties.
- * * The properties may or may not be accessible ([KProperty1.isAccessible])
+ * * The properties may or may not be accessible ([KProperty.isAccessible])
  */
 @Suppress("SameParameterValue")
-private fun <T: Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean): List<KProperty1<T, *>> {
+private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean): List<KProperty<*>> {
     val classHierarchy: List<KClass<in T>> = if (mostSuper) this.superSubHierarchy() else this.subSuperHierarchy()
     val linkedHashSet: LinkedHashSet<KProperty1<T, *>> = linkedSetOf()
     return linkedHashSet.also { theSet ->
