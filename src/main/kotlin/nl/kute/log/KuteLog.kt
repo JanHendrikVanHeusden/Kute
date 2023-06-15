@@ -5,15 +5,21 @@ package nl.kute.log
 import nl.kute.util.asString
 import java.util.function.Consumer
 
+/** Logs message [msg], prefixed by the receiver's class name */
+fun Any?.log(msg: String) = loggerWithCaller("${this?.javaClass ?: ""}", msg)
+
+/** Logs message [msg], prefixed by the [caller] String */
+fun logWithCaller(caller: String, msg: String) = loggerWithCaller(caller, msg)
+
+/** When no other [logger] is set, this logger is used, which simply outputs `msg` to std out (using [println]) */
 internal val stdOutLogger: (String) -> Unit = { msg: String -> println(msg) }
+
+/** Logger that outputs `msg`, prefixed with the `caller` String, to the current [logger] */
 internal val loggerWithCaller: (String, String) -> Unit = { caller, msg: String -> logger("$caller - $msg") }
 
-fun resetStdOutLogger() {
-    logger = stdOutLogger
-}
-
 /**
- * By default (wen no logger set explicitly), Kute logs error messages to std out (using println()).
+ * Static [logger].
+ * By default (wen no other logger set explicitly), Kute uses [stdOutLogger] to output to std out (using `println()`).
  *
  * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
  * > To be used from within Kotlin.
@@ -21,7 +27,7 @@ fun resetStdOutLogger() {
  *
  * Typical usage (Kotlin) would be:
  * ```
- * private val kuteLogger = LoggerFactory().getLogger("nl.kute")
+ * private val kuteLogger = Logger.getLogger("nl.kute")
  * nl.kute.log.logger = { msg -> kuteLogger.error(msg) }
  * ```
  */
@@ -41,11 +47,9 @@ var logger: (String) -> Unit = stdOutLogger
         }
     }
 
-fun Any?.log(msg: String) = loggerWithCaller("${this?.javaClass ?: ""}", msg)
-fun logWithCaller(caller: String, msg: String) = loggerWithCaller(caller, msg)
-
 /**
- * By default (wen no logger set explicitly), Kute logs error messages to std out (using println()).
+ * Static [logger].
+ * By default (wen no other logger set explicitly), Kute uses [stdOutLogger] to output to std out (using `println()`).
  *
  * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
  * > To be used from within Java.
@@ -54,11 +58,16 @@ fun logWithCaller(caller: String, msg: String) = loggerWithCaller(caller, msg)
  * More convenient in Java than hassling with [Unit] (as you would with [logger])
  * > Typical usage (Java) would be:
  * ```
- * Logger myLogger = LoggerFactory().getLogger("nl.kute")
+ * Logger myLogger = Logger.getLogger("nl.kute")
  * Consumer<String> kuteErrorlogger = msg -> myLogger.error(msg);
  * nl.kute.log.setLogConsumer(kuteErrorLogger);
  * ```
  */
 fun setLogConsumer(aLogger: Consumer<String>) {
     logger = { msg: String -> aLogger.accept(msg) }
+}
+
+/** Resets the logger to [stdOutLogger] */
+internal fun resetStdOutLogger() {
+    logger = stdOutLogger
 }
