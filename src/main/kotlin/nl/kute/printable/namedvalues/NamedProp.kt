@@ -1,7 +1,7 @@
 package nl.kute.printable.namedvalues
 
-import nl.kute.core.collectPropertyAnnotations
-import nl.kute.core.getPropValueString
+import nl.kute.core.property.collectPropertyAnnotations
+import nl.kute.core.property.getPropValueString
 import nl.kute.reflection.getPropValue
 import kotlin.reflect.KProperty
 

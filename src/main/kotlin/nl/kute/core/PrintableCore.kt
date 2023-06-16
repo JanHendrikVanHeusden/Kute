@@ -5,27 +5,15 @@
 
 package nl.kute.core
 
+import nl.kute.core.property.getPropValueString
+import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.log.log
-import nl.kute.printable.annotation.modifiy.PrintHash
-import nl.kute.printable.annotation.modifiy.PrintMask
 import nl.kute.printable.annotation.modifiy.PrintOmit
-import nl.kute.printable.annotation.modifiy.PrintPatternReplace
-import nl.kute.printable.annotation.modifiy.hashString
-import nl.kute.printable.annotation.modifiy.mask
-import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.PrintOption
-import nl.kute.printable.annotation.option.PrintOption.DefaultOption.defaultPrintOption
-import nl.kute.printable.annotation.option.applyOption
 import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.printable.namedvalues.NameValue
-import nl.kute.printable.namedvalues.getNamedValue
 import nl.kute.printable.namedvalues.namedVal
-import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
-import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
-import nl.kute.reflection.getPropValue
-import nl.kute.reflection.propertiesFromSubSuperHierarchy
+import nl.kute.printable.namedvalues.resolver.getNamedValue
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
 import kotlin.reflect.KClass
@@ -34,6 +22,11 @@ import kotlin.reflect.full.hasAnnotation
 
 private val regexPackage = Regex(""".+\.(.*)$""")
 private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
+
+private val emptyStringList: List<String> = listOf()
+private val emptyPropertyList: List<KProperty<*>> = listOf()
+
+private val valueSeparator: String = ", "
 
 internal fun KClass<*>.nameToPrint() = simpleName ?: toString().simplifyClassName()
 
@@ -54,7 +47,13 @@ fun Any.asString(): String {
 fun Any.asString(vararg props: KProperty<*>): String =
     asString(*props.map { namedVal(it) }.toTypedArray())
 
-fun Any.asString(vararg nameValues: NameValue<*>): String {
+fun Any.asString(vararg nameValues: NameValue<*>): String =
+    asStringExcludingNames(emptyStringList, *nameValues)
+
+fun Any.asStringWithOnly(vararg props: KProperty<*>): String =
+    asString(*props.map { namedVal(it) }.toTypedArray())
+
+fun Any.asStringWithOnly(vararg nameValues: NameValue<*>): String {
     return nameValues
         .filterNot { prop -> prop is KProperty<*> && prop.hasAnnotation<PrintOmit>() }
         .joinToString(separator = ", ", prefix = "${this::class.nameToPrint()}(", postfix = ")") {
@@ -75,8 +74,8 @@ fun Any.asString(vararg nameValues: NameValue<*>): String {
  * @see [asStringExcludingNames]
  * @see [asString]
  */
-fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyList()): String {
-    return asStringExcludingNames(propsToExclude.map { it.name })
+fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyPropertyList, vararg nameValues: NameValue<*>): String {
+    return asStringExcludingNames(propsToExclude.map { it.name }, *nameValues)
 }
 
 /**
@@ -95,23 +94,21 @@ fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyList()
  * @see [asString]
  * @see [asStringExcluding]
  */
-fun <T : Any> T.asStringExcludingNames(
-    propNamesToExclude: Collection<String>,
-    vararg nameValues: NameValue<*>
+fun <T : Any> T.asStringExcludingNames(propNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>
 ): String {
+    val nameValueSeparator = if (nameValues.isEmpty()) "" else valueSeparator
     try {
         try {
             val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
                 this::class.propertiesWithPrintModifyingAnnotations()
-            val postFix = ")"
             return annotationsByProperty
                 .filterNot { propNamesToExclude.contains(it.key.name) }
                 .filterNot { entry -> entry.value.any { annotation -> annotation is PrintOmit } }
-                .entries.joinToString(separator = ", ", prefix = "${this::class.nameToPrint()}(") { entry ->
+                .entries.joinToString(separator = valueSeparator, prefix = "${this::class.nameToPrint()}(") { entry ->
                     val prop = entry.key
                     val annotationSet = entry.value
                     "${prop.name}=${getPropValueString(prop, annotationSet)}"
-                } + nameValues.joinToString(separator = ", ", postfix = postFix) {
+                } + nameValues.joinToString(prefix = nameValueSeparator, separator = ", ", postfix = ")") {
                     it.valueString ?: defaultNullString
             }
         } catch (e: Exception) {
@@ -127,66 +124,3 @@ fun <T : Any> T.asStringExcludingNames(
     }
 }
 
-/** @return
- *  * for [Array]s: [Array.contentDeepToString]
- *  * otherwise: the [toString] value of the property, modified if needed by annotations @[PrintOmit],
- *  @[PrintPatternReplace], @[PrintMask], @[PrintHash]
- */
-internal fun <T : Any> T.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): String? {
-    val value: Any? = this.getPropValue(prop)
-    var strValue = if (value is Array<*>)
-        value.contentDeepToString()
-    else {
-        value?.toString()
-    }
-    if (annotations.isEmpty()) {
-        return strValue
-    }
-    if (annotations.any { it is PrintOmit }) {
-        return ""
-    }
-    val printPatternReplace: PrintPatternReplace? = annotations.findAnnotation()
-    val printMask: PrintMask? = annotations.findAnnotation()
-    val printHash: PrintHash? = annotations.findAnnotation()
-    val printOption: PrintOption = annotations.findAnnotation()!! // always present
-    strValue = printPatternReplace.replacePattern(strValue)
-    strValue = printMask.mask(strValue)
-    strValue = printHash.hashString(strValue)
-    strValue = printOption.applyOption(strValue)
-    return strValue
-}
-
-private inline fun <reified A : Annotation> Set<Annotation>.findAnnotation(): A? =
-    this.firstOrNull { it is A } as A?
-
-internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
-    // map each property to an (empty yet) mutable set of annotations
-    val resultMap: Map<KProperty<*>, MutableSet<Annotation>> =
-        propertiesFromSubSuperHierarchy().associateWith { mutableSetOf() }
-
-    resultMap.forEach { (prop, annotations) -> collectPropertyAnnotations(prop, annotations) }
-    return resultMap
-}
-
-internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {
-    (prop.annotationOfPropertySuperSubHierarchy<PrintOmit>())?.let { annotation ->
-        annotations.add(annotation)
-        // any further annotations are meaningless because output will be omitted when PrintOmit is present
-        return
-    }
-    (prop.annotationOfPropertySuperSubHierarchy<PrintHash>())?.let { annotation ->
-        annotations.add(annotation)
-    }
-    (prop.annotationOfPropertySuperSubHierarchy<PrintMask>())?.let { annotation ->
-        annotations.add(annotation)
-    }
-    (prop.annotationOfPropertySuperSubHierarchy<PrintPatternReplace>())?.let { annotation ->
-        annotations.add(annotation)
-    }
-    // PrintOption from lowest subclass in hierarchy with this annotation
-    val printOptionClassAnnotation =
-        this.annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: defaultPrintOption
-    (prop.annotationOfPropertySubSuperHierarchy() ?: printOptionClassAnnotation).let { annotation ->
-        annotations.add(annotation)
-    }
-}

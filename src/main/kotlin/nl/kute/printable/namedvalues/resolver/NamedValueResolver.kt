@@ -1,6 +1,9 @@
-package nl.kute.printable.namedvalues
+package nl.kute.printable.namedvalues.resolver
 
 import nl.kute.core.nameToPrint
+import nl.kute.printable.namedvalues.NameValue
+import nl.kute.printable.namedvalues.PropertyValue
+import nl.kute.printable.namedvalues.TypedNameValue
 
 internal fun Any.getNamedValue(it: NameValue<*>) = when (it) {
     is PropertyValue<*, *> -> {

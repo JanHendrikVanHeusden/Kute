@@ -34,8 +34,10 @@ internal val loggerWithCaller: (String, String) -> Unit = { caller, msg: String 
 var logger: (String) -> Unit = stdOutLogger
     set(newLogger) {
         try {
-            // basic test to assert that the new logger works (not causing an exception)
-            newLogger("")
+            if (newLogger != stdOutLogger) {
+                // basic test to assert that the new logger works (not causing an exception)
+                newLogger("")
+            }
             field = newLogger // when no exception occurred
         } catch (e: Exception) {
             field.invoke(
