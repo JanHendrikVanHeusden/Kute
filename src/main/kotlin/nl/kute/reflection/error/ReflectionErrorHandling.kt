@@ -1,4 +1,4 @@
-package nl.kute.reflection.errormessage
+package nl.kute.reflection.error
 
 import nl.kute.log.log
 import nl.kute.log.logger

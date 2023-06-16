@@ -1,7 +1,7 @@
 package nl.kute.reflection
 
 import nl.kute.log.log
-import nl.kute.reflection.errormessage.handlePropValException
+import nl.kute.reflection.error.handlePropValException
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1

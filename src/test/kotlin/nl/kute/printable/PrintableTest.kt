@@ -27,6 +27,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.reflect.KProperty0
 
 class PrintableTest {
 
@@ -216,11 +217,12 @@ class PrintableTest {
     fun `test asStringWithOnly`() {
         val testObj = ClassToPrint(num = 12, privateToPrint = UUID.randomUUID(), str = "this is str")
         val testObj2 = ClassWithExtensionProperty("a str")
+
         val testObj3 = ClassWithExtensionProperties()
         val testDateObj = aPrintableDate
         val someString = "just some string"
         // FIXME: WIP
-        val numProp = testObj::num
+        val numProp: KProperty0<Int> = testObj::num
         println(testObj.asStringWithOnly(numProp, "aPrintableDate" to testDateObj, someString, testObj2::str))
         println(testObj.asStringWithOnly(/*numProp,*/ /*String::extProp,*/ "Good morning".extensionPropAtPackage))
         println(testObj.asStringWithOnly(/*numProp,*/ /*String::extProp,*/))
