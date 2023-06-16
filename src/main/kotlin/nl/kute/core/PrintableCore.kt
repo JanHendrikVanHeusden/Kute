@@ -6,6 +6,9 @@
 package nl.kute.core
 
 import nl.kute.log.log
+import nl.kute.printable.NameValue
+import nl.kute.printable.PropertyValue
+import nl.kute.printable.TypedNameValue
 import nl.kute.printable.annotation.modifiy.PrintHash
 import nl.kute.printable.annotation.modifiy.PrintMask
 import nl.kute.printable.annotation.modifiy.PrintOmit
@@ -16,6 +19,8 @@ import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.PrintOption.DefaultOption.defaultPrintOption
 import nl.kute.printable.annotation.option.applyOption
+import nl.kute.printable.annotation.option.defaultNullString
+import nl.kute.printable.namedVal
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
@@ -26,14 +31,12 @@ import nl.kute.util.asString
 import nl.kute.util.lineEnd
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty0
-import kotlin.reflect.KProperty1
 import kotlin.reflect.full.hasAnnotation
-
-// Static stuff (package level) only
 
 private val regexPackage = Regex(""".+\.(.*)$""")
 private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
+
+private fun KClass<*>.nameToPrint() = simpleName ?: toString().simplifyClassName()
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -49,34 +52,14 @@ fun Any.asString(): String {
     return asStringExcluding()
 }
 
-fun Any.asStringWithOnly(vararg props: Any): String {
-    // FIXME: honour annotations
-    return props
+fun Any.asString(vararg props: KProperty<*>): String =
+    asString(*props.map { namedVal(it) }.toTypedArray())
+
+fun Any.asString(vararg nameValues: NameValue<*>): String {
+    return nameValues
         .filterNot { prop -> prop is KProperty<*> && prop.hasAnnotation<PrintOmit>() }
-        .joinToString(
-            separator = ", ",
-            prefix = "${this::class.simpleName ?: this::class.toString().simplifyClassName()}(",
-            postfix = ")"
-        ) {
-            // fixme: take annotations into account!
-            when (it) {
-                is KProperty0<*> -> {
-                    "${it.name}=${this.getPropValue(it)}"
-                }
-
-                is KProperty1<*, *> -> {
-                    "${it.name}=${this.getPropValue(it)}"
-                }
-
-                is Pair<*, *> -> {
-                    "${it.first}=${it.second}"
-                }
-
-                else -> {
-                    // if not a property or a pair, we just don't know the variable name, so the only thing we have is the class name
-                    "${it::class.simpleName ?: it::class.toString().simplifyClassName()}=${it}"
-                }
-            }
+        .joinToString(separator = ", ", prefix = "${this::class.nameToPrint()}(", postfix = ")") {
+            getNamedValue(it)
         }
 }
 
@@ -93,8 +76,8 @@ fun Any.asStringWithOnly(vararg props: Any): String {
  * @see [asStringExcludingNames]
  * @see [asString]
  */
-fun Any.asStringExcluding(vararg propsToExclude: KProperty<*>): String {
-    return asStringExcludingNames(*(propsToExclude.map { it.name }.toTypedArray()))
+fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyList()): String {
+    return asStringExcludingNames(propsToExclude.map { it.name })
 }
 
 /**
@@ -108,39 +91,40 @@ fun Any.asStringExcluding(vararg propsToExclude: KProperty<*>): String {
  * E.g. use it when not calling from inside the class:
  * `someObjectWithPrivateProps.`[asStringExcludingNames]`("myExcludedPrivateProp1", "myExcludedProp2")
  * @return A String representation of the receiver object, including class name and property names + values;
- * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
+ * adhering to related annotations;
+ * for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
  * @see [asString]
  * @see [asStringExcluding]
  */
-fun <T : Any> T.asStringExcludingNames(vararg propNamesToExclude: String): String {
+fun <T : Any> T.asStringExcludingNames(
+    propNamesToExclude: Collection<String>,
+    vararg nameValues: NameValue<*>
+): String {
     try {
         try {
-            val annotationsByProperty = this::class.propertiesWithPrintModifyingAnnotations()
+            val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
+                this::class.propertiesWithPrintModifyingAnnotations()
+            val postFix = ")"
             return annotationsByProperty
                 .filterNot { propNamesToExclude.contains(it.key.name) }
                 .filterNot { entry -> entry.value.any { annotation -> annotation is PrintOmit } }
-                .entries.joinToString(
-                    separator = ", ",
-                    prefix = "${this::class.simpleName ?: this::class.toString().simplifyClassName()}(",
-                    postfix = ")"
-                ) { entry ->
+                .entries.joinToString(separator = ", ", prefix = "${this::class.nameToPrint()}(") { entry ->
                     val prop = entry.key
                     val annotationSet = entry.value
-                    "${prop.name}=${getPropValueString(prop, annotationSet)
-                    }"
-                }
+                    "${prop.name}=${getPropValueString(prop, annotationSet)}"
+                } + nameValues.joinToString(separator = ", ", postfix = postFix) {
+                    it.valueString ?: defaultNullString
+            }
         } catch (e: Exception) {
-            // We have no logger in the Kute project; we don't want to interfere with the caller project's logger
-            // So we can only return a value that describes what happened.
-            return "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${e.asString()}"
-                .also { log(it) }
+            log("ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${e.asString()}")
+            return ""
         } catch (t: Throwable) {
-            return "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${t.asString()}"
-                .also { log(it) }
+            log("FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${t.asString()}")
+            return ""
         }
     } catch (t: Throwable) {
         @Suppress("UNNECESSARY_SAFE_CALL")
-        return "FATAL ERROR: Unhandled Throwable ${t?.javaClass} occurred when retrieving string value"
+        return "FATAL ERROR: Unhandled Throwable ${t?.javaClass} (cause: ${t.cause?.javaClass}) occurred when retrieving string value"
     }
 }
 
@@ -173,6 +157,26 @@ internal fun <T : Any> T.getPropValueString(prop: KProperty<*>, annotations: Set
     return strValue
 }
 
+internal fun Any.getNamedValue(it: NameValue<*>) = when (it) {
+    is PropertyValue<*, *> -> {
+        "${it.name}=${it.valueString}"
+    }
+
+    is TypedNameValue<*, *> -> {
+        val classPrefix =
+            if (it.obj != null && it.obj!!::class != this::class) {
+                "${it.obj!!::class.nameToPrint()}."
+            } else {
+                ""
+            }
+        "$classPrefix${it.name}=${it.valueString}"
+    }
+
+    else -> {
+        "${it.name}=${it.valueString}"
+    }
+}
+
 private inline fun <reified A : Annotation> Set<Annotation>.findAnnotation(): A? =
     this.firstOrNull { it is A } as A?
 
@@ -185,7 +189,7 @@ internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<
     return resultMap
 }
 
-private fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {
+internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {
     (prop.annotationOfPropertySuperSubHierarchy<PrintOmit>())?.let { annotation ->
         annotations.add(annotation)
         // any further annotations are meaningless because output will be omitted when PrintOmit is present

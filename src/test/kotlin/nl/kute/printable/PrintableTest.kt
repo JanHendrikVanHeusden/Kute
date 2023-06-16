@@ -2,7 +2,6 @@ package nl.kute.printable
 
 import nl.kute.core.Printable
 import nl.kute.core.asString
-import nl.kute.core.asStringWithOnly
 import nl.kute.hashing.DigestMethod
 import nl.kute.printable.annotation.modifiy.PrintHash
 import nl.kute.printable.annotation.modifiy.PrintMask
@@ -17,7 +16,7 @@ import nl.kute.testobjects.java.printable.packagevisibility.sub.SubClassOfJavaCl
 import nl.kute.testobjects.java.printable.protectedvisibility.JavaClassWithProtectedProperty
 import nl.kute.testobjects.java.printable.protectedvisibility.KotlinSubSubClassOfJavaJavaClassWithProtectedProperty
 import nl.kute.testobjects.java.printable.protectedvisibility.SubClassOfJavaClassWithProtectedProperty
-import nl.kute.testobjects.java.printable.protectedvisibility.SubSubClassOfClassWithProtectedProperty
+import nl.kute.testobjects.kotlin.printable.protectedvisibility.SubSubClassOfClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
 import org.apache.commons.lang3.RandomStringUtils
@@ -48,7 +47,7 @@ class PrintableTest {
         // Assert
         assertThat(classToPrint.toString())
             .isEqualTo("ClassToPrint(greet=hallo, num=10, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
-        assertThat(classToPrint.asStringExcluding(ClassToPrint::num))
+        assertThat(classToPrint.asStringExcluding(listOf(ClassToPrint::num)))
             .isEqualTo("ClassToPrint(greet=hallo, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
 
         // Assert that it works on anonymous class
@@ -219,17 +218,21 @@ class PrintableTest {
         val testObj2 = ClassWithExtensionProperty("a str")
 
         val testObj3 = ClassWithExtensionProperties()
-        val testDateObj = aPrintableDate
         val someString = "just some string"
         // FIXME: WIP
         val numProp: KProperty0<Int> = testObj::num
-        println(testObj.asStringWithOnly(numProp, "aPrintableDate" to testDateObj, someString, testObj2::str))
-        println(testObj.asStringWithOnly(/*numProp,*/ /*String::extProp,*/ "Good morning".extensionPropAtPackage))
-        println(testObj.asStringWithOnly(/*numProp,*/ /*String::extProp,*/))
-        println(testObj2)
-        println(testObj2.asString())
-        println(testObj3.asString())
-        println(testObj3.asStringWithOnly(testObj3::extPropPackageLevel))
+        println(testObj.asString(numProp, testObj2::str))
+        println()
+        println(testObj.asString(testObj.namedVal(numProp), someString.namedVal("someString")))
+        println()
+//        println(testObj2)
+//        println(testObj2.asString())
+//        println(testObj3.asString())
+        println(testObj3.asString(testObj3::extPropPackageLevel))
+        println()
+        println("Nu v:")
+        println(listOf<String>().joinToString(prefix = ">", postfix = "<"))
+        println("Er na ^:")
     }
 
     // ------------------------------------
@@ -261,7 +264,7 @@ class PrintableTest {
 
     // anonymous nested class
     private val extensionObject: Any = object : ClassToPrint("a string", 25, anotherPrintable) {
-        override fun toString(): String = asStringExcludingNames("privateToPrint")
+        override fun toString(): String = asStringExcludingNames(listOf("privateToPrint"))
 
         @Suppress("unused")
         private val extensionProperty = "my extension property"
@@ -323,7 +326,7 @@ class PrintableTest {
 
     @Suppress("unused", "SameReturnValue")
     class ClassWithExtensionProperties {
-        @Suppress("UnusedReceiverParameter")
+        @Suppress("UnusedReceiverParameter", "MemberVisibilityCanBePrivate")
         val String.extProp: String
             get() = "I am a class-level extension property"
 

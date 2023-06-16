@@ -46,8 +46,8 @@ interface Printable {
      * @see [asStringExcluding]
      * @see [asStringExcludingNames]
      */
-    fun asStringExcluding(vararg propsToExclude: KProperty<*>): String =
-        (this as Any).asStringExcluding(*propsToExclude)
+    fun asStringExcluding(propsToExclude: Collection<KProperty<*>>): String =
+        (this as Any).asStringExcluding(propsToExclude)
 
 
     /**
@@ -65,8 +65,8 @@ interface Printable {
      * @see [asString]
      * @see [asStringExcluding]
      */
-    fun asStringExcludingNames(vararg propNamesToExclude: String): String =
-        (this as Any).asStringExcludingNames(*propNamesToExclude)
+    fun asStringExcludingNames(propNamesToExclude: Collection<String>): String =
+        (this as Any).asStringExcludingNames(propNamesToExclude)
 
     /**
      * Abstract override of [toString], so implementing classes are forced to implement it

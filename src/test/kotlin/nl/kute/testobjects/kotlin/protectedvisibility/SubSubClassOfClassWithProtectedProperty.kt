@@ -1,3 +1,5 @@
-package nl.kute.testobjects.java.printable.protectedvisibility
+package nl.kute.testobjects.kotlin.printable.protectedvisibility
+
+import nl.kute.testobjects.java.printable.protectedvisibility.SubClassOfJavaClassWithProtectedProperty
 
 class SubSubClassOfClassWithProtectedProperty : SubClassOfJavaClassWithProtectedProperty()

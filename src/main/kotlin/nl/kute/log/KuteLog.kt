@@ -68,6 +68,6 @@ fun setLogConsumer(aLogger: Consumer<String>) {
 }
 
 /** Resets the logger to [stdOutLogger] */
-internal fun resetStdOutLogger() {
+fun resetStdOutLogger() {
     logger = stdOutLogger
 }

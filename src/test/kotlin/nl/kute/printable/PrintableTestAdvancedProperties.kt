@@ -187,7 +187,7 @@ class PrintableTestAdvancedProperties {
 
         var getCounter: Int = 0
 
-        @Suppress("SuspiciousVarProperty")
+        @Suppress("SuspiciousVarProperty", "SameReturnValue")
         var hallo: String = "hallo internal value"
             get() {
                 ++getCounter
