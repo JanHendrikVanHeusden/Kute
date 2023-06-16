@@ -6,9 +6,6 @@
 package nl.kute.core
 
 import nl.kute.log.log
-import nl.kute.printable.NameValue
-import nl.kute.printable.PropertyValue
-import nl.kute.printable.TypedNameValue
 import nl.kute.printable.annotation.modifiy.PrintHash
 import nl.kute.printable.annotation.modifiy.PrintMask
 import nl.kute.printable.annotation.modifiy.PrintOmit
@@ -20,7 +17,9 @@ import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.PrintOption.DefaultOption.defaultPrintOption
 import nl.kute.printable.annotation.option.applyOption
 import nl.kute.printable.annotation.option.defaultNullString
-import nl.kute.printable.namedVal
+import nl.kute.printable.namedvalues.NameValue
+import nl.kute.printable.namedvalues.getNamedValue
+import nl.kute.printable.namedvalues.namedVal
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
@@ -36,7 +35,7 @@ import kotlin.reflect.full.hasAnnotation
 private val regexPackage = Regex(""".+\.(.*)$""")
 private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
 
-private fun KClass<*>.nameToPrint() = simpleName ?: toString().simplifyClassName()
+internal fun KClass<*>.nameToPrint() = simpleName ?: toString().simplifyClassName()
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -155,26 +154,6 @@ internal fun <T : Any> T.getPropValueString(prop: KProperty<*>, annotations: Set
     strValue = printHash.hashString(strValue)
     strValue = printOption.applyOption(strValue)
     return strValue
-}
-
-internal fun Any.getNamedValue(it: NameValue<*>) = when (it) {
-    is PropertyValue<*, *> -> {
-        "${it.name}=${it.valueString}"
-    }
-
-    is TypedNameValue<*, *> -> {
-        val classPrefix =
-            if (it.obj != null && it.obj!!::class != this::class) {
-                "${it.obj!!::class.nameToPrint()}."
-            } else {
-                ""
-            }
-        "$classPrefix${it.name}=${it.valueString}"
-    }
-
-    else -> {
-        "${it.name}=${it.valueString}"
-    }
 }
 
 private inline fun <reified A : Annotation> Set<Annotation>.findAnnotation(): A? =

@@ -1,4 +1,4 @@
-package nl.kute.printable
+package nl.kute.printable.namedvalues
 
 import nl.kute.core.collectPropertyAnnotations
 import nl.kute.core.getPropValueString
@@ -6,7 +6,8 @@ import nl.kute.reflection.getPropValue
 import kotlin.reflect.KProperty
 
 @Suppress("RedundantModalityModifier")
-final class NamedProp<T: Any?, V: Any?>(override val obj: T?, override val property: KProperty<V>): TypedNameValue<T?, V?>, PropertyValue<T?, V?> {
+final class NamedProp<T: Any?, V: Any?>(override val obj: T?, override val property: KProperty<V>):
+    TypedNameValue<T?, V?>, PropertyValue<T?, V?> {
 
     override val name: String = property.name
 

@@ -1,4 +1,4 @@
-package nl.kute.printable
+package nl.kute.printable.namedvalues
 
 class NamedSupplier<V: Any>(override val name: String, private val supplier: Supplier<V?>): NameValue<V?> {
 

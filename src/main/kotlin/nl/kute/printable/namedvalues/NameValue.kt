@@ -1,4 +1,4 @@
-package nl.kute.printable
+package nl.kute.printable.namedvalues
 
 typealias Supplier<T> = () -> T?
 
