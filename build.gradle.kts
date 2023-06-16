@@ -84,7 +84,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
+    compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 
     // Used in tests only.
     // Do not use it in source code, packaged Kute should not rely on any external dependency
