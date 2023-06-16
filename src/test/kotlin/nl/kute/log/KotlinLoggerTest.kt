@@ -78,7 +78,7 @@ class KotlinLoggerTest {
         assertThat(logger).isSameAs(goodLogger)
         logBuffer.setLength(0) // clear the buffer
 
-        val wrongLogger: (String) -> Unit = { msg -> throw Exception("this is not a good logger") }
+        val wrongLogger: (String) -> Unit = { _ -> throw Exception("this is not a good logger") }
 
         // act
         logger = wrongLogger

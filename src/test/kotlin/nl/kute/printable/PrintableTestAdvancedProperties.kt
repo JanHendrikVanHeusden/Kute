@@ -110,6 +110,40 @@ class PrintableTestAdvancedProperties {
             .doesNotContain(valueOfCompanionVar)
     }
 
+    @Test
+    fun `test with extension properties`() {
+        // Arrange
+        val testObj = ClassWithExtensionProperties()
+
+        val extPropClassLevelValue = testObj.extPropClassLevel
+        val expectedExtPropClassLevel =
+            "a String that calls class level prop extension; I am a class-level extension property"
+        assertThat(extPropClassLevelValue).isEqualTo(expectedExtPropClassLevel)
+
+        val extPropPackageLevelValue = testObj.extPropPackageLevel
+        val expectedExtPropPackageLevelValue = "a String that calls a package level prop extension; I am a package extension property"
+        assertThat(extPropPackageLevelValue).isEqualTo(expectedExtPropPackageLevelValue)
+
+        // Act
+        val actual = testObj.asString()
+
+        // Assert
+        assertThat(actual)
+            .`as`("""the String with extension property should be shown with its value
+                | and with the value provided by the extension property""".trimMargin())
+            .contains("extPropClassLevel=$expectedExtPropClassLevel")
+
+        assertThat(actual)
+            .`as`("""the String with extension property should be shown with its value
+                | and with the value provided by the extension property""".trimMargin())
+            .contains("extPropPackageLevel=$expectedExtPropPackageLevelValue")
+
+        assertThat(actual)
+            .`as`("The extension property itself should not be shown")
+            .doesNotContain("classLevelStringExtProp")
+
+    }
+
     // ------------------------------------
     // Classes etc. to be used in the tests
     // ------------------------------------
@@ -202,4 +236,26 @@ class PrintableTestAdvancedProperties {
             var companionVar: String = "my companion var"
         }
     }
+    @Suppress("unused", "SameReturnValue")
+    private data class ClassWithExtensionProperty(val str: String) {
+        val String.extensionPropAtClass: String
+            get() = "$this; I am a class-level extension property"
+    }
+
+    @Suppress("unused", "SameReturnValue")
+    class ClassWithExtensionProperties {
+        @Suppress("MemberVisibilityCanBePrivate")
+        val String.classLevelStringExtProp: String
+            get() = "$this; I am a class-level extension property"
+
+        val extPropPackageLevel: String =
+            "a String that calls a package level prop extension".extensionPropAtPackage
+
+        val extPropClassLevel: String =
+            "a String that calls class level prop extension".classLevelStringExtProp
+    }
 }
+
+private val String.extensionPropAtPackage: String
+    get() = "$this; I am a package extension property"
+

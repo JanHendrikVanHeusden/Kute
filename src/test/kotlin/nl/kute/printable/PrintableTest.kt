@@ -26,7 +26,6 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.reflect.KProperty0
 
 class PrintableTest {
 
@@ -212,29 +211,6 @@ class PrintableTest {
         }
     }
 
-    @Test
-    fun `test asStringWithOnly`() {
-        val testObj = ClassToPrint(num = 12, privateToPrint = UUID.randomUUID(), str = "this is str")
-        val testObj2 = ClassWithExtensionProperty("a str")
-
-        val testObj3 = ClassWithExtensionProperties()
-        val someString = "just some string"
-        // FIXME: WIP
-        val numProp: KProperty0<Int> = testObj::num
-        println(testObj.asString(numProp, testObj2::str))
-        println()
-        println(testObj.asString(testObj.namedVal(numProp), someString.namedVal("someString")))
-        println()
-//        println(testObj2)
-//        println(testObj2.asString())
-//        println(testObj3.asString())
-        println(testObj3.asString(testObj3::extPropPackageLevel))
-        println()
-        println("Nu v:")
-        println(listOf<String>().joinToString(prefix = ">", postfix = "<"))
-        println("Er na ^:")
-    }
-
     // ------------------------------------
     // Classes etc. to be used in the tests
     // ------------------------------------
@@ -311,30 +287,13 @@ class PrintableTest {
         @PrintHash(DigestMethod.JAVA_HASHCODE)
         override val socialSecurityNumber: String = "617247018"
 
+        //@formatter:off
         @PrintMask(minLength = 0, maxLength = Int.MAX_VALUE, startMaskAt = 0, endMaskAt = Int.MAX_VALUE)
         override val password: Array<Char> =
             arrayOf('m', 'y', ' ', 'v', 'e', 'r', 'y', ' ', 's', 'e', 'c', 'r', 'e', 't', ' ', 'p', 'a', 's', 's', 'w', 'o', 'r', 'd')
+        //@formatter:on
 
         override fun toString(): String = asString()
     }
 
-    @Suppress("unused", "SameReturnValue")
-    private data class ClassWithExtensionProperty(val str: String) {
-        val String.extensionPropAtClass: String
-            get() = "$this; I am a class-level extension property"
-    }
-
-    @Suppress("unused", "SameReturnValue")
-    class ClassWithExtensionProperties {
-        @Suppress("UnusedReceiverParameter", "MemberVisibilityCanBePrivate")
-        val String.extProp: String
-            get() = "I am a class-level extension property"
-
-        val extPropPackageLevel = String::extensionPropAtPackage
-
-        val extPropClassLevel = "a String".extProp
-    }
 }
-
-private val String.extensionPropAtPackage: String
-    get() = "$this; I am a package extension property"
