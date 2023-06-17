@@ -4,7 +4,6 @@ typealias Supplier<T> = () -> T?
 
 interface NameValue<V: Any?> {
     val name: String
-    val valueGetter: Supplier<V?>
     val valueString: String?
 }
 

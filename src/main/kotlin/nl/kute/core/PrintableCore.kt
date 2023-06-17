@@ -12,6 +12,7 @@ import nl.kute.printable.annotation.modifiy.PrintOmit
 import nl.kute.printable.annotation.option.PrintOption
 import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.printable.namedvalues.NameValue
+import nl.kute.printable.namedvalues.PropertyValue
 import nl.kute.printable.namedvalues.namedVal
 import nl.kute.printable.namedvalues.resolver.getNamedValue
 import nl.kute.util.asString
@@ -50,9 +51,13 @@ fun Any.asString(vararg props: KProperty<*>): String =
 fun Any.asString(vararg nameValues: NameValue<*>): String =
     asStringExcludingNames(emptyStringList, *nameValues)
 
+// TODO: create tests. Or remove?
+@Suppress("unused")
 fun Any.asStringWithOnly(vararg props: KProperty<*>): String =
     asString(*props.map { namedVal(it) }.toTypedArray())
 
+// TODO: create tests. Or remove?
+@Suppress("unused")
 fun Any.asStringWithOnly(vararg nameValues: NameValue<*>): String {
     return nameValues
         .filterNot { prop -> prop is KProperty<*> && prop.hasAnnotation<PrintOmit>() }
@@ -85,7 +90,7 @@ fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyProper
  * * String value of individual properties is capped at 500; see @[PrintOption] to override the default
  *
  * This method allows you to exclude any properties by name, including inaccessible private ones.
- * @param propNamesToExclude accessible properties that you don't want to be included in the result.
+ * @param namesToExclude accessible properties that you don't want to be included in the result.
  * E.g. use it when not calling from inside the class:
  * `someObjectWithPrivateProps.`[asStringExcludingNames]`("myExcludedPrivateProp1", "myExcludedProp2")
  * @return A String representation of the receiver object, including class name and property names + values;
@@ -94,22 +99,25 @@ fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyProper
  * @see [asString]
  * @see [asStringExcluding]
  */
-fun <T : Any> T.asStringExcludingNames(propNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>
+fun <T : Any> T.asStringExcludingNames(namesToExclude: Collection<String>, vararg nameValues: NameValue<*>
 ): String {
-    val nameValueSeparator = if (nameValues.isEmpty()) "" else valueSeparator
     try {
         try {
             val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
                 this::class.propertiesWithPrintModifyingAnnotations()
+                    .filterNot { namesToExclude.contains(it.key.name) }
+                    .filterNot { entry -> entry.value.any { annotation -> annotation is PrintOmit } }
+            val named = nameValues
+                .filterNot { namesToExclude.contains(it.name) }
+                .filterNot { it is PropertyValue<*, *> && it.printModifyingAnnotations.any { it is PrintOmit }}
+            val nameValueSeparator = if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
             return annotationsByProperty
-                .filterNot { propNamesToExclude.contains(it.key.name) }
-                .filterNot { entry -> entry.value.any { annotation -> annotation is PrintOmit } }
                 .entries.joinToString(separator = valueSeparator, prefix = "${this::class.nameToPrint()}(") { entry ->
                     val prop = entry.key
                     val annotationSet = entry.value
                     "${prop.name}=${getPropValueString(prop, annotationSet)}"
-                } + nameValues.joinToString(prefix = nameValueSeparator, separator = ", ", postfix = ")") {
-                    it.valueString ?: defaultNullString
+                } + named.joinToString(prefix = nameValueSeparator, separator = ", ", postfix = ")") {
+                    "${it.name}=${it.valueString ?: defaultNullString}"
             }
         } catch (e: Exception) {
             log("ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${e.asString()}")

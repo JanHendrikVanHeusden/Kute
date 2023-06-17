@@ -76,7 +76,7 @@ internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, 
     }
     // PrintOption from lowest subclass in hierarchy with this annotation
     val printOptionClassAnnotation =
-        this.annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: PrintOption.defaultPrintOption
+        annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: PrintOption.defaultPrintOption
     (prop.annotationOfPropertySubSuperHierarchy() ?: printOptionClassAnnotation).let { annotation ->
         annotations.add(annotation)
     }
