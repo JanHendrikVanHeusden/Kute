@@ -62,7 +62,7 @@ fun Any.asString(vararg nameValues: NameValue<*>): String =
  * @see [asStringExcludingNames]
  * @see [asString]
  */
-fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyPropertyList, vararg nameValues: NameValue<*>): String {
+internal fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyPropertyList, vararg nameValues: NameValue<*>): String {
     return asStringExcludingNames(propsToExclude.map { it.name }, *nameValues)
 }
 
@@ -82,7 +82,7 @@ fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyProper
  * @see [asString]
  * @see [asStringExcluding]
  */
-fun <T : Any> T.asStringExcludingNames(namesToExclude: Collection<String>, vararg nameValues: NameValue<*>
+internal fun <T : Any> T.asStringExcludingNames(namesToExclude: Collection<String>, vararg nameValues: NameValue<*>
 ): String {
     try {
         try {
