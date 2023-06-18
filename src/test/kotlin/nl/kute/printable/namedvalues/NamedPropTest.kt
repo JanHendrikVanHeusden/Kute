@@ -11,6 +11,7 @@ import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.PrintOption
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
 
 class NamedPropTest {
     @Test
@@ -160,6 +161,24 @@ class NamedPropTest {
                 .isEqualTo(11)
         }
     }
+
+    @Test
+    fun `test namedVal`() {
+        // Arrange
+        class MyTestClass {
+            val testProp: Int = Random.nextInt()
+        }
+        val myTestObj = MyTestClass()
+        // Act
+        val namedProp = myTestObj.namedVal(myTestObj::testProp) as NamedProp<MyTestClass, Int>
+        // Assert
+        assertThat(namedProp.name).isEqualTo(MyTestClass::testProp.name)
+        assertThat(namedProp.valueString).isEqualTo("${myTestObj.testProp}")
+    }
+
+    ///////////////
+    // Test classes
+    ///////////////
 
     private open class WithPropertyAnnotations {
         @PrintOption(propMaxStringValueLength = 300)

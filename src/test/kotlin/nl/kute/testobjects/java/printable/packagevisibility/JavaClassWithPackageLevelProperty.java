@@ -1,6 +1,6 @@
 package nl.kute.testobjects.java.printable.packagevisibility;
 
-import static nl.kute.core.PrintableCore.asString;
+import static nl.kute.core.AsString.asString;
 
 @SuppressWarnings("unused")
 public class JavaClassWithPackageLevelProperty {

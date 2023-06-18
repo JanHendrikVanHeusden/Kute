@@ -1,4 +1,4 @@
-@file:JvmName("PrintableCore")
+@file:JvmName("AsString")
 @file:Suppress("SameParameterValue", "SameParameterValue")
 
 // TODO: caching of properties & annotations
@@ -14,12 +14,10 @@ import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.printable.namedvalues.NameValue
 import nl.kute.printable.namedvalues.PropertyValue
 import nl.kute.printable.namedvalues.namedVal
-import nl.kute.printable.namedvalues.resolver.getNamedValue
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
-import kotlin.reflect.full.hasAnnotation
 
 private val regexPackage = Regex(""".+\.(.*)$""")
 private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
@@ -50,21 +48,6 @@ fun Any.asString(vararg props: KProperty<*>): String =
 
 fun Any.asString(vararg nameValues: NameValue<*>): String =
     asStringExcludingNames(emptyStringList, *nameValues)
-
-// TODO: create tests. Or remove?
-@Suppress("unused")
-fun Any.asStringWithOnly(vararg props: KProperty<*>): String =
-    asString(*props.map { namedVal(it) }.toTypedArray())
-
-// TODO: create tests. Or remove?
-@Suppress("unused")
-fun Any.asStringWithOnly(vararg nameValues: NameValue<*>): String {
-    return nameValues
-        .filterNot { prop -> prop is KProperty<*> && prop.hasAnnotation<PrintOmit>() }
-        .joinToString(separator = ", ", prefix = "${this::class.nameToPrint()}(", postfix = ")") {
-            getNamedValue(it)
-        }
-}
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.

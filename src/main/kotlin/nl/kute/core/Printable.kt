@@ -73,7 +73,7 @@ interface Printable {
      * > It is not allowed to provide a default implementation of a member of [Any] in an interface
      *
      * Suggested simplest implementation is:
-     * > `override fun toString(): String = asString[]`
+     * > `override fun toString(): String = asString()`
      */
     override fun toString(): String
 

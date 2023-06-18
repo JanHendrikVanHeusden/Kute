@@ -8,7 +8,7 @@ class NamedSupplierTest {
     @Test
     fun `test NamedSupplier`() {
         // Arrange
-        val suppliedValue = "supplied value"
+        val suppliedValue = "the value"
         val supplier: () -> String = { suppliedValue }
         val name = "the name"
         // Act
@@ -45,9 +45,10 @@ class NamedSupplierTest {
     fun `test namedVal`() {
         // Arrange
         val suppliedValue = "supplied value"
+        val supplier = { suppliedValue }
         val name = "the name"
         // Act
-        val namedSupplier = suppliedValue.namedVal(name)
+        val namedSupplier = supplier.namedVal(name) as NamedSupplier<String>
         // Assert
         assertThat(namedSupplier.name).isSameAs(name)
         assertThat(namedSupplier.valueString).isSameAs(suppliedValue)
