@@ -25,7 +25,7 @@ private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
 private val emptyStringList: List<String> = listOf()
 private val emptyPropertyList: List<KProperty<*>> = listOf()
 
-private val valueSeparator: String = ", "
+private const val valueSeparator: String = ", "
 
 internal fun KClass<*>.nameToPrint() = simpleName ?: toString().simplifyClassName()
 

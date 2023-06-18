@@ -3,6 +3,8 @@ package nl.kute.testobjects.java.printable;
 import nl.kute.core.Printable;
 import org.jetbrains.annotations.NotNull;
 
+import static nl.kute.core.AsStringBuilder.asStringBuilder;
+
 /** For use by [PrintableTest] */
 @SuppressWarnings("unused")
 public class JavaClassToTestPrintable implements Printable {
@@ -12,7 +14,7 @@ public class JavaClassToTestPrintable implements Printable {
     @SuppressWarnings("FieldCanBeLocal")
     private final String[] names;
 
-    public JavaClassToTestPrintable(String str, int num, String[] names) {
+    public JavaClassToTestPrintable(String str, int num, String... names) {
         this.str = str;
         this.num = num;
         this.names = names;
@@ -44,6 +46,6 @@ public class JavaClassToTestPrintable implements Printable {
     }
 
     public static void main(String[] args) {
-        System.out.println(new JavaClassToTestPrintable("my string", 12, new String[]{"these", "are", "my", "names"}));
+        JavaClassToTestPrintable testObj = new JavaClassToTestPrintable(" the string ", 15, "Henk");
     }
 }

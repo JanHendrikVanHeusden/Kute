@@ -7,6 +7,7 @@ interface NameValue<V: Any?> {
     val valueString: String?
 }
 
+// TODO: weak reference!
 interface TypedNameValue<T: Any?, V: Any?>: NameValue<V> {
     val obj: T?
 }

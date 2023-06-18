@@ -4,6 +4,7 @@ import nl.kute.core.property.collectPropertyAnnotations
 import nl.kute.core.property.getPropValueString
 import kotlin.reflect.KProperty
 
+// TODO: weak reference!
 @Suppress("RedundantModalityModifier")
 final class NamedProp<T: Any?, V: Any?>(override val obj: T?, override val property: KProperty<V>):
     TypedNameValue<T?, V?>, PropertyValue<T?, V?> {

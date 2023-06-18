@@ -1,5 +1,6 @@
 package nl.kute.printable.namedvalues
 
+// TODO: weak reference!
 class NamedValue<V: Any?>(override val name: String, private val obj: V?): NameValue<V?> {
     override val valueString: String?
         // Using `get` so it's evaluated when required only, not at construction time of the NamedValue

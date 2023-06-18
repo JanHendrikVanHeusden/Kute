@@ -385,7 +385,7 @@ class PrintableTest {
 
     @Suppress("unused", "CanBeParameter")
     private class KotlinClassToTestPrintable(str: String, num: Int, val anotherStr: String, val names: Array<String>) :
-        JavaClassToTestPrintable(str, num, names) {
+        JavaClassToTestPrintable(str, num, *names) {
 
         override fun toString() = asString()
     }
