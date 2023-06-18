@@ -6,10 +6,10 @@ import nl.kute.util.asString
 import java.util.function.Consumer
 
 /** Logs message [msg], prefixed by the receiver's class name */
-fun Any?.log(msg: String) = loggerWithCaller("${this?.javaClass ?: ""}", msg)
+internal fun Any?.log(msg: String) = loggerWithCaller("${this?.javaClass ?: ""}", msg)
 
 /** Logs message [msg], prefixed by the [caller] String */
-fun logWithCaller(caller: String, msg: String) = loggerWithCaller(caller, msg)
+internal fun logWithCaller(caller: String, msg: String) = loggerWithCaller(caller, msg)
 
 /** When no other [logger] is set, this logger is used, which simply outputs `msg` to std out (using [println]) */
 internal val stdOutLogger: (String) -> Unit = { msg: String -> println(msg) }
@@ -70,6 +70,6 @@ fun setLogConsumer(aLogger: Consumer<String>) {
 }
 
 /** Resets the logger to [stdOutLogger] */
-fun resetStdOutLogger() {
+internal fun resetStdOutLogger() {
     logger = stdOutLogger
 }
