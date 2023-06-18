@@ -37,7 +37,7 @@ internal fun KClass<*>.nameToPrint() = simpleName ?: toString().simplifyClassNam
  * @return A String representation of the receiver object, including class name and property names + values;
  * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
  * @see [asStringExcluding]
- * @see [asStringExcludingNames]
+ * @see [objectAsString]
  */
 fun Any.asString(): String {
     return asStringExcluding()
@@ -47,7 +47,7 @@ fun Any.asString(vararg props: KProperty<*>): String =
     asString(*props.map { namedVal(it) }.toTypedArray())
 
 fun Any.asString(vararg nameValues: NameValue<*>): String =
-    asStringExcludingNames(emptyStringList, *nameValues)
+    objectAsString(emptyStringList, *nameValues)
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -56,14 +56,14 @@ fun Any.asString(vararg nameValues: NameValue<*>): String =
  * * String value of individual properties is capped at 500; see @[PrintOption] to override the default
  * @param propsToExclude accessible properties that you don't want to be included in the result.
  * E.g. `override fun toString() = `[asStringExcluding]`(::myExcludedProp1, ::myExcludedProp2)`
- * **NB:** Excluding properties will not work from Java classes; use [asStringExcludingNames] instead
+ * **NB:** Excluding properties will not work from Java classes; use [objectAsString] instead
  * @return A String representation of the receiver object, including class name and property names + values;
  * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
- * @see [asStringExcludingNames]
+ * @see [objectAsString]
  * @see [asString]
  */
 internal fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyPropertyList, vararg nameValues: NameValue<*>): String {
-    return asStringExcludingNames(propsToExclude.map { it.name }, *nameValues)
+    return objectAsString(propsToExclude.map { it.name }, *nameValues)
 }
 
 /**
@@ -75,14 +75,14 @@ internal fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = em
  * This method allows you to exclude any properties by name, including inaccessible private ones.
  * @param namesToExclude accessible properties that you don't want to be included in the result.
  * E.g. use it when not calling from inside the class:
- * `someObjectWithPrivateProps.`[asStringExcludingNames]`("myExcludedPrivateProp1", "myExcludedProp2")
+ * `someObjectWithPrivateProps.`[objectAsString]`("myExcludedPrivateProp1", "myExcludedProp2")
  * @return A String representation of the receiver object, including class name and property names + values;
  * adhering to related annotations;
  * for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
  * @see [asString]
  * @see [asStringExcluding]
  */
-internal fun <T : Any> T.asStringExcludingNames(namesToExclude: Collection<String>, vararg nameValues: NameValue<*>
+internal fun <T : Any> T.objectAsString(namesToExclude: Collection<String>, vararg nameValues: NameValue<*>
 ): String {
     try {
         try {

@@ -2,6 +2,7 @@
 
 package nl.kute.core
 
+import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.printable.namedvalues.NameValue
 import kotlin.reflect.KProperty
 
@@ -21,63 +22,69 @@ class AsStringBuilder private constructor(val obj: Any?) {
     private val exceptPropertes: MutableSet<KProperty<*>> = mutableSetOf()
     private val exceptNames: MutableSet<String> = mutableSetOf()
 
+    lateinit var classProperties: Set<KProperty<*>>
+
     private var isBuilt: Boolean = false
 
     fun withAlsoProperties(vararg props: KProperty<*>): AsStringBuilder {
-        @Suppress("SENSELESS_COMPARISON") // can be null when called from Java with explicit null
-        if (!isBuilt && props != null) {
+        if (!isBuilt) {
             this.alsoProperties.addAll(props)
         }
         return this
     }
     fun withAlsoNamed(vararg nameValues: NameValue<*>): AsStringBuilder {
-        @Suppress("SENSELESS_COMPARISON") // can be null when called from Java with explicit null
-        if (!isBuilt && nameValues != null) {
+        if (!isBuilt) {
             this.alsoNamed.addAll(nameValues)
         }
         return this
     }
     fun onlyProperties(vararg props: KProperty<*>): AsStringBuilder {
-        @Suppress("SENSELESS_COMPARISON") // can be null when called from Java with explicit null
-        if (!isBuilt && props != null) {
+        if (!isBuilt) {
             this.onlyProperties.addAll(props)
             isOnlyPropertiesSet = true
         }
         return this
     }
     fun onlyNamed(vararg nameValues: NameValue<*>): AsStringBuilder {
-        @Suppress("SENSELESS_COMPARISON") // can be null when called from Java with explicit null
-        if (!isBuilt && nameValues != null) {
+        if (!isBuilt) {
             this.onlyNamed.addAll(nameValues)
             isOnlyNamedSet = true
         }
         return this
     }
     fun withOnlyNames(vararg names: String): AsStringBuilder {
-        @Suppress("SENSELESS_COMPARISON") // can be null when called from Java with explicit null
-        if (!isBuilt && names != null) {
+        if (!isBuilt) {
             this.onlyNames.addAll(names)
             isOnlyNamesSet = true
         }
         return this
     }
     fun exceptProperties(vararg props: KProperty<*>): AsStringBuilder {
-        @Suppress("SENSELESS_COMPARISON") // can be null when called from Java with explicit null
-        if (!isBuilt && props != null) {
+        if (!isBuilt) {
             this.exceptPropertes.addAll(props)
         }
         return this
     }
     fun exceptNames(vararg names: String): AsStringBuilder {
-        @Suppress("SENSELESS_COMPARISON") // can be null when called from Java with explicit null
-        if (!isBuilt && names != null) {
+        if (!isBuilt) {
             this.exceptNames.addAll(names)
         }
         return this
     }
 
-    fun asString(): String {
+    private fun build() {
+        classProperties = if (obj != null) {
+            obj::class.propertiesWithPrintModifyingAnnotations().keys
+        } else {
+            emptySet()
+        }
         isBuilt = true
+    }
+
+    fun asString(): String {
+        if (!isBuilt) {
+            build()
+        }
         return ""
     }
 

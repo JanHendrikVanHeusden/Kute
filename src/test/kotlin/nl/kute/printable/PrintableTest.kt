@@ -2,7 +2,8 @@ package nl.kute.printable
 
 import nl.kute.core.Printable
 import nl.kute.core.asString
-import nl.kute.core.asStringExcludingNames
+import nl.kute.core.asStringExcluding
+import nl.kute.core.objectAsString
 import nl.kute.hashing.DigestMethod
 import nl.kute.log.log
 import nl.kute.printable.annotation.modifiy.PrintHash
@@ -199,7 +200,7 @@ class PrintableTest {
         // Arrange
         counter = 0
         // Act
-        asString = testObj.asStringExcludingNames(namesToExclude = setOf(valueName), namedXxx)
+        asString = testObj.objectAsString(namesToExclude = setOf(valueName), namedXxx)
         // Assert
         assertThat(asString).doesNotContain("$valueName=")
         assertThat(counter)
@@ -209,7 +210,7 @@ class PrintableTest {
         // Arrange
         counter = 0
         // Act - not excluding "counter"
-        asString = testObj.asStringExcludingNames(namesToExclude = setOf("count"), namedXxx)
+        asString = testObj.objectAsString(namesToExclude = setOf("count"), namedXxx)
         // Assert
         assertThat(asString).matches("^.+\\b$valueName=1\\D")
         assertThat(counter).isEqualTo(1)
@@ -332,7 +333,7 @@ class PrintableTest {
 
         log(person1.toString())
         log(person2.toString())
-        log(person2.asStringExcludingNames(setOf("excl"), "xyz".namedVal("excl")) )
+        log(person2.objectAsString(setOf("excl"), "xyz".namedVal("excl")) )
     }
 
     @Suppress("unused")
@@ -341,7 +342,7 @@ class PrintableTest {
         @PrintMask
         val passWord ="Jt7i68%_7ULfdbn3465"
 
-        override fun toString(): String = asStringExcludingNames(setOf("surName"),
+        override fun toString(): String = objectAsString(setOf("surName"),
             namedVal(::birthDate),
             { "$givenName ${"${middleName?:""} $surName".trim()}}" }.namedVal("fullName")
         )
@@ -376,7 +377,7 @@ class PrintableTest {
 
     // anonymous nested class
     private val extensionObject: Any = object : ClassToPrint("a string", 25, anotherPrintable) {
-        override fun toString(): String = asStringExcludingNames(listOf("privateToPrint"))
+        override fun toString(): String = objectAsString(listOf("privateToPrint"))
 
         @Suppress("unused")
         private val extensionProperty = "my extension property"
