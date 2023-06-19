@@ -42,11 +42,11 @@ class PrintableTest {
 
     private val names: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
 
-    private var counter = 0
+    private var classLevelCounter = 0
 
     @BeforeEach
     fun setUp() {
-        counter = 0
+        classLevelCounter = 0
     }
 
     @Test
@@ -124,43 +124,44 @@ class PrintableTest {
     @ValueSource(strings = ["value", "prop"])
     fun `each call of asString with NamedXxx should evaluate the mutable value`(namedValueType: String) {
         // Arrange
-        val valueName = "counter"
-        val namedProp = this.namedVal(::counter) as NamedProp<*, Int>
+        val valueName = "classLevelCounter"
+        val namedProp = this.namedVal(::classLevelCounter) as NamedProp<*, Int>
 
         val mapOfNamedValues: Map<String, () -> NameValue<Int?>> = mapOf(
             // We can simply use the same NamedProp every time, it will evaluate the property value at runtime
             "prop" to { namedProp },
             // A new NamedValue needs to be constructed on every call, because it simply stores the value at time of construction.
             // If you don't like that, use `NamedProp` or `NamedSupplier` instead
-            "value" to { counter.namedVal(valueName) as NamedValue<Int> }
+            "value" to { classLevelCounter.namedVal(valueName) as NamedValue<Int> }
         )
         val namedXxx = mapOfNamedValues[namedValueType]!!
 
         class TestClass() {
             override fun toString(): String = asString(namedXxx())
         }
-        assertThat(counter).isZero()
+        assertThat(classLevelCounter).isZero()
         val testObj = TestClass()
 
-        counter = 0
+        classLevelCounter = 0
         repeat(3) {
             // Arrange
-            counter++
+            classLevelCounter++
             // Act
             val asString = testObj.toString()
 
             // Assert
             assertThat(asString)
                 .`as`("Should honour changed value")
-                .matches("^.+\\bcounter=$counter\\D")
-            assertThat(counter).isEqualTo(counter)
+                .matches("^.+\\b$valueName=$classLevelCounter\\D")
+            assertThat(classLevelCounter).isEqualTo(classLevelCounter)
         }
     }
 
     @Test
     fun `each call of asString with NamedSupplier should evaluate the value exactly once`() {
         // Arrange
-        val valueName = "counter"
+        val counterName = "counter"
+        var counter = 0
 
         val supplier = {
             // Don't do this normally! A Supplier should not have side effects!
@@ -168,13 +169,13 @@ class PrintableTest {
             ++counter
         }
 
-        val namedXxx = supplier.namedVal(valueName) as NamedSupplier<Int>
+        val namedSupplier = supplier.namedVal(counterName) as NamedSupplier<Int>
         // Arrange
         counter = 0
 
-        class TestClass() {
+        open class TestClass() {
             override fun toString(): String {
-                return asString(namedXxx)
+                return asString(namedSupplier)
             }
         }
         assertThat(counter).isZero()
@@ -186,7 +187,7 @@ class PrintableTest {
         // Assert
         assertThat(asString)
             .`as`("Supplier expression should be retrieved only once during processing")
-            .matches("^.+\\bcounter=1\\D")
+            .matches("^.+\\b$counterName=1\\D")
         assertThat(counter).isEqualTo(1)
 
         // Act
@@ -194,25 +195,45 @@ class PrintableTest {
         // Assert
         assertThat(asString)
             .`as`("")
-            .matches("^.+\\b$valueName=2\\D")
+            .matches("^.+\\b$counterName=2\\D")
         assertThat(counter).isEqualTo(2)
 
         // Arrange
         counter = 0
+        println("counter = $counter")
         // Act
-        asString = testObj.objectAsString(namesToExclude = setOf(valueName), namedXxx)
+        asString = testObj.objectAsString(
+            properytyNamesToExclude = setOf(counterName),
+            nameValues = arrayOf(namedSupplier)
+        )
         // Assert
-        assertThat(asString).doesNotContain("$valueName=")
+        assertThat(asString).matches("^.+\\b$counterName=1\\D")
         assertThat(counter)
-            .`as`("When excluded, the expression should not be evaluated")
-            .isZero()
+            .`as`("propertyNamesToExclude should exclude properties only, not named values")
+            .isEqualTo(1)
 
         // Arrange
         counter = 0
+        class SubTestClass(var aProp: String = "a Prop"): TestClass()
+
+        with(SubTestClass()) {
+            val namedProp = this.namedVal(this::aProp)
+            // Act
+            asString = this.objectAsString(properytyNamesToExclude = setOf(aProp, counterName), namedProp, namedSupplier)
+            // Assert
+            assertThat(asString)
+                .matches("^.+\\b${namedProp.name}=${this.aProp}\\D.*")
+                .matches("^.+\\b$counterName=1\\D.*")
+            assertThat(counter)
+                .`as`("propertyNamesToExclude should exclude properties only, not named values")
+                .isEqualTo(1)
+        }
+        // Arrange
+        counter = 0
         // Act - not excluding "counter"
-        asString = testObj.objectAsString(namesToExclude = setOf("count"), namedXxx)
+        asString = testObj.objectAsString(properytyNamesToExclude = setOf("count"), namedSupplier)
         // Assert
-        assertThat(asString).matches("^.+\\b$valueName=1\\D")
+        assertThat(asString).matches("^.+\\b$counterName=1\\D")
         assertThat(counter).isEqualTo(1)
     }
 

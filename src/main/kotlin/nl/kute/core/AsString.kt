@@ -39,14 +39,14 @@ internal fun KClass<*>.nameToPrint() = simpleName ?: toString().simplifyClassNam
  * @see [asStringExcluding]
  * @see [objectAsString]
  */
-fun Any.asString(): String {
+fun Any?.asString(): String {
     return asStringExcluding()
 }
 
-fun Any.asString(vararg props: KProperty<*>): String =
+fun Any?.asString(vararg props: KProperty<*>): String =
     asString(*props.map { namedVal(it) }.toTypedArray())
 
-fun Any.asString(vararg nameValues: NameValue<*>): String =
+fun Any?.asString(vararg nameValues: NameValue<*>): String =
     objectAsString(emptyStringList, *nameValues)
 
 /**
@@ -62,7 +62,7 @@ fun Any.asString(vararg nameValues: NameValue<*>): String =
  * @see [objectAsString]
  * @see [asString]
  */
-internal fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyPropertyList, vararg nameValues: NameValue<*>): String {
+internal fun Any?.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyPropertyList, vararg nameValues: NameValue<*>): String {
     return objectAsString(propsToExclude.map { it.name }, *nameValues)
 }
 
@@ -73,7 +73,7 @@ internal fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = em
  * * String value of individual properties is capped at 500; see @[PrintOption] to override the default
  *
  * This method allows you to exclude any properties by name, including inaccessible private ones.
- * @param namesToExclude accessible properties that you don't want to be included in the result.
+ * @param properytyNamesToExclude accessible properties that you don't want to be included in the result.
  * E.g. use it when not calling from inside the class:
  * `someObjectWithPrivateProps.`[objectAsString]`("myExcludedPrivateProp1", "myExcludedProp2")
  * @return A String representation of the receiver object, including class name and property names + values;
@@ -82,20 +82,23 @@ internal fun Any.asStringExcluding(propsToExclude: Collection<KProperty<*>> = em
  * @see [asString]
  * @see [asStringExcluding]
  */
-internal fun <T : Any> T.objectAsString(namesToExclude: Collection<String>, vararg nameValues: NameValue<*>
+@Suppress("UNNECESSARY_NOT_NULL_ASSERTION") // Compiler warning that we don't need the `obj!!` - but compilation fails if we remove `!!`
+internal fun <T : Any?> T.objectAsString(properytyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>
 ): String {
+    if (this == null) {
+        return defaultNullString
+    } else
     try {
         try {
             val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
-                this::class.propertiesWithPrintModifyingAnnotations()
-                    .filterNot { namesToExclude.contains(it.key.name) }
+                this!!::class.propertiesWithPrintModifyingAnnotations()
+                    .filterNot { properytyNamesToExclude.contains(it.key.name) }
                     .filterNot { entry -> entry.value.any { annotation -> annotation is PrintOmit } }
             val named = nameValues
-                .filterNot { namesToExclude.contains(it.name) }
-                .filterNot { it is PropertyValue<*, *> && it.printModifyingAnnotations.any { it is PrintOmit }}
+                .filterNot { it is PropertyValue<*, *> && it.printModifyingAnnotations.any { it is PrintOmit } }
             val nameValueSeparator = if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
             return annotationsByProperty
-                .entries.joinToString(separator = valueSeparator, prefix = "${this::class.nameToPrint()}(") { entry ->
+                .entries.joinToString(separator = valueSeparator, prefix = "${this!!::class.nameToPrint()}(") { entry ->
                     val prop = entry.key
                     val annotationSet = entry.value
                     "${prop.name}=${getPropValueString(prop, annotationSet)}"

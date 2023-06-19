@@ -25,6 +25,24 @@ final class NamedProp<T: Any?, V: Any?>(override val obj: T?, override val prope
         // Using `get` so it's evaluated when required only, not at construction time of the NamedProp
         // NB: don't use `lazy`, it should honour changes in the underlying object
         get() = obj?.getPropValueString(property, printModifyingAnnotations)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as NamedProp<*, *>
+
+        if (obj != other.obj) return false
+        if (name != other.name) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = obj?.hashCode() ?: 0
+        result = 31 * result + name.hashCode()
+        return result
+    }
 }
 
 @Suppress("unused")

@@ -4,31 +4,42 @@ package nl.kute.core
 
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.printable.namedvalues.NameValue
+import nl.kute.printable.namedvalues.namedVal
 import kotlin.reflect.KProperty
 
 // TODO: weak reference!
 class AsStringBuilder private constructor(val obj: Any?) {
 
-    private val alsoProperties: MutableSet<KProperty<*>> = mutableSetOf()
-    private val alsoNamed: MutableSet<NameValue<*>> = mutableSetOf()
+    private val classProperties: Set<KProperty<*>> by lazy {
+        if (obj != null) {
+            obj::class.propertiesWithPrintModifyingAnnotations().keys
+        } else {
+            emptySet()
+        }
+    }
+    private val classPropertyNames: Set<String> by lazy {
+        classProperties.map { it.name }.toSet()
+    }
 
-    private val onlyProperties: MutableSet<KProperty<*>> = mutableSetOf()
+    private val alsoNamed: MutableSet<NameValue<*>> by lazy { mutableSetOf() }
+    private val alsoNamedAsTypedArray by lazy { alsoNamed.toTypedArray() }
+
+    private val onlyProperties: MutableSet<KProperty<*>> by lazy { mutableSetOf() }
     private var isOnlyPropertiesSet: Boolean = false
-    private val onlyNames: MutableSet<String> = mutableSetOf()
+    private val onlyNames: MutableSet<String> by lazy { mutableSetOf() }
     private var isOnlyNamesSet: Boolean = false
-    private val onlyNamed: MutableSet<NameValue<*>> = mutableSetOf()
-    private var isOnlyNamedSet: Boolean = false
 
-    private val exceptPropertes: MutableSet<KProperty<*>> = mutableSetOf()
-    private val exceptNames: MutableSet<String> = mutableSetOf()
+    private val exceptProperties: MutableSet<KProperty<*>> by lazy { mutableSetOf() }
+    private val exceptPropertyNames: MutableSet<String> by lazy { mutableSetOf() }
 
-    lateinit var classProperties: Set<KProperty<*>>
+    private val propertyNamesToExclude: MutableSet<String> by lazy { mutableSetOf() }
 
     private var isBuilt: Boolean = false
 
+    /** Allows adding properties of related objects, e.g. member objects, delegates etc. */
     fun withAlsoProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
-            this.alsoProperties.addAll(props)
+            this.alsoNamed.addAll(props.map { obj.namedVal(it) })
         }
         return this
     }
@@ -45,13 +56,6 @@ class AsStringBuilder private constructor(val obj: Any?) {
         }
         return this
     }
-    fun onlyNamed(vararg nameValues: NameValue<*>): AsStringBuilder {
-        if (!isBuilt) {
-            this.onlyNamed.addAll(nameValues)
-            isOnlyNamedSet = true
-        }
-        return this
-    }
     fun withOnlyNames(vararg names: String): AsStringBuilder {
         if (!isBuilt) {
             this.onlyNames.addAll(names)
@@ -61,23 +65,24 @@ class AsStringBuilder private constructor(val obj: Any?) {
     }
     fun exceptProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
-            this.exceptPropertes.addAll(props)
+            this.exceptProperties.addAll(props)
         }
         return this
     }
-    fun exceptNames(vararg names: String): AsStringBuilder {
+    fun exceptPropertyNames(vararg names: String): AsStringBuilder {
         if (!isBuilt) {
-            this.exceptNames.addAll(names)
+            this.exceptPropertyNames.addAll(names)
         }
         return this
     }
 
     private fun build() {
-        classProperties = if (obj != null) {
-            obj::class.propertiesWithPrintModifyingAnnotations().keys
-        } else {
-            emptySet()
-        }
+        val propNamesToInclude: Collection<String> =
+            (if (isOnlyPropertiesSet) (onlyProperties.map { it.name }) else classPropertyNames)
+            .filter { !isOnlyNamesSet || onlyNames.contains(it) }
+            .filterNot { exceptProperties.map { it.name }.contains(it) }
+            .filterNot { exceptPropertyNames.contains(it) }
+        propertyNamesToExclude.addAll(classPropertyNames - propNamesToInclude)
         isBuilt = true
     }
 
@@ -85,7 +90,7 @@ class AsStringBuilder private constructor(val obj: Any?) {
         if (!isBuilt) {
             build()
         }
-        return ""
+        return obj.objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
     }
 
     companion object {
