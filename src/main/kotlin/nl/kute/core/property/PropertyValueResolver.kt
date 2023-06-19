@@ -23,7 +23,10 @@ import kotlin.reflect.KProperty
  *  * otherwise: the [toString] value of the property, modified if needed by annotations @[AsStringOmit],
  *  @[AsStringPatternReplace], @[AsStringMask], @[AsStringHash]
  */
-internal fun <T : Any> T.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): String? {
+internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): String? {
+    if (this == null) {
+        return null
+    }
     val value: Any? = this.getPropValue(prop)
     var strValue = if (value is Array<*>)
         value.contentDeepToString()

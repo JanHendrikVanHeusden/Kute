@@ -73,7 +73,7 @@ internal fun Any?.asStringExcluding(propsToExclude: Collection<KProperty<*>> = e
  * * String value of individual properties is capped at 500; see @[AsStringOption] to override the default
  *
  * This method allows you to exclude any properties by name, including inaccessible private ones.
- * @param properytyNamesToExclude accessible properties that you don't want to be included in the result.
+ * @param propertyNamesToExclude accessible properties that you don't want to be included in the result.
  * E.g. use it when not calling from inside the class:
  * `someObjectWithPrivateProps.`[objectAsString]`("myExcludedPrivateProp1", "myExcludedProp2")
  * @return A String representation of the receiver object, including class name and property names + values;
@@ -83,38 +83,43 @@ internal fun Any?.asStringExcluding(propsToExclude: Collection<KProperty<*>> = e
  * @see [asStringExcluding]
  */
 @Suppress("UNNECESSARY_NOT_NULL_ASSERTION") // Compiler warning that we don't need the `obj!!` - but compilation fails if we remove `!!`
-internal fun <T : Any?> T.objectAsString(properytyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>
+internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>
 ): String {
     if (this == null) {
         return defaultNullString
-    } else
-    try {
+    } else {
+        val objClass = this!!::class
         try {
-            val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
-                this!!::class.propertiesWithPrintModifyingAnnotations()
-                    .filterNot { properytyNamesToExclude.contains(it.key.name) }
-                    .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
-            val named = nameValues
-                .filterNot { it is PropertyValue<*, *> && it.printModifyingAnnotations.any { it is AsStringOmit } }
-            val nameValueSeparator = if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
-            return annotationsByProperty
-                .entries.joinToString(separator = valueSeparator, prefix = "${this!!::class.nameToPrint()}(") { entry ->
-                    val prop = entry.key
-                    val annotationSet = entry.value
-                    "${prop.name}=${getPropValueString(prop, annotationSet)}"
-                } + named.joinToString(prefix = nameValueSeparator, separator = ", ", postfix = ")") {
+            try {
+                val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
+                    objClass.propertiesWithPrintModifyingAnnotations()
+                        .filterNot { propertyNamesToExclude.contains(it.key.name) }
+                        .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
+                val named = nameValues
+                    .filterNot { it is PropertyValue<*, *> && it.printModifyingAnnotations.any { it is AsStringOmit } }
+                val nameValueSeparator = if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
+                return annotationsByProperty
+                    .entries.joinToString(
+                        separator = valueSeparator,
+                        prefix = "${objClass.nameToPrint()}("
+                    ) { entry ->
+                        val prop = entry.key
+                        val annotationSet = entry.value
+                        "${prop.name}=${getPropValueString(prop, annotationSet)}"
+                    } + named.joinToString(prefix = nameValueSeparator, separator = ", ", postfix = ")") {
                     "${it.name}=${it.valueString ?: defaultNullString}"
+                }
+            } catch (e: Exception) {
+                log("ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${e.asString()}")
+                return ""
+            } catch (t: Throwable) {
+                log("FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${t.asString()}")
+                return ""
             }
-        } catch (e: Exception) {
-            log("ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${e.asString()}")
-            return ""
         } catch (t: Throwable) {
-            log("FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${t.asString()}")
-            return ""
+            @Suppress("UNNECESSARY_SAFE_CALL")
+            return "FATAL ERROR: Unhandled Throwable ${t?.javaClass} (cause: ${t.cause?.javaClass}) occurred when retrieving string value"
         }
-    } catch (t: Throwable) {
-        @Suppress("UNNECESSARY_SAFE_CALL")
-        return "FATAL ERROR: Unhandled Throwable ${t?.javaClass} (cause: ${t.cause?.javaClass}) occurred when retrieving string value"
     }
 }
 

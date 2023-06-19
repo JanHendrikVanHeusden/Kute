@@ -202,7 +202,7 @@ class AsStringTest {
         println("counter = $counter")
         // Act
         asString = testObj.objectAsString(
-            properytyNamesToExclude = setOf(counterName),
+            propertyNamesToExclude = setOf(counterName),
             nameValues = arrayOf(namedSupplier)
         )
         // Assert
@@ -218,7 +218,7 @@ class AsStringTest {
         with(SubTestClass()) {
             val namedProp = this.namedVal(this::aProp)
             // Act
-            asString = this.objectAsString(properytyNamesToExclude = setOf(aProp, counterName), namedProp, namedSupplier)
+            asString = this.objectAsString(propertyNamesToExclude = setOf(aProp, counterName), namedProp, namedSupplier)
             // Assert
             assertThat(asString)
                 .matches("^.+\\b${namedProp.name}=${this.aProp}\\D.*")
@@ -230,7 +230,7 @@ class AsStringTest {
         // Arrange
         counter = 0
         // Act - not excluding "counter"
-        asString = testObj.objectAsString(properytyNamesToExclude = setOf("count"), namedSupplier)
+        asString = testObj.objectAsString(propertyNamesToExclude = setOf("count"), namedSupplier)
         // Assert
         assertThat(asString).matches("^.+\\b$counterName=1\\D")
         assertThat(counter).isEqualTo(1)

@@ -3,12 +3,14 @@
 package nl.kute.core
 
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
+import nl.kute.core.reference.ObjectWeakReference
 import nl.kute.printable.namedvalues.NameValue
 import nl.kute.printable.namedvalues.namedVal
 import kotlin.reflect.KProperty
 
-// TODO: weak reference!
-class AsStringBuilder private constructor(val obj: Any?) {
+class AsStringBuilder private constructor(obj: Any?) {
+
+    val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
 
     private val classProperties: Set<KProperty<*>> by lazy {
         if (obj != null) {
@@ -39,7 +41,7 @@ class AsStringBuilder private constructor(val obj: Any?) {
     /** Allows adding properties of related objects, e.g. member objects, delegates etc. */
     fun withAlsoProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
-            this.alsoNamed.addAll(props.map { obj.namedVal(it) })
+            this.alsoNamed.addAll(props.map { objectReference.get().namedVal(it) })
         }
         return this
     }
@@ -77,25 +79,27 @@ class AsStringBuilder private constructor(val obj: Any?) {
     }
 
     private fun build() {
-        val propNamesToInclude: Collection<String> =
+        if (isBuilt) {
+            return
+        }
+        val propNamesToInclude: Set<String> =
             (if (isOnlyPropertiesSet) (onlyProperties.map { it.name }) else classPropertyNames)
-            .filter { !isOnlyNamesSet || onlyNames.contains(it) }
-            .filterNot { exceptProperties.map { it.name }.contains(it) }
-            .filterNot { exceptPropertyNames.contains(it) }
+                .filter { !isOnlyNamesSet || onlyNames.contains(it) }
+                .filterNot { exceptProperties.map { it.name }.contains(it) }
+                .filterNot { exceptPropertyNames.contains(it) }
+                .toSet()
         propertyNamesToExclude.addAll(classPropertyNames - propNamesToInclude)
         isBuilt = true
     }
 
     fun asString(): String {
-        if (!isBuilt) {
-            build()
-        }
-        return obj.objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
+        build()
+        return objectReference.get().objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
     }
 
     companion object {
         @JvmStatic
-        fun Any.asStringBuilder() = AsStringBuilder(this)
+        fun Any?.asStringBuilder() = AsStringBuilder(this)
     }
 
 }

@@ -1,5 +1,7 @@
 package nl.kute.printable.namedvalues
 
+import nl.kute.core.reference.ObjectWeakReference
+
 typealias Supplier<T> = () -> T?
 
 interface NameValue<V: Any?> {
@@ -7,7 +9,6 @@ interface NameValue<V: Any?> {
     val valueString: String?
 }
 
-// TODO: weak reference!
 interface TypedNameValue<T: Any?, V: Any?>: NameValue<V> {
-    val obj: T?
+    val objectReference: ObjectWeakReference<T?>
 }
