@@ -1,14 +1,14 @@
 package nl.kute.printable.namedvalues
 
 import nl.kute.hashing.DigestMethod
-import nl.kute.printable.annotation.modifiy.PrintHash
-import nl.kute.printable.annotation.modifiy.PrintMask
-import nl.kute.printable.annotation.modifiy.PrintOmit
-import nl.kute.printable.annotation.modifiy.PrintPatternReplace
+import nl.kute.printable.annotation.modifiy.AsStringHash
+import nl.kute.printable.annotation.modifiy.AsStringMask
+import nl.kute.printable.annotation.modifiy.AsStringOmit
+import nl.kute.printable.annotation.modifiy.AsStringPatternReplace
 import nl.kute.printable.annotation.modifiy.hashString
 import nl.kute.printable.annotation.modifiy.mask
 import nl.kute.printable.annotation.modifiy.replacePattern
-import nl.kute.printable.annotation.option.PrintOption
+import nl.kute.printable.annotation.option.AsStringOption
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
@@ -53,17 +53,17 @@ class NamedPropTest {
 
         assertThat(NamedProp(testObj, testObj::hashed).valueString)
             .isNotEqualTo(testObj.hashed)
-            .isEqualTo(PrintHash().hashString(testObj.hashed))
+            .isEqualTo(AsStringHash().hashString(testObj.hashed))
             .matches("[a-z0-9]{8}")
 
         assertThat(NamedProp(testObj, testObj::masked).valueString)
             .isNotEqualTo(testObj.masked)
-            .isEqualTo(PrintMask().mask(testObj.masked))
+            .isEqualTo(AsStringMask().mask(testObj.masked))
             .isEqualTo("*".repeat(testObj.masked.length))
 
         assertThat(NamedProp(testObj, testObj::replaced).valueString)
             .isNotEqualTo(testObj.replaced)
-            .isEqualTo(PrintPatternReplace(" ", "_").replacePattern(testObj.replaced))
+            .isEqualTo(AsStringPatternReplace(" ", "_").replacePattern(testObj.replaced))
             .isEqualTo(testObj.replaced.replace(" ", "_"))
     }
 
@@ -79,32 +79,32 @@ class NamedPropTest {
             .isEqualTo(testObjSuper.unchanged)
 
         assertThat(NamedProp(testObj, testObj::omitted).valueString)
-            .`as`("should be omitted due to super-property @PrintOmit annotation")
+            .`as`("should be omitted due to super-property @AsStringOmit annotation")
             .isEmpty()
 
         assertThat(NamedProp(testObj, testObj::hashed).valueString)
             .isNotEqualTo(testObj.hashed)
             .`as`("Should honour the super-property CRC32C method")
-            .isEqualTo(PrintHash(DigestMethod.CRC32C).hashString(testObj.hashed))
+            .isEqualTo(AsStringHash(DigestMethod.CRC32C).hashString(testObj.hashed))
             .matches("[a-z0-9]{8}")
             .`as`("Should not honour the subclass SHA method")
-            .isNotEqualTo(PrintHash(DigestMethod.SHA1).hashString(testObj.hashed))
+            .isNotEqualTo(AsStringHash(DigestMethod.SHA1).hashString(testObj.hashed))
 
         assertThat(NamedProp(testObj, testObj::masked).valueString)
             .isNotEqualTo(testObj.masked)
             .`as`("Should honour the super-property mask")
-            .isEqualTo(PrintMask().mask(testObj.masked))
+            .isEqualTo(AsStringMask().mask(testObj.masked))
             .isEqualTo("*".repeat(testObj.masked.length))
             .`as`("Should not honour the subclass mask")
-            .isNotEqualTo(PrintMask(startMaskAt = 2, endMaskAt = -2).mask(testObj.masked))
+            .isNotEqualTo(AsStringMask(startMaskAt = 2, endMaskAt = -2).mask(testObj.masked))
 
         assertThat(NamedProp(testObj, testObj::replaced).valueString)
             .isNotEqualTo(testObj.replaced)
             .`as`("Should honour the super-property pattern")
-            .isEqualTo(PrintPatternReplace(" ", "_").replacePattern(testObj.replaced))
+            .isEqualTo(AsStringPatternReplace(" ", "_").replacePattern(testObj.replaced))
             .isEqualTo(testObj.replaced.replace(" ", "_"))
             .`as`("Should not honour the subclass pattern")
-            .isNotEqualTo(PrintPatternReplace("xyz", "xyz").replacePattern(testObj.replaced))
+            .isNotEqualTo(AsStringPatternReplace("xyz", "xyz").replacePattern(testObj.replaced))
     }
 
     @Test
@@ -114,12 +114,12 @@ class NamedPropTest {
 
         // Act, Assert
         assertThat(NamedProp(testObj, testObj::unchanged).valueString)
-            .`as`("PrintOption of sub-property should override PrintOption of super properties")
+            .`as`("AsStringOption of sub-property should override AsStringOption of super properties")
             .isEqualTo(testObj.unchanged.take(5))
     }
 
     @Test
-    fun `NamedProp should honour class level PrintOption`() {
+    fun `NamedProp should honour class level AsStringOption`() {
         // Arrange
         val testObj = Sub2bOfClassWithPropertyAnnotations()
 
@@ -128,18 +128,18 @@ class NamedPropTest {
             .isZero()
 
         assertThat(NamedProp(testObj, testObj::unchanged).valueString!!.length)
-            .`as`("Should not honour class level PrintOption, it has a property-level PrintOption in the class hierarchy`)")
+            .`as`("Should not honour class level AsStringOption, it has a property-level AsStringOption in the class hierarchy`)")
             .isEqualTo(testObj.unchanged.length)
 
         listOf(testObj::hashed, testObj::masked, testObj::replaced).forEach {
             assertThat(NamedProp(testObj, it).valueString!!.length)
-                .`as`("Should honour class level PrintOption with max length (property: `${it.name}`)")
+                .`as`("Should honour class level AsStringOption with max length (property: `${it.name}`)")
                 .isEqualTo(7)
         }
     }
 
     @Test
-    fun `NamedProp should honour PrintOption at toString`() {
+    fun `NamedProp should honour AsStringOption at toString`() {
         // Arrange
         val testObj = Sub2cOfClassWithPropertyAnnotations()
 
@@ -148,16 +148,16 @@ class NamedPropTest {
             .isZero()
 
         assertThat(NamedProp(testObj, testObj::unchanged).valueString!!.length)
-            .`as`("Should not honour class level PrintOption, it has a property-level PrintOption in the class hierarchy`)")
+            .`as`("Should not honour class level AsStringOption, it has a property-level AsStringOption in the class hierarchy`)")
             .isEqualTo(testObj.unchanged.length)
 
         assertThat(NamedProp(testObj, testObj::hashed).valueString!!.length)
-            .`as`("Has length 8, which is less than PrintOption's max prop value length")
+            .`as`("Has length 8, which is less than AsStringOption's max prop value length")
             .isEqualTo(8)
 
         listOf(testObj::masked, testObj::replaced).forEach {
             assertThat(NamedProp(testObj, it).valueString!!.length)
-                .`as`("Should honour class level PrintOption with max length (property: `${it.name}`)")
+                .`as`("Should honour class level AsStringOption with max length (property: `${it.name}`)")
                 .isEqualTo(11)
         }
     }
@@ -181,19 +181,19 @@ class NamedPropTest {
     ///////////////
 
     private open class WithPropertyAnnotations {
-        @PrintOption(propMaxStringValueLength = 300)
+        @AsStringOption(propMaxStringValueLength = 300)
         open val unchanged = "I have a non-effective property annotation"
 
-        @PrintOmit
+        @AsStringOmit
         open val omitted = "I am omitted"
 
-        @PrintHash
+        @AsStringHash
         open val hashed = "I am hashed"
 
-        @PrintMask
+        @AsStringMask
         open val masked = "I am masked"
 
-        @PrintPatternReplace(" ", "_")
+        @AsStringPatternReplace(" ", "_")
         open val replaced = "I am pattern replaced"
     }
 
@@ -201,27 +201,27 @@ class NamedPropTest {
         override val unchanged = super.unchanged
         override val omitted = "I am trying not to be omitted"
 
-        @PrintHash(DigestMethod.SHA1)
+        @AsStringHash(DigestMethod.SHA1)
         override val hashed = "I am trying to be hashed with a different hash mehod"
 
-        @PrintMask(startMaskAt = 2, endMaskAt = -2)
+        @AsStringMask(startMaskAt = 2, endMaskAt = -2)
         override val masked = "I am trying to be masked differently"
 
-        @PrintPatternReplace("xyz", "xyz")
+        @AsStringPatternReplace("xyz", "xyz")
         override val replaced = "I am trying to be replaced differently"
     }
 
     private open class Sub2aOfClassWithPropertyAnnotations : Sub1OfClassWithPropertyAnnotations() {
-        @PrintOption(propMaxStringValueLength = 5)
+        @AsStringOption(propMaxStringValueLength = 5)
         override val unchanged = "My annotation will restrict my output length to 5"
     }
 
-    @PrintOption(propMaxStringValueLength = 7)
+    @AsStringOption(propMaxStringValueLength = 7)
     private open class Sub2bOfClassWithPropertyAnnotations : Sub1OfClassWithPropertyAnnotations()
 
-    @PrintOption(propMaxStringValueLength = 7)
+    @AsStringOption(propMaxStringValueLength = 7)
     private open class Sub2cOfClassWithPropertyAnnotations : Sub1OfClassWithPropertyAnnotations() {
-        @PrintOption(propMaxStringValueLength = 11)
+        @AsStringOption(propMaxStringValueLength = 11)
         override fun toString() = "dummy"
     }
 }

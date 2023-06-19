@@ -2,11 +2,11 @@ package nl.kute.printable
 
 import nl.kute.core.Printable
 import nl.kute.core.asString
-import nl.kute.printable.annotation.modifiy.PrintHash
-import nl.kute.printable.annotation.modifiy.PrintMask
-import nl.kute.printable.annotation.modifiy.PrintOmit
-import nl.kute.printable.annotation.modifiy.PrintPatternReplace
-import nl.kute.printable.annotation.option.PrintOption
+import nl.kute.printable.annotation.modifiy.AsStringHash
+import nl.kute.printable.annotation.modifiy.AsStringMask
+import nl.kute.printable.annotation.modifiy.AsStringOmit
+import nl.kute.printable.annotation.modifiy.AsStringPatternReplace
+import nl.kute.printable.annotation.option.AsStringOption
 import nl.kute.printable.annotation.option.defaultMaxStringValueLength
 import nl.kute.printable.annotation.option.defaultNullString
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
@@ -17,17 +17,17 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.reflect.full.findAnnotation
 
-class PrintableWithPrintAnnotationsTest {
+class AsStringWithAnnotationsTest {
 
     @Test
-    fun `test Printable with PrintOptions`() {
+    fun `test Printable with AsStringOptions`() {
         // arrange
-        val theObjectToPrint = ClassWithNonDefaultPrintOptions()
+        val theObjectToPrint = ClassWithNonDefaultAsStringOptions()
 
-        val printOption: PrintOption = theObjectToPrint::class.annotationOfSubSuperHierarchy<PrintOption>()!!
+        val asStringOption: AsStringOption = theObjectToPrint::class.annotationOfSubSuperHierarchy<AsStringOption>()!!
         val nullStr = "[nil]"
-        assertThat(printOption.showNullAs).isEqualTo(nullStr)
-        assertThat(printOption.propMaxStringValueLength).isEqualTo(6)
+        assertThat(asStringOption.showNullAs).isEqualTo(nullStr)
+        assertThat(asStringOption.propMaxStringValueLength).isEqualTo(6)
 
         val aStringToReplaceByAnother = theObjectToPrint.aStringToReplaceByAnother
         assertThat(aStringToReplaceByAnother).isEqualTo("a String")
@@ -71,18 +71,18 @@ class PrintableWithPrintAnnotationsTest {
     }
 
     @Test
-    fun `test subclass with PrintOptions using annotation on toString`() {
+    fun `test subclass with AsStringOptions using annotation on toString`() {
         // arrange
-        val theObjectToPrint = SubClassWithPrintOptionsToString()
+        val theObjectToPrint = SubClassWithAsStringOptionsToString()
 
-        val printOptionClass: PrintOption = theObjectToPrint::class.annotationOfSubSuperHierarchy<PrintOption>()!!
+        val asStringOptionClass: AsStringOption = theObjectToPrint::class.annotationOfSubSuperHierarchy<AsStringOption>()!!
         val nullStrClass = "[nil]"
-        assertThat(printOptionClass.showNullAs).isEqualTo(nullStrClass)
-        assertThat(printOptionClass.propMaxStringValueLength).isEqualTo(6)
-        // The @PrintOption of `toString()` should take prevalence over that of the class
-        val printOptionToString: PrintOption = theObjectToPrint::class.annotationOfToStringSubSuperHierarchy()!!
-        assertThat(printOptionToString.showNullAs).isEqualTo(defaultNullString)
-        assertThat(printOptionToString.propMaxStringValueLength).isEqualTo(defaultMaxStringValueLength)
+        assertThat(asStringOptionClass.showNullAs).isEqualTo(nullStrClass)
+        assertThat(asStringOptionClass.propMaxStringValueLength).isEqualTo(6)
+        // The @AsStringOption of `toString()` should take prevalence over that of the class
+        val asStringOptionToString: AsStringOption = theObjectToPrint::class.annotationOfToStringSubSuperHierarchy()!!
+        assertThat(asStringOptionToString.showNullAs).isEqualTo(defaultNullString)
+        assertThat(asStringOptionToString.propMaxStringValueLength).isEqualTo(defaultMaxStringValueLength)
 
         val aStringToReplaceByAnother = theObjectToPrint.aStringToReplaceByAnother
         assertThat(aStringToReplaceByAnother).isEqualTo("a String")
@@ -98,7 +98,7 @@ class PrintableWithPrintAnnotationsTest {
         val stringVal = theObjectToPrint.toString()
 
         // assert
-        // values not capped at length 6, due to overriding @PrintOption on toString() method
+        // values not capped at length 6, due to overriding @AsStringOption on toString() method
         assertThat(stringVal)
             .startsWith("${theObjectToPrint::class.java.simpleName}(")
             .endsWith(")")
@@ -127,12 +127,12 @@ class PrintableWithPrintAnnotationsTest {
     @Test
     fun `test subclass with PrintOtions using annotation on class`() {
         // arrange
-        val theObjectToPrint = SubClassWithPrintOptionsOnClass()
+        val theObjectToPrint = SubClassWithAsStringOptionsOnClass()
 
-        val printOption: PrintOption = theObjectToPrint::class.annotationOfSubSuperHierarchy<PrintOption>()!!
+        val asStringOption: AsStringOption = theObjectToPrint::class.annotationOfSubSuperHierarchy<AsStringOption>()!!
         val nullStr = "nothing here"
-        assertThat(printOption.showNullAs).isEqualTo(nullStr)
-        assertThat(printOption.propMaxStringValueLength).isEqualTo(defaultMaxStringValueLength)
+        assertThat(asStringOption.showNullAs).isEqualTo(nullStr)
+        assertThat(asStringOption.propMaxStringValueLength).isEqualTo(defaultMaxStringValueLength)
 
         val aStringToReplaceByAnother = theObjectToPrint.aStringToReplaceByAnother
         assertThat(aStringToReplaceByAnother).isEqualTo("a String")
@@ -148,7 +148,7 @@ class PrintableWithPrintAnnotationsTest {
         val stringVal = theObjectToPrint.toString()
 
         // assert
-        // values not capped at length 6, due to overriding @PrintOption on toString() method
+        // values not capped at length 6, due to overriding @AsStringOption on toString() method
         assertThat(stringVal)
             .startsWith("${theObjectToPrint::class.java.simpleName}(")
             .endsWith(")")
@@ -176,17 +176,17 @@ class PrintableWithPrintAnnotationsTest {
 
 
     @Test
-    fun `test sub-subclass of PrintOptions on toString, with non-effective overriding PrintOption on class`() {
+    fun `test sub-subclass of AsStringOptions on toString, with non-effective overriding AsStringOption on class`() {
         // arrange
-        val theObjectToPrint = SubSubClassOfPrintOptionsToStringWithPrintOptionsOnClass()
+        val theObjectToPrint = SubSubClassOfAsStringOptionsToStringWithAsStringOptionsOnClass()
 
-        val printOptionClass: PrintOption = theObjectToPrint::class.annotationOfSubSuperHierarchy<PrintOption>()!!
-        assertThat(printOptionClass.showNullAs).isEqualTo(defaultNullString)
-        assertThat(printOptionClass.propMaxStringValueLength).isEqualTo(2)
-        // The @PrintOption of `toString()` in the superclass should still take prevalence over that of the subclass
-        val printOptionToString: PrintOption = theObjectToPrint::class.annotationOfToStringSubSuperHierarchy()!!
-        assertThat(printOptionToString.showNullAs).isEqualTo(defaultNullString)
-        assertThat(printOptionToString.propMaxStringValueLength).isEqualTo(defaultMaxStringValueLength)
+        val asStringOptionClass: AsStringOption = theObjectToPrint::class.annotationOfSubSuperHierarchy<AsStringOption>()!!
+        assertThat(asStringOptionClass.showNullAs).isEqualTo(defaultNullString)
+        assertThat(asStringOptionClass.propMaxStringValueLength).isEqualTo(2)
+        // The @AsStringOption of `toString()` in the superclass should still take prevalence over that of the subclass
+        val asStringOptionToString: AsStringOption = theObjectToPrint::class.annotationOfToStringSubSuperHierarchy()!!
+        assertThat(asStringOptionToString.showNullAs).isEqualTo(defaultNullString)
+        assertThat(asStringOptionToString.propMaxStringValueLength).isEqualTo(defaultMaxStringValueLength)
 
         val aStringToReplaceByAnother = theObjectToPrint.aStringToReplaceByAnother
         assertThat(aStringToReplaceByAnother).isEqualTo("a String")
@@ -202,7 +202,7 @@ class PrintableWithPrintAnnotationsTest {
         val stringVal = theObjectToPrint.toString()
 
         // assert
-        // values not capped at length 6, due to overriding @PrintOption on toString() method
+        // values not capped at length 6, due to overriding @AsStringOption on toString() method
         assertThat(stringVal)
             .startsWith("${theObjectToPrint::class.java.simpleName}(")
             .endsWith(")")
@@ -230,13 +230,13 @@ class PrintableWithPrintAnnotationsTest {
     }
 
     @Test
-    fun `test sub-subclass of PrintOptions on toString, with effective overriding PrintOption on toString`() {
+    fun `test sub-subclass of AsStringOptions on toString, with effective overriding AsStringOption on toString`() {
         // arrange
-        val theObjectToPrint = SubSubClassOfPrintOptionsToStringWithPrintOptionsOnToString()
+        val theObjectToPrint = SubSubClassOfAsStringOptionsToStringWithAsStringOptionsOnToString()
 
-        val printOptionToString: PrintOption = theObjectToPrint::class.annotationOfToStringSubSuperHierarchy()!!
-        assertThat(printOptionToString.showNullAs).isEqualTo(defaultNullString)
-        assertThat(printOptionToString.propMaxStringValueLength).isEqualTo(2)
+        val asStringOptionToString: AsStringOption = theObjectToPrint::class.annotationOfToStringSubSuperHierarchy()!!
+        assertThat(asStringOptionToString.showNullAs).isEqualTo(defaultNullString)
+        assertThat(asStringOptionToString.propMaxStringValueLength).isEqualTo(2)
 
         val aStringToReplaceByAnother = theObjectToPrint.aStringToReplaceByAnother
         assertThat(aStringToReplaceByAnother).isEqualTo("a String")
@@ -252,7 +252,7 @@ class PrintableWithPrintAnnotationsTest {
         val stringVal = theObjectToPrint.toString()
 
         // assert
-        // values not capped at length 6, due to overriding @PrintOption on toString() method
+        // values not capped at length 6, due to overriding @AsStringOption on toString() method
         assertThat(stringVal)
             .startsWith("${theObjectToPrint::class.java.simpleName}(")
             .endsWith(")")
@@ -280,14 +280,14 @@ class PrintableWithPrintAnnotationsTest {
     }
 
     @Test
-    fun `test PrintOption on property`() {
+    fun `test AsStringOption on property`() {
         // arrange
         val maxStringLenght = 10
-        val theObjectToPrint = ClassWithPrintOptionOnProperty()
-        assertThat(theObjectToPrint.propWithPrintOption.length).isGreaterThan(maxStringLenght)
+        val theObjectToPrint = ClassWithAsStringOptionOnProperty()
+        assertThat(theObjectToPrint.propWithAsStringOption.length).isGreaterThan(maxStringLenght)
 
-        assertThat(theObjectToPrint::class.annotationOfToStringSubSuperHierarchy<PrintOption>()).isNull()
-        with(theObjectToPrint::propWithPrintOption.annotationOfPropertySubSuperHierarchy<PrintOption>()!!) {
+        assertThat(theObjectToPrint::class.annotationOfToStringSubSuperHierarchy<AsStringOption>()).isNull()
+        with(theObjectToPrint::propWithAsStringOption.annotationOfPropertySubSuperHierarchy<AsStringOption>()!!) {
             assertThat(this.propMaxStringValueLength).isEqualTo(maxStringLenght)
         }
 
@@ -296,20 +296,20 @@ class PrintableWithPrintAnnotationsTest {
 
         // assert
         assertThat(stringVal)
-            .`as`("Should adhere to @PrintOption annotation on property")
-            .isEqualTo("ClassWithPrintOptionOnProperty(propWithPrintOption=${theObjectToPrint.propWithPrintOption.take(maxStringLenght)})")
+            .`as`("Should adhere to @AsStringOption annotation on property")
+            .isEqualTo("ClassWithAsStringOptionOnProperty(propWithAsStringOption=${theObjectToPrint.propWithAsStringOption.take(maxStringLenght)})")
     }
 
     @Test
-    fun `test PrintOption on property and toString`() {
+    fun `test AsStringOption on property and toString`() {
         // arrange
         val maxStringLenght = 10
-        val theObjectToPrint = ClassWithPrintOptionsOnPropertyAndToString()
-        assertThat(theObjectToPrint.propWithPrintOption.length).isGreaterThan(maxStringLenght)
+        val theObjectToPrint = ClassWithAsStringOptionsOnPropertyAndToString()
+        assertThat(theObjectToPrint.propWithAsStringOption.length).isGreaterThan(maxStringLenght)
 
-        assertThat(theObjectToPrint::class.annotationOfToStringSubSuperHierarchy<PrintOption>()!!.propMaxStringValueLength)
+        assertThat(theObjectToPrint::class.annotationOfToStringSubSuperHierarchy<AsStringOption>()!!.propMaxStringValueLength)
             .isLessThan(maxStringLenght)
-        with(theObjectToPrint::propWithPrintOption.annotationOfPropertySubSuperHierarchy<PrintOption>()!!) {
+        with(theObjectToPrint::propWithAsStringOption.annotationOfPropertySubSuperHierarchy<AsStringOption>()!!) {
             assertThat(this.propMaxStringValueLength).isEqualTo(maxStringLenght)
         }
 
@@ -318,43 +318,43 @@ class PrintableWithPrintAnnotationsTest {
 
         // assert
         assertThat(stringVal)
-            .`as`("Should ignore the @PrintOption on toString, but should adhere to @PrintOption annotation on property")
-            .isEqualTo("ClassWithPrintOptionsOnPropertyAndToString(propWithPrintOption=${theObjectToPrint.propWithPrintOption.take(maxStringLenght)})")
+            .`as`("Should ignore the @AsStringOption on toString, but should adhere to @AsStringOption annotation on property")
+            .isEqualTo("ClassWithAsStringOptionsOnPropertyAndToString(propWithAsStringOption=${theObjectToPrint.propWithAsStringOption.take(maxStringLenght)})")
     }
 
     @Test
     fun `test replace & mask 1`() {
         val phony = Phony()
         assertThat(phony.toString())
-            .`as`("Masking should be applied according to ${Phony::phoneNumberMask1.findAnnotation<PrintMask>()}")
+            .`as`("Masking should be applied according to ${Phony::phoneNumberMask1.findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask1= +31 6 123********9 0 ")
             .doesNotContain(phony.phoneNumberMask1)
 
-            .`as`("Masking should be applied according to ${Phony::phoneNumberMask2.findAnnotation<PrintMask>()}")
+            .`as`("Masking should be applied according to ${Phony::phoneNumberMask2.findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask2= +31 6 123 45 ****9 0 ")
             .doesNotContain(phony.phoneNumberMask2)
 
-            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask3.findAnnotation<PrintMask>()}")
+            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask3.findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask3=**********************")
             .doesNotContain(phony.phoneNumberMask3)
 
-            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask4.findAnnotation<PrintMask>()}")
+            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask4.findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask4=**********************")
             .doesNotContain(phony.phoneNumberMask4)
 
-            .`as`("Should apply full masking by default ${Phony::phoneNumberMask5.findAnnotation<PrintMask>()}")
+            .`as`("Should apply full masking by default ${Phony::phoneNumberMask5.findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask5=**********************")
             .doesNotContain(phony.phoneNumberMask5)
 
-            .`as`("Should apply partial masking by custom mask 'x' ${Phony::phoneNumberMask6.findAnnotation<PrintMask>()}")
+            .`as`("Should apply partial masking by custom mask 'x' ${Phony::phoneNumberMask6.findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask6= +xxxx 123 45 67 89 0 ")
             .doesNotContain(phony.phoneNumberMask6)
 
-            .`as`("Masking should be applied according to ${Phony::phoneNumberMask7.findAnnotation<PrintMask>()}")
+            .`as`("Masking should be applied according to ${Phony::phoneNumberMask7.findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask7= +31******")
             .doesNotContain(phony.phoneNumberMask7)
 
-            .`as`("Pattern replacement should be applied according to ${Phony::phoneNumberPatternReplace.findAnnotation<PrintPatternReplace>()}")
+            .`as`("Pattern replacement should be applied according to ${Phony::phoneNumberPatternReplace.findAnnotation<AsStringPatternReplace>()}")
             .contains("phoneNumberPatternReplace= +31 6 123 ****89 0")
             .doesNotContain(phony.phoneNumberPatternReplace)
     }
@@ -373,19 +373,19 @@ class PrintableWithPrintAnnotationsTest {
             .doesNotContain("countryCode=${banky.countryCode}")
     }
 
-    @PrintOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
-    private open class ClassWithNonDefaultPrintOptions {
+    @AsStringOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
+    private open class ClassWithNonDefaultAsStringOptions {
 
-        @PrintPatternReplace("^a", "another")
+        @AsStringPatternReplace("^a", "another")
         val aStringToReplaceByAnother: String = "a String"
 
-        @PrintMask(startMaskAt = 5, endMaskAt = 7, mask = 'M')
+        @AsStringMask(startMaskAt = 5, endMaskAt = 7, mask = 'M')
         open val aDateWithMonthMasked: LocalDate = LocalDate.of(2023, 5, 24)
 
-        @PrintOmit
+        @AsStringOmit
         open val noPrint: Any = Any()
 
-        @PrintHash
+        @AsStringHash
         val hashed: String = "a string that should be hashed"
 
         val aNullValue: Any? = null
@@ -393,92 +393,92 @@ class PrintableWithPrintAnnotationsTest {
         override fun toString(): String = asString()
     }
 
-    private open class SubClassWithPrintOptionsToString : ClassWithNonDefaultPrintOptions() {
+    private open class SubClassWithAsStringOptionsToString : ClassWithNonDefaultAsStringOptions() {
 
         override val noPrint: Any = "should not print this"
 
-        @PrintOption // defaults
+        @AsStringOption // defaults
         override fun toString(): String = asString()
     }
 
-    @PrintOption(showNullAs = "nothing here")
-    private open class SubClassWithPrintOptionsOnClass : ClassWithNonDefaultPrintOptions() {
+    @AsStringOption(showNullAs = "nothing here")
+    private open class SubClassWithAsStringOptionsOnClass : ClassWithNonDefaultAsStringOptions() {
 
-        @PrintHash // Should not override the super method's @PrintOmit annotation, so should not be included
+        @AsStringHash // Should not override the super method's @AsStringOmit annotation, so should not be included
         override val noPrint: Any = "should not print this"
     }
 
-    @PrintOption(propMaxStringValueLength = 2)
-    private open class SubSubClassOfPrintOptionsToStringWithPrintOptionsOnClass : SubClassWithPrintOptionsToString() {
+    @AsStringOption(propMaxStringValueLength = 2)
+    private open class SubSubClassOfAsStringOptionsToStringWithAsStringOptionsOnClass : SubClassWithAsStringOptionsToString() {
 
-        @PrintHash
+        @AsStringHash
         override val aDateWithMonthMasked = super.aDateWithMonthMasked
         override fun toString(): String = asString()
     }
 
-    private open class SubSubClassOfPrintOptionsToStringWithPrintOptionsOnToString :
-        SubClassWithPrintOptionsToString() {
+    private open class SubSubClassOfAsStringOptionsToStringWithAsStringOptionsOnToString :
+        SubClassWithAsStringOptionsToString() {
 
-        @PrintOption(propMaxStringValueLength = 2)
+        @AsStringOption(propMaxStringValueLength = 2)
         override fun toString(): String = asString()
     }
 
-    private open class ClassWithPrintOptionOnProperty {
+    private open class ClassWithAsStringOptionOnProperty {
 
-        @PrintOption(propMaxStringValueLength = 10)
-        val propWithPrintOption: String = "I am a property with @PrintOption"
+        @AsStringOption(propMaxStringValueLength = 10)
+        val propWithAsStringOption: String = "I am a property with @AsStringOption"
 
         override fun toString(): String = asString()
     }
 
-    private open class ClassWithPrintOptionsOnPropertyAndToString {
+    private open class ClassWithAsStringOptionsOnPropertyAndToString {
 
-        @PrintOption(propMaxStringValueLength = 10)
-        val propWithPrintOption: String = "I am a property with @PrintOption"
+        @AsStringOption(propMaxStringValueLength = 10)
+        val propWithAsStringOption: String = "I am a property with @AsStringOption"
 
-        @PrintOption(propMaxStringValueLength = 5)
+        @AsStringOption(propMaxStringValueLength = 5)
         override fun toString(): String = asString()
     }
 
     private class Phony {
-        @PrintOmit
+        @AsStringOmit
         private val phoneNumber: String = " +31 6 123 45 67 89 0 "
 
-        @PrintPatternReplace(pattern = """(\d\s*){4}((\d\s*){3}\s*)$""", replacement = "****$2")
+        @AsStringPatternReplace(pattern = """(\d\s*){4}((\d\s*){3}\s*)$""", replacement = "****$2")
         val phoneNumberPatternReplace = phoneNumber
 
-        @PrintMask(startMaskAt = 10, endMaskAt = -4)
+        @AsStringMask(startMaskAt = 10, endMaskAt = -4)
         val phoneNumberMask1 = phoneNumber
 
-        @PrintMask(startMaskAt = -8, endMaskAt = -4)
+        @AsStringMask(startMaskAt = -8, endMaskAt = -4)
         val phoneNumberMask2 = phoneNumber
 
         // Should fully mask, because end of masking is before start of it
-        @PrintMask(startMaskAt = 12, endMaskAt = -12)
+        @AsStringMask(startMaskAt = 12, endMaskAt = -12)
         val phoneNumberMask3 = phoneNumber
 
         // Should fully mask, because end of masking is before start of it
-        @PrintMask(startMaskAt = 25, endMaskAt = 8)
+        @AsStringMask(startMaskAt = 25, endMaskAt = 8)
         val phoneNumberMask4 = phoneNumber
 
         // Should fully mask (default)
-        @PrintMask
+        @AsStringMask
         val phoneNumberMask5 = phoneNumber
 
-        @PrintMask(startMaskAt = 2, endMaskAt = 6, mask = 'x')
+        @AsStringMask(startMaskAt = 2, endMaskAt = 6, mask = 'x')
         val phoneNumberMask6 = phoneNumber
 
-        @PrintMask(startMaskAt = 4, maxLength = 10)
+        @AsStringMask(startMaskAt = 4, maxLength = 10)
         val phoneNumberMask7 = phoneNumber
 
         override fun toString() = asString()
     }
 
     private class Banky : Printable {
-        @PrintPatternReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2")
+        @AsStringPatternReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2")
         val bankNumberPatternReplace = "NL37DUMM5273748739"
 
-        @PrintMask(minLength = 4, maxLength = 2)
+        @AsStringMask(minLength = 4, maxLength = 2)
         val countryCode = "NL"
         override fun toString(): String = asString()
     }

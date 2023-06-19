@@ -4,7 +4,7 @@ import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
- * The [PrintOmit] annotation can be placed on properties to indicate that the property is excluded
+ * The [AsStringOmit] annotation can be placed on properties to indicate that the property is excluded
  * (both name and value) from the return value of [nl.kute.core.asString].
  * * Typical usage is to leave insignificant data out of [String] representations
  *     * It may also be used keep sensitive or personally identifiable out of logging etc.
@@ -14,4 +14,4 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-annotation class PrintOmit
+annotation class AsStringOmit

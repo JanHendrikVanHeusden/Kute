@@ -10,7 +10,7 @@ const val defaultNullString: String = "null"
 const val defaultMaxStringValueLength: Int = 500
 
 /**
- * The [PrintOption] annotation can be placed:
+ * The [AsStringOption] annotation can be placed:
  *  * on classes
  *  * on the [toString] method of these classes
  *  * on properties of these classes
@@ -20,7 +20,7 @@ const val defaultMaxStringValueLength: Int = 500
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-annotation class PrintOption(
+annotation class AsStringOption(
     /** How to show nulls? Default is "`"null"`" (by [defaultNullString]), but you may opt for something else */
     val showNullAs: String = defaultNullString,
     /** The maximum String value length **per property**.
@@ -28,11 +28,11 @@ annotation class PrintOption(
     val propMaxStringValueLength: Int = defaultMaxStringValueLength
 ) {
     companion object DefaultOption {
-        /** [PrintOption] to be used if no explicit [PrintOption] annotation is specified  */
-        val defaultPrintOption =
-            PrintOption(showNullAs = defaultNullString, propMaxStringValueLength = defaultMaxStringValueLength)
+        /** [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified  */
+        val defaultAsStringOption =
+            AsStringOption(showNullAs = defaultNullString, propMaxStringValueLength = defaultMaxStringValueLength)
     }
 }
 
-internal fun PrintOption.applyOption(strVal: String?): String =
+internal fun AsStringOption.applyOption(strVal: String?): String =
     strVal?.take(propMaxStringValueLength) ?: showNullAs

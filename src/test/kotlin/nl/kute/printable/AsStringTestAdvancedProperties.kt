@@ -10,7 +10,7 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaField
 
-class PrintableTestAdvancedProperties {
+class AsStringTestAdvancedProperties {
 
     /** Demonstrates that a non-initialized lateinit var is regarded as null */
     @Test

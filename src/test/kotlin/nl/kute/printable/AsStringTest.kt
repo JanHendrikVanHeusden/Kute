@@ -5,11 +5,10 @@ import nl.kute.core.asString
 import nl.kute.core.asStringExcluding
 import nl.kute.core.objectAsString
 import nl.kute.hashing.DigestMethod
-import nl.kute.log.log
-import nl.kute.printable.annotation.modifiy.PrintHash
-import nl.kute.printable.annotation.modifiy.PrintMask
-import nl.kute.printable.annotation.modifiy.PrintOmit
-import nl.kute.printable.annotation.modifiy.PrintPatternReplace
+import nl.kute.printable.annotation.modifiy.AsStringHash
+import nl.kute.printable.annotation.modifiy.AsStringMask
+import nl.kute.printable.annotation.modifiy.AsStringOmit
+import nl.kute.printable.annotation.modifiy.AsStringPatternReplace
 import nl.kute.printable.namedvalues.NameValue
 import nl.kute.printable.namedvalues.NamedProp
 import nl.kute.printable.namedvalues.NamedSupplier
@@ -38,7 +37,7 @@ import org.mockito.kotlin.mock
 import java.time.LocalDate
 import java.util.UUID
 
-class PrintableTest {
+class AsStringTest {
 
     private val names: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
 
@@ -116,7 +115,7 @@ class PrintableTest {
             .contains("password=**********")
             .contains("phoneNumber=06123***789")
             .matches(""".+?\bsocialSecurityNumber=[a-f0-9]{40}\b.*""")
-            // according to PrintOmit annotation on subclass
+            // according to AsStringOmit annotation on subclass
             .doesNotContain("mailAddress")
     }
 
@@ -346,29 +345,6 @@ class PrintableTest {
         }
     }
 
-    // FIXME: make proper test for asStringExcludingNames
-    @Test
-    fun tesje() {
-        val person1 = Person1(givenName = "Peter", surName = "Walker", birthDate = LocalDate.of(1982, 11, 18))
-        val person2 = Person1(givenName = "Jan-Hendrik", middleName = "van", surName = "Heusden", birthDate = LocalDate.of(1963, 3, 10))
-
-        log(person1.toString())
-        log(person2.toString())
-        log(person2.objectAsString(setOf("excl"), "xyz".namedVal("excl")) )
-    }
-
-    @Suppress("unused")
-    private class Person1(val givenName: String, val middleName: String? = null, val surName: String, val birthDate: LocalDate) {
-
-        @PrintMask
-        val passWord ="Jt7i68%_7ULfdbn3465"
-
-        override fun toString(): String = objectAsString(setOf("surName"),
-            namedVal(::birthDate),
-            { "$givenName ${"${middleName?:""} $surName".trim()}}" }.namedVal("fullName")
-        )
-    }
-
     // ------------------------------------
     // Classes etc. to be used in the tests
     // ------------------------------------
@@ -413,40 +389,40 @@ class PrintableTest {
     }
 
     private interface PersonallyIdentifiableData : Printable {
-        @PrintMask(startMaskAt = 5, endMaskAt = -3)
+        @AsStringMask(startMaskAt = 5, endMaskAt = -3)
         val phoneNumber: String
 
-        @PrintPatternReplace("""\s*([a-zA-Z]{2})\s*\d{2}\s*[a-zA-Z]{4}\s*((\d|\s){6})(.*)""", """$1\99 BANK *****$4""")
+        @AsStringPatternReplace("""\s*([a-zA-Z]{2})\s*\d{2}\s*[a-zA-Z]{4}\s*((\d|\s){6})(.*)""", """$1\99 BANK *****$4""")
         val iban: String
 
-        @PrintHash(DigestMethod.CRC32C)
+        @AsStringHash(DigestMethod.CRC32C)
         val mailAddress: String
 
-        @PrintHash(DigestMethod.SHA1)
+        @AsStringHash(DigestMethod.SHA1)
         val socialSecurityNumber: String
 
-        @PrintMask(minLength = 10, maxLength = 10)
+        @AsStringMask(minLength = 10, maxLength = 10)
         val password: Array<Char>
     }
 
     private class Person : PersonallyIdentifiableData {
         // Trying to override the annotations on the interface should not be possible:
-        // the annotations in the overriding class should be ignored (except for PrintOption)
+        // the annotations in the overriding class should be ignored (except for AsStringOption)
 
-        @PrintMask(startMaskAt = 0, endMaskAt = 0)
+        @AsStringMask(startMaskAt = 0, endMaskAt = 0)
         override val phoneNumber: String = "06123456789"
 
-        @PrintPatternReplace("""(.*)""", """$1""")
+        @AsStringPatternReplace("""(.*)""", """$1""")
         override val iban: String = "NL29 ABNA 6708 40 7906"
 
-        @PrintOmit
+        @AsStringOmit
         override val mailAddress: String = "someone@example.com"
 
-        @PrintHash(DigestMethod.JAVA_HASHCODE)
+        @AsStringHash(DigestMethod.JAVA_HASHCODE)
         override val socialSecurityNumber: String = "617247018"
 
         //@formatter:off
-        @PrintMask(minLength = 0, maxLength = Int.MAX_VALUE, startMaskAt = 0, endMaskAt = Int.MAX_VALUE)
+        @AsStringMask(minLength = 0, maxLength = Int.MAX_VALUE, startMaskAt = 0, endMaskAt = Int.MAX_VALUE)
         override val password: Array<Char> =
             arrayOf('m', 'y', ' ', 'v', 'e', 'r', 'y', ' ', 's', 'e', 'c', 'r', 'e', 't', ' ', 'p', 'a', 's', 's', 'w', 'o', 'r', 'd')
         //@formatter:on

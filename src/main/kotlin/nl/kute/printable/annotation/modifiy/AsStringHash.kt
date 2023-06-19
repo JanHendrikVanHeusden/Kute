@@ -6,7 +6,7 @@ import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
- * The [PrintHash] annotation can be placed on properties to indicate that the property is included
+ * The [AsStringHash] annotation can be placed on properties to indicate that the property is included
  * in the return value of [nl.kute.core.asString], but with its value replaced by its hash value.
  * * Typical usage is to keep sensitive or personally identifiable out of logging etc.
  * * This may limit exposure of such data, but on its own it must not be considered as a security feature.
@@ -16,9 +16,9 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-annotation class PrintHash(val digestMethod: DigestMethod = DigestMethod.CRC32C)
+annotation class AsStringHash(val digestMethod: DigestMethod = DigestMethod.CRC32C)
 
-internal fun PrintHash?.hashString(strVal: String?): String? =
+internal fun AsStringHash?.hashString(strVal: String?): String? =
     if (this == null) strVal else hashString(strVal, digestMethod)
 
 

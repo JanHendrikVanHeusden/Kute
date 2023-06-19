@@ -4,7 +4,7 @@ import nl.kute.core.asString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class PrintableWithArrayTest {
+class AsStringWithArrayTest {
 
     private val names: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
 

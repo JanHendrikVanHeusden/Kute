@@ -1,13 +1,13 @@
 package nl.kute.core.property
 
-import nl.kute.printable.annotation.modifiy.PrintHash
-import nl.kute.printable.annotation.modifiy.PrintMask
-import nl.kute.printable.annotation.modifiy.PrintOmit
-import nl.kute.printable.annotation.modifiy.PrintPatternReplace
+import nl.kute.printable.annotation.modifiy.AsStringHash
+import nl.kute.printable.annotation.modifiy.AsStringMask
+import nl.kute.printable.annotation.modifiy.AsStringOmit
+import nl.kute.printable.annotation.modifiy.AsStringPatternReplace
 import nl.kute.printable.annotation.modifiy.hashString
 import nl.kute.printable.annotation.modifiy.mask
 import nl.kute.printable.annotation.modifiy.replacePattern
-import nl.kute.printable.annotation.option.PrintOption
+import nl.kute.printable.annotation.option.AsStringOption
 import nl.kute.printable.annotation.option.applyOption
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
@@ -20,8 +20,8 @@ import kotlin.reflect.KProperty
 
 /** @return
  *  * for [Array]s: [Array.contentDeepToString]
- *  * otherwise: the [toString] value of the property, modified if needed by annotations @[PrintOmit],
- *  @[PrintPatternReplace], @[PrintMask], @[PrintHash]
+ *  * otherwise: the [toString] value of the property, modified if needed by annotations @[AsStringOmit],
+ *  @[AsStringPatternReplace], @[AsStringMask], @[AsStringHash]
  */
 internal fun <T : Any> T.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): String? {
     val value: Any? = this.getPropValue(prop)
@@ -33,17 +33,17 @@ internal fun <T : Any> T.getPropValueString(prop: KProperty<*>, annotations: Set
     if (annotations.isEmpty()) {
         return strValue
     }
-    if (annotations.any { it is PrintOmit }) {
+    if (annotations.any { it is AsStringOmit }) {
         return ""
     }
-    val printPatternReplace: PrintPatternReplace? = annotations.findAnnotation()
-    val printMask: PrintMask? = annotations.findAnnotation()
-    val printHash: PrintHash? = annotations.findAnnotation()
-    val printOption: PrintOption = annotations.findAnnotation()!! // always present
-    strValue = printPatternReplace.replacePattern(strValue)
-    strValue = printMask.mask(strValue)
-    strValue = printHash.hashString(strValue)
-    strValue = printOption.applyOption(strValue)
+    val asStringPatternReplace: AsStringPatternReplace? = annotations.findAnnotation()
+    val asStringMask: AsStringMask? = annotations.findAnnotation()
+    val asStringHash: AsStringHash? = annotations.findAnnotation()
+    val asStringOption: AsStringOption = annotations.findAnnotation()!! // always present
+    strValue = asStringPatternReplace.replacePattern(strValue)
+    strValue = asStringMask.mask(strValue)
+    strValue = asStringHash.hashString(strValue)
+    strValue = asStringOption.applyOption(strValue)
     return strValue
 }
 
@@ -60,24 +60,24 @@ internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<
 }
 
 internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {
-    (prop.annotationOfPropertySuperSubHierarchy<PrintOmit>())?.let { annotation ->
+    (prop.annotationOfPropertySuperSubHierarchy<AsStringOmit>())?.let { annotation ->
         annotations.add(annotation)
-        // any further annotations are meaningless because output will be omitted when PrintOmit is present
+        // any further annotations are meaningless because output will be omitted when AsStringOmit is present
         return
     }
-    (prop.annotationOfPropertySuperSubHierarchy<PrintHash>())?.let { annotation ->
+    (prop.annotationOfPropertySuperSubHierarchy<AsStringHash>())?.let { annotation ->
         annotations.add(annotation)
     }
-    (prop.annotationOfPropertySuperSubHierarchy<PrintMask>())?.let { annotation ->
+    (prop.annotationOfPropertySuperSubHierarchy<AsStringMask>())?.let { annotation ->
         annotations.add(annotation)
     }
-    (prop.annotationOfPropertySuperSubHierarchy<PrintPatternReplace>())?.let { annotation ->
+    (prop.annotationOfPropertySuperSubHierarchy<AsStringPatternReplace>())?.let { annotation ->
         annotations.add(annotation)
     }
-    // PrintOption from lowest subclass in hierarchy with this annotation
-    val printOptionClassAnnotation =
-        annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: PrintOption.defaultPrintOption
-    (prop.annotationOfPropertySubSuperHierarchy() ?: printOptionClassAnnotation).let { annotation ->
+    // AsStringOption from lowest subclass in hierarchy with this annotation
+    val asStringOptionClassAnnotation =
+        annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: AsStringOption.defaultAsStringOption
+    (prop.annotationOfPropertySubSuperHierarchy() ?: asStringOptionClassAnnotation).let { annotation ->
         annotations.add(annotation)
     }
 }

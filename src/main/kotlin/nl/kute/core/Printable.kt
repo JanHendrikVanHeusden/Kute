@@ -1,6 +1,6 @@
 package nl.kute.core
 
-import nl.kute.printable.annotation.option.PrintOption
+import nl.kute.printable.annotation.option.AsStringOption
 
 /**
  * Interface with easy-to-use methods for [String] representation; typically for data-centric classes.
@@ -22,9 +22,9 @@ interface Printable {
      * Mimics the format of Kotlin data class's [toString] method.
      * * Super-class properties are included
      * * Private properties are included (but not in subclasses)
-     * * String value of individual properties is capped at (default) 500; see @[PrintOption] to override the default
+     * * String value of individual properties is capped at (default) 500; see @[AsStringOption] to override the default
      * @return A String representation of the [Printable], including class name and property names + values;
-     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify
+     * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.printable.annotation.modify
      * `
      * @see [asStringExcluding]
      * @see [objectAsString]

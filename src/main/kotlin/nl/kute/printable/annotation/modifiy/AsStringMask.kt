@@ -6,7 +6,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * The [PrintMask] annotation can be placed on properties to indicate that the property is
+ * The [AsStringMask] annotation can be placed on properties to indicate that the property is
  * included in the return value of [nl.kute.core.asString], but with its value masked.
  * * Typical usage is to keep sensitive or personally identifiable out of logging etc.
  * * This may limit exposure of such data, but on its own it must not be considered as a security feature.
@@ -18,7 +18,7 @@ import kotlin.math.min
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-annotation class PrintMask(
+annotation class AsStringMask(
     /** At which character index (inclusive) masking should start? */
     val startMaskAt: Int = 0,
 
@@ -42,7 +42,7 @@ annotation class PrintMask(
     val maxLength: Int = Int.MAX_VALUE,
 )
 
-internal fun PrintMask?.mask(strVal: String?): String? {
+internal fun AsStringMask?.mask(strVal: String?): String? {
     if (this == null) {
         return strVal
     } else {

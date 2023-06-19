@@ -6,7 +6,7 @@ import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
- * The [PrintPatternReplace] annotation can be placed on properties to indicate that the property is included
+ * The [AsStringPatternReplace] annotation can be placed on properties to indicate that the property is included
  * in the return value of [nl.kute.core.asString], but with its value replaced.
  * * Typical usage is to keep value parts with sensitive or personally identifiable out of logging etc.;
  *   e.g.
@@ -27,7 +27,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-annotation class PrintPatternReplace(
+annotation class AsStringPatternReplace(
     /**
      * The regular expression pattern; groups are allowed.
      * * Invalid regular expression will result in an empty String
@@ -37,7 +37,7 @@ annotation class PrintPatternReplace(
     val replacement: String
 )
 
-internal fun PrintPatternReplace?.replacePattern(strVal: String?): String? =
+internal fun AsStringPatternReplace?.replacePattern(strVal: String?): String? =
     if (this == null) strVal else {
         try {
             // caching of Regex by pattern would be nice here, to avoid compiling same patterns over and over.
