@@ -199,7 +199,6 @@ class AsStringTest {
 
         // Arrange
         counter = 0
-        println("counter = $counter")
         // Act
         asString = testObj.objectAsString(
             propertyNamesToExclude = setOf(counterName),

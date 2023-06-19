@@ -1,9 +1,19 @@
 package nl.kute.printable.namedvalues
 
+import nl.kute.log.logger
+import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class NamedSupplierTest {
+
+    @BeforeEach
+    @AfterEach
+    fun setUp() {
+        resetStdOutLogger()
+    }
 
     @Test
     fun `test NamedSupplier`() {
@@ -39,6 +49,40 @@ class NamedSupplierTest {
                 .`as`("Subsequent call #$it should re-evaluate the expression")
                 .isEqualTo("${it + 1}")
         }
+    }
+
+    @Test
+    fun `Supplier that throws exception should be handled`() {
+        // Arrange
+        var logMsg = ""
+        logger = { msg: String -> logMsg += msg }
+        var throwIt = false
+        val okValue = "this is OK!"
+        val errMsg = "I throw an IA Exception!"
+        val supplier: () -> String = {
+            if (throwIt) throw IllegalArgumentException(errMsg)
+            else okValue
+        }
+
+        // Act: no exception
+        val thrower = supplier.namedVal("thrower")
+        val okResult = thrower.valueString
+        // Assert
+        assertThat(okResult).isEqualTo(okValue)
+        assertThat(logMsg).isEmpty()
+
+        // Arrange: throw it!
+        throwIt = true
+        // Act
+        val errResult = thrower.valueString
+        assertThat(errResult).isNull()
+        assertThat(logMsg).contains(errMsg)
+
+        // Arrange: no exception anymore
+        throwIt = false
+        logMsg = ""
+        assertThat(thrower.valueString).isEqualTo(okValue)
+        assertThat(logMsg).isEmpty()
     }
 
     @Test

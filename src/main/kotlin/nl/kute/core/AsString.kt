@@ -20,14 +20,14 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 private val regexPackage = Regex(""".+\.(.*)$""")
-private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
+internal fun String.simplifyClassName() = this.replace(regexPackage, "$1")
 
 private val emptyStringList: List<String> = listOf()
 private val emptyPropertyList: List<KProperty<*>> = listOf()
 
 private const val valueSeparator: String = ", "
 
-internal fun KClass<*>.nameToPrint() = simpleName ?: toString().simplifyClassName()
+internal fun KClass<*>.simplifyClassName() = simpleName ?: toString().simplifyClassName()
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -101,7 +101,7 @@ internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<Str
                 return annotationsByProperty
                     .entries.joinToString(
                         separator = valueSeparator,
-                        prefix = "${objClass.nameToPrint()}("
+                        prefix = "${objClass.simplifyClassName()}("
                     ) { entry ->
                         val prop = entry.key
                         val annotationSet = entry.value

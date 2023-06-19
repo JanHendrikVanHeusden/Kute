@@ -2,7 +2,6 @@ package nl.kute.printable.namedvalues
 
 import nl.kute.core.reference.ObjectWeakReference
 
-// TODO: weak reference!
 class NamedValue<V: Any?>(override val name: String, value: V?): NameValue<V?> {
     val valueReference: ObjectWeakReference<V?> = ObjectWeakReference(value)
 
@@ -18,9 +17,7 @@ class NamedValue<V: Any?>(override val name: String, value: V?): NameValue<V?> {
         other as NamedValue<*>
 
         if (name != other.name) return false
-        if (valueReference != other.valueReference) return false
-
-        return true
+        return valueReference == other.valueReference
     }
 
     override fun hashCode(): Int {

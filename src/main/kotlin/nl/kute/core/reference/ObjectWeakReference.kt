@@ -12,9 +12,7 @@ class ObjectWeakReference<T: Any?>(obj: T?): WeakReference<T?>(obj) {
 
         other as ObjectWeakReference<*>
 
-        if (this.get() != other.get()) return false
-
-        return true
+        return this.get() == other.get()
     }
 
     override fun hashCode(): Int {

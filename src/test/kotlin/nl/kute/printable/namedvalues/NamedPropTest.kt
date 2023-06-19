@@ -1,6 +1,8 @@
 package nl.kute.printable.namedvalues
 
 import nl.kute.hashing.DigestMethod
+import nl.kute.log.logger
+import nl.kute.log.resetStdOutLogger
 import nl.kute.printable.annotation.modifiy.AsStringHash
 import nl.kute.printable.annotation.modifiy.AsStringMask
 import nl.kute.printable.annotation.modifiy.AsStringOmit
@@ -10,10 +12,53 @@ import nl.kute.printable.annotation.modifiy.mask
 import nl.kute.printable.annotation.modifiy.replacePattern
 import nl.kute.printable.annotation.option.AsStringOption
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.reflect.KProperty0
+import kotlin.reflect.KProperty1
 
 class NamedPropTest {
+
+    @BeforeEach
+    @AfterEach
+    fun setUp() {
+        resetStdOutLogger()
+    }
+
+    @Test
+    fun `incompatible property should be handled correctly`() {
+        // Arrange
+        var logMsg = ""
+        logger = { msg: String -> logMsg += msg }
+        class TestClass1(val p1: String = "c1")
+        val testClass1 = TestClass1()
+        class TestClass2()
+        val testClass2 = TestClass2()
+
+        // Act
+        // Somehow with KProperty0 this succeeds, even while called with unrelated object
+        val testClass1Property0: KProperty0<String> = testClass1::p1
+        val namedProp0 = testClass2.namedVal(testClass1Property0)
+        // Assert
+        assertThat(namedProp0.valueString).isEqualTo(testClass1.p1)
+        assertThat(logMsg).isEmpty()
+
+        // Act
+        // With KProperty1 this fails, on call with unrelated object; it should be handled properly
+        val testClass1Property1: KProperty1<TestClass1, String> = TestClass1::p1
+        val namedProp1 = testClass2.namedVal(testClass1Property1)
+        // Assert
+        assertThat(namedProp1.valueString).isNull()
+        assertThat(logMsg)
+            .contains("IllegalStateException")
+            .contains(TestClass1::class.simpleName)
+            .contains(TestClass2::class.simpleName)
+            .contains(namedProp1.name)
+
+    }
+
     @Test
     fun `NamedProp should evaluate the property value on each call`() {
         // Arrange
