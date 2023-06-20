@@ -6,11 +6,17 @@ import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.core.reference.ObjectWeakReference
 import nl.kute.printable.namedvalues.NameValue
 import nl.kute.printable.namedvalues.namedVal
+import nl.kute.reflection.declaringClass
 import kotlin.reflect.KProperty
 
 class AsStringBuilder private constructor(obj: Any?) {
 
-    internal val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
+    private val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
+    private val objJavaClass: Class<*>? = obj?.javaClass
+    private val isMatchingProperty: (KProperty<*>) -> Boolean =
+        { objJavaClass == null
+                || it.declaringClass()?.java?.isAssignableFrom(objJavaClass) == true
+        }
 
     private val classProperties: Set<KProperty<*>> by lazy {
         if (obj != null) {
@@ -19,6 +25,7 @@ class AsStringBuilder private constructor(obj: Any?) {
             emptySet()
         }
     }
+
     private val classPropertyNames: Set<String> by lazy {
         classProperties.map { it.name }.toSet()
     }
@@ -28,8 +35,8 @@ class AsStringBuilder private constructor(obj: Any?) {
 
     private val onlyProperties: MutableSet<KProperty<*>> by lazy { mutableSetOf() }
     private var isOnlyPropertiesSet: Boolean = false
-    private val onlyNames: MutableSet<String> by lazy { mutableSetOf() }
-    private var isOnlyNamesSet: Boolean = false
+    private val onlyPropertyNames: MutableSet<String> by lazy { mutableSetOf() }
+    private var isOnlyPropertyNamesSet: Boolean = false
 
     private val exceptProperties: MutableSet<KProperty<*>> by lazy { mutableSetOf() }
     private val exceptPropertyNames: MutableSet<String> by lazy { mutableSetOf() }
@@ -51,17 +58,17 @@ class AsStringBuilder private constructor(obj: Any?) {
         }
         return this
     }
-    fun onlyProperties(vararg props: KProperty<*>): AsStringBuilder {
+    fun withOnlyProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
-            this.onlyProperties.addAll(props)
+            this.onlyProperties.addAll(props.filter(isMatchingProperty))
             isOnlyPropertiesSet = true
         }
         return this
     }
-    fun withOnlyNames(vararg names: String): AsStringBuilder {
+    fun withOnlyPropertyNames(vararg names: String): AsStringBuilder {
         if (!isBuilt) {
-            this.onlyNames.addAll(names)
-            isOnlyNamesSet = true
+            this.onlyPropertyNames.addAll(names)
+            isOnlyPropertyNamesSet = true
         }
         return this
     }
@@ -78,13 +85,13 @@ class AsStringBuilder private constructor(obj: Any?) {
         return this
     }
 
-    private fun build() {
+    fun build() {
         if (isBuilt) {
             return
         }
         val propNamesToInclude: Set<String> =
             (if (isOnlyPropertiesSet) (onlyProperties.map { it.name }) else classPropertyNames)
-                .filter { !isOnlyNamesSet || onlyNames.contains(it) }
+                .filter { !isOnlyPropertyNamesSet || onlyPropertyNames.contains(it) }
                 .filterNot { exceptProperties.map { it.name }.contains(it) }
                 .filterNot { exceptPropertyNames.contains(it) }
                 .toSet()
