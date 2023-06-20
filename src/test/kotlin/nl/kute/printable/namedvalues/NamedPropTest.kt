@@ -27,36 +27,72 @@ class NamedPropTest {
         resetStdOutLogger()
     }
 
+    interface WithProp {
+        val myProp: String
+    }
+
+    @Test
+    fun `property from delegate class can be retrieved`() {
+        // Arrange
+        val thePropValue = "the value"
+        class ClassWithProp(override val myProp: String) : WithProp
+        class ClassWithDelegate(val delegate: WithProp = ClassWithProp(thePropValue)): WithProp by delegate
+
+        val testObj = ClassWithDelegate()
+
+        // Act
+        val namedPropWithObjectRef = testObj.namedVal(testObj::myProp) as NamedProp<ClassWithDelegate, String>
+        // Assert
+        assertThat(namedPropWithObjectRef.valueString)
+            .`as`("It should retrieve the delegate property value by object (testObj)")
+            .isEqualTo(thePropValue)
+
+        // Act
+        val namedPropWithClassRef = testObj.namedVal(ClassWithDelegate::myProp) as NamedProp<ClassWithDelegate, String>
+        // Assert
+        assertThat(namedPropWithClassRef.valueString)
+            .`as`("It should retrieve the delegate property value by object class (ClassWithDelegate)")
+            .isEqualTo(thePropValue)
+    }
+
     @Test
     fun `incompatible property should be handled correctly`() {
         // Arrange
         var logMsg = ""
         logger = { msg: String -> logMsg += msg }
-        class TestClass1(val p1: String = "c1")
-        val testClass1 = TestClass1()
-        class TestClass2()
-        val testClass2 = TestClass2()
+        // 2 unrelated classes
+        class TestClass1(val myTestProperty: String = "this is for test")
+        val testObj1 = TestClass1()
+        class TestClass2
+        val testObj2 = TestClass2()
 
         // Act
-        // Somehow with KProperty0 this succeeds, even while called with unrelated object
-        val testClass1Property0: KProperty0<String> = testClass1::p1
-        val namedProp0 = testClass2.namedVal(testClass1Property0)
+        val testClass1Property0: KProperty0<String> = testObj1::myTestProperty
+        // call property of TestClass1 with object of TestClass2: unrelated, incompatible
+        val namedProp0 = testObj2.namedVal(testClass1Property0)
         // Assert
-        assertThat(namedProp0.valueString).isEqualTo(testClass1.p1)
+        assertThat(namedProp0.valueString)
+            .`as`("Somehow with KProperty0 (object reference testObj1) this succeeds, even with incompatible object (testObj2)")
+            .isEqualTo(testObj1.myTestProperty)
         assertThat(logMsg).isEmpty()
 
         // Act
         // With KProperty1 this fails, on call with unrelated object; it should be handled properly
-        val testClass1Property1: KProperty1<TestClass1, String> = TestClass1::p1
-        val namedProp1 = testClass2.namedVal(testClass1Property1)
+        val testClass1Property1: KProperty1<TestClass1, String> = TestClass1::myTestProperty
+        val namedProp1 = testObj2.namedVal(testClass1Property1)
         // Assert
-        assertThat(namedProp1.valueString).isNull()
+        assertThat(namedProp1.valueString)
+            .`as`("With KProperty1 (class reference TestClass1) it will fail; is handled & returns `null`")
+            .isNull()
         assertThat(logMsg)
+            .`as`("Should not hit downstream ClassCastException")
+            .doesNotContain("ClassCastException")
+            .`as`("Should be handled early by validation in NamedProp")
             .contains("IllegalStateException")
+            .`as`("Error message should give relevant information")
             .contains(TestClass1::class.simpleName)
             .contains(TestClass2::class.simpleName)
             .contains(namedProp1.name)
-
     }
 
     @Test
