@@ -32,7 +32,7 @@ class NamedPropTest {
     }
 
     @Test
-    fun `property from delegate class can be retrieved`() {
+    fun `property from delegate class should be retrieved`() {
         // Arrange
         val thePropValue = "the value"
         class ClassWithProp(override val myProp: String) : WithProp

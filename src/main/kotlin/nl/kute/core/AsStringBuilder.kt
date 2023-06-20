@@ -10,7 +10,7 @@ import kotlin.reflect.KProperty
 
 class AsStringBuilder private constructor(obj: Any?) {
 
-    val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
+    internal val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
 
     private val classProperties: Set<KProperty<*>> by lazy {
         if (obj != null) {
