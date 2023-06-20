@@ -42,34 +42,34 @@ class AsStringTestAdvancedProperties {
     @Test
     fun `test with delegate property - 1`() {
         val testObj = ClassWithDelegatedProperty()
-        assertThat(testObj.delegate.getCounter).isZero()
-        assertThat(testObj.delegate.setCounter).isZero()
+        assertThat(testObj.delegate.getAccessCount).isZero
+        assertThat(testObj.delegate.setAccessCount).isZero
 
         assertThat(testObj.toString()).contains("delegatedProperty=0")
-        assertThat(testObj.delegate.getCounter).isEqualTo(1)
-        assertThat(testObj.delegate.setCounter).isZero()
+        assertThat(testObj.delegate.getAccessCount).isEqualTo(1)
+        assertThat(testObj.delegate.setAccessCount).isZero
 
         testObj.delegatedProperty = 25
         assertThat(testObj.toString()).contains("delegatedProperty=25")
-        assertThat(testObj.delegate.getCounter).isEqualTo(2)
-        assertThat(testObj.delegate.setCounter).isEqualTo(1)
+        assertThat(testObj.delegate.getAccessCount).isEqualTo(2)
+        assertThat(testObj.delegate.setAccessCount).isEqualTo(1)
     }
 
     /** Demonstrates that the delegated getter is called implicitly every time */
     @Test
     fun `test with delegate property - 2`() {
         val testObj = ClassWithDelegatedPropertyWithOpFuns(PropertyDelegateWithOperatorFuns())
-        assertThat(testObj.delegate.getCounter).isZero()
-        assertThat(testObj.delegate.setCounter).isZero()
+        assertThat(testObj.delegate.getAccessCounter).isZero()
+        assertThat(testObj.delegate.setAccessCounter).isZero()
 
         assertThat(testObj.toString()).contains("delegatedProperty=0")
-        assertThat(testObj.delegate.getCounter).isEqualTo(1)
-        assertThat(testObj.delegate.setCounter).isZero()
+        assertThat(testObj.delegate.getAccessCounter).isEqualTo(1)
+        assertThat(testObj.delegate.setAccessCounter).isZero()
 
         testObj.delegatedProperty = 25
         assertThat(testObj.toString()).contains("delegatedProperty=25")
-        assertThat(testObj.delegate.getCounter).isEqualTo(2)
-        assertThat(testObj.delegate.setCounter).isEqualTo(1)
+        assertThat(testObj.delegate.getAccessCounter).isEqualTo(2)
+        assertThat(testObj.delegate.setAccessCounter).isEqualTo(1)
     }
 
     /**
@@ -83,7 +83,7 @@ class AsStringTestAdvancedProperties {
         val halloInternalValue = "hallo internal value"
         val halloValueFromGetter = "hallo from get"
 
-        assertThat(testObj.getCounter).isZero()
+        assertThat(testObj.getAccessCounter).isZero()
 
         // demonstrate that the internal value is as expected
         val halloProperty = testObj::class.memberProperties.first { it.name == "hallo" }
@@ -94,7 +94,7 @@ class AsStringTestAdvancedProperties {
         // demonstrate that the value from the property's get() method is used in the output, and not the internal value
         assertThat(testObj.asString()).contains(halloValueFromGetter)
         assertThat(testObj.asString()).doesNotContain(halloInternalValue)
-        assertThat(testObj.getCounter).isEqualTo(2)
+        assertThat(testObj.getAccessCounter).isEqualTo(2)
     }
 
     /** Demonstrates that companion vars are not included in the output */
@@ -181,16 +181,16 @@ class AsStringTestAdvancedProperties {
 
         var myDelegateVal = 0
 
-        var getCounter: Int = 0
-        var setCounter: Int = 0
+        var getAccessCount: Int = 0
+        var setAccessCount: Int = 0
 
         override fun getValue(thisRef: Any, property: KProperty<*>): Int {
-            ++getCounter
+            ++getAccessCount
             return myDelegateVal
         }
 
         override fun setValue(thisRef: Any, property: KProperty<*>, value: Int) {
-            ++setCounter
+            ++setAccessCount
             myDelegateVal = value
         }
 
@@ -201,16 +201,16 @@ class AsStringTestAdvancedProperties {
 
         var myDelegateVal = 0
 
-        var getCounter: Int = 0
-        var setCounter: Int = 0
+        var getAccessCounter: Int = 0
+        var setAccessCounter: Int = 0
 
         operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
-            ++getCounter
+            ++getAccessCounter
             return myDelegateVal
         }
 
         operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
-            ++setCounter
+            ++setAccessCounter
             myDelegateVal = value
         }
 
@@ -219,12 +219,12 @@ class AsStringTestAdvancedProperties {
 
     private class ClassWithPropertyGet {
 
-        var getCounter: Int = 0
+        var getAccessCounter: Int = 0
 
         @Suppress("SuspiciousVarProperty", "SameReturnValue")
         var hallo: String = "hallo internal value"
             get() {
-                ++getCounter
+                ++getAccessCounter
                 return "hallo from get"
             }
     }
