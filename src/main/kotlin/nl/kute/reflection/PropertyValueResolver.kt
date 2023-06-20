@@ -49,7 +49,7 @@ internal fun <T : Any?, V : Any?> T.getPropValue(property: KProperty<V>?): V? {
             }
         }
     } catch (e: Exception) {
-        property?.handlePropValException(e) ?: log("")
+        property?.handlePropValException(e)
         null
     }
 }
