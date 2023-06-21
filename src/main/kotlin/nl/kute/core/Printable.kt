@@ -1,6 +1,6 @@
 package nl.kute.core
 
-import nl.kute.printable.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.AsStringOption
 
 /**
  * Interface with easy-to-use methods for [String] representation; typically for data-centric classes.

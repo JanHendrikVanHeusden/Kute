@@ -2,11 +2,11 @@ package nl.kute.core
 
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.hashing.DigestMethod
-import nl.kute.printable.annotation.modifiy.AsStringHash
-import nl.kute.printable.annotation.modifiy.AsStringOmit
-import nl.kute.printable.annotation.modifiy.AsStringPatternReplace
-import nl.kute.printable.annotation.option.AsStringOption
-import nl.kute.printable.namedvalues.namedVal
+import nl.kute.core.annotation.modifiy.AsStringHash
+import nl.kute.core.annotation.modifiy.AsStringOmit
+import nl.kute.core.annotation.modifiy.AsStringPatternReplace
+import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.namedvalues.namedVal
 import nl.kute.util.toByteArray
 import nl.kute.util.toHex
 import org.assertj.core.api.Assertions.assertThat
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 
 const val showNullAs = "`null`"
 const val showNullAs2 = "[null]"
+
 internal class AsStringBuilderTest {
 
     private val testObj = ClassWithHashProperty()
@@ -75,6 +76,29 @@ internal class AsStringBuilderTest {
     }
 
     @Test
+    fun `exceptPropertyNames shouldn't filter out named values`() {
+        // Arrange
+        val namedProp = testObj.namedVal(testSubObj::hashProperty)
+        val namedVal = "I call myself privateProp".namedVal(name = "privateProp")
+        val expected = "ClassWithHashProperty(nullable=$showNullAs, hashProperty=$hashCode, privateProp=${namedVal.valueString})"
+        // Act, Assert
+        val asString = testObj.asStringBuilder()
+            .exceptPropertyNames("privateProp", "hashProperty")
+            .withAlsoNamed(namedProp, namedVal)
+            .asString()
+        assertThat(asString).isEqualTo(expected)
+
+        // Arrange
+        val expectedSub = "SubClassWithPrintMask(replaced=xx is replaced, hashProperty=$hashCode)"
+        // Act, Assert
+        val asStringSub = testSubObj.asStringBuilder()
+            .exceptPropertyNames("nullable", "privateProp")
+            .asString()
+        assertThat(asStringSub)
+            .isEqualTo(expectedSub)
+    }
+
+    @Test
     fun `AsStringBuilder should honour withAlsoProperties`() {
         // Arrange
         val expected = "ClassWithHashProperty(hashProperty=$hashCode, nullable=$showNullAs, privateProp=I am a private property, replaced=xx is replaced)"
@@ -110,15 +134,15 @@ internal class AsStringBuilderTest {
     }
 
     @Test
-    fun `AsStringBuilder should ignore withOnlyProperties with non-matching properties`() {
+    fun `AsStringBuilder should ignore non-matching properties in withOnlyProperties`() {
         // Arrange
-        val expected = "ClassWithHashProperty(nullable=$showNullAs)"
+        val expected = "ClassWithHashProperty(hashProperty=$hashCode)"
         // Act, Assert
         val asString = testObj.asStringBuilder()
-            .withOnlyProperties(SubClassWithPrintMask::replaced, testObj::nullable)
+            .withOnlyProperties(testSubObj::nullable, SubClassWithPrintMask::nullable, testObj::hashProperty)
             .asString()
         assertThat(asString)
-            .`as`("::replaced is not a property of testObj, so should be ignored")
+            .`as`("The specified ::nullable is not a property of testObj, so should be ignored")
             .isEqualTo(expected)
     }
 
@@ -133,6 +157,17 @@ internal class AsStringBuilderTest {
         assertThat(asString).isEqualTo(expected)
     }
 
+    @Test
+    fun `AsStringBuilder should yield correctly when no properties included`() {
+        // Arrange
+        val expected = "SubClassWithPrintMask()"
+        // Act, Assert
+        assertThat(testSubObj.asStringBuilder()
+            .withOnlyProperties() // nothing there
+            .withAlsoNamed() // nothing there
+            .asString()
+        ).isEqualTo(expected)
+    }
 
     @Test
     fun asStringBuilder() {
@@ -157,7 +192,7 @@ internal class AsStringBuilderTest {
     private class SubClassWithPrintMask: ClassWithHashProperty() {
         @AsStringPatternReplace("^I am ", replacement = "xx is ")
         val replaced = "I am replaced"
-        @AsStringOption(showNullAs = "[null]")
+        @AsStringOption(showNullAs = showNullAs2)
         override val nullable: Any? = super.nullable
     }
 }

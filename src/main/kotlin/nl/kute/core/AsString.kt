@@ -8,14 +8,16 @@ package nl.kute.core
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.log.log
-import nl.kute.printable.annotation.modifiy.AsStringOmit
-import nl.kute.printable.annotation.option.AsStringOption
-import nl.kute.printable.annotation.option.defaultNullString
-import nl.kute.printable.namedvalues.NameValue
-import nl.kute.printable.namedvalues.PropertyValue
-import nl.kute.printable.namedvalues.namedVal
+import nl.kute.core.annotation.modifiy.AsStringOmit
+import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.defaultNullString
+import nl.kute.core.namedvalues.NameValue
+import nl.kute.core.namedvalues.PropertyValue
+import nl.kute.core.namedvalues.namedVal
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
+import java.time.temporal.Temporal
+import java.util.Date
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -82,11 +84,23 @@ internal fun Any?.asStringExcluding(propsToExclude: Collection<KProperty<*>> = e
  * @see [asString]
  * @see [asStringExcluding]
  */
-@Suppress("UNNECESSARY_NOT_NULL_ASSERTION") // Compiler warning that we don't need the `obj!!` - but compilation fails if we remove `!!`
+// Compiler warnings that we don't need the `obj!!` and this? - but compilation fails if we remove `!!` or `?.`
+@Suppress("UNNECESSARY_NOT_NULL_ASSERTION", "UNNECESSARY_SAFE_CALL")
 internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>
 ): String {
     if (this == null) {
         return defaultNullString
+    } else if (
+        // For built-in stuff, we just stick to the default toString()
+        this is Number
+        || this is CharSequence
+        || this is Char
+        || this is Date
+        || this is Temporal
+        || this?.let { it::class.java.packageName.startsWith("java.") } == true
+        || this?.let { it::class.java.packageName.startsWith("kotlin") } == true
+    ) {
+        return this.toString()
     } else {
         val objClass = this!!::class
         try {

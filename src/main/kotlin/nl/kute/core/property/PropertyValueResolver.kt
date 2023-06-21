@@ -1,14 +1,14 @@
 package nl.kute.core.property
 
-import nl.kute.printable.annotation.modifiy.AsStringHash
-import nl.kute.printable.annotation.modifiy.AsStringMask
-import nl.kute.printable.annotation.modifiy.AsStringOmit
-import nl.kute.printable.annotation.modifiy.AsStringPatternReplace
-import nl.kute.printable.annotation.modifiy.hashString
-import nl.kute.printable.annotation.modifiy.mask
-import nl.kute.printable.annotation.modifiy.replacePattern
-import nl.kute.printable.annotation.option.AsStringOption
-import nl.kute.printable.annotation.option.applyOption
+import nl.kute.core.annotation.modifiy.AsStringHash
+import nl.kute.core.annotation.modifiy.AsStringMask
+import nl.kute.core.annotation.modifiy.AsStringOmit
+import nl.kute.core.annotation.modifiy.AsStringPatternReplace
+import nl.kute.core.annotation.modifiy.hashString
+import nl.kute.core.annotation.modifiy.mask
+import nl.kute.core.annotation.modifiy.replacePattern
+import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.applyOption
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy

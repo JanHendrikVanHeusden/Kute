@@ -1,6 +1,6 @@
 package nl.kute.core.reference
 
-import nl.kute.printable.annotation.option.defaultNullString
+import nl.kute.core.annotation.option.defaultNullString
 import java.lang.ref.WeakReference
 
 class ObjectWeakReference<T: Any?>(obj: T?): WeakReference<T?>(obj) {

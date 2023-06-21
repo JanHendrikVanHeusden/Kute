@@ -1,7 +1,7 @@
 package nl.kute.reflection.annotationfinder
 
-import nl.kute.printable.annotation.NonInheritedTestAnnotation
-import nl.kute.printable.annotation.option.AsStringOption
+import nl.kute.core.annotation.NonInheritedTestAnnotation
+import nl.kute.core.annotation.option.AsStringOption
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.lang.annotation.Inherited

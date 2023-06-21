@@ -1,0 +1,4 @@
+package nl.kute.testobjects.java.packagevisibility.sub
+
+class KotlinSubSubClassOfJavaClassWithNotAccessiblePackageLevelProperty :
+    SubClassOfJavaClassWithNotAccessiblePackageLevelProperty()
