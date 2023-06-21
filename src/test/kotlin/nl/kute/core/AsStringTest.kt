@@ -10,6 +10,7 @@ import nl.kute.core.namedvalues.NamedProp
 import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
 import nl.kute.core.namedvalues.namedVal
+import nl.kute.hashing.hexHash
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty
 import nl.kute.testobjects.java.packagevisibility.KotlinSubSubClassOfJavaClassWithAccessiblePackageLevelProperty
@@ -31,6 +32,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.time.LocalDate
+import java.util.Date
 import java.util.UUID
 
 class AsStringTest {
@@ -337,6 +339,45 @@ class AsStringTest {
                 .contains(publicAttrOutput)
                 .`as`("Protected attribute shown in subclass ${it::class.simpleName} output")
                 .contains(protectedAttrOutput)
+        }
+    }
+
+    @Test
+    fun `Java and Kotlin types should adhere to their original toString`() {
+        listOf(
+            123,
+            "123",
+            'c',
+            Date(),
+            StringBuffer("abc"),
+            StringBuilder("a builder"),
+            LocalDate.now(),
+            null,
+            this::class,
+            this::class.java,
+        ).forEach {
+            assertThat(it.asString()).isEqualTo(it.toString())
+        }
+    }
+
+    @Test
+    fun `null asString should yield 'null'`() {
+        assertThat(null.asString()).isEqualTo("null")
+    }
+
+    @Test
+    fun `synthetic types shouldn't cause exceptions`() {
+        val supplier: () -> String = { "a String supplier" }
+
+        listOf(
+            this@AsStringTest::aPrintableDate,
+            supplier,
+            { "an other String supplier" },
+            { Any() }
+        ).forEachIndexed {i, it ->
+            assertThat(it.asString())
+                .`as`("Expression #$i should yield format class@hashCode")
+                .isEqualTo("${it::class.toString().replace("class ", "")}@${it.hexHash()}")
         }
     }
 

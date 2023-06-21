@@ -14,8 +14,11 @@ import nl.kute.core.annotation.option.defaultNullString
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.namedvalues.namedVal
+import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
+import nl.kute.util.toByteArray
+import nl.kute.util.toHex
 import java.time.temporal.Temporal
 import java.util.Date
 import kotlin.reflect.KClass
@@ -88,22 +91,24 @@ internal fun Any?.asStringExcluding(propsToExclude: Collection<KProperty<*>> = e
 @Suppress("UNNECESSARY_NOT_NULL_ASSERTION", "UNNECESSARY_SAFE_CALL")
 internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>
 ): String {
-    if (this == null) {
-        return defaultNullString
-    } else if (
+    try {
+        if (this == null) {
+            return defaultNullString
+        } else if (
         // For built-in stuff, we just stick to the default toString()
-        this is Number
-        || this is CharSequence
-        || this is Char
-        || this is Date
-        || this is Temporal
-        || this?.let { it::class.java.packageName.startsWith("java.") } == true
-        || this?.let { it::class.java.packageName.startsWith("kotlin") } == true
-    ) {
-        return this.toString()
-    } else {
-        val objClass = this!!::class
-        try {
+            this is Number
+            || this is CharSequence
+            || this is Char
+            || this is Date
+            || this is Temporal
+            || this?.let { it::class.java.packageName.startsWith("kotlin") } == true
+            || this?.let { it::class.java.packageName.startsWith("java.") } == true
+            || this?.let { it::class.java.packageName.startsWith("sun.") } == true
+            || this?.let { it::class.java.packageName.startsWith("com.sun.") } == true
+        ) {
+            return this.toString()
+        } else {
+            val objClass = this!!::class
             try {
                 val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
                     objClass.propertiesWithPrintModifyingAnnotations()
@@ -111,7 +116,8 @@ internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<Str
                         .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
                 val named = nameValues
                     .filterNot { it is PropertyValue<*, *> && it.printModifyingAnnotations.any { it is AsStringOmit } }
-                val nameValueSeparator = if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
+                val nameValueSeparator =
+                    if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
                 return annotationsByProperty
                     .entries.joinToString(
                         separator = valueSeparator,
@@ -123,17 +129,42 @@ internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<Str
                     } + named.joinToString(prefix = nameValueSeparator, separator = ", ", postfix = ")") {
                     "${it.name}=${it.valueString ?: defaultNullString}"
                 }
+            } catch (e: SyntheticClassException) {
+                // Synthetic class, like for a lambda, callable reference etc.: Kotlin's reflection can't handle that
+                // (more details, see KDoc of SyntheticClassException)
+                // It's not the intended usage for AsString() anyway, so we just don't care. No log message.
+                return this.asStringFallBack()
             } catch (e: Exception) {
-                log("ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${e.asString()}")
-                return ""
+                log(
+                    "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${
+                        e.asString(
+                            50
+                        )
+                    }"
+                )
+                return this.asStringFallBack()
             } catch (t: Throwable) {
-                log("FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${t.asString()}")
-                return ""
+                log(
+                    "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${
+                        t.asString(
+                            50
+                        )
+                    }"
+                )
+                return this.asStringFallBack()
             }
-        } catch (t: Throwable) {
-            @Suppress("UNNECESSARY_SAFE_CALL")
-            return "FATAL ERROR: Unhandled Throwable ${t?.javaClass} (cause: ${t.cause?.javaClass}) occurred when retrieving string value"
         }
+    } catch (e: Exception) {
+        // It's probably a secondary exception somewhere. Not much more we can do here
+        e.printStackTrace()
+        return ""
     }
 }
 
+private val classPrefix = Regex("^class ")
+
+@Suppress("UNNECESSARY_SAFE_CALL")
+private fun Any?.asStringFallBack(): String =
+    // mimics the Java toString() output when toString() not overridden
+    if (this == null) defaultNullString else "${this?.let { it::class }}@${this?.hashCode()?.toByteArray()?.toHex()}"
+        .replace(classPrefix, "")

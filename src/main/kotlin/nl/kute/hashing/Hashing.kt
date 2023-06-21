@@ -16,12 +16,11 @@ import java.security.MessageDigest
 import java.util.zip.CRC32C as JavaUtilCRC32C
 
 /**
- * Create a hex String based on the [input] object's [hashCode] method
- * @param input The [Any] object to create as hash String for
- * @return The [input]'s [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`
+ * Create a hex String based on the receiver's [hashCode] method. Null safe.
+ * @return The receiver's [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`;
+ *         or `null` if the receiver is `null`.
  */
-internal fun javaHashString(input: Any): String = input.hashCode().toByteArray().toHex()
-
+internal fun Any?.hexHash(): String? = this?.let { hashCode().toByteArray().toHex() }
 
 /**
  * Create a hex String based on the [input] object's [hashCode] method using `CRC32C`
@@ -57,7 +56,7 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
     return if (input == null) null
     else try {
         when (digestMethod) {
-            JAVA_HASHCODE -> javaHashString(input)
+            JAVA_HASHCODE -> input.hexHash()
 
             CRC32C -> (CRC32C.instanceProvider!!.invoke() as JavaUtilCRC32C).hashCrc32C(input, charset)
 

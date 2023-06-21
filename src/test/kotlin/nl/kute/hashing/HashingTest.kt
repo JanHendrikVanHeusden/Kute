@@ -14,9 +14,6 @@ import kotlin.random.Random
 
 internal class HashingTest {
 
-    // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
-    // private val hexFormat: HexFormat = HexFormat.of()
-
     private val testStringShort = "my test string"
 
     // String of length ~335k
@@ -33,7 +30,7 @@ internal class HashingTest {
         )
 
     @Test
-    fun `test that results of hash methods adhere to expected formats`() {
+    fun `results of hash methods should adhere to corresponding formats`() {
         var hashResults: MutableSet<String>
 
         digestMethodPatterns.forEach { (digestMethod, pattern) ->
@@ -103,7 +100,7 @@ internal class HashingTest {
     }
 
     @Test
-    fun `test that String hashing with JAVA_HASHCODE digest yields same result as java hashCode`() {
+    fun `hashing with JAVA_HASHCODE digest should yield same result as java hashCode`() {
         val hashShortString = hashString(testStringShort, DigestMethod.JAVA_HASHCODE)
         // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
         // assertThat(hashShortString).isEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
@@ -115,7 +112,7 @@ internal class HashingTest {
     }
 
     @Test
-    fun `test that String hashing with CRC32C yields different result as java hashCode`() {
+    fun `hash result with CRC32C should differ from java hashCode`() {
         val hashShortString = hashString(testStringShort, DigestMethod.CRC32C)
         // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
         // assertThat(hashShortString).isNotEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
@@ -127,17 +124,22 @@ internal class HashingTest {
     }
 
     @Test
-    fun `test that Object hashing with javaHashCode yields same result as java hashCode`() {
+    fun `object hashing with javaHashCode should yield same result as java hashCode`() {
         listOf(Any(), LocalDateTime.now(), Random.nextInt(), Random.nextBytes(200)).forEach {
             // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
             // assertThat(javaHashString(it)).isEqualTo(hexFormat.toHexDigits(it.hashCode()))
-            assertThat(javaHashString(it)).isEqualTo(it.hashCode().toByteArray().toHex())
+            assertThat(it.hexHash()).isEqualTo(it.hashCode().toByteArray().toHex())
         }
+    }
+
+    @Test
+    fun `hexString of null should return null`() {
+        assertThat(null.hexHash()).isNull()
     }
 
     @ParameterizedTest
     @EnumSource(DigestMethod::class)
-    fun `verify that encodings are taken into account as expected`(digestMethod: DigestMethod) {
+    fun `encodings should be taken into account where expected`(digestMethod: DigestMethod) {
         val str1 = "¥⒂"
         val str2 = "¬"
         if (digestMethod == DigestMethod.JAVA_HASHCODE) {
@@ -159,7 +161,7 @@ internal class HashingTest {
 
     @ParameterizedTest
     @EnumSource(DigestMethod::class)
-    fun `test null safety of hashing`(digestMethod: DigestMethod) {
+    fun `hashing should be null safe`(digestMethod: DigestMethod) {
         assertThat(hashString(null, digestMethod, Charsets.UTF_8)).isNull()
     }
 

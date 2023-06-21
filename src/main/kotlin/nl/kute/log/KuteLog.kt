@@ -6,10 +6,18 @@ import nl.kute.util.asString
 import java.util.function.Consumer
 
 /** Logs message [msg], prefixed by the receiver's class name */
-internal fun Any?.log(msg: String) = loggerWithCaller("${this?.javaClass ?: ""}", msg)
+internal fun Any?.log(msg: String) = try {
+    loggerWithCaller("${this?.javaClass ?: ""}", msg)
+} catch (e: Exception) {
+    e.printStackTrace() // not much else we can do
+}
 
 /** Logs message [msg], prefixed by the [caller] String */
-internal fun logWithCaller(caller: String, msg: String) = loggerWithCaller(caller, msg)
+internal fun logWithCaller(caller: String, msg: String) = try {
+    loggerWithCaller(caller, msg)
+} catch (e: Exception) {
+    e.printStackTrace() // not much else we can do
+}
 
 /** When no other [logger] is set, this logger is used, which simply outputs `msg` to std out (using [println]) */
 internal val stdOutLogger: (String) -> Unit = { msg: String -> println(msg) }
