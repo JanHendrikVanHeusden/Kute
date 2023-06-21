@@ -37,7 +37,7 @@ annotation class AsStringPatternReplace(
     val replacement: String
 )
 
-internal fun AsStringPatternReplace?.replacePattern(strVal: String?): String? =
+fun AsStringPatternReplace?.replacePattern(strVal: String?): String? =
     if (this == null) strVal else {
         try {
             // caching of Regex by pattern would be nice here, to avoid compiling same patterns over and over.

@@ -42,7 +42,7 @@ annotation class AsStringMask(
     val maxLength: Int = Int.MAX_VALUE,
 )
 
-internal fun AsStringMask?.mask(strVal: String?): String? {
+fun AsStringMask?.mask(strVal: String?): String? {
     if (this == null) {
         return strVal
     } else {

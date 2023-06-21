@@ -18,7 +18,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @Retention(RUNTIME)
 annotation class AsStringHash(val digestMethod: DigestMethod = DigestMethod.CRC32C)
 
-internal fun AsStringHash?.hashString(strVal: String?): String? =
+fun AsStringHash?.hashString(strVal: String?): String? =
     if (this == null) strVal else hashString(strVal, digestMethod)
 
 
