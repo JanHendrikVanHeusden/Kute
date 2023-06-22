@@ -4,6 +4,11 @@ import kotlin.reflect.KClass
 
 // TODO: caching of class hierarchies
 
+private val regexPackage = Regex(""".+\.(.*)$""")
+private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
+
+internal fun KClass<*>.simplifyClassName() = simpleName ?: toString().simplifyClassName()
+
 /**
  * Gets the class hierarchy of the `this` receiver, ordered like this:
  * 1. any interfaces, in order of hierarchy; super interfaces first

@@ -1,10 +1,10 @@
 package nl.kute.core
 
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
-import nl.kute.core.annotation.modifiy.AsStringHash
-import nl.kute.core.annotation.modifiy.AsStringMask
-import nl.kute.core.annotation.modifiy.AsStringOmit
-import nl.kute.core.annotation.modifiy.AsStringPatternReplace
+import nl.kute.core.annotation.modify.AsStringHash
+import nl.kute.core.annotation.modify.AsStringMask
+import nl.kute.core.annotation.modify.AsStringOmit
+import nl.kute.core.annotation.modify.AsStringPatternReplace
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.NamedProp
 import nl.kute.core.namedvalues.NamedSupplier

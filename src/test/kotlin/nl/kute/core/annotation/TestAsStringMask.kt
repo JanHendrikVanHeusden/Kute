@@ -1,7 +1,7 @@
 package nl.kute.core.annotation
 
-import nl.kute.core.annotation.modifiy.AsStringMask
-import nl.kute.core.annotation.modifiy.mask
+import nl.kute.core.annotation.modify.AsStringMask
+import nl.kute.core.annotation.modify.mask
 import org.apache.commons.lang3.RandomUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

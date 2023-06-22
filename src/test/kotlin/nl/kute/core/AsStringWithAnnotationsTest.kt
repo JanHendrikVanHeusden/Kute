@@ -1,9 +1,9 @@
 package nl.kute.core
 
-import nl.kute.core.annotation.modifiy.AsStringHash
-import nl.kute.core.annotation.modifiy.AsStringMask
-import nl.kute.core.annotation.modifiy.AsStringOmit
-import nl.kute.core.annotation.modifiy.AsStringPatternReplace
+import nl.kute.core.annotation.modify.AsStringHash
+import nl.kute.core.annotation.modify.AsStringMask
+import nl.kute.core.annotation.modify.AsStringOmit
+import nl.kute.core.annotation.modify.AsStringPatternReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.defaultMaxStringValueLength
 import nl.kute.core.annotation.option.defaultNullString

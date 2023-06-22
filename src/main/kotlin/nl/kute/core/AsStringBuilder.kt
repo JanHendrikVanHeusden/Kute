@@ -106,7 +106,7 @@ class AsStringBuilder private constructor(obj: Any?): AsStringProducer {
 
     override fun asString(): String {
         build()
-        return objectReference.get().objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
+        return objectReference.get().asString(propertyNamesToExclude, *alsoNamedAsTypedArray)
     }
 
     companion object {

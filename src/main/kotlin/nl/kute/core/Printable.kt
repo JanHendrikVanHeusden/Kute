@@ -23,7 +23,8 @@ interface Printable {
      * * Private properties are included (but not in subclasses)
      * * String value of individual properties is capped at (default) 500; see @[AsStringOption] to override the default
      * @return A String representation of the [Printable], including class name and property names + values;
-     * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.printable.annotation.modify
+     * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others;
+     * see package `nl.kute.core.annotation.modify
      * `
      * @see [asString]
      * @see [AsStringBuilder]

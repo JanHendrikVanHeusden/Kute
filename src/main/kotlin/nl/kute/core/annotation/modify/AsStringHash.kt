@@ -1,4 +1,4 @@
-package nl.kute.core.annotation.modifiy
+package nl.kute.core.annotation.modify
 
 import nl.kute.hashing.DigestMethod
 import nl.kute.hashing.hashString

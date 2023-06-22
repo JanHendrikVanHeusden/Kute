@@ -5,7 +5,7 @@
 
 package nl.kute.core
 
-import nl.kute.core.annotation.modifiy.AsStringOmit
+import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.defaultNullString
 import nl.kute.core.namedvalues.NameValue
@@ -14,23 +14,14 @@ import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.log.log
 import nl.kute.reflection.error.SyntheticClassException
+import nl.kute.reflection.simplifyClassName
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
 import nl.kute.util.toByteArray
 import nl.kute.util.toHex
 import java.time.temporal.Temporal
 import java.util.Date
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
-
-private val regexPackage = Regex(""".+\.(.*)$""")
-internal fun String.simplifyClassName() = this.replace(regexPackage, "$1")
-
-private val emptyStringList: List<String> = listOf()
-
-private const val valueSeparator: String = ", "
-
-internal fun KClass<*>.simplifyClassName() = simpleName ?: toString().simplifyClassName()
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -38,29 +29,11 @@ internal fun KClass<*>.simplifyClassName() = simpleName ?: toString().simplifyCl
  * * Private properties are included (but not in subclasses)
  * * String value of individual properties is capped at 500; see @[AsStringOption] to override the default
  * @return A String representation of the receiver object, including class name and property names + values;
- * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.printable.annotation.modify`
- * @see [objectAsString]
+ * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.core.annotation.modify`
  */
 fun Any?.asString(): String {
-    return objectAsString(emptyStringList)
+    return asString(emptyStringList)
 }
-
-private class ObjectsProcessed {
-    private val objectsProcessed: MutableMap<Int, Any> = mutableMapOf()
-    @Suppress("unused")
-    val size: Int
-        get() = objectsProcessed.size
-    fun <T: Any>get(obj: T): T? = obj.let { if (it === objectsProcessed[System.identityHashCode(it)]) it else null }
-
-    /** @return `true` if [obj] is newly added; `false` if it was present already (like [Set]`.add` behaviour */
-    fun <T: Any> add(obj: T): Boolean =
-        objectsProcessed.put(System.identityHashCode(obj), obj) == null
-
-    /** @return `true` if [obj] was present and is removed; `false` if it was not present (like [Set]`.remove` behaviour) */
-    fun remove(obj: Any): Boolean = (objectsProcessed.remove(System.identityHashCode(obj)) != null)
-}
-
-private val objectsProcessed = ObjectsProcessed()
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -70,17 +43,15 @@ private val objectsProcessed = ObjectsProcessed()
  *
  * This method allows you to exclude any properties by name, including inaccessible private ones.
  * @param propertyNamesToExclude accessible properties that you don't want to be included in the result.
- * E.g. use it when not calling from inside the class:
- * `someObjectWithPrivateProps.`[objectAsString]`("myExcludedPrivateProp1", "myExcludedProp2")
  * @return A String representation of the receiver object, including class name and property names + values;
  * adhering to related annotations;
- * for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.printable.annotation.modify`
+ * for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.core.annotation.modify`
  * @see [asString]
  * @see [AsStringBuilder]
  */
 // Compiler warnings that we don't need the `obj!!` and this? - but compilation fails if we remove `!!` or `?.`
 @Suppress("UNNECESSARY_NOT_NULL_ASSERTION", "UNNECESSARY_SAFE_CALL")
-internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
+internal fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
     try {
         if (this == null) {
             return defaultNullString
@@ -164,6 +135,10 @@ internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<Str
     }
 }
 
+private val emptyStringList: List<String> = listOf()
+
+private const val valueSeparator: String = ", "
+
 private val classPrefix = Regex("^class ")
 
 @Suppress("UNNECESSARY_SAFE_CALL")
@@ -171,3 +146,20 @@ private fun Any?.asStringFallBack(): String =
     // mimics the Java toString() output when toString() would not be overridden
     if (this == null) defaultNullString else "${this?.let { it::class }}@${this?.hashCode()?.toByteArray()?.toHex()}"
         .replace(classPrefix, "")
+
+private class ObjectsProcessed {
+    private val objectsProcessed: MutableMap<Int, Any> = mutableMapOf()
+    @Suppress("unused")
+    val size: Int
+        get() = objectsProcessed.size
+    fun <T: Any>get(obj: T): T? = obj.let { if (it === objectsProcessed[System.identityHashCode(it)]) it else null }
+
+    /** @return `true` if [obj] is newly added; `false` if it was present already (like [Set]`.add` behaviour */
+    fun <T: Any> add(obj: T): Boolean =
+        objectsProcessed.put(System.identityHashCode(obj), obj) == null
+
+    /** @return `true` if [obj] was present and is removed; `false` if it was not present (like [Set]`.remove` behaviour) */
+    fun remove(obj: Any): Boolean = (objectsProcessed.remove(System.identityHashCode(obj)) != null)
+}
+
+private val objectsProcessed = ObjectsProcessed()

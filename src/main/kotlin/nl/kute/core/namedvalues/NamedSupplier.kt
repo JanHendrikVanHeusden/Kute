@@ -1,8 +1,8 @@
 package nl.kute.core.namedvalues
 
 import nl.kute.core.reference.ObjectWeakReference
-import nl.kute.core.simplifyClassName
 import nl.kute.log.log
+import nl.kute.reflection.simplifyClassName
 import nl.kute.util.asString
 
 class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): NameValue<V?> {
