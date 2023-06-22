@@ -55,7 +55,7 @@ class NamedSupplierTest {
     fun `Supplier that throws exception should be handled`() {
         // Arrange
         var logMsg = ""
-        logger = { msg: String -> logMsg += msg }
+        logger = { msg: String? -> logMsg += msg }
         var throwIt = false
         val okValue = "this is OK!"
         val errMsg = "I throw an IA Exception!"

@@ -1,13 +1,13 @@
 package nl.kute.core
 
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
-import nl.kute.hashing.DigestMethod
 import nl.kute.core.annotation.modifiy.AsStringHash
 import nl.kute.core.annotation.modifiy.AsStringOmit
 import nl.kute.core.annotation.modifiy.AsStringPatternReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.namedVal
 import nl.kute.core.reference.ObjectWeakReference
+import nl.kute.hashing.DigestMethod
 import nl.kute.hashing.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
@@ -180,9 +180,10 @@ internal class AsStringBuilderTest {
     @Disabled("""Most JVM's simply won't react on a call to System.gc(). You may run the test manually to see if it succeeds.
         |The test is merely to document that AsStringBuilder must not keep hard references to the object""")
     @Test
-    fun `test that object reference doesn't prevent garbage collections`() {
+    fun `AsStringBuilder's object reference shouldn't prevent garbage collections`() {
         var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
         val builder = toBeGarbageCollected.asStringBuilder()
+
         @Suppress("UNCHECKED_CAST")
         val objRefProperty: KProperty1<AsStringBuilder, ObjectWeakReference<ToBeGarbageCollected>> =
             builder::class.memberProperties.first { it.name == "objectReference" } as

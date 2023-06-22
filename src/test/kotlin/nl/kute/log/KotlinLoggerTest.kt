@@ -22,9 +22,20 @@ class KotlinLoggerTest {
         logger = { msg -> stringLog = msg }
         val msg = "msg from testLog()"
         // Act
-        this.log(msg)
+        log(msg)
         // Assert
         assertThat(stringLog).isEqualTo(this::class.toString() + " - " + msg)
+    }
+
+    @Test
+    fun `log should accept nulls`() {
+        // Arrange
+        logger = { msg -> stringLog = msg }
+        val msg = null
+        // Act
+        log(msg)
+        // Assert
+        assertThat(stringLog).isEqualTo(this::class.toString() + " - null")
     }
 
     @Test
@@ -70,7 +81,7 @@ class KotlinLoggerTest {
         // Arrange
         // Buffer to store the log message in
         val logBuffer = StringBuffer()
-        val goodLogger: (String) -> Unit = { msg -> logBuffer.append(msg) }
+        val goodLogger: (String?) -> Unit = { msg -> logBuffer.append(msg) }
         logger = goodLogger
         val testMsg = "This should work"
         log(testMsg)
@@ -78,7 +89,7 @@ class KotlinLoggerTest {
         assertThat(logger).isSameAs(goodLogger)
         logBuffer.setLength(0) // clear the buffer
 
-        val wrongLogger: (String) -> Unit = { _ -> throw Exception("this is not a good logger") }
+        val wrongLogger: (String?) -> Unit = { _ -> throw Exception("this is not a good logger") }
 
         // act
         logger = wrongLogger

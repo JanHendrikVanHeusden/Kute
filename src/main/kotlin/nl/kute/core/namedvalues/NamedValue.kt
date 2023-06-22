@@ -4,7 +4,6 @@ import nl.kute.core.reference.ObjectWeakReference
 
 class NamedValue<V: Any?>(override val name: String, value: V?): NameValue<V?> {
     val valueReference: ObjectWeakReference<V?> = ObjectWeakReference(value)
-
     override val valueString: String
         // Using `get` so it's evaluated when required only, not at construction time of the NamedValue
         // NB: don't use `lazy`, it should honour changes in the underlying object

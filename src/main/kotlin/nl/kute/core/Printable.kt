@@ -12,8 +12,7 @@ import nl.kute.core.annotation.option.AsStringOption
  * Implementing this interface with its default methods is a functionally equal alternative
  * for directly calling the static methods:
  *  * [Any.asString]
- *  * [Any.asStringExcluding]
- *  * [Any.objectAsString]
+ *  * [AsStringBuilder]
  * ---
  */
 interface Printable {
@@ -26,8 +25,8 @@ interface Printable {
      * @return A String representation of the [Printable], including class name and property names + values;
      * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.printable.annotation.modify
      * `
-     * @see [asStringExcluding]
-     * @see [objectAsString]
+     * @see [asString]
+     * @see [AsStringBuilder]
      */
     fun asString(): String = (this as Any).asString()
 

@@ -1,16 +1,19 @@
 package nl.kute.core.namedvalues
 
+import nl.kute.core.reference.ObjectWeakReference
 import nl.kute.core.simplifyClassName
 import nl.kute.log.log
 import nl.kute.util.asString
 
-class NamedSupplier<V: Any?>(override val name: String, private val supplier: Supplier<V?>): NameValue<V?> {
+class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): NameValue<V?> {
+    @Suppress("MemberVisibilityCanBePrivate")
+    val supplierReference: ObjectWeakReference<Supplier<V>> = ObjectWeakReference(supplier)
     override val valueString: String?
         // Using `get` so it's evaluated when required only, not at construction time of the NamedSupplier
         // NB: don't use `lazy`, it should honour changes in the underlying object
         get() {
             return try {
-                supplier()?.toString()
+                (supplierReference.get())?.invoke()?.toString()
             } catch (e: Exception) {
                 log("Exception ${e::class.simplifyClassName()} while evaluation supplier of ${this::class.simplifyClassName()}: ${e.asString()} ")
                 return null

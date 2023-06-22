@@ -1,8 +1,5 @@
 package nl.kute.core.namedvalues
 
-import nl.kute.hashing.DigestMethod
-import nl.kute.log.logger
-import nl.kute.log.resetStdOutLogger
 import nl.kute.core.annotation.modifiy.AsStringHash
 import nl.kute.core.annotation.modifiy.AsStringMask
 import nl.kute.core.annotation.modifiy.AsStringOmit
@@ -11,6 +8,9 @@ import nl.kute.core.annotation.modifiy.hashString
 import nl.kute.core.annotation.modifiy.mask
 import nl.kute.core.annotation.modifiy.replacePattern
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.hashing.DigestMethod
+import nl.kute.log.logger
+import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -59,7 +59,7 @@ class NamedPropTest {
     fun `incompatible property should be handled correctly`() {
         // Arrange
         var logMsg = ""
-        logger = { msg: String -> logMsg += msg }
+        logger = { msg: String? -> logMsg += msg }
         // 2 unrelated classes
         class TestClass1(val myTestProperty: String = "this is for test")
         val testObj1 = TestClass1()

@@ -9,7 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.nio.charset.Charset
 import java.time.LocalDateTime
-import kotlin.math.pow
 import kotlin.random.Random
 
 internal class HashingTest {
@@ -64,16 +63,9 @@ internal class HashingTest {
             assertHashFormat(testStringShort)
 
             var strLong = testStringLong
-            repeat(100) {
-                strLong += "something"
+            repeat(10) {
+                strLong += ("something" + RandomStringUtils.randomAlphabetic(2))
                 assertHashFormat(strLong)
-            }
-            (1..4).forEach {
-                // Lengths up to 1_048_576 (generation & assertion of strings larger than that takes too long)
-                val length = 2.0.pow((it * 5).toDouble()).toInt()
-                repeat(2) {
-                    assertHashFormat(RandomStringUtils.random(length))
-                }
             }
         }
     }

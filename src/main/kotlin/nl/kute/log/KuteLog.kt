@@ -6,24 +6,24 @@ import nl.kute.util.asString
 import java.util.function.Consumer
 
 /** Logs message [msg], prefixed by the receiver's class name */
-internal fun Any?.log(msg: String) = try {
+internal fun Any?.log(msg: Any?) = try {
     loggerWithCaller("${this?.javaClass ?: ""}", msg)
 } catch (e: Exception) {
     e.printStackTrace() // not much else we can do
 }
 
 /** Logs message [msg], prefixed by the [caller] String */
-internal fun logWithCaller(caller: String, msg: String) = try {
+internal fun logWithCaller(caller: String, msg: Any?) = try {
     loggerWithCaller(caller, msg)
 } catch (e: Exception) {
     e.printStackTrace() // not much else we can do
 }
 
 /** When no other [logger] is set, this logger is used, which simply outputs `msg` to std out (using [println]) */
-internal val stdOutLogger: (String) -> Unit = { msg: String -> println(msg) }
+internal val stdOutLogger: (Any?) -> Unit = { msg: Any? -> println(msg) }
 
 /** Logger that outputs `msg`, prefixed with the `caller` String, to the current [logger] */
-internal val loggerWithCaller: (String, String) -> Unit = { caller, msg: String -> logger("$caller - $msg") }
+internal val loggerWithCaller: (String, Any?) -> Unit = { caller, msg: Any? -> logger("$caller - $msg") }
 
 /**
  * Static [logger].
@@ -39,7 +39,7 @@ internal val loggerWithCaller: (String, String) -> Unit = { caller, msg: String 
  * nl.kute.log.logger = { msg -> kuteLogger.error(msg) }
  * ```
  */
-var logger: (String) -> Unit = stdOutLogger
+var logger: (String?) -> Unit = stdOutLogger
     set(newLogger) {
         try {
             if (newLogger != stdOutLogger) {
@@ -73,8 +73,8 @@ var logger: (String) -> Unit = stdOutLogger
  * nl.kute.log.setLogConsumer(kuteErrorLogger);
  * ```
  */
-fun setLogConsumer(aLogger: Consumer<String>) {
-    logger = { msg: String -> aLogger.accept(msg) }
+fun setLogConsumer(aLogger: Consumer<String?>) {
+    logger = { msg: String? -> aLogger.accept(msg) }
 }
 
 /** Resets the logger to [stdOutLogger] */

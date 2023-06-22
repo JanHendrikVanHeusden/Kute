@@ -1,6 +1,6 @@
 package nl.kute.core
 
-import nl.kute.hashing.DigestMethod
+import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modifiy.AsStringHash
 import nl.kute.core.annotation.modifiy.AsStringMask
 import nl.kute.core.annotation.modifiy.AsStringOmit
@@ -10,6 +10,7 @@ import nl.kute.core.namedvalues.NamedProp
 import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
 import nl.kute.core.namedvalues.namedVal
+import nl.kute.hashing.DigestMethod
 import nl.kute.hashing.hexHashCode
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty
@@ -61,7 +62,8 @@ class AsStringTest {
         // Assert
         assertThat(classToPrint.toString())
             .isEqualTo("ClassToPrint(greet=hallo, num=10, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
-        assertThat(classToPrint.asStringExcluding(listOf(ClassToPrint::num)))
+        val asStringProducer = classToPrint.asStringBuilder().exceptProperties(ClassToPrint::num).build()
+        assertThat(asStringProducer.asString())
             .isEqualTo("ClassToPrint(greet=hallo, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
 
         // Assert that it works on anonymous class
@@ -133,8 +135,8 @@ class AsStringTest {
         )
         val namedXxx = mapOfNamedValues[namedValueType]!!
 
-        class TestClass() {
-            override fun toString(): String = asString(namedXxx())
+        class TestClass {
+            override fun toString(): String = asStringBuilder().withAlsoNamed(namedXxx()).asString()
         }
         assertThat(classLevelCounter).isZero()
         val testObj = TestClass()
@@ -170,9 +172,12 @@ class AsStringTest {
         // Arrange
         counter = 0
 
-        open class TestClass() {
+        open class TestClass {
+            val asStringProducer = asStringBuilder()
+                .withAlsoNamed(namedSupplier)
+                .build()
             override fun toString(): String {
-                return asString(namedSupplier)
+                return asStringProducer.asString()
             }
         }
         assertThat(counter).isZero()
@@ -198,10 +203,11 @@ class AsStringTest {
         // Arrange
         counter = 0
         // Act
-        asString = testObj.objectAsString(
-            propertyNamesToExclude = setOf(counterName),
-            nameValues = arrayOf(namedSupplier)
-        )
+        asString = testObj.asStringBuilder()
+            .exceptPropertyNames(counterName)
+            .withAlsoNamed(namedSupplier)
+            .build()
+            .asString()
         // Assert
         assertThat(asString).matches("^.+\\b$counterName=1\\D")
         assertThat(counter)
@@ -215,7 +221,10 @@ class AsStringTest {
         with(SubTestClass()) {
             val namedProp = this.namedVal(this::aProp)
             // Act
-            asString = this.objectAsString(propertyNamesToExclude = setOf(aProp, counterName), namedProp, namedSupplier)
+            asString = this.asStringBuilder()
+                .exceptPropertyNames(aProp, counterName)
+                .withAlsoNamed(namedProp, namedSupplier)
+                .asString()
             // Assert
             assertThat(asString)
                 .matches("^.+\\b${namedProp.name}=${this.aProp}\\D.*")
@@ -227,7 +236,10 @@ class AsStringTest {
         // Arrange
         counter = 0
         // Act - not excluding "counter"
-        asString = testObj.objectAsString(propertyNamesToExclude = setOf("count"), namedSupplier)
+        asString = testObj.asStringBuilder()
+            .exceptPropertyNames("count")
+            .withAlsoNamed(namedSupplier)
+            .asString()
         // Assert
         assertThat(asString).matches("^.+\\b$counterName=1\\D")
         assertThat(counter).isEqualTo(1)
@@ -410,7 +422,11 @@ class AsStringTest {
 
     // anonymous nested class
     private val extensionObject: Any = object : ClassToPrint("a string", 25, anotherPrintable) {
-        override fun toString(): String = objectAsString(listOf("privateToPrint"))
+        val asStringProducer = this.asStringBuilder()
+            .exceptPropertyNames("privateToPrint")
+            .build()
+
+        override fun toString(): String = asStringProducer.asString()
 
         @Suppress("unused")
         private val extensionProperty = "my extension property"

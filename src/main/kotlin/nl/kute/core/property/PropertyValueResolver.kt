@@ -59,7 +59,7 @@ internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<
         propertiesFromSubSuperHierarchy().associateWith { mutableSetOf() }
 
     resultMap.forEach { (prop, annotations) -> collectPropertyAnnotations(prop, annotations) }
-    return resultMap
+    return resultMap.filterNot { it.value.any { it is AsStringOmit } }
 }
 
 internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {

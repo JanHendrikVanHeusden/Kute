@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
-import static nl.kute.log.KuteLog.resetStdOutLogger;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("KotlinInternalInJava")
 public class JavaLoggerTest {
 
     static String stringLog;
@@ -17,7 +17,7 @@ public class JavaLoggerTest {
     @AfterEach
     void setUp() {
         stringLog = null;
-        resetStdOutLogger();
+        KuteLog.resetStdOutLogger();
     }
 
     @Test
@@ -29,6 +29,17 @@ public class JavaLoggerTest {
         KuteLog.log(this, msg);
         // Assert
         assertThat(stringLog).isEqualTo(this.getClass() + " - " + msg);
+    }
+
+    @Test
+    void logShouldAcceptNull() {
+        // Arrange
+        KuteLog.setLogConsumer(createStringLogger());
+        String msg = null;
+        // Act
+        KuteLog.log(this, msg);
+        // Assert
+        assertThat(stringLog).isEqualTo(this.getClass() + " - null");
     }
 
     @Test

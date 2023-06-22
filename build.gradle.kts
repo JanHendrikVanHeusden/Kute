@@ -1,4 +1,3 @@
-
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
@@ -81,9 +80,12 @@ dependencies {
     val assertJVersion by System.getProperties()
     val commonsLangVersion by System.getProperties()
     val awaitilityVersion by System.getProperties()
+    val kotlinCoroutinesVersion by System.getProperties()
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    // TODO: needed?
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 

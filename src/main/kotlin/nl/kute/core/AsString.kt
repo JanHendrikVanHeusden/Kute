@@ -5,15 +5,14 @@
 
 package nl.kute.core
 
-import nl.kute.core.property.getPropValueString
-import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
-import nl.kute.log.log
 import nl.kute.core.annotation.modifiy.AsStringOmit
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.defaultNullString
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
-import nl.kute.core.namedvalues.namedVal
+import nl.kute.core.property.getPropValueString
+import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
+import nl.kute.log.log
 import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.util.asString
 import nl.kute.util.lineEnd
@@ -28,7 +27,6 @@ private val regexPackage = Regex(""".+\.(.*)$""")
 internal fun String.simplifyClassName() = this.replace(regexPackage, "$1")
 
 private val emptyStringList: List<String> = listOf()
-private val emptyPropertyList: List<KProperty<*>> = listOf()
 
 private const val valueSeparator: String = ", "
 
@@ -41,35 +39,28 @@ internal fun KClass<*>.simplifyClassName() = simpleName ?: toString().simplifyCl
  * * String value of individual properties is capped at 500; see @[AsStringOption] to override the default
  * @return A String representation of the receiver object, including class name and property names + values;
  * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.printable.annotation.modify`
- * @see [asStringExcluding]
  * @see [objectAsString]
  */
 fun Any?.asString(): String {
-    return asStringExcluding()
+    return objectAsString(emptyStringList)
 }
 
-fun Any?.asString(vararg props: KProperty<*>): String =
-    asString(*props.map { namedVal(it) }.toTypedArray())
+private class ObjectsProcessed {
+    private val objectsProcessed: MutableMap<Int, Any> = mutableMapOf()
+    @Suppress("unused")
+    val size: Int
+        get() = objectsProcessed.size
+    fun <T: Any>get(obj: T): T? = obj.let { if (it === objectsProcessed[System.identityHashCode(it)]) it else null }
 
-fun Any?.asString(vararg nameValues: NameValue<*>): String =
-    objectAsString(emptyStringList, *nameValues)
+    /** @return `true` if [obj] is newly added; `false` if it was present already (like [Set]`.add` behaviour */
+    fun <T: Any> add(obj: T): Boolean =
+        objectsProcessed.put(System.identityHashCode(obj), obj) == null
 
-/**
- * Mimics the format of Kotlin data class's [toString] method.
- * * Super-class properties are included
- * * Private properties are included (but not in subclasses)
- * * String value of individual properties is capped at 500; see @[AsStringOption] to override the default
- * @param propsToExclude accessible properties that you don't want to be included in the result.
- * E.g. `override fun toString() = `[asStringExcluding]`(::myExcludedProp1, ::myExcludedProp2)`
- * **NB:** Excluding properties will not work from Java classes; use [objectAsString] instead
- * @return A String representation of the receiver object, including class name and property names + values;
- * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.printable.annotation.modify`
- * @see [objectAsString]
- * @see [asString]
- */
-internal fun Any?.asStringExcluding(propsToExclude: Collection<KProperty<*>> = emptyPropertyList, vararg nameValues: NameValue<*>): String {
-    return objectAsString(propsToExclude.map { it.name }, *nameValues)
+    /** @return `true` if [obj] was present and is removed; `false` if it was not present (like [Set]`.remove` behaviour) */
+    fun remove(obj: Any): Boolean = (objectsProcessed.remove(System.identityHashCode(obj)) != null)
 }
+
+private val objectsProcessed = ObjectsProcessed()
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -85,15 +76,16 @@ internal fun Any?.asStringExcluding(propsToExclude: Collection<KProperty<*>> = e
  * adhering to related annotations;
  * for these annotations, e.g. @[AsStringOption] and others; see package `nl.kute.printable.annotation.modify`
  * @see [asString]
- * @see [asStringExcluding]
+ * @see [AsStringBuilder]
  */
 // Compiler warnings that we don't need the `obj!!` and this? - but compilation fails if we remove `!!` or `?.`
 @Suppress("UNNECESSARY_NOT_NULL_ASSERTION", "UNNECESSARY_SAFE_CALL")
-internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>
-): String {
+internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
     try {
         if (this == null) {
             return defaultNullString
+        } else if (this is Array<*>) {
+             return this.contentDeepToString()
         } else if (
         // For built-in stuff, we just stick to the default toString()
             this is Number
@@ -108,6 +100,13 @@ internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<Str
         ) {
             return this.toString()
         } else {
+            this?.let {
+                objectsProcessed.add(it).also { isAdded ->
+                    if (!isAdded) {
+                        return "recursive: ${this?.let { it::class.simplifyClassName() }}(...)"
+                    }
+                }
+            }
             val objClass = this!!::class
             try {
                 val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
@@ -130,7 +129,7 @@ internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<Str
                     "${it.name}=${it.valueString ?: defaultNullString}"
                 }
             } catch (e: SyntheticClassException) {
-                // Synthetic class, like for a lambda, callable reference etc.: Kotlin's reflection can't handle that
+                // Kotlin's reflection can't handle synthetic classes, like for a lambda, callable reference etc.
                 // (more details, see KDoc of SyntheticClassException)
                 // It's not the intended usage for AsString() anyway, so we just don't care. No log message.
                 return this.asStringFallBack()
@@ -158,6 +157,10 @@ internal fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<Str
         // It's probably a secondary exception somewhere. Not much more we can do here
         e.printStackTrace()
         return ""
+    } finally {
+        this?.let {
+            objectsProcessed.remove(this)
+        }
     }
 }
 
