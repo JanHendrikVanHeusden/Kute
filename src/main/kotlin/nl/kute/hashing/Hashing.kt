@@ -20,7 +20,7 @@ import java.util.zip.CRC32C as JavaUtilCRC32C
  * @return The receiver's [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`;
  *         or `null` if the receiver is `null`.
  */
-internal fun Any?.hexHash(): String? = this?.let { hashCode().toByteArray().toHex() }
+internal fun Any?.hexHashCode(): String? = this?.let { hashCode().toByteArray().toHex() }
 
 /**
  * Create a hex String based on the [input] object's [hashCode] method using `CRC32C`
@@ -56,7 +56,7 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
     return if (input == null) null
     else try {
         when (digestMethod) {
-            JAVA_HASHCODE -> input.hexHash()
+            JAVA_HASHCODE -> input.hexHashCode()
 
             CRC32C -> (CRC32C.instanceProvider!!.invoke() as JavaUtilCRC32C).hashCrc32C(input, charset)
 

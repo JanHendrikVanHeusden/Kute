@@ -128,13 +128,13 @@ internal class HashingTest {
         listOf(Any(), LocalDateTime.now(), Random.nextInt(), Random.nextBytes(200)).forEach {
             // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
             // assertThat(javaHashString(it)).isEqualTo(hexFormat.toHexDigits(it.hashCode()))
-            assertThat(it.hexHash()).isEqualTo(it.hashCode().toByteArray().toHex())
+            assertThat(it.hexHashCode()).isEqualTo(it.hashCode().toByteArray().toHex())
         }
     }
 
     @Test
     fun `hexString of null should return null`() {
-        assertThat(null.hexHash()).isNull()
+        assertThat(null.hexHashCode()).isNull()
     }
 
     @ParameterizedTest

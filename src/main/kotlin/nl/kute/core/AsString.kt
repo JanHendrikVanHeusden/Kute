@@ -165,6 +165,6 @@ private val classPrefix = Regex("^class ")
 
 @Suppress("UNNECESSARY_SAFE_CALL")
 private fun Any?.asStringFallBack(): String =
-    // mimics the Java toString() output when toString() not overridden
+    // mimics the Java toString() output when toString() would not be overridden
     if (this == null) defaultNullString else "${this?.let { it::class }}@${this?.hashCode()?.toByteArray()?.toHex()}"
         .replace(classPrefix, "")

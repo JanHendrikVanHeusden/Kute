@@ -7,7 +7,7 @@ import nl.kute.core.annotation.modifiy.AsStringOmit
 import nl.kute.core.annotation.modifiy.AsStringPatternReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.namedVal
-import nl.kute.hashing.hexHash
+import nl.kute.hashing.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -18,7 +18,7 @@ internal class AsStringBuilderTest {
 
     private val testObj = ClassWithHashProperty()
     private val testSubObj = SubClassWithPrintMask()
-    private val hashCode = ClassWithHashProperty().hashProperty.hexHash()
+    private val hashCode = ClassWithHashProperty().hashProperty.hexHashCode()
 
     @Test
     fun `AsStringBuilder without adjustments should give same result as AsString`() {

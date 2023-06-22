@@ -10,7 +10,7 @@ import nl.kute.core.namedvalues.NamedProp
 import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
 import nl.kute.core.namedvalues.namedVal
-import nl.kute.hashing.hexHash
+import nl.kute.hashing.hexHashCode
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty
 import nl.kute.testobjects.java.packagevisibility.KotlinSubSubClassOfJavaClassWithAccessiblePackageLevelProperty
@@ -377,7 +377,7 @@ class AsStringTest {
         ).forEachIndexed {i, it ->
             assertThat(it.asString())
                 .`as`("Expression #$i should yield format class@hashCode")
-                .isEqualTo("${it::class.toString().replace("class ", "")}@${it.hexHash()}")
+                .isEqualTo("${it::class.toString().replace("class ", "")}@${it.hexHashCode()}")
         }
     }
 
