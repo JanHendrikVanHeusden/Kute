@@ -9,7 +9,11 @@ import nl.kute.core.namedvalues.namedVal
 import nl.kute.reflection.declaringClass
 import kotlin.reflect.KProperty
 
-class AsStringBuilder private constructor(obj: Any?) {
+interface AsStringProducer {
+    fun asString(): String
+}
+
+class AsStringBuilder private constructor(obj: Any?): AsStringProducer {
 
     private val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
     private val objJavaClass: Class<*>? = obj?.javaClass
@@ -85,9 +89,9 @@ class AsStringBuilder private constructor(obj: Any?) {
         return this
     }
 
-    fun build() {
+    fun build(): AsStringProducer {
         if (isBuilt) {
-            return
+            return this
         }
         val propNamesToInclude: Set<String> =
             (if (isOnlyPropertiesSet) (onlyProperties.map { it.name }) else classPropertyNames)
@@ -97,9 +101,10 @@ class AsStringBuilder private constructor(obj: Any?) {
                 .toSet()
         propertyNamesToExclude.addAll(classPropertyNames - propNamesToInclude)
         isBuilt = true
+        return this
     }
 
-    fun asString(): String {
+    override fun asString(): String {
         build()
         return objectReference.get().objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
     }

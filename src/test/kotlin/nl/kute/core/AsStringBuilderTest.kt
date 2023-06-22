@@ -7,9 +7,16 @@ import nl.kute.core.annotation.modifiy.AsStringOmit
 import nl.kute.core.annotation.modifiy.AsStringPatternReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.namedVal
+import nl.kute.core.reference.ObjectWeakReference
 import nl.kute.hashing.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Awaitility.await
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.util.concurrent.TimeUnit
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 
 const val showNullAs = "`null`"
 const val showNullAs2 = "[null]"
@@ -104,7 +111,7 @@ internal class AsStringBuilderTest {
         // Act, Assert
         val asString = testObj.asStringBuilder()
             .withAlsoProperties(testSubObj::replaced)
-            .asString().also { println(it) }
+            .asString()
         assertThat(asString).isEqualTo(expected)
     }
 
@@ -168,8 +175,33 @@ internal class AsStringBuilderTest {
         ).isEqualTo(expected)
     }
 
+    private class ToBeGarbageCollected
+
+    @Disabled("""Most JVM's simply won't react on a call to System.gc(). You may run the test manually to see if it succeeds.
+        |The test is merely to document that AsStringBuilder must not keep hard references to the object""")
     @Test
-    fun asStringBuilder() {
+    fun `test that object reference doesn't prevent garbage collections`() {
+        var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
+        val builder = toBeGarbageCollected.asStringBuilder()
+        @Suppress("UNCHECKED_CAST")
+        val objRefProperty: KProperty1<AsStringBuilder, ObjectWeakReference<ToBeGarbageCollected>> =
+            builder::class.memberProperties.first { it.name == "objectReference" } as
+                    KProperty1<AsStringBuilder, ObjectWeakReference<ToBeGarbageCollected>>
+        objRefProperty.isAccessible = true
+        val objectWeakReference = objRefProperty.get(builder)
+        assertThat(objectWeakReference.get()).isSameAs(toBeGarbageCollected)
+
+        @Suppress("UNUSED_VALUE")
+        toBeGarbageCollected = null // no references anymore, so eligible to garbage collection
+        System.gc()
+
+        await()
+            .alias("The referenced object should be weak referenced only, so eligible to garbage collection")
+            .atMost(5, TimeUnit.SECONDS)
+            .until {
+                System.gc()
+                objectWeakReference.get() == null
+            }
     }
 
     @AsStringOption(showNullAs = showNullAs)

@@ -80,6 +80,7 @@ dependencies {
     val mockitoKotlinVersion by System.getProperties()
     val assertJVersion by System.getProperties()
     val commonsLangVersion by System.getProperties()
+    val awaitilityVersion by System.getProperties()
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -103,6 +104,7 @@ dependencies {
 
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
     testImplementation("org.assertj:assertj-core:$assertJVersion")
+    testImplementation("org.awaitility:awaitility:$awaitilityVersion")
 }
 
 dependencyCheck {
