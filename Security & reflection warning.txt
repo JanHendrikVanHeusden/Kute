@@ -1,0 +1,12 @@
+Warning
+
+This utility (Apache Commons lang ReflectionToStringBuilder) uses the class AccessibleObject in the J2SE reflection package
+to bypass access modifiers and access private member variables of an object directly.
+
+If your system is running under a restrictive SecurityManager, you may need to alter your configuration
+to allow Commons Lang to bypass these security restrictions.
+Only use this reflection builder if you are certain that your code will run in an environment without a restrictive security policy.
+I use this utility in a system that runs on a few servers in a known location, but if I were writing a reusable library, a reflection builder would not be feasible;
+if someone were to use my library in an environment with a different security policy, calling a toString() may cause problems.
+
+The relevant permission is the suppressAccessChecks permission target of the java.lang.reflect.ReflectPermission class.

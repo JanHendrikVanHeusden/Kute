@@ -1,6 +1,6 @@
 package nl.kute.core.namedvalues
 
-import nl.kute.core.reference.ObjectWeakReference
+import nl.kute.core.weakreference.ObjectWeakReference
 
 class NamedValue<V: Any?>(override val name: String, value: V?): NameValue<V?> {
     val valueReference: ObjectWeakReference<V?> = ObjectWeakReference(value)

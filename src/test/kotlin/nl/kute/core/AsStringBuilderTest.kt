@@ -7,7 +7,7 @@ import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringPatternReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.namedVal
-import nl.kute.core.reference.ObjectWeakReference
+import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
 import nl.kute.hashing.hexHashCode
 import org.assertj.core.api.Assertions.assertThat

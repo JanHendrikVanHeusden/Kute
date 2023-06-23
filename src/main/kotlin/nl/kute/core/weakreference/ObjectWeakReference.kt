@@ -1,4 +1,4 @@
-package nl.kute.core.reference
+package nl.kute.core.weakreference
 
 import nl.kute.core.annotation.option.defaultNullString
 import java.lang.ref.WeakReference

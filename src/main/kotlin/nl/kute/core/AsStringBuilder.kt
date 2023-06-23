@@ -5,7 +5,7 @@ package nl.kute.core
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.namedVal
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
-import nl.kute.core.reference.ObjectWeakReference
+import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.reflection.declaringClass
 import kotlin.reflect.KProperty
 

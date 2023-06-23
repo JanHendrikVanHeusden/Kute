@@ -1,6 +1,6 @@
 package nl.kute.core.namedvalues
 
-import nl.kute.core.reference.ObjectWeakReference
+import nl.kute.core.weakreference.ObjectWeakReference
 import kotlin.reflect.KProperty
 
 interface PropertyValue<T: Any?, V: Any?> {

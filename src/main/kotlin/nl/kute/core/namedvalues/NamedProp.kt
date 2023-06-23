@@ -2,7 +2,7 @@ package nl.kute.core.namedvalues
 
 import nl.kute.core.property.collectPropertyAnnotations
 import nl.kute.core.property.getPropValueString
-import nl.kute.core.reference.ObjectWeakReference
+import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.log.log
 import nl.kute.reflection.declaringClass
 import nl.kute.reflection.simplifyClassName

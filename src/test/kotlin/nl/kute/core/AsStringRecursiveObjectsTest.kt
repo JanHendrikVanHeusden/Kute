@@ -8,7 +8,7 @@ import java.util.LinkedList
 import java.util.PriorityQueue
 import java.util.TreeSet
 
-class AsStringRecursiveTest: ObjectsStackVerifier {
+class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
 
     @Test
     fun `arrays without recursion should yield same output as contentDeepToString`() {
@@ -46,6 +46,27 @@ class AsStringRecursiveTest: ObjectsStackVerifier {
 
         assertThat(myArray.asString()).isEqualTo(expectedForArray)
         assertThat(myList.asString()).isEqualTo(expectedForList)
+    }
+
+    @Test
+    fun `Objects with array properties with mutually referencing elements should yield decent output`() {
+        class MyTestClass {
+            val myArray: Array<Any> = arrayOf("a0", "a1", "a2", "a3", "a4")
+            val myList: MutableList<Any> = mutableListOf("L0", "L1", "L2", "L3", "L4")
+            init {
+                myArray[2] = myList
+                myArray[3] = myList
+                myList[3] = myArray
+                myList[1] = myArray
+            }
+        }
+
+        val myTestObj = MyTestClass()
+        val expected =
+            "MyTestClass(myArray=[a0, a1, [L0, recursive: Array(...), L2, recursive: Array(...), L4], [L0, recursive: Array(...), L2, recursive: Array(...), L4], a4], " +
+                    "myList=[L0, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L2, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L4])"
+
+        assertThat(myTestObj.asString()).isEqualTo(expected)
     }
 
     @Test
@@ -95,8 +116,32 @@ class AsStringRecursiveTest: ObjectsStackVerifier {
         assertThat(list2.asString()).isEqualTo(expected2)
     }
 
+    @Test
+    fun `Objects with collection properties with mutually referencing elements should yield decent output`() {
+        class MyTestClass {
+            val list1: MutableList<Any> = mutableListOf("first 1", "second 1", "third 1")
+            val list2: LinkedList<Any> = LinkedList(listOf("first 2", "second 2", "third 2"))
+
+            init {
+                list1.add(list2)
+                list1.add(list2)
+                list2.add(list1)
+                list2.add(list1)
+            }
+        }
+
+        val testObj = MyTestClass()
+        val expected =
+            "MyTestClass(list1=[first 1, second 1, third 1, [first 2, second 2, third 2, recursive: ArrayList(...), recursive: ArrayList(...)]," +
+                    " [first 2, second 2, third 2, recursive: ArrayList(...), recursive: ArrayList(...)]], list2=[first 2, second 2, third 2, " +
+                    "[first 1, second 1, third 1, recursive: LinkedList(...), recursive: LinkedList(...)], [first 1, second 1, third 1, " +
+                    "recursive: LinkedList(...), recursive: LinkedList(...)]])"
+
+        assertThat(testObj.asString()).isEqualTo(expected)
+    }
+
     @Suppress("unused")
-    internal class GetSelfReference (val id: Int, var selfRef: GetSelfReference? = null, var otherRef: GetSelfReference? = null) {
+    private class GetSelfReference (val id: Int, var selfRef: GetSelfReference? = null, var otherRef: GetSelfReference? = null) {
         override fun toString(): String = asString()
     }
 

@@ -9,6 +9,7 @@ import nl.kute.core.annotation.modify.mask
 import nl.kute.core.annotation.modify.replacePattern
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.applyOption
+import nl.kute.core.asString
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
@@ -28,8 +29,8 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         return null
     }
     val value: Any? = this.getPropValue(prop)
-    var strValue = if (value is Array<*>)
-        value.contentDeepToString()
+    var strValue = if (value is Array<*> || value is Collection<*>)
+        value.asString()
     else {
         value?.toString()
     }
