@@ -21,6 +21,7 @@ import nl.kute.util.toByteArray
 import nl.kute.util.toHex
 import java.time.temporal.Temporal
 import java.util.Date
+import kotlin.math.max
 import kotlin.reflect.KProperty
 
 /**
@@ -49,36 +50,40 @@ fun Any?.asString(): String {
  * @see [asString]
  * @see [AsStringBuilder]
  */
-// Compiler warnings that we don't need the `obj!!` and this? - but compilation fails if we remove `!!` or `?.`
-@Suppress("UNNECESSARY_NOT_NULL_ASSERTION", "UNNECESSARY_SAFE_CALL")
+@Synchronized
 internal fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
     try {
-        if (this == null) {
-            return defaultNullString
-        } else if (this is Array<*>) {
-             return this.contentDeepToString()
-        } else if (
-        // For built-in stuff, we just stick to the default toString()
-            this is Number
-            || this is CharSequence
-            || this is Char
-            || this is Date
-            || this is Temporal
-            || this?.let { it::class.java.packageName.startsWith("kotlin") } == true
-            || this?.let { it::class.java.packageName.startsWith("java.") } == true
-            || this?.let { it::class.java.packageName.startsWith("sun.") } == true
-            || this?.let { it::class.java.packageName.startsWith("com.sun.") } == true
+        val obj = this ?: return defaultNullString
+        if (!(obj is Array<*> || obj is Collection<*>) && (
+                    this is Number
+                            || obj is CharSequence
+                            || obj is Char
+                            || obj is Date
+                            || obj is Temporal
+                            || obj::class.java.packageName.startsWith("kotlin")
+                            || obj::class.java.packageName.startsWith("java.")
+                            || obj::class.java.packageName.startsWith("sun.")
+                            || obj::class.java.packageName.startsWith("com.sun.")
+                    )
         ) {
-            return this.toString()
+            // For built-in stuff except Arrays/Collections, we just stick to the default toString()
+            return obj.toString()
         } else {
-            this?.let {
-                objectsProcessed.add(it).also { isAdded ->
-                    if (!isAdded) {
-                        return "recursive: ${this?.let { it::class.simplifyClassName() }}(...)"
-                    }
+            objectsStack.get().alreadyPresent(obj).also { alreadyPresent ->
+                if (alreadyPresent) {
+                    return "recursive: ${obj::class.simplifyClassName()}(...)"
                 }
             }
-            val objClass = this!!::class
+            // Array and Collection toString methods are *not* resilient to mutual reference,
+            // where list1 is element of list2 and vice versa.
+            // So we mimic the default toString behaviour, but recursion safe
+            if (obj is Array<*>) {
+                return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
+            }
+            if (obj is Collection<*>) {
+                return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
+            }
+            val objClass = obj::class
             try {
                 val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
                     objClass.propertiesWithPrintModifyingAnnotations()
@@ -100,28 +105,22 @@ internal fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, 
                     "${it.name}=${it.valueString ?: defaultNullString}"
                 }
             } catch (e: SyntheticClassException) {
-                // Kotlin's reflection can't handle synthetic classes, like for a lambda, callable reference etc.
+                // Kotlin's reflection can't handle synthetic classes, like for lambda, callable reference etc.
                 // (more details, see KDoc of SyntheticClassException)
                 // It's not the intended usage for AsString() anyway, so we just don't care. No log message.
-                return this.asStringFallBack()
+                return obj.asStringFallBack()
             } catch (e: Exception) {
                 log(
-                    "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${
-                        e.asString(
-                            50
-                        )
-                    }"
-                )
-                return this.asStringFallBack()
+                    "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value" +
+                            " for object of class ${this.javaClass};$lineEnd${e.asString(50)}")
+                return obj.asStringFallBack()
             } catch (t: Throwable) {
                 log(
-                    "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value for object of class ${this.javaClass};$lineEnd${
-                        t.asString(
-                            50
-                        )
-                    }"
-                )
-                return this.asStringFallBack()
+                    "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value" +
+                            " for object of class ${this.javaClass};$lineEnd${t.asString(50)}")
+                return obj.asStringFallBack()
+            } finally {
+                objectsStack.get().remove(obj)
             }
         }
     } catch (e: Exception) {
@@ -130,7 +129,7 @@ internal fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, 
         return ""
     } finally {
         this?.let {
-            objectsProcessed.remove(this)
+            objectsStack.get().remove(this)
         }
     }
 }
@@ -147,19 +146,68 @@ private fun Any?.asStringFallBack(): String =
     if (this == null) defaultNullString else "${this?.let { it::class }}@${this?.hashCode()?.toByteArray()?.toHex()}"
         .replace(classPrefix, "")
 
+/**
+ * Helper class to keep track of objects being processed in [asString].
+ *
+ * > @Developer: it is **not advisable** to set any _breakpoints_ in this class!
+ *
+ * > Even simply showing an object (with recursive references) in the debugger will implicitly call `toString()`,
+ * > **this may already influence the content of the [objectsMap]** (so may influence result of [asString]);
+ * > it may cause stack overflow too.
+ */
 private class ObjectsProcessed {
-    private val objectsProcessed: MutableMap<Int, Any> = mutableMapOf()
+    // Only used within ThreadLocal, so non-thread safe map is OK
+    private val objectsMap = mutableMapOf<Int, Pair<Any, Int>>()
+
     @Suppress("unused")
     val size: Int
-        get() = objectsProcessed.size
-    fun <T: Any>get(obj: T): T? = obj.let { if (it === objectsProcessed[System.identityHashCode(it)]) it else null }
+        get() = max(objectsMap.size, objectsMap.map { it.value.second }.sum())
+
+    fun clear() = objectsMap.clear()
+
+    private fun <T : Any> get(obj: T): Pair<T, Int>? =
+        objectsMap[System.identityHashCode(obj)].let {
+            @Suppress("UNCHECKED_CAST")
+            if (it?.first === obj) it as Pair<T, Int> else null
+        }
+    // Uncomment statement below to print debug messages. Debugging is troublesome with recursive stuff
+    // Even simply showing an object in the debugger may already influence content of the `objectsMap` and / or cause stack overflow
+    // Do not remove!
+    // .also { println("Got obj: ${it?.let { obj::class.simplifyClassName() + " (" + it.second + ")"} } - size = $size") }
 
     /** @return `true` if [obj] is newly added; `false` if it was present already (like [Set]`.add` behaviour */
-    fun <T: Any> add(obj: T): Boolean =
-        objectsProcessed.put(System.identityHashCode(obj), obj) == null
+    fun <T : Any> alreadyPresent(obj: T): Boolean =
+        get(obj).let { if (it == null) obj to 1 else obj to it.second + 1 }
+            .also { objectsMap[System.identityHashCode(obj)] = it }
+            // Uncomment statement below to print debug messages. Debugging is troublesome with recursive stuff
+            // Even simply showing an object in the debugger may already influence content of the `objectsMap` and / or cause stack overflow
+            // Do not remove!
+            // .also { println("Added obj: ${obj::class.simplifyClassName() + " (" + it.second + ")"} - size = $size") }
+            .second > 1
 
     /** @return `true` if [obj] was present and is removed; `false` if it was not present (like [Set]`.remove` behaviour) */
-    fun remove(obj: Any): Boolean = (objectsProcessed.remove(System.identityHashCode(obj)) != null)
+    fun <T : Any> remove(obj: T): Boolean =
+        get(obj)?.let {
+            if (it.second == 1) {
+                // Uncomment statement below to print debug messages. Debugging is troublesome with recursive stuff
+                // Even simply showing an object in the debugger may already influence content of the `objectsMap` and / or cause stack overflow
+                // Do not remove!
+                // println("Removing: obj: ${obj::class.simplifyClassName() + " (last)"} - size = $size")
+                objectsMap.remove(System.identityHashCode(it.first))
+            } else {
+                // Uncomment statement below to print debug messages. Debugging is troublesome with recursive stuff
+                // Even simply showing an object in the debugger may already influence content of the `objectsMap` and / or cause stack overflow
+                // Do not remove!
+                // println("Removing: obj: ${obj::class.simplifyClassName() + " (" + it.second +")"} - size = $size")
+                objectsMap[System.identityHashCode(it.first)] = obj to it.second - 1
+            }
+        } != null
 }
 
-private val objectsProcessed = ObjectsProcessed()
+/** Technically not a stack implementation, but the term `stack` gives a good indication of the purpose */
+private val objectsStack: ThreadLocal<ObjectsProcessed> =
+    ThreadLocal.withInitial(::ObjectsProcessed)
+
+internal fun getObjectsStackSize() = max(objectsStack.get().size, 0)
+
+internal fun clearObjectsStack() = objectsStack.get().clear()

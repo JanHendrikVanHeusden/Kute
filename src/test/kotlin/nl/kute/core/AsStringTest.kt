@@ -1,5 +1,6 @@
 package nl.kute.core
 
+import nl.kute.base.ObjectsStackVerifier
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
@@ -36,7 +37,7 @@ import java.time.LocalDate
 import java.util.Date
 import java.util.UUID
 
-class AsStringTest {
+class AsStringTest: ObjectsStackVerifier {
 
     private val names: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
 

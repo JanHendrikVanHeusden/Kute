@@ -1,5 +1,6 @@
 package nl.kute.core
 
+import nl.kute.base.ObjectsStackVerifier
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.reflect.full.findAnnotation
 
-class AsStringWithAnnotationsTest {
+class AsStringWithAnnotationsTest: ObjectsStackVerifier {
 
     @Test
     fun `test Printable with AsStringOptions`() {

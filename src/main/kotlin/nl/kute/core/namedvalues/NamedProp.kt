@@ -15,7 +15,7 @@ final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property: KPrope
     TypedNameValue<T?, V?>, PropertyValue<T?, V?> {
 
     val coherentProperty: Boolean
-    private val objClass = obj?.run { this::class }
+    private val objClass = obj?.let { it::class }
 
     init {
         val propertyClass = property.declaringClass()?.java
@@ -56,7 +56,7 @@ final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property: KPrope
         if (!coherentProperty) emptySet() else {
             mutableSetOf<Annotation>().also { annotationSet ->
                 objClass?.run {
-                    objClass.collectPropertyAnnotations(property, annotationSet)
+                    collectPropertyAnnotations(property, annotationSet)
                 }
             }
         }

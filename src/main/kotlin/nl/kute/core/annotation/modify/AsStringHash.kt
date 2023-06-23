@@ -20,5 +20,3 @@ annotation class AsStringHash(val digestMethod: DigestMethod = DigestMethod.CRC3
 
 fun AsStringHash?.hashString(strVal: String?): String? =
     if (this == null) strVal else hashString(strVal, digestMethod)
-
-

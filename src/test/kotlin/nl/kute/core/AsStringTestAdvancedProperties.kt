@@ -2,6 +2,7 @@
 
 package nl.kute.core
 
+import nl.kute.base.ObjectsStackVerifier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.properties.ReadWriteProperty
@@ -9,7 +10,7 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaField
 
-class AsStringTestAdvancedProperties {
+class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
     /** Demonstrates that a non-initialized lateinit var is regarded as null */
     @Test

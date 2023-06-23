@@ -1,5 +1,6 @@
 package nl.kute.core
 
+import nl.kute.base.ObjectsStackVerifier
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringOmit
@@ -21,7 +22,7 @@ import kotlin.reflect.jvm.isAccessible
 const val showNullAs = "`null`"
 const val showNullAs2 = "[null]"
 
-internal class AsStringBuilderTest {
+internal class AsStringBuilderTest: ObjectsStackVerifier {
 
     private val testObj = ClassWithHashProperty()
     private val testSubObj = SubClassWithPrintMask()
@@ -178,7 +179,7 @@ internal class AsStringBuilderTest {
     private class ToBeGarbageCollected
 
     @Disabled("""Most JVM's simply won't react on a call to System.gc(). You may run the test manually to see if it succeeds.
-        |The test is merely to document that AsStringBuilder must not keep hard references to the object""")
+        The test is merely to document that AsStringBuilder must not keep hard references to the object""")
     @Test
     fun `AsStringBuilder's object reference shouldn't prevent garbage collections`() {
         var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
