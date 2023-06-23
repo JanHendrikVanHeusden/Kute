@@ -51,7 +51,7 @@ class ObjectsToStringRecursiveDemo {
 
     @Test
     @Disabled("Would fail, self referencing array elements cause StackOverflowError with `Objects.toString()`")
-    fun `Objects with array properties with self-referencing elements should yield decent output with Objects toString`() {
+    fun `Objects with array properties with self-referencing elements cause stack overflow with Objects toString`() {
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
             init {
