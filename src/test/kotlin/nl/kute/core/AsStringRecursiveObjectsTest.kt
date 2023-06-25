@@ -1,6 +1,7 @@
 package nl.kute.core
 
 import nl.kute.base.ObjectsStackVerifier
+import nl.kute.base.validateObjectsStack
 import nl.kute.reflection.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -8,6 +9,18 @@ import java.util.LinkedList
 import java.util.PriorityQueue
 import java.util.TreeSet
 
+/**
+ * This test class particularly aims to test various objects / constructs with self-references
+ * or circular mutual references: these should yield decent output, **without endless loops / stack overflow**.
+ * This is accomplished by keeping track of objects being processed by means of an object stack.
+ *
+ * The correct begin / end states of the object stack are tested "automagically" / implicitly in the
+ * `@BeforeEach` and `@AfterEach` methods of classes that implement [ObjectsStackVerifier].
+ *
+ * However, the tests in this class [AsStringRecursiveObjectsTest] depend even more heavy on the objects stack,
+ * so in tests where `asString()` is called more than once, these tests call [validateObjectsStack]`()`
+ * explicitly after each call to `asString()`
+ */
 class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
 
     @Test
@@ -45,7 +58,9 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
         val expectedForList = "[L0, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L2, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L4]"
 
         assertThat(myArray.asString()).isEqualTo(expectedForArray)
+        validateObjectsStack()
         assertThat(myList.asString()).isEqualTo(expectedForList)
+        validateObjectsStack()
     }
 
     @Test
@@ -113,7 +128,9 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
                     " [first 1, second 1, third 1, recursive: LinkedList(...), recursive: LinkedList(...)]]"
 
         assertThat(list1.asString()).isEqualTo(expected1)
+        validateObjectsStack()
         assertThat(list2.asString()).isEqualTo(expected2)
+        validateObjectsStack()
     }
 
     @Test
@@ -252,9 +269,16 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
         //@formatter:on
 
         assertThat(mother.toString()).isEqualTo(expectedMother)
+        validateObjectsStack()
+
         assertThat(father.toString()).isEqualTo(expectedFather)
+        validateObjectsStack()
+
         assertThat(child1.toString()).isEqualTo(expectedChild1)
+        validateObjectsStack()
+
         assertThat(child2.toString()).isEqualTo(expectedChild2)
+        validateObjectsStack()
     }
 
 }
