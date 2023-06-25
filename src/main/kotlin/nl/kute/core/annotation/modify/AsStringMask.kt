@@ -15,9 +15,10 @@ import kotlin.math.min
  * * If [minLength]` >  `[maxLength], [minLength] is used
  */
 @Target(AnnotationTarget.PROPERTY)
-@MustBeDocumented
-@Inherited
+@Repeatable
 @Retention(RUNTIME)
+@Inherited
+@MustBeDocumented
 annotation class AsStringMask(
     /** At which character index (inclusive) masking should start? */
     val startMaskAt: Int = 0,

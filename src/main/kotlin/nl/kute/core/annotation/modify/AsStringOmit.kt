@@ -11,7 +11,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *     * This may limit exposure of such data; but on its own it must **not** be considered a security feature.
  */
 @Target(AnnotationTarget.PROPERTY)
-@MustBeDocumented
-@Inherited
 @Retention(RUNTIME)
+@Inherited
+@MustBeDocumented
 annotation class AsStringOmit

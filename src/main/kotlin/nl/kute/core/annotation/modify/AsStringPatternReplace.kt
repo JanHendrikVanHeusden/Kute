@@ -24,9 +24,10 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  * @param replacement The replacement; back references are allowed.
  */
 @Target(AnnotationTarget.PROPERTY)
-@MustBeDocumented
-@Inherited
+@Repeatable
 @Retention(RUNTIME)
+@Inherited
+@MustBeDocumented
 annotation class AsStringPatternReplace(
     /**
      * The regular expression pattern; groups are allowed.
