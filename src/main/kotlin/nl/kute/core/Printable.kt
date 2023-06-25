@@ -23,10 +23,10 @@ interface Printable {
      * * Private properties are included (but not in subclasses)
      * * String value of individual properties is capped at (default) 500; see @[AsStringOption] to override the default
      * @return A String representation of the [Printable], including class name and property names + values;
-     * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others;
+     * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others:
      * see package `nl.kute.core.annotation.modify
-     * `
-     * @see [asString]
+     * * For finer control of [asString] output, see [AsStringBuilder].
+     *
      * @see [AsStringBuilder]
      */
     fun asString(): String = (this as Any).asString()
@@ -35,8 +35,11 @@ interface Printable {
      * Abstract override of [toString], so implementing classes are forced to implement it
      * > It is not allowed to provide a default implementation of a member of [Any] in an interface
      *
-     * Suggested simplest implementation is:
+     * Suggested and simplest implementation is:
      * > `override fun toString(): String = asString()`
+     * * adheres to related annotations; for these annotations, e.g. @[AsStringOption] and others:
+     *   see package `nl.kute.core.annotation.modify
+     * * For finer control of [asString] output, see [AsStringBuilder].
      */
     override fun toString(): String
 

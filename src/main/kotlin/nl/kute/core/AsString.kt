@@ -24,6 +24,15 @@ import java.util.Date
 import kotlin.math.max
 import kotlin.reflect.KProperty
 
+abstract class AsStringProducer {
+    @Suppress("RedundantModalityModifier")
+    protected final fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String =
+        asString(propertyNamesToExclude, *nameValues)
+
+    abstract fun asString(): String
+}
+
+
 /**
  * Mimics the format of Kotlin data class's [toString] method.
  * * Super-class properties are included
@@ -50,8 +59,7 @@ fun Any?.asString(): String {
  * @see [asString]
  * @see [AsStringBuilder]
  */
-@Synchronized
-internal fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
+private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
     try {
         val obj = this ?: return defaultNullString
         if (!(obj is Array<*> || obj is Collection<*>) && (
@@ -172,7 +180,8 @@ private class ObjectsProcessed {
         }
     // Uncomment statement below to print debug messages. Debugging is troublesome with recursive stuff
     // Even simply showing an object in the debugger may already influence content of the `objectsMap` and / or cause stack overflow
-    // Do not remove!
+    //
+    // So do not remove these `println()` statements, they are a non-intrusive alternative to using the debugger here !
     // .also { println("Got obj: ${it?.let { obj::class.simplifyClassName() + " (" + it.second + ")"} } - size = $size") }
 
     /** @return `true` if [obj] is newly added; `false` if it was present already (like [Set]`.add` behaviour */
@@ -191,13 +200,15 @@ private class ObjectsProcessed {
             if (it.second == 1) {
                 // Uncomment statement below to print debug messages. Debugging is troublesome with recursive stuff
                 // Even simply showing an object in the debugger may already influence content of the `objectsMap` and / or cause stack overflow
-                // Do not remove!
+                //
+                // So do not remove these `println()` statements, they are a non-intrusive alternative to using the debugger here !
                 // println("Removing: obj: ${obj::class.simplifyClassName() + " (last)"} - size = $size")
                 objectsMap.remove(System.identityHashCode(it.first))
             } else {
                 // Uncomment statement below to print debug messages. Debugging is troublesome with recursive stuff
                 // Even simply showing an object in the debugger may already influence content of the `objectsMap` and / or cause stack overflow
-                // Do not remove!
+                //
+                // So do not remove these `println()` statements, they are a non-intrusive alternative to using the debugger here !
                 // println("Removing: obj: ${obj::class.simplifyClassName() + " (" + it.second +")"} - size = $size")
                 objectsMap[System.identityHashCode(it.first)] = obj to it.second - 1
             }
@@ -210,4 +221,5 @@ private val objectsStack: ThreadLocal<ObjectsProcessed> =
 
 internal fun getObjectsStackSize() = max(objectsStack.get().size, 0)
 
+@Suppress("unused")
 internal fun clearObjectsStack() = objectsStack.get().clear()

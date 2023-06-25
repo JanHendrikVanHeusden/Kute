@@ -9,11 +9,7 @@ import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.reflection.declaringClass
 import kotlin.reflect.KProperty
 
-interface AsStringProducer {
-    fun asString(): String
-}
-
-class AsStringBuilder private constructor(obj: Any?): AsStringProducer {
+class AsStringBuilder private constructor(obj: Any?): AsStringProducer() {
 
     private val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
     private val objJavaClass: Class<*>? = obj?.javaClass
@@ -106,7 +102,7 @@ class AsStringBuilder private constructor(obj: Any?): AsStringProducer {
 
     override fun asString(): String {
         build()
-        return objectReference.get().asString(propertyNamesToExclude, *alsoNamedAsTypedArray)
+        return objectReference.get().objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
     }
 
     companion object {
