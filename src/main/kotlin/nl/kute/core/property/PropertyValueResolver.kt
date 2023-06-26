@@ -67,18 +67,18 @@ private inline fun <reified A : Annotation> Set<Annotation>.findAnnotations(): S
     this.filterIsInstance<A>().toSet()
 
 internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
-    return classPropertiesWithAnnotationsCache[this].ifNull {
+    return propsWithAnnotationsCacheByClass[this].ifNull {
         // map each property to an (empty yet) mutable set of annotations
-        val resultMap: Map<KProperty<*>, MutableSet<Annotation>> =
-            propertiesFromSubSuperHierarchy().associateWith { mutableSetOf() }
-
-        resultMap.forEach { (prop, annotations) -> collectPropertyAnnotations(prop, annotations) }
-        resultMap.filterNot { it.value.any { it is AsStringOmit } }
-            .also { classPropertiesWithAnnotationsCache[this] = it }
+        propertiesFromSubSuperHierarchy().associateWith { mutableSetOf<Annotation>() }
+            // populate the set of annotations per property
+            .onEach { (prop, annotations) -> collectPropertyAnnotations(prop, annotations) }
+            .filter { entry -> entry.value.none { it is AsStringOmit } }
+            // add to cache
+            .also { propsWithAnnotationsCacheByClass[this] = it }
     }
 }
 
-private val classPropertiesWithAnnotationsCache: MutableMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> = mutableMapOf()
+private val propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> = mutableMapOf()
 
 internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {
     (prop.annotationOfPropertySuperSubHierarchy<AsStringOmit>())?.let { annotation ->

@@ -1,8 +1,6 @@
 @file:JvmName("AsString")
 @file:Suppress("SameParameterValue", "SameParameterValue")
 
-// TODO: caching of properties & annotations
-
 package nl.kute.core
 
 import nl.kute.core.annotation.modify.AsStringOmit

@@ -4,8 +4,6 @@ import nl.kute.reflection.subSuperHierarchy
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
-// TODO: caching of annotations
-
 /**
  * Find any annotation of type [A] on `this` class and its super types.
  * * The annotations are returned regardless whether marked as `@Inherited`

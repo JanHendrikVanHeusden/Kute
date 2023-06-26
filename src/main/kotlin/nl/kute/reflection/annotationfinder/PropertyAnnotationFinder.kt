@@ -12,8 +12,6 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 
-// TODO: caching of annotations
-
 /**
  * Find any annotation of type [A] on the receiver property of `this` class and its super types.
  * * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
@@ -40,7 +38,7 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationSetByPropert
         this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return mapOf()
     // The contract of the `associateWith` method explicitly states that the order is preserved
     return declaringClass.kotlin.superSubHierarchy().associateWith { kClass ->
-        kClass.memberProperties
+        kClass.memberProperties.asSequence()
             .filter { prop ->
                 prop.name == this.name
                         // include private properties only if in the class itself, not if it's in a superclass

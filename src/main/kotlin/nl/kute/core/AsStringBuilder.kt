@@ -19,10 +19,10 @@ class AsStringBuilder private constructor(obj: Any?): AsStringProducer() {
         }
 
     private val classProperties: Set<KProperty<*>> by lazy {
-        if (obj != null) {
-            obj::class.propertiesWithPrintModifyingAnnotations().keys
-        } else {
+        if (obj == null) {
             emptySet()
+        } else {
+            obj::class.propertiesWithPrintModifyingAnnotations().keys
         }
     }
 

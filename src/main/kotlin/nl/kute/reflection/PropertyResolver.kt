@@ -8,8 +8,6 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
-// TODO: caching of properties
-
 /**
  * Get the properties from the class hierarchy (see [subSuperHierarchy]).
  * * In case of property overrides or name-shadowing, only the property from the most specific subclass

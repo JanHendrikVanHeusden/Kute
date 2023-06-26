@@ -2,8 +2,6 @@ package nl.kute.reflection
 
 import kotlin.reflect.KClass
 
-// TODO: caching of class hierarchies
-
 private val regexPackage = Regex(""".+\.(.*)$""")
 private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
 
