@@ -2,6 +2,7 @@ package nl.kute.core.annotation.modify
 
 import nl.kute.core.asString
 import nl.kute.log.log
+import nl.kute.util.ifNull
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
@@ -14,12 +15,17 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *      * in IBAN European bank numbers you may want to keep the country and bank identifiers, but hide the personal part
  *      * in a URL, you may for instance keep the URL data but leave out query parameters (or the opposite)
  * * This may limit exposure of such data, but on its own it must not be considered as a security feature.
+ * * [AsStringPatternReplace] is repeatable. If multiple annotations are present, they are applied in order of occurrence,
+ *   with the subsequent replacements working on the result of the previous one.
+ *    * If a property with [AsStringPatternReplace] is overridden, and the subclass property is also annotated with
+ *      [AsStringPatternReplace], they are applied in order from super class to subclass.
  *
  * As always with regular expressions:
  *  * Usage with lengthy data may have a significant performance penalty!
  *     * Design your expressions properly; stay away from so-called catastrophic backtracking!
  *       > [https://regex101.com/r/iXSKTs/1/debugger](https://regex101.com/r/iXSKTs/1/debugger),
  *       > [https://www.regular-expressions.info/catastrophic.html](https://www.regular-expressions.info/catastrophic.html)
+ *
  * @param pattern The regular expression to replace
  * @param replacement The replacement; back references are allowed.
  */
@@ -38,14 +44,20 @@ annotation class AsStringPatternReplace(
     val replacement: String
 )
 
-fun AsStringPatternReplace?.replacePattern(strVal: String?): String? =
+internal fun AsStringPatternReplace?.replacePattern(strVal: String?): String? =
     if (this == null) strVal else {
         try {
-            // caching of Regex by pattern would be nice here, to avoid compiling same patterns over and over.
-            strVal?.replace(Regex(pattern), replacement)
+            strVal?.replace(cachingRegexFactory[pattern]!!, replacement)
         } catch (e: Exception) {
-            // The property's value is probably sensitive, so make sure not to use the value in the error message
+            // The property's value is probably sensitive
+            // So make sure not to use the value in the error message
             log("${e.javaClass.simpleName} occurred when replacing a value using pattern $pattern; exception: [${e.asString()}]")
             ""
         }
     }
+
+private val cachingRegexFactory: Map<String, Regex> = object: HashMap<String, Regex>() {
+    override fun get(key: String): Regex = super.get(key).ifNull {
+        Regex(key).also { this[key] = it }
+    }
+}

@@ -4,13 +4,16 @@ import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.math.max
 import kotlin.math.min
-
 /**
  * The [AsStringMask] annotation can be placed on properties to indicate that the property is
  * included in the return value of [nl.kute.core.asString], but with its value masked.
  * * Typical usage is to keep sensitive or personally identifiable out of logging etc.
  * * This may limit exposure of such data, but on its own it must not be considered as a security feature.
- *
+ * * [AsStringMask] is repeatable. If multiple annotations are present, they are applied in order of occurrence,
+ *   with the subsequent mask working on the result of the previous one.
+ *    * If a property with [AsStringMask] is overridden, and the subclass property is also annotated with
+ *      [AsStringMask], they are applied in order from super class to subclass.
+ * ---
  * * If the position of [startMaskAt] is after that of [endMaskAt], the full [String] will be masked.
  * * If [minLength]` >  `[maxLength], [minLength] is used
  */
@@ -23,7 +26,7 @@ annotation class AsStringMask(
     /** At which character index (inclusive) masking should start? */
     val startMaskAt: Int = 0,
 
-    /** At which character index (exclusive) masking should start? */
+    /** At which character index (exclusive) masking should end? */
     val endMaskAt: Int = Int.MAX_VALUE,
 
     /** The char to use for masking */
@@ -43,7 +46,7 @@ annotation class AsStringMask(
     val maxLength: Int = Int.MAX_VALUE,
 )
 
-fun AsStringMask?.mask(strVal: String?): String? {
+internal fun AsStringMask?.mask(strVal: String?): String? {
     if (this == null) {
         return strVal
     } else {
