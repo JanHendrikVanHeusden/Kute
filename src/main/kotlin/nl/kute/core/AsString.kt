@@ -77,13 +77,15 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
             // For built-in stuff except Arrays/Collections, we just stick to the default toString()
             return obj.toString()
         } else {
+            // Check if we were already busy processing this object
             objectsStack.get().alreadyPresent(obj).also { alreadyPresent ->
                 if (alreadyPresent) {
+                    // avoid endless loop
                     return "recursive: ${obj::class.simplifyClassName()}(...)"
                 }
             }
-            // Array and Collection toString methods are *not* resilient to mutual reference,
-            // where list1 is element of list2 and vice versa.
+            // Array and Collection toString methods are vulnerable of stack overflow errors
+            // in case of mutual reference (so where list1 is element of list2 and vice versa).
             // So we mimic the default toString behaviour, but recursion safe
             if (obj is Array<*>) {
                 return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
@@ -98,7 +100,9 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                         .filterNot { propertyNamesToExclude.contains(it.key.name) }
                         .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
                 val named = nameValues
-                    .filterNot { it is PropertyValue<*, *> && it.printModifyingAnnotations.any { it is AsStringOmit } }
+                    .filterNot { nameValue -> nameValue is PropertyValue<*, *>
+                            && nameValue.printModifyingAnnotations.any { it is AsStringOmit }
+                    }
                 val nameValueSeparator =
                     if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
                 return annotationsByProperty
