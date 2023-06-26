@@ -7,7 +7,7 @@ import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
-import nl.kute.core.annotation.modify.AsStringPatternReplace
+import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.NamedProp
 import nl.kute.core.namedvalues.NamedSupplier
@@ -463,10 +463,9 @@ class AsStringTest: ObjectsStackVerifier {
         @AsStringMask(startMaskAt = 5, endMaskAt = -3)
         val phoneNumber: String
 
-        @AsStringPatternReplace(
+        @AsStringReplace(
             """\s*([a-zA-Z]{2})\s*\d{2}\s*[a-zA-Z]{4}\s*((\d|\s){6})(.*)""",
-            """$1\99 BANK *****$4""",
-            true
+            """$1\99 BANK *****$4"""
         )
         val iban: String
 
@@ -487,7 +486,7 @@ class AsStringTest: ObjectsStackVerifier {
         @AsStringMask(startMaskAt = 0, endMaskAt = 0)
         override val phoneNumber: String = "06123456789"
 
-        @AsStringPatternReplace("""(.*)""", """$1""", true)
+        @AsStringReplace("""(.*)""", """$1""")
         override val iban: String = "NL29 ABNA 6708 40 7906"
 
         @AsStringOmit
@@ -507,8 +506,8 @@ class AsStringTest: ObjectsStackVerifier {
 
     private class SpecialPerson: Person() {
         // "iban=NL99 BANK *****0 7906"
-        @AsStringPatternReplace("""\s+""", "_", true)
-        @AsStringPatternReplace("^NL", """XX""", true)
+        @AsStringReplace("""\s+""", "_")
+        @AsStringReplace("^NL", """XX""")
         override val iban: String = super.iban
 
         @AsStringMask(startMaskAt = -1, mask = 'x')
@@ -517,16 +516,16 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     private open class RepeatedAnnotations {
-        @AsStringPatternReplace("^I", "It", true)
-        @AsStringPatternReplace("triple ", "", true)
-        @AsStringPatternReplace("$", " three times", true)
+        @AsStringReplace("^I", "It")
+        @AsStringReplace("triple ", "")
+        @AsStringReplace("$", " three times")
         open val tripleReplaced = "I will be triple replaced"
 
         override fun toString(): String = asString()
     }
 
     private class SubOfRepeatedAnnotations: RepeatedAnnotations() {
-        @AsStringPatternReplace("$", "!!!", true)
+        @AsStringReplace("$", "!!!")
         override val tripleReplaced = super.tripleReplaced
 
         override fun toString(): String = asString()

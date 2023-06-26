@@ -3,7 +3,7 @@ package nl.kute.core.property
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
-import nl.kute.core.annotation.modify.AsStringPatternReplace
+import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.modify.hashString
 import nl.kute.core.annotation.modify.mask
 import nl.kute.core.annotation.modify.replacePattern
@@ -24,7 +24,7 @@ import kotlin.reflect.KProperty
 /** @return
  *  * for [Array]s: [Array.contentDeepToString]
  *  * otherwise: the [toString] value of the property, modified if needed by annotations @[AsStringOmit],
- *  @[AsStringPatternReplace], @[AsStringMask], @[AsStringHash]
+ *  @[AsStringReplace], @[AsStringMask], @[AsStringHash]
  */
 internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): String? {
     if (this == null) {
@@ -42,14 +42,14 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
     if (annotations.any { it is AsStringOmit }) {
         return ""
     }
-    val asStringPatternReplaceSet: Set<AsStringPatternReplace> = annotations.findAnnotations()
+    val asStringReplaceSet: Set<AsStringReplace> = annotations.findAnnotations()
     val asStringMaskSet: Set<AsStringMask> = annotations.findAnnotations()
     // non-repeating
     val asStringHash: AsStringHash? = annotations.findAnnotation()
     // non-repeating
     val asStringOption: AsStringOption = annotations.findAnnotation()!! // always present
 
-    asStringPatternReplaceSet.forEach {
+    asStringReplaceSet.forEach {
         strValue = it.replacePattern(strValue)
     }
     asStringMaskSet.forEach {
@@ -92,7 +92,7 @@ internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, 
     (prop.annotationSetOfPropertySuperSubHierarchy<AsStringMask>()).let { annotationSet ->
         annotations.addAll(annotationSet)
     }
-    (prop.annotationSetOfPropertySuperSubHierarchy<AsStringPatternReplace>()).let { annotationSet ->
+    (prop.annotationSetOfPropertySuperSubHierarchy<AsStringReplace>()).let { annotationSet ->
         annotations.addAll(annotationSet)
     }
     // AsStringOption from lowest subclass in hierarchy with this annotation

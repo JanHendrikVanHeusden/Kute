@@ -2,7 +2,7 @@ package nl.kute.reflection.annotationfinder
 
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
-import nl.kute.core.annotation.modify.AsStringPatternReplace
+import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.defaultNullString
 import nl.kute.core.asString
@@ -73,7 +73,7 @@ internal class AnnotationFinderTest {
     }
 
     private interface I {
-        @AsStringPatternReplace(pattern = "I", replacement = "i", true)
+        @AsStringReplace(pattern = "I", replacement = "i")
         val prop: String
 
         @AsStringOption(propMaxStringValueLength = 0)
@@ -81,7 +81,7 @@ internal class AnnotationFinderTest {
     }
 
     private open class C1 : I {
-        @AsStringPatternReplace(pattern = "C1", replacement = "c1", true)
+        @AsStringReplace(pattern = "C1", replacement = "c1")
         override val prop: String = "C1"
 
         @AsStringOption(propMaxStringValueLength = 1)
@@ -89,7 +89,7 @@ internal class AnnotationFinderTest {
     }
 
     private open class C2 : C1() {
-        @AsStringPatternReplace(pattern = "C2", replacement = "c2", true)
+        @AsStringReplace(pattern = "C2", replacement = "c2")
         override val prop: String = "C2"
 
         @AsStringOption(propMaxStringValueLength = 2)
@@ -97,7 +97,7 @@ internal class AnnotationFinderTest {
     }
 
     private open class C3 : C2() {
-        @AsStringPatternReplace(pattern = "C3", replacement = "c3", true)
+        @AsStringReplace(pattern = "C3", replacement = "c3")
         override val prop: String = "C3"
 
         @AsStringOption(propMaxStringValueLength = 3)
@@ -106,14 +106,14 @@ internal class AnnotationFinderTest {
 
     @Test
     fun `find property annotations in class hierarchy in expected order`() {
-        val annotationMap: Map<KClass<*>, AsStringPatternReplace> =
-            C3::prop.annotationByPropertySubSuperHierarchy<AsStringPatternReplace>()
+        val annotationMap: Map<KClass<*>, AsStringReplace> =
+            C3::prop.annotationByPropertySubSuperHierarchy<AsStringReplace>()
         // contract of annotationsOfProperty explicitly states the order, let's test it!
         assertThat(annotationMap.entries).containsExactly(
-            MapEntry.entry(C3::class, AsStringPatternReplace(pattern = "C3", replacement = "c3", isRegexpPattern = true)),
-            MapEntry.entry(C2::class, AsStringPatternReplace(pattern = "C2", replacement = "c2", isRegexpPattern = true)),
-            MapEntry.entry(C1::class, AsStringPatternReplace(pattern = "C1", replacement = "c1", isRegexpPattern = true)),
-            MapEntry.entry(I::class, AsStringPatternReplace(pattern = "I", replacement = "i", isRegexpPattern = true)),
+            MapEntry.entry(C3::class, AsStringReplace(pattern = "C3", replacement = "c3")),
+            MapEntry.entry(C2::class, AsStringReplace(pattern = "C2", replacement = "c2")),
+            MapEntry.entry(C1::class, AsStringReplace(pattern = "C1", replacement = "c1")),
+            MapEntry.entry(I::class, AsStringReplace(pattern = "I", replacement = "i")),
         )
     }
 

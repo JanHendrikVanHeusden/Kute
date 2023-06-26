@@ -4,7 +4,7 @@ import nl.kute.base.ObjectsStackVerifier
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
-import nl.kute.core.annotation.modify.AsStringPatternReplace
+import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.defaultMaxStringValueLength
 import nl.kute.core.annotation.option.defaultNullString
@@ -325,19 +325,23 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     fun `test replace & mask 1`() {
         val phony = Phony()
         assertThat(phony.toString())
-            .`as`("Masking should be applied according to ${Phony::phoneNumberMask1.findAnnotation<AsStringMask>()}")
+            .`as`("Masking should be applied according to ${Phony::phoneNumberMask1
+                .findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask1= +31 6 123********9 0 ")
             .doesNotContain(phony.phoneNumberMask1)
 
-            .`as`("Masking should be applied according to ${Phony::phoneNumberMask2.findAnnotation<AsStringMask>()}")
+            .`as`("Masking should be applied according to ${Phony::phoneNumberMask2
+                .findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask2= +31 6 123 45 ****9 0 ")
             .doesNotContain(phony.phoneNumberMask2)
 
-            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask3.findAnnotation<AsStringMask>()}")
+            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask3
+                .findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask3=**********************")
             .doesNotContain(phony.phoneNumberMask3)
 
-            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask4.findAnnotation<AsStringMask>()}")
+            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask4
+                .findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask4=**********************")
             .doesNotContain(phony.phoneNumberMask4)
 
@@ -345,15 +349,18 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
             .contains("phoneNumberMask5=**********************")
             .doesNotContain(phony.phoneNumberMask5)
 
-            .`as`("Should apply partial masking by custom mask 'x' ${Phony::phoneNumberMask6.findAnnotation<AsStringMask>()}")
+            .`as`("Should apply partial masking by custom mask 'x' ${Phony::phoneNumberMask6
+                .findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask6= +xxxx 123 45 67 89 0 ")
             .doesNotContain(phony.phoneNumberMask6)
 
-            .`as`("Masking should be applied according to ${Phony::phoneNumberMask7.findAnnotation<AsStringMask>()}")
+            .`as`("Masking should be applied according to ${Phony::phoneNumberMask7
+                .findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask7= +31******")
             .doesNotContain(phony.phoneNumberMask7)
 
-            .`as`("Pattern replacement should be applied according to ${Phony::phoneNumberPatternReplace.findAnnotation<AsStringPatternReplace>()}")
+            .`as`("Pattern replacement should be applied according to ${Phony::phoneNumberPatternReplace
+                .findAnnotation<AsStringReplace>()}")
             .contains("phoneNumberPatternReplace= +31 6 123 ****89 0")
             .doesNotContain(phony.phoneNumberPatternReplace)
     }
@@ -375,7 +382,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     @AsStringOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
     private open class ClassWithNonDefaultAsStringOptions {
 
-        @AsStringPatternReplace("^a", "another", true)
+        @AsStringReplace("^a", "another")
         val aStringToReplaceByAnother: String = "a String"
 
         @AsStringMask(startMaskAt = 5, endMaskAt = 7, mask = 'M')
@@ -408,7 +415,8 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     }
 
     @AsStringOption(propMaxStringValueLength = 2)
-    private open class SubSubClassOfAsStringOptionsToStringWithAsStringOptionsOnClass : SubClassWithAsStringOptionsToString() {
+    private open class SubSubClassOfAsStringOptionsToStringWithAsStringOptionsOnClass :
+        SubClassWithAsStringOptionsToString() {
 
         @AsStringHash
         override val aDateWithMonthMasked = super.aDateWithMonthMasked
@@ -443,7 +451,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
         @AsStringOmit
         private val phoneNumber: String = " +31 6 123 45 67 89 0 "
 
-        @AsStringPatternReplace(pattern = """(\d\s*){4}((\d\s*){3}\s*)$""", replacement = "****$2", true)
+        @AsStringReplace(pattern = """(\d\s*){4}((\d\s*){3}\s*)$""", replacement = "****$2")
         val phoneNumberPatternReplace = phoneNumber
 
         @AsStringMask(startMaskAt = 10, endMaskAt = -4)
@@ -474,7 +482,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     }
 
     private class Banky : Printable {
-        @AsStringPatternReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2", true)
+        @AsStringReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2")
         val bankNumberPatternReplace = "NL37DUMM5273748739"
 
         @AsStringMask(minLength = 4, maxLength = 2)

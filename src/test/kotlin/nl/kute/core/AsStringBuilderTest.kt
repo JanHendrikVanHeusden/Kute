@@ -4,7 +4,7 @@ import nl.kute.base.ObjectsStackVerifier
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringOmit
-import nl.kute.core.annotation.modify.AsStringPatternReplace
+import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.namedVal
 import nl.kute.core.weakreference.ObjectWeakReference
@@ -223,7 +223,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
         val hashProperty = "I am hashed with Java hashcode"
     }
     private class SubClassWithPrintMask: ClassWithHashProperty() {
-        @AsStringPatternReplace("^I am ", replacement = "xx is ", true)
+        @AsStringReplace("^I am ", replacement = "xx is ")
         val replaced = "I am replaced"
         @AsStringOption(showNullAs = showNullAs2)
         override val nullable: Any? = super.nullable
