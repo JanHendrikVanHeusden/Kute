@@ -76,7 +76,7 @@ fun AsStringMask?.mask(strVal: String?): String? {
         } else {
             max(0, strLength + endMaskAt)
         }
-        return if (maskStart in 0 until returnLength && maskEnd > maskStart) {
+        return if (maskStart in 0 until returnLength && maskEnd >= maskStart) {
             val startAt = max(maskStart, 0)
             val endAt = min(maskEnd, returnLength)
             retVal.replaceRange(startAt until endAt, mask.toString().repeat(endAt - startAt))

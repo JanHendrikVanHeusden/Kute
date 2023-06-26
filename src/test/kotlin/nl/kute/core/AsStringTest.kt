@@ -108,24 +108,35 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `overriding of annotations should not be possible`() {
+    fun `overriding of non-repeatable annotations should not be honoured`() {
         val person = Person()
         val personString = person.toString()
         assertThat(personString)
             // according to annotations on interface properties, not on subclass;
             // so the "overriding" annotations are not honored
             .contains("iban=NL99 BANK *****0 7906")
-            .contains("password=**********")
             .contains("phoneNumber=06123***789")
+            .contains("password=**********")
             .matches(""".+?\bsocialSecurityNumber=[a-f0-9]{40}\b.*""")
             // according to AsStringOmit annotation on subclass
             .doesNotContain("mailAddress")
     }
 
     @Test
-    fun `test with repeated annotations`() {
-        println(RepeatedAnnotations())
-        println(SubOfRepeatedAnnotations())
+    fun `repeatable annotations on sub-property should be applied after those of the super-property, in order`() {
+        val specialPerson = SpecialPerson()
+        val personString = specialPerson.toString()
+        assertThat(personString)
+            .contains("phoneNumber=06123***78x")
+            .contains("iban=XX99_BANK_*****0_7906")
+    }
+
+    @Test
+    fun `Repeated annotations should be honoured in order, also honour sub-property annotations`() {
+        assertThat(RepeatedAnnotations().toString())
+            .isEqualTo("RepeatedAnnotations(tripleReplaced=It will be replaced three times)")
+        assertThat(SubOfRepeatedAnnotations().toString())
+            .isEqualTo("SubOfRepeatedAnnotations(tripleReplaced=It will be replaced three times!!!)")
     }
 
     @ParameterizedTest
@@ -465,7 +476,7 @@ class AsStringTest: ObjectsStackVerifier {
         val password: Array<Char>
     }
 
-    private class Person : PersonallyIdentifiableData {
+    private open class Person : PersonallyIdentifiableData {
         // Trying to override the annotations on the interface should not be possible:
         // the annotations in the overriding class should be ignored (except for AsStringOption)
 
@@ -487,6 +498,17 @@ class AsStringTest: ObjectsStackVerifier {
             arrayOf('m', 'y', ' ', 'v', 'e', 'r', 'y', ' ', 's', 'e', 'c', 'r', 'e', 't', ' ', 'p', 'a', 's', 's', 'w', 'o', 'r', 'd')
         //@formatter:on
 
+        override fun toString(): String = asString()
+    }
+
+    private class SpecialPerson: Person() {
+        // "iban=NL99 BANK *****0 7906"
+        @AsStringPatternReplace("""\s+""", "_")
+        @AsStringPatternReplace("^NL", """XX""")
+        override val iban: String = super.iban
+
+        @AsStringMask(startMaskAt = -1, mask = 'x')
+        override val phoneNumber: String = super.phoneNumber
         override fun toString(): String = asString()
     }
 

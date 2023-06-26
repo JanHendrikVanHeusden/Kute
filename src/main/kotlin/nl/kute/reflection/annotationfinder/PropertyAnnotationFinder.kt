@@ -73,4 +73,5 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertySu
 internal inline fun <reified A : Annotation> KProperty<*>.annotationSetOfPropertySuperSubHierarchy(): Set<A> =
     this.annotationSetByPropertySuperSubHierarchy<A>().values
         .filterNotNull()
-        .firstOrNull { it.isNotEmpty() }?.toSet() ?: emptySet()
+        .flatten()
+        .toSet()

@@ -33,8 +33,8 @@ class TestAsStringMask {
 
         val maskEnd0 = AsStringMask(endMaskAt = 0)
         assertThat(maskEnd0.mask("1234567890"))
-            .`as`("when end of mask 0, everything should be masked")
-            .isEqualTo("**********")
+            .`as`("when start and end of mask 0, nothing should be masked")
+            .isEqualTo("1234567890")
 
         val maskEnd1 = AsStringMask(endMaskAt = 1)
         assertThat(maskEnd1.mask("1234567890")).isEqualTo("*234567890")
