@@ -73,7 +73,7 @@ internal class AnnotationFinderTest {
     }
 
     private interface I {
-        @AsStringPatternReplace(pattern = "I", replacement = "i")
+        @AsStringPatternReplace(pattern = "I", replacement = "i", true)
         val prop: String
 
         @AsStringOption(propMaxStringValueLength = 0)
@@ -81,7 +81,7 @@ internal class AnnotationFinderTest {
     }
 
     private open class C1 : I {
-        @AsStringPatternReplace(pattern = "C1", replacement = "c1")
+        @AsStringPatternReplace(pattern = "C1", replacement = "c1", true)
         override val prop: String = "C1"
 
         @AsStringOption(propMaxStringValueLength = 1)
@@ -89,7 +89,7 @@ internal class AnnotationFinderTest {
     }
 
     private open class C2 : C1() {
-        @AsStringPatternReplace(pattern = "C2", replacement = "c2")
+        @AsStringPatternReplace(pattern = "C2", replacement = "c2", true)
         override val prop: String = "C2"
 
         @AsStringOption(propMaxStringValueLength = 2)
@@ -97,7 +97,7 @@ internal class AnnotationFinderTest {
     }
 
     private open class C3 : C2() {
-        @AsStringPatternReplace(pattern = "C3", replacement = "c3")
+        @AsStringPatternReplace(pattern = "C3", replacement = "c3", true)
         override val prop: String = "C3"
 
         @AsStringOption(propMaxStringValueLength = 3)
@@ -110,10 +110,10 @@ internal class AnnotationFinderTest {
             C3::prop.annotationByPropertySubSuperHierarchy<AsStringPatternReplace>()
         // contract of annotationsOfProperty explicitly states the order, let's test it!
         assertThat(annotationMap.entries).containsExactly(
-            MapEntry.entry(C3::class, AsStringPatternReplace(pattern = "C3", replacement = "c3")),
-            MapEntry.entry(C2::class, AsStringPatternReplace(pattern = "C2", replacement = "c2")),
-            MapEntry.entry(C1::class, AsStringPatternReplace(pattern = "C1", replacement = "c1")),
-            MapEntry.entry(I::class, AsStringPatternReplace(pattern = "I", replacement = "i")),
+            MapEntry.entry(C3::class, AsStringPatternReplace(pattern = "C3", replacement = "c3", isRegexpPattern = true)),
+            MapEntry.entry(C2::class, AsStringPatternReplace(pattern = "C2", replacement = "c2", isRegexpPattern = true)),
+            MapEntry.entry(C1::class, AsStringPatternReplace(pattern = "C1", replacement = "c1", isRegexpPattern = true)),
+            MapEntry.entry(I::class, AsStringPatternReplace(pattern = "I", replacement = "i", isRegexpPattern = true)),
         )
     }
 

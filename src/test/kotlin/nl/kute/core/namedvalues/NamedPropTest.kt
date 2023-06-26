@@ -144,7 +144,7 @@ class NamedPropTest {
 
         assertThat(NamedProp(testObj, testObj::replaced).valueString)
             .isNotEqualTo(testObj.replaced)
-            .isEqualTo(AsStringPatternReplace(" ", "_").replacePattern(testObj.replaced))
+            .isEqualTo(AsStringPatternReplace(" ", "_", true).replacePattern(testObj.replaced))
             .isEqualTo(testObj.replaced.replace(" ", "_"))
     }
 
@@ -182,10 +182,10 @@ class NamedPropTest {
         assertThat(NamedProp(testObj, testObj::replaced).valueString)
             .isNotEqualTo(testObj.replaced)
             .`as`("Should honour the super-property pattern")
-            .isEqualTo(AsStringPatternReplace(" ", "_").replacePattern(testObj.replaced))
+            .isEqualTo(AsStringPatternReplace(" ", "_", true).replacePattern(testObj.replaced))
             .isEqualTo(testObj.replaced.replace(" ", "_"))
             .`as`("Should not honour the subclass pattern")
-            .isNotEqualTo(AsStringPatternReplace("xyz", "xyz").replacePattern(testObj.replaced))
+            .isNotEqualTo(AsStringPatternReplace("xyz", "xyz", true).replacePattern(testObj.replaced))
     }
 
     @Test
@@ -274,7 +274,7 @@ class NamedPropTest {
         @AsStringMask
         open val masked = "I am masked"
 
-        @AsStringPatternReplace(" ", "_")
+        @AsStringPatternReplace(" ", "_", true)
         open val replaced = "I am pattern replaced"
     }
 
@@ -288,7 +288,7 @@ class NamedPropTest {
         @AsStringMask(startMaskAt = 2, endMaskAt = -2)
         override val masked = "I am trying to be masked differently"
 
-        @AsStringPatternReplace("xyz", "xyz")
+        @AsStringPatternReplace("xyz", "xyz", true)
         override val replaced = "I am trying to be replaced differently"
     }
 

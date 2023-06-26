@@ -36,12 +36,23 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @MustBeDocumented
 annotation class AsStringPatternReplace(
     /**
-     * The regular expression pattern; groups are allowed.
-     * * Invalid regular expression will result in an empty String
+     * The expression to replace, either as literal (default) or as regular expression.
+     *  * If [isRegexpPattern]:
+     *    * Capturing groups are allowed
+     *    * Invalid regular expression will result in an empty String
      */
     val pattern: String,
-    /** The replacement expression; supports regex group capture in Java style (`$1`, `$2` etc.) */
-    val replacement: String
+    /**
+     * The replacement expression.
+     *  * If [isRegexpPattern]:
+     *    * Regex group capture is supported, Java style (`$1`, `$2` etc.)
+     */
+    val replacement: String,
+    /**
+     * * If `true`, [pattern] will be considered as a regular-expression pattern
+     * * If `false`, [pattern] and [replacement] will be considered as literals using [String.replace];
+     */
+    val isRegexpPattern: Boolean,
 )
 
 internal fun AsStringPatternReplace?.replacePattern(strVal: String?): String? =

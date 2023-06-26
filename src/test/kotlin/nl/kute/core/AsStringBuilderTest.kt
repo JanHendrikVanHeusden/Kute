@@ -223,7 +223,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
         val hashProperty = "I am hashed with Java hashcode"
     }
     private class SubClassWithPrintMask: ClassWithHashProperty() {
-        @AsStringPatternReplace("^I am ", replacement = "xx is ")
+        @AsStringPatternReplace("^I am ", replacement = "xx is ", true)
         val replaced = "I am replaced"
         @AsStringOption(showNullAs = showNullAs2)
         override val nullable: Any? = super.nullable

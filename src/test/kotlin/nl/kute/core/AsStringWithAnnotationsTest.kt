@@ -375,7 +375,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     @AsStringOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
     private open class ClassWithNonDefaultAsStringOptions {
 
-        @AsStringPatternReplace("^a", "another")
+        @AsStringPatternReplace("^a", "another", true)
         val aStringToReplaceByAnother: String = "a String"
 
         @AsStringMask(startMaskAt = 5, endMaskAt = 7, mask = 'M')
@@ -443,7 +443,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
         @AsStringOmit
         private val phoneNumber: String = " +31 6 123 45 67 89 0 "
 
-        @AsStringPatternReplace(pattern = """(\d\s*){4}((\d\s*){3}\s*)$""", replacement = "****$2")
+        @AsStringPatternReplace(pattern = """(\d\s*){4}((\d\s*){3}\s*)$""", replacement = "****$2", true)
         val phoneNumberPatternReplace = phoneNumber
 
         @AsStringMask(startMaskAt = 10, endMaskAt = -4)
@@ -474,7 +474,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     }
 
     private class Banky : Printable {
-        @AsStringPatternReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2")
+        @AsStringPatternReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2", true)
         val bankNumberPatternReplace = "NL37DUMM5273748739"
 
         @AsStringMask(minLength = 4, maxLength = 2)
