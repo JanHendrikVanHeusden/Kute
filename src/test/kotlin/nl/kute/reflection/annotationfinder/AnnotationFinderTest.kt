@@ -107,7 +107,7 @@ internal class AnnotationFinderTest {
     @Test
     fun `find property annotations in class hierarchy in expected order`() {
         val annotationMap: Map<KClass<*>, AsStringPatternReplace> =
-            C3::prop.annotationsOfPropertySubSuperHierarchy<AsStringPatternReplace>()
+            C3::prop.annotationByPropertySubSuperHierarchy<AsStringPatternReplace>()
         // contract of annotationsOfProperty explicitly states the order, let's test it!
         assertThat(annotationMap.entries).containsExactly(
             MapEntry.entry(C3::class, AsStringPatternReplace(pattern = "C3", replacement = "c3")),
@@ -122,11 +122,11 @@ internal class AnnotationFinderTest {
         val obj = ClassWithAnnotationOnPrivateProperty()
         val privateProp = obj::class.memberProperties.first { it.name == "myPrivateVal" }
 
-        val hashAnnotation: AsStringHash = privateProp.annotationsOfPropertySubSuperHierarchy<AsStringHash>()[obj::class]!!
+        val hashAnnotation: AsStringHash = privateProp.annotationByPropertySubSuperHierarchy<AsStringHash>()[obj::class]!!
         assertThat(hashAnnotation).isNotNull
 
         val optionAnnotation: AsStringOption =
-            privateProp.annotationsOfPropertySubSuperHierarchy<AsStringOption>()[obj::class]!!
+            privateProp.annotationByPropertySubSuperHierarchy<AsStringOption>()[obj::class]!!
         assertThat(optionAnnotation).isNotNull
         assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(5)
     }
@@ -136,14 +136,14 @@ internal class AnnotationFinderTest {
         val obj = ClassWithAnnotationOnPublicPropertyThatMasksPrivateProperty()
         val privateProp = obj::class.memberProperties.first { it.name == "myPrivateVal" }
 
-        val hashAnnotation: AsStringHash? = privateProp.annotationsOfPropertySubSuperHierarchy<AsStringHash>()[obj::class]
+        val hashAnnotation: AsStringHash? = privateProp.annotationByPropertySubSuperHierarchy<AsStringHash>()[obj::class]
         assertThat(hashAnnotation).isNull()
 
-        val maskAnnotation: AsStringMask = privateProp.annotationsOfPropertySubSuperHierarchy<AsStringMask>()[obj::class]!!
+        val maskAnnotation: AsStringMask = privateProp.annotationByPropertySubSuperHierarchy<AsStringMask>()[obj::class]!!
         assertThat(maskAnnotation).isNotNull
 
         val optionAnnotation: AsStringOption =
-            privateProp.annotationsOfPropertySubSuperHierarchy<AsStringOption>()[obj::class]!!
+            privateProp.annotationByPropertySubSuperHierarchy<AsStringOption>()[obj::class]!!
         assertThat(optionAnnotation).isNotNull
         assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(200)
     }

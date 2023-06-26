@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package nl.kute.core
 
 import nl.kute.base.ObjectsStackVerifier
@@ -118,6 +120,12 @@ class AsStringTest: ObjectsStackVerifier {
             .matches(""".+?\bsocialSecurityNumber=[a-f0-9]{40}\b.*""")
             // according to AsStringOmit annotation on subclass
             .doesNotContain("mailAddress")
+    }
+
+    @Test
+    fun `test with repeated annotations`() {
+        println(RepeatedAnnotations())
+        println(SubOfRepeatedAnnotations())
     }
 
     @ParameterizedTest
@@ -429,7 +437,6 @@ class AsStringTest: ObjectsStackVerifier {
 
         override fun toString(): String = asStringProducer.asString()
 
-        @Suppress("unused")
         private val extensionProperty = "my extension property"
         override var num = 80
     }
@@ -483,4 +490,19 @@ class AsStringTest: ObjectsStackVerifier {
         override fun toString(): String = asString()
     }
 
+    private open class RepeatedAnnotations {
+        @AsStringPatternReplace("^I", "It")
+        @AsStringPatternReplace("triple ", "")
+        @AsStringPatternReplace("$", " three times")
+        open val tripleReplaced = "I will be triple replaced"
+
+        override fun toString(): String = asString()
+    }
+
+    private class SubOfRepeatedAnnotations: RepeatedAnnotations() {
+        @AsStringPatternReplace("$", "!!!")
+        override val tripleReplaced = super.tripleReplaced
+
+        override fun toString(): String = asString()
+    }
 }

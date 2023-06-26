@@ -14,6 +14,7 @@ import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
+import nl.kute.reflection.annotationfinder.annotationSetOfPropertySuperSubHierarchy
 import nl.kute.reflection.getPropValue
 import nl.kute.reflection.propertiesFromSubSuperHierarchy
 import kotlin.reflect.KClass
@@ -40,12 +41,19 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
     if (annotations.any { it is AsStringOmit }) {
         return ""
     }
-    val asStringPatternReplace: AsStringPatternReplace? = annotations.findAnnotation()
-    val asStringMask: AsStringMask? = annotations.findAnnotation()
+    val asStringPatternReplaceSet: Set<AsStringPatternReplace> = annotations.findAnnotations()
+    val asStringMaskSet: Set<AsStringMask> = annotations.findAnnotations()
+    // non-repeating
     val asStringHash: AsStringHash? = annotations.findAnnotation()
+    // non-repeating
     val asStringOption: AsStringOption = annotations.findAnnotation()!! // always present
-    strValue = asStringPatternReplace.replacePattern(strValue)
-    strValue = asStringMask.mask(strValue)
+
+    asStringPatternReplaceSet.forEach {
+        strValue = it.replacePattern(strValue)
+    }
+    asStringMaskSet.forEach {
+        strValue = it.mask(strValue)
+    }
     strValue = asStringHash.hashString(strValue)
     strValue = asStringOption.applyOption(strValue)
     return strValue
@@ -53,6 +61,9 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
 
 private inline fun <reified A : Annotation> Set<Annotation>.findAnnotation(): A? =
     this.firstOrNull { it is A } as A?
+
+private inline fun <reified A : Annotation> Set<Annotation>.findAnnotations(): Set<A> =
+    this.filterIsInstance<A>().toSet()
 
 internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
     // map each property to an (empty yet) mutable set of annotations
@@ -72,11 +83,11 @@ internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, 
     (prop.annotationOfPropertySuperSubHierarchy<AsStringHash>())?.let { annotation ->
         annotations.add(annotation)
     }
-    (prop.annotationOfPropertySuperSubHierarchy<AsStringMask>())?.let { annotation ->
-        annotations.add(annotation)
+    (prop.annotationSetOfPropertySuperSubHierarchy<AsStringMask>()).let { annotationSet ->
+        annotations.addAll(annotationSet)
     }
-    (prop.annotationOfPropertySuperSubHierarchy<AsStringPatternReplace>())?.let { annotation ->
-        annotations.add(annotation)
+    (prop.annotationSetOfPropertySuperSubHierarchy<AsStringPatternReplace>()).let { annotationSet ->
+        annotations.addAll(annotationSet)
     }
     // AsStringOption from lowest subclass in hierarchy with this annotation
     val asStringOptionClassAnnotation =
