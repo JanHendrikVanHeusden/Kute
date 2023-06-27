@@ -6,7 +6,7 @@ import org.apache.commons.lang3.RandomUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class TestAsStringMask {
+class AsStringMaskTest {
 
     // String of length ~335k
     private val longString = mutableListOf("abcdefghijklmnopqrstuvwxyz1234567890-=`~!@#$%^&€()_+{}[];:',./<>?")
@@ -28,8 +28,8 @@ class TestAsStringMask {
 
         val maskOverlap = AsStringMask(startMaskAt = 5, endMaskAt = -7)
         assertThat(maskOverlap.mask("1234567890"))
-            .`as`("when start of mask beyond end of mask, everything should be masked")
-            .isEqualTo("**********")
+            .`as`("when start of mask beyond end of mask, mpyjomh should be masked")
+            .isEqualTo("1234567890")
 
         val maskEnd0 = AsStringMask(endMaskAt = 0)
         assertThat(maskEnd0.mask("1234567890"))
@@ -44,13 +44,13 @@ class TestAsStringMask {
 
         val maskStartAtStrEnd = AsStringMask(startMaskAt = 10)
         assertThat(maskStartAtStrEnd.mask("1234567890"))
-            .`as`("when start of mask at highest index or beyond, everything should be masked")
-            .isEqualTo("**********")
+            .`as`("when start of mask at highest index, nothing should be masked")
+            .isEqualTo("1234567890")
 
         val maskStartBeyondStrEnd = AsStringMask(startMaskAt = 11)
         assertThat(maskStartBeyondStrEnd.mask("1234567890"))
-            .`as`("when start of mask at highest index or beyond, everything should be masked")
-            .isEqualTo("**********")
+            .`as`("when start of mask beyond highest index, nothing should be masked")
+            .isEqualTo("1234567890")
 
         val maskAllNegative = AsStringMask(startMaskAt = -8, endMaskAt = -4)
         assertThat(maskAllNegative.mask("1234567890")).isEqualTo("12****7890")
@@ -60,8 +60,8 @@ class TestAsStringMask {
 
         val maskWeirdExtremes = AsStringMask(startMaskAt = Int.MAX_VALUE, endMaskAt = Int.MIN_VALUE)
         assertThat(maskWeirdExtremes.mask("1234567890"))
-            .`as`("When out of range values, everything should be masked")
-            .isEqualTo("**********")
+            .`as`("When out of range values, nothing should be masked")
+            .isEqualTo("1234567890")
 
         val maskWeirdStart = AsStringMask(startMaskAt = Int.MIN_VALUE)
         assertThat(maskWeirdStart.mask("1234567890"))
@@ -148,6 +148,32 @@ class TestAsStringMask {
             val asStringMask = AsStringMask(mask = it)
             assertThat(asStringMask.mask(str20)).isEqualTo(it.toString().repeat(20))
         }
+    }
+
+    @Test
+    fun `startMask within input length but beyond maxLength should leave result unmasked`() {
+        val input = "a".repeat(10)
+        val maxLength = 4
+        val startMaskAt = 8
+        assertThat(AsStringMask(maxLength = maxLength, startMaskAt = startMaskAt).mask(input))
+            .isEqualTo("a".repeat(maxLength))
+    }
+
+    @Test
+    fun `startMask beyond input length should leave result unmasked`() {
+        val input = "a".repeat(10)
+        val minLength = 15
+        val maxLength = 20
+        val startMaskAt = 13
+        val mask = "-"
+        assertThat(AsStringMask(
+            maxLength = maxLength,
+            minLength = minLength,
+            startMaskAt = startMaskAt,
+            mask = mask[0]
+        ).mask(input)
+            .also { println(it) }
+        ).isEqualTo("aaaaaaaaaa-----")
     }
 
 }

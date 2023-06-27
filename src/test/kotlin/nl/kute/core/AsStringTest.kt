@@ -480,9 +480,6 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     private open class Person : PersonallyIdentifiableData {
-        // Trying to override the annotations on the interface should not be possible:
-        // the annotations in the overriding class should be ignored (except for AsStringOption)
-
         @AsStringMask(startMaskAt = 0, endMaskAt = 0)
         override val phoneNumber: String = "06123456789"
 

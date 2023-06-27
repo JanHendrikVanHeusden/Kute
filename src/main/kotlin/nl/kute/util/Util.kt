@@ -17,6 +17,5 @@ package nl.kute.util
  *     ```
  *  Thanks to [gist of https://gist.github.com/garyp](https://gist.github.com/garyp/f7436b3898582613da07ee10a3e652ad)
  */
-@Suppress("unused")
 internal inline fun <T> T?.ifNull(block: () -> T): T =
     this ?: block()

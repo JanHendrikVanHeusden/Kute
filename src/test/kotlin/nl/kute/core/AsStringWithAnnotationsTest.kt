@@ -124,7 +124,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test subclass with PrintOtions using annotation on class`() {
+    fun `test subclass with AsStringOptions using annotation on class`() {
         // arrange
         val theObjectToPrint = SubClassWithAsStringOptionsOnClass()
 
@@ -335,16 +335,6 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
             .contains("phoneNumberMask2= +31 6 123 45 ****9 0 ")
             .doesNotContain(phony.phoneNumberMask2)
 
-            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask3
-                .findAnnotation<AsStringMask>()}")
-            .contains("phoneNumberMask3=**********************")
-            .doesNotContain(phony.phoneNumberMask3)
-
-            .`as`("End of masking is before start of masking, so full masking should be applied by ${Phony::phoneNumberMask4
-                .findAnnotation<AsStringMask>()}")
-            .contains("phoneNumberMask4=**********************")
-            .doesNotContain(phony.phoneNumberMask4)
-
             .`as`("Should apply full masking by default ${Phony::phoneNumberMask5.findAnnotation<AsStringMask>()}")
             .contains("phoneNumberMask5=**********************")
             .doesNotContain(phony.phoneNumberMask5)
@@ -377,6 +367,31 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
             .`as`("Mask should adhere to minLength=4, even with maxLength=2")
             .containsPattern("""\bcountryCode=\*{4}([),])""")
             .doesNotContain("countryCode=${banky.countryCode}")
+    }
+
+    @Test
+    fun `repeating AsStringMask annotations should be honoured, in order`() {
+        @Suppress("unused")
+        class Iban {
+            @AsStringMask(startMaskAt = 2, endMaskAt = 4, mask = '0')
+            @AsStringMask(startMaskAt = 11, endMaskAt = -3, mask = '*', minLength = 40)
+            @AsStringMask(startMaskAt = 31, endMaskAt = 36, mask = '-', maxLength = 32)
+            // fake Maltese IBAN number
+            val iban = "MT52QCGK45148414861965929692444"
+        }
+        assertThat(Iban().asString()).isEqualTo("Iban(iban=MT00QCGK451*****************444-)")
+    }
+
+    @Test
+    fun `repeating AsStringReplace annotations should be honoured, in order`() {
+        @Suppress("unused")
+        class Words {
+            // removes leading/trailing whitespace and first and last words
+            @AsStringReplace(pattern = """^\s*\S+\s+(.+?)\s+\S+\s*$""", "$1")
+            @AsStringReplace(pattern = """five$""", "three")
+            val fiveWords = " this String contains five words "
+        }
+        assertThat(Words().asString()).isEqualTo("Words(fiveWords=String contains three)")
     }
 
     @AsStringOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
@@ -459,14 +474,6 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
 
         @AsStringMask(startMaskAt = -8, endMaskAt = -4)
         val phoneNumberMask2 = phoneNumber
-
-        // Should fully mask, because end of masking is before start of it
-        @AsStringMask(startMaskAt = 12, endMaskAt = -12)
-        val phoneNumberMask3 = phoneNumber
-
-        // Should fully mask, because end of masking is before start of it
-        @AsStringMask(startMaskAt = 25, endMaskAt = 8)
-        val phoneNumberMask4 = phoneNumber
 
         // Should fully mask (default)
         @AsStringMask

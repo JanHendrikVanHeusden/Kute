@@ -72,19 +72,23 @@ internal fun AsStringMask?.mask(strVal: String?): String? {
         val maskStart = if (startMaskAt >= 0) {
             startMaskAt
         } else {
+            // counting backwards from end of String
             max(0, strLength + startMaskAt)
         }
         val maskEnd = if (endMaskAt >= 0) {
             endMaskAt
         } else {
+            // counting backwards from end of String
             max(0, strLength + endMaskAt)
         }
-        return if (maskStart in 0 until returnLength && maskEnd >= maskStart) {
-            val startAt = max(maskStart, 0)
-            val endAt = min(maskEnd, returnLength)
-            retVal.replaceRange(startAt until endAt, mask.toString().repeat(endAt - startAt))
-        } else {
-            mask.toString().repeat(returnLength)
+        retVal = retVal.take(returnLength)
+        if (retVal.length < minLength) {
+            retVal = retVal.padEnd(minLength - retVal.length, mask)
         }
+        if (maskStart in 0 until returnLength && maskEnd >= maskStart) {
+            val endAt = min(maskEnd, returnLength)
+            retVal = retVal.replaceRange(maskStart until endAt, mask.toString().repeat(endAt - maskStart))
+        }
+        return retVal
     }
 }

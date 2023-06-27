@@ -78,8 +78,9 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
  * * **Note that hashing data like this is *NOT* meant to be a security mechanism.**
  *     It is just a way to avoid that plain text data is exposed in logging etc.,
  *     and should only be used like that.
- *     Securing data would require much more hardening than this library is intended for.
- * * Given that, the hashing algorithms of this enum are selected for best performance, not for security.
+ *     > Securing data would require much more hardening than this library is intended for.
+ * * Given that, the hashing algorithms of this enum are selected for practicality: compact output (at most 40)
+ *   and performance; not in the first place for security.
  */
 enum class DigestMethod(val instanceProvider: (() -> Any)? = null) {
     /**
