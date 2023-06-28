@@ -18,7 +18,7 @@ class AsStringReplaceTest {
     }
 
     @Test
-    fun `regex replacement should honour back reference capturing`() {
+    fun `regex replacement should honour back reference capturing by number`() {
         // Arrange
         // fake Maltese IBAN number
         val input = "MT52QCGK45148414861965929692444"
@@ -34,6 +34,22 @@ class AsStringReplaceTest {
         // just a note: replacement like this could also be accomplished using 2 subsequent
         // @AsStringMask annotations; done that way, the String length is preserved
         assertThat(replaced).isEqualTo("MT00QCGK451*****444")
+    }
+
+    @Test
+    fun `regex replacement should honour back reference capturing by name`() {
+        // Arrange
+        // fake Maltese IBAN number
+        val input = "MT52QCGK45148414861965929692444"
+        val replacementSpec = AsStringReplace(
+            pattern = """^(?<country>[A-Z]{2}).+$""",
+            replacement = "\${country}",
+        )
+        // Act
+        val replaced = replacementSpec.replacePattern(input)
+
+        // Assert
+        assertThat(replaced).isEqualTo("MT")
     }
 
     @Test

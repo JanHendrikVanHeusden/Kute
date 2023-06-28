@@ -49,7 +49,7 @@ internal fun AsStringReplace?.replacePattern(strVal: String?): String? =
         } catch (e: Exception) {
             // The property's value is probably sensitive
             // So make sure not to use the value in the error message
-            log("${e.javaClass.simpleName} occurred when replacing a value using pattern $pattern; exception: [${e.asString()}]")
+            log("${e.javaClass.simpleName} occurred when replacing a value using pattern `$pattern`; and replacement `$replacement` exception: [${e.asString()}]")
             ""
         }
     }
