@@ -413,6 +413,25 @@ class AsStringTest: ObjectsStackVerifier {
         }
     }
 
+    @Test
+    fun `object with uninitialized lateinit property yields decent output with AsString`() {
+        @Suppress("unused")
+        class WithLateinit {
+            lateinit var uninitializedStringVar: String
+            lateinit var initializedStringVar: String
+            init {
+                if (LocalDate.now().isAfter(LocalDate.of(2000, 1, 1))) {
+                    initializedStringVar = "I am initialized"
+                }
+            }
+
+            override fun toString(): String = asString()
+        }
+        assertThat(WithLateinit().toString())
+            .contains("initializedStringVar=I am initialized")
+            .contains("uninitializedStringVar=null")
+    }
+
     // ------------------------------------
     // Classes etc. to be used in the tests
     // ------------------------------------
