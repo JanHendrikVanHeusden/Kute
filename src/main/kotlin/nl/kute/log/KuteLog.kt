@@ -77,7 +77,7 @@ fun setLogConsumer(aLogger: Consumer<String?>) {
     logger = { msg: String? -> aLogger.accept(msg) }
 }
 
-/** Resets the logger to [stdOutLogger] */
+/** Resets the logger to [stdOutLogger]; mainly for test purposes */
 internal fun resetStdOutLogger() {
     logger = stdOutLogger
 }

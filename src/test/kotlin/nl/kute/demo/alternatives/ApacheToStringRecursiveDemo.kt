@@ -7,6 +7,7 @@ import org.apache.commons.lang3.builder.ToStringStyle
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.util.LinkedList
 
 class ApacheToStringRecursiveDemo {
@@ -14,7 +15,7 @@ class ApacheToStringRecursiveDemo {
     companion object {
         init {
             log(
-                "Most of the tests in ${ApacheToStringRecursiveDemo::class.simplifyClassName()}, when enabled, would fail! " +
+                "Several of the tests in ${ApacheToStringRecursiveDemo::class.simplifyClassName()}, when enabled, would fail! " +
                         "Demonstrating that `Apache ToStringBuilder()` will cause StackOverflowError with recursive stuff; " +
                         "or otherwise fall back to non-informative or insane verbose output"
             )
@@ -138,7 +139,7 @@ class ApacheToStringRecursiveDemo {
     }
 
     @Test
-    @Disabled("Collection with self reference causes stack overflow with Apache ToStringBuilder")
+    @Disabled("Collection with self reference causes stack overflow with `Apache ToStringBuilder`")
     fun `Collections with self-referencing elements cause stack overflow with Apache ToStringBuilder`() {
         val mutableList: MutableList<Any> = mutableListOf("first", "second", "third")
         mutableList[1] = mutableList // self reference
@@ -164,8 +165,8 @@ class ApacheToStringRecursiveDemo {
 
         val toString1 = ToStringBuilder.reflectionToString(list1)
         val toString2 = ToStringBuilder.reflectionToString(list2)
-        assertThat(toString1).isNotNull()
-        assertThat(toString2).isNotNull()
+        assertThat(toString1).isNotNull
+        assertThat(toString2).isNotNull
     }
 
     @Suppress("unused")
@@ -174,7 +175,7 @@ class ApacheToStringRecursiveDemo {
     }
 
     @Test
-    @Disabled("This test would succeed if enabled, it provides some useful output with ToStringBuilder.reflectionToString")
+    @Disabled("This test would succeed if enabled, it provides some useful output with `Apache ToStringBuilder`")
     fun `objects with self reference should yield decent output with Apache ToStringBuilder`() {
         val testObj = GetSelfReference(1)
         val other = GetSelfReference(2)
@@ -235,6 +236,26 @@ class ApacheToStringRecursiveDemo {
                 .contains("C1")
                 .contains("C2")
         }
+    }
+
+    @Test
+    @Disabled("Would succeed when enabled, provides decent output for uninitialized lateinit var with `Apache ToStringBuilder`")
+    fun `object with uninitialized lateinit property yields decent output with Apache ToStringBuilder`() {
+        @Suppress("unused")
+        class WithLateinit {
+            lateinit var uninitializedStringVar: String
+            lateinit var initializedStringVar: String
+            init {
+                if (LocalDate.now().isAfter(LocalDate.of(2000, 1, 1))) {
+                    initializedStringVar = "I am initialized"
+                }
+            }
+
+            override fun toString(): String = ToStringBuilder.reflectionToString((this))
+        }
+        assertThat(WithLateinit().toString())
+            .contains("initializedStringVar=I am initialized")
+            .contains("uninitializedStringVar=<null>")
     }
 
 }

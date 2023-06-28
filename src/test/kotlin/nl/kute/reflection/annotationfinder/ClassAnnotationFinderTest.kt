@@ -41,7 +41,7 @@ internal class ClassAnnotationFinderTest {
         // That's OK for our relevant annotations, these are all inherited anyway
         assertThat(NonInheritedTestAnnotation::class.java.isAnnotationPresent(Inherited::class.java)).isFalse
         val anno3: NonInheritedTestAnnotation? = T3::class.annotationOfSubSuperHierarchy()
-        assertThat(anno3).isNotNull()
+        assertThat(anno3).isNotNull
 
         val asStringOption0: AsStringOption? = T0::class.annotationOfSubSuperHierarchy()
         assertThat(asStringOption0).isNotNull

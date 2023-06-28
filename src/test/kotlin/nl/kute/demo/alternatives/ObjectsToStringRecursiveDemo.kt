@@ -5,6 +5,7 @@ import nl.kute.reflection.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.util.LinkedList
 import java.util.Objects
 
@@ -14,8 +15,8 @@ class ObjectsToStringRecursiveDemo {
         init {
             log(
                 "Most of the tests in ${ObjectsToStringRecursiveDemo::class.simplifyClassName()}, when enabled, would fail! " +
-                        "Demonstrating that `Objects.toString()` will cause StackOverflowError with recursive stuff; " +
-                        "or otherwise fall back to non-informative Array.toString() method"
+                        "Demonstrating that `Objects.toString()` will cause StackOverflowError with recursive stuff " +
+                        "and other advanced constructs; or otherwise fall back to non-informative Array.toString() method"
             )
         }
     }
@@ -32,7 +33,7 @@ class ObjectsToStringRecursiveDemo {
             override fun toString(): String = Objects.toString(this)
         }
         val testObj = MyTestClass()
-        assertThat(testObj.toString()).isNotNull()
+        assertThat(testObj.toString()).isNotNull
     }
 
     @Test
@@ -64,7 +65,7 @@ class ObjectsToStringRecursiveDemo {
         }
         val myArraysObject = MyTestClass()
         val stringVal = myArraysObject.toString()
-        assertThat(stringVal).isNotNull()
+        assertThat(stringVal).isNotNull
     }
 
     @Test
@@ -85,7 +86,7 @@ class ObjectsToStringRecursiveDemo {
         val myArraysObject = MyTestClass()
         val stringVal = myArraysObject.toString()
         log(stringVal)
-        assertThat(stringVal).isNotNull()
+        assertThat(stringVal).isNotNull
     }
 
     @Test
@@ -112,8 +113,8 @@ class ObjectsToStringRecursiveDemo {
         list2.add(list1)
         list2.add(list1)
 
-        assertThat(Objects.toString(list1)).isNotNull()
-        assertThat(Objects.toString(list2)).isNotNull()
+        assertThat(Objects.toString(list1)).isNotNull
+        assertThat(Objects.toString(list2)).isNotNull
     }
 
     @Suppress("unused")
@@ -155,10 +156,69 @@ class ObjectsToStringRecursiveDemo {
         val child1 = Child("C1", mother, father)
         val child2 = Child("C2", mother, father)
 
-        assertThat(mother.toString()).isNotNull()
-        assertThat(father.toString()).isNotNull()
-        assertThat(child1.toString()).isNotNull()
-        assertThat(child2.toString()).isNotNull()
+        assertThat(mother.toString()).isNotNull
+        assertThat(father.toString()).isNotNull
+        assertThat(child1.toString()).isNotNull
+        assertThat(child2.toString()).isNotNull
     }
 
+    @Test
+    @Disabled("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+    fun `object with uninitialized lateinit property causes stack overflow with Objects toString`() {
+        @Suppress("unused")
+        class WithLateinits {
+            lateinit var uninitializedStringVar: String
+            lateinit var initializedStringVar: String
+            init {
+                if (LocalDate.now().isAfter(LocalDate.of(2000, 1, 1))) {
+                    initializedStringVar = "I am initialized"
+                }
+            }
+
+            override fun toString(): String = Objects.toString(this)
+        }
+        assertThat(WithLateinits().toString()).isNotNull
+    }
+
+    @Test
+    @Disabled("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+    fun `object with only uninitialized lateinit property causes stack overflow with Objects toString`() {
+        @Suppress("unused")
+        class WithUninitializedLateinit {
+            lateinit var uninitializedStringVar: String
+            override fun toString(): String = Objects.toString(this)
+        }
+        assertThat(WithUninitializedLateinit().toString()).isNotNull
+    }
+
+    @Test
+    @Disabled("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+    fun `object with initialized lateinit and init block causes stack overflow with Objects toString`() {
+        @Suppress("unused")
+        class WithInitializedLateinit {
+            lateinit var initializedStringVar: String
+            init {
+                if (LocalDate.now().isAfter(LocalDate.of(2000, 1, 1))) {
+                    initializedStringVar = "I am initialized"
+                }
+            }
+
+            override fun toString(): String = Objects.toString(this)
+        }
+        assertThat(WithInitializedLateinit().toString()).isNotNull
+    }
+
+    @Test
+    @Disabled("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+    fun `object with initialized lateinit causes stack overflow with Objects toString`() {
+        @Suppress("unused")
+        class WithInitializedLateinit {
+            lateinit var initializedStringVar: String
+            override fun toString(): String = Objects.toString(this)
+        }
+
+        val objToTest = WithInitializedLateinit()
+        objToTest.initializedStringVar = "I am initialized"
+        assertThat(objToTest.toString()).isNotNull
+    }
 }
