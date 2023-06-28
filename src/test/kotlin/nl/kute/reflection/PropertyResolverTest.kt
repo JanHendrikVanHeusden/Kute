@@ -10,6 +10,47 @@ import kotlin.reflect.full.memberProperties
 
 internal class PropertyResolverTest {
 
+    @Test
+    fun `propertiesFromHierarchy on abstract class or interface`() {
+        // arrange
+        assertThat(I0::class.propertiesFromSubSuperHierarchy()).containsExactly(I0::i, I0::j, I0::k)
+        val privateL = T1::class.memberProperties
+            .first { it.name == "l" && it.visibility == PRIVATE }
+        val privatePChar = T2::class.memberProperties
+            .first { it.name == "p" && it.visibility == PRIVATE }
+
+        // act, assert
+        assertThat(T1::class.propertiesFromSubSuperHierarchy()).contains(privateL)
+        assertThat(T2::class.propertiesFromSubSuperHierarchy())
+            .isEqualTo(listOf(T2::a, T2::f, privatePChar, T2::x, T2::y, T2::z, T2::i, T2::j, T2::k))
+    }
+
+    @Test
+    fun `propertiesFromHierarchy on anonymous class`() {
+        // arrange
+        val anon = object : T3(1, "", LocalDateTime.MIN, null, "y", LocalDateTime.MAX) {
+            val q = 'q'
+        }
+
+        // act
+        val propertiesAnon = anon::class.propertiesFromSubSuperHierarchy()
+        val propQAnon = anon::class.memberProperties.first { it.name == "q" }
+
+        val propertiesT3 = T3::class.propertiesFromSubSuperHierarchy()
+        val propP = T3::class.memberProperties.first { it.name == "p" }
+
+        // assert
+        assertThat(propertiesT3).contains(propP)
+        assertThat(propertiesT3.firstOrNull { it.name == "q" }).isNull()
+
+        assertThat(propertiesAnon).contains(propQAnon)
+        assertThat(propertiesAnon.firstOrNull { it.name == "p" }).isNull()
+    }
+
+    /////////////////////////
+    // Test classes / objects
+    /////////////////////////
+
     private interface I0 {
         val i: Int?
         val j: String
@@ -50,36 +91,6 @@ internal class PropertyResolverTest {
     private open class T4 : T3(1, "j", LocalDateTime.MAX, null, "y", LocalDateTime.now()) {
         val `a value with spaces`: Any = ""
         var aValueWithUpperCase: Any? = null
-    }
-
-    @Test
-    fun `propertiesFromHierarchy on abstract class or interface`() {
-        assertThat(I0::class.propertiesFromSubSuperHierarchy()).containsExactly(I0::i, I0::j, I0::k)
-        val privateL = T1::class.memberProperties
-            .first { it.name == "l" && it.visibility == PRIVATE }
-        val privatePChar = T2::class.memberProperties
-            .first { it.name == "p" && it.visibility == PRIVATE }
-
-        assertThat(T1::class.propertiesFromSubSuperHierarchy()).contains(privateL)
-        assertThat(T2::class.propertiesFromSubSuperHierarchy())
-            .isEqualTo(listOf(T2::a, T2::f, privatePChar, T2::x, T2::y, T2::z, T2::i, T2::j, T2::k))
-    }
-
-    @Test
-    fun `propertiesFromHierarchy on anonymous class`() {
-        val anon = object : T3(1, "", LocalDateTime.MIN, null, "y", LocalDateTime.MAX) {
-            val q = 'q'
-        }
-        val propertiesAnon = anon::class.propertiesFromSubSuperHierarchy()
-        val propQAnon = anon::class.memberProperties.first { it.name == "q" }
-
-        val propertiesT3 = T3::class.propertiesFromSubSuperHierarchy()
-        val propP = T3::class.memberProperties.first { it.name == "p" }
-        assertThat(propertiesT3).contains(propP)
-        assertThat(propertiesT3.firstOrNull { it.name == "q" }).isNull()
-
-        assertThat(propertiesAnon).contains(propQAnon)
-        assertThat(propertiesAnon.firstOrNull { it.name == "p" }).isNull()
     }
 
 }

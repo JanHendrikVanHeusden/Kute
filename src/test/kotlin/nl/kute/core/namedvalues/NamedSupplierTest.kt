@@ -17,20 +17,20 @@ class NamedSupplierTest {
 
     @Test
     fun `test NamedSupplier`() {
-        // Arrange
+        // arrange
         val suppliedValue = "the value"
         val supplier: () -> String = { suppliedValue }
         val name = "the name"
-        // Act
+        // act
         val namedSupplier: NamedSupplier<String> = NamedSupplier(name, supplier)
-        // Assert
+        // assert
         assertThat(namedSupplier.name).isSameAs(name)
         assertThat(namedSupplier.valueString).isSameAs(suppliedValue)
     }
 
     @Test
     fun `Retrieving the value of the supplier should evaluate the Supplier every time`() {
-        // Arrange
+        // arrange
         var counter = 0
         val namedSupplier: NamedSupplier<Int> =
             {
@@ -39,7 +39,7 @@ class NamedSupplierTest {
                 ++counter
             }.namedVal("counter") as NamedSupplier<Int>
 
-        // Act, assert
+        // act, assert
         assertThat(counter)
             .`as`("Expression should not be evaluated at construction time")
             .isZero()
@@ -53,7 +53,7 @@ class NamedSupplierTest {
 
     @Test
     fun `Supplier that throws exception should be handled`() {
-        // Arrange
+        // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
         var throwIt = false
@@ -64,21 +64,21 @@ class NamedSupplierTest {
             else okValue
         }
 
-        // Act: no exception
+        // act: no exception
         val thrower = supplier.namedVal("thrower")
         val okResult = thrower.valueString
-        // Assert
+        // assert
         assertThat(okResult).isEqualTo(okValue)
         assertThat(logMsg).isEmpty()
 
-        // Arrange: throw it!
+        // arrange: throw it!
         throwIt = true
-        // Act
+        // act
         val errResult = thrower.valueString
         assertThat(errResult).isNull()
         assertThat(logMsg).contains(errMsg)
 
-        // Arrange: no exception anymore
+        // arrange: no exception anymore
         throwIt = false
         logMsg = ""
         assertThat(thrower.valueString).isEqualTo(okValue)
@@ -87,13 +87,13 @@ class NamedSupplierTest {
 
     @Test
     fun `test namedVal`() {
-        // Arrange
+        // arrange
         val suppliedValue = "supplied value"
         val supplier = { suppliedValue }
         val name = "the name"
-        // Act
+        // act
         val namedSupplier = supplier.namedVal(name) as NamedSupplier<String>
-        // Assert
+        // assert
         assertThat(namedSupplier.name).isSameAs(name)
         assertThat(namedSupplier.valueString).isSameAs(suppliedValue)
     }

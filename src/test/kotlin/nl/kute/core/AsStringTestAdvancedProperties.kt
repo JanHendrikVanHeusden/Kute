@@ -15,10 +15,12 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     /** Demonstrates that a non-initialized lateinit var is regarded as null */
     @Test
     fun `test with lateinit vars`() {
+        // arrange
         val testObj = ClassWithLateInitVars()
         val initStr = "I am initialized!"
         testObj.myInitializedLateInitVar = initStr
 
+        // act, assert
         assertThat(testObj.asString())
             .contains("myUninitializedLateInitVar=null")
             .contains("myInitializedLateInitVar=I am initialized!")
@@ -79,6 +81,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
      */
     @Test
     fun `test with property getter`() {
+        // arrange
         val testObj = ClassWithPropertyGet()
         val halloInternalValue = "hallo internal value"
         val halloValueFromGetter = "hallo from get"
@@ -91,6 +94,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         javaField.trySetAccessible()
         assertThat(javaField.get(testObj)).isEqualTo(halloInternalValue)
 
+        // act, assert
         // demonstrate that the value from the property's get() method is used in the output, and not the internal value
         assertThat(testObj.asString()).contains(halloValueFromGetter)
         assertThat(testObj.asString()).doesNotContain(halloInternalValue)
@@ -112,7 +116,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
     @Test
     fun `test with extension properties`() {
-        // Arrange
+        // arrange
         val testObj = ClassWithExtensionProperties()
 
         val extPropClassLevelValue = testObj.extPropClassLevel
@@ -124,10 +128,10 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         val expectedExtPropPackageLevelValue = "a String that calls a package level prop extension; I am a package extension property"
         assertThat(extPropPackageLevelValue).isEqualTo(expectedExtPropPackageLevelValue)
 
-        // Act
+        // act
         val actual = testObj.asString()
 
-        // Assert
+        // assert
         assertThat(actual)
             .`as`("""the String with extension property should be shown with its value
                 | and with the value provided by the extension property""".trimMargin())

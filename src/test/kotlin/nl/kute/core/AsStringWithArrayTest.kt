@@ -10,9 +10,11 @@ class AsStringWithArrayTest: ObjectsStackVerifier {
 
     @Test
     fun `test that array data is properly readable`() {
+        // arrange, act
         val classWithArrayString = ClassWithArray(names).asString()
         val dataClassWithArrayString = DataClassWithArray(names).asString()
 
+        // assert
         assertThat(classWithArrayString).contains(names.contentDeepToString())
         names.forEach {
             assertThat(classWithArrayString.contains(it))
@@ -28,6 +30,10 @@ class AsStringWithArrayTest: ObjectsStackVerifier {
         val classWithArrayString = ClassWithArray(array).asString()
         assertThat(classWithArrayString.length).isEqualTo(500 + ClassWithArray::class.simpleName!!.length + "(array=)".length)
     }
+
+    /////////////////////////
+    // Test classes / objects
+    /////////////////////////
 
     @Suppress("unused")
     private class ClassWithArray(val array: Array<String>) {

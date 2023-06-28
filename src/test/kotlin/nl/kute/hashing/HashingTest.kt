@@ -33,6 +33,7 @@ internal class HashingTest {
         var hashResults: MutableSet<String>
 
         digestMethodPatterns.forEach { (digestMethod, pattern) ->
+            // arrange
             hashResults = mutableSetOf()
 
             // nested helper method for assertion
@@ -54,14 +55,17 @@ internal class HashingTest {
                 }
             }
 
+            // act, assert
             var strMinimal = ""
             repeat(10) {
                 assertHashFormat(strMinimal)
                 strMinimal += " "
             }
 
+            // act, assert
             assertHashFormat(testStringShort)
 
+            // act, assert
             var strLong = testStringLong
             repeat(10) {
                 strLong += ("something" + RandomStringUtils.randomAlphabetic(2))
@@ -132,21 +136,28 @@ internal class HashingTest {
     @ParameterizedTest
     @EnumSource(DigestMethod::class)
     fun `encodings should be taken into account where expected`(digestMethod: DigestMethod) {
+        // arrange
         val str1 = "¥⒂"
         val str2 = "¬"
         if (digestMethod == DigestMethod.JAVA_HASHCODE) {
+            // act
             // java hash is wilfully ignorant of encoding
             val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
             val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
+            // assert
             assertThat(hash1GB2312).isEqualTo(hash1UTF8)
         } else {
+            // act
             // other digesters take character set in account
             val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
             val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
+            // assert
             assertThat(hash1GB2312).isNotEqualTo(hash1UTF8)
 
+            // act
             val hash2ISO88591 = hashString(str2, digestMethod, Charsets.ISO_8859_1)
             val hash2UTF8 = hashString(str2, digestMethod, Charsets.UTF_8)
+            // assert
             assertThat(hash2ISO88591).isNotEqualTo(hash2UTF8)
         }
     }

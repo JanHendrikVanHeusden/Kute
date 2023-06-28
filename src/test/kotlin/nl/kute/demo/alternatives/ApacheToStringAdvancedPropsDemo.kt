@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.LinkedList
 
-class ApacheToStringRecursiveDemo {
+class ApacheToStringAdvancedPropsDemo {
 
     companion object {
         init {
             log(
-                "Several of the tests in ${ApacheToStringRecursiveDemo::class.simplifyClassName()}, when enabled, would fail! " +
+                "Several of the tests in ${ApacheToStringAdvancedPropsDemo::class.simplifyClassName()}, when enabled, would fail! " +
                         "Demonstrating that `Apache ToStringBuilder()` will cause StackOverflowError with recursive stuff; " +
                         "or otherwise fall back to non-informative or insane verbose output"
             )
@@ -251,11 +251,28 @@ class ApacheToStringRecursiveDemo {
                 }
             }
 
-            override fun toString(): String = ToStringBuilder.reflectionToString((this))
+            override fun toString(): String = ToStringBuilder.reflectionToString(this)
         }
         assertThat(WithLateinit().toString())
             .contains("initializedStringVar=I am initialized")
             .contains("uninitializedStringVar=<null>")
     }
 
+    @Test
+    @Disabled("This test would succeed if enabled: `ToStringBuilder.reflectionToString` handles synthetic types without exceptions")
+    fun `synthetic types shouldn't cause exceptions`() {
+        // arrange
+        val supplier: () -> String = { "a String supplier" }
+
+        listOf(
+            supplier,
+            { "an other String supplier" },
+            { Any() }
+        ).forEach {
+            // act, assert
+            val toString = ToStringBuilder.reflectionToString(it)
+            println(toString)
+            assertThat(toString).isNotNull()
+        }
+    }
 }

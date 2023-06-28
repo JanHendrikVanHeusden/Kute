@@ -9,12 +9,12 @@ import java.time.LocalDate
 import java.util.LinkedList
 import java.util.Objects
 
-class ObjectsToStringRecursiveDemo {
+class ObjectsToStringAdvancedPropsDemo {
 
     companion object {
         init {
             log(
-                "Most of the tests in ${ObjectsToStringRecursiveDemo::class.simplifyClassName()}, when enabled, would fail! " +
+                "Most of the tests in ${ObjectsToStringAdvancedPropsDemo::class.simplifyClassName()}, when enabled, would fail! " +
                         "Demonstrating that `Objects.toString()` will cause StackOverflowError with recursive stuff " +
                         "and other advanced constructs; or otherwise fall back to non-informative Array.toString() method"
             )
@@ -220,5 +220,28 @@ class ObjectsToStringRecursiveDemo {
         val objToTest = WithInitializedLateinit()
         objToTest.initializedStringVar = "I am initialized"
         assertThat(objToTest.toString()).isNotNull
+    }
+
+    @Test
+    @Disabled("This test would succeed if enabled: `Objects.toString()` yields decent output on synthetic types")
+    fun `synthetic types shouldn't cause exceptions`() {
+        // arrange
+        val supplier: () -> String = { "a String supplier" }
+
+        listOf(
+            supplier,
+            { "an other String supplier" },
+            { Any() }
+        ).forEach {
+            // act, assert
+            val toString = Objects.toString(it)
+            // Output will be like
+            // () -> kotlin.String
+            // () -> kotlin.Any
+            // () -> kotlin.Any
+            // Nice!
+            println(toString)
+            assertThat(toString).isNotNull()
+        }
     }
 }

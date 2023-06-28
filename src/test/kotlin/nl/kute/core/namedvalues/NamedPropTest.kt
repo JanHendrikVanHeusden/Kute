@@ -33,23 +33,23 @@ class NamedPropTest {
 
     @Test
     fun `property from delegate class should be retrieved`() {
-        // Arrange
+        // arrange
         val thePropValue = "the value"
         class ClassWithProp(override val myProp: String) : WithProp
         class ClassWithDelegate(val delegate: WithProp = ClassWithProp(thePropValue)): WithProp by delegate
 
         val testObj = ClassWithDelegate()
 
-        // Act
+        // act
         val namedPropWithObjectRef = testObj.namedVal(testObj::myProp) as NamedProp<ClassWithDelegate, String>
-        // Assert
+        // assert
         assertThat(namedPropWithObjectRef.valueString)
             .`as`("It should retrieve the delegate property value by object (testObj)")
             .isEqualTo(thePropValue)
 
-        // Act
+        // act
         val namedPropWithClassRef = testObj.namedVal(ClassWithDelegate::myProp) as NamedProp<ClassWithDelegate, String>
-        // Assert
+        // assert
         assertThat(namedPropWithClassRef.valueString)
             .`as`("It should retrieve the delegate property value by object class (ClassWithDelegate)")
             .isEqualTo(thePropValue)
@@ -57,7 +57,7 @@ class NamedPropTest {
 
     @Test
     fun `incompatible property should be handled correctly`() {
-        // Arrange
+        // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
         // 2 unrelated classes
@@ -66,21 +66,21 @@ class NamedPropTest {
         class TestClass2
         val testObj2 = TestClass2()
 
-        // Act
+        // act
         val testClass1Property0: KProperty0<String> = testObj1::myTestProperty
         // call property of TestClass1 with object of TestClass2: unrelated, incompatible
         val namedProp0 = testObj2.namedVal(testClass1Property0)
-        // Assert
+        // assert
         assertThat(namedProp0.valueString)
             .`as`("Somehow with KProperty0 (object reference testObj1) this succeeds, even with incompatible object (testObj2)")
             .isEqualTo(testObj1.myTestProperty)
         assertThat(logMsg).isEmpty()
 
-        // Act
+        // act
         // With KProperty1 this fails, on call with unrelated object; it should be handled properly
         val testClass1Property1: KProperty1<TestClass1, String> = TestClass1::myTestProperty
         val namedProp1 = testObj2.namedVal(testClass1Property1)
-        // Assert
+        // assert
         assertThat(namedProp1.valueString)
             .`as`("With KProperty1 (class reference TestClass1) it will fail; is handled & returns `null`")
             .isNull()
@@ -97,7 +97,7 @@ class NamedPropTest {
 
     @Test
     fun `NamedProp should evaluate the property value on each call`() {
-        // Arrange
+        // arrange
         var propValue = "prop value 1"
         val supplier = { propValue }
 
@@ -108,24 +108,24 @@ class NamedPropTest {
 
         val withProp = WithProp()
 
-        // Act
+        // act
         val namedProp = NamedProp(withProp, withProp::prop)
-        // Assert
+        // assert
         assertThat(namedProp.name).isEqualTo("prop")
         assertThat(namedProp.valueString).isEqualTo(propValue)
 
-        // Arrange
+        // arrange
         propValue = "prop value 2"
-        // Act
+        // act
         assertThat(namedProp.valueString).isEqualTo(propValue)
     }
 
     @Test
     fun `NamedProp should honour property annotations`() {
-        // Arrange
+        // arrange
         val testObj = WithPropertyAnnotations()
 
-        // Act, Assert
+        // act, assert
         assertThat(NamedProp(testObj, testObj::unchanged).valueString)
             .isEqualTo(testObj.unchanged)
 
@@ -150,11 +150,11 @@ class NamedPropTest {
 
     @Test
     fun `NamedProp should honour non-overridable super property annotations`() {
-        // Arrange
+        // arrange
         val testObjSuper = WithPropertyAnnotations()
         val testObj = Sub1OfClassWithPropertyAnnotations()
 
-        // Act, Assert
+        // act, assert
         assertThat(NamedProp(testObj, testObj::unchanged).valueString)
             .isEqualTo(testObj.unchanged)
             .isEqualTo(testObjSuper.unchanged)
@@ -190,10 +190,10 @@ class NamedPropTest {
 
     @Test
     fun `NamedProp should honour overridable sub property annotation`() {
-        // Arrange
+        // arrange
         val testObj = Sub2aOfClassWithPropertyAnnotations()
 
-        // Act, Assert
+        // act, assert
         assertThat(NamedProp(testObj, testObj::unchanged).valueString)
             .`as`("AsStringOption of sub-property should override AsStringOption of super properties")
             .isEqualTo(testObj.unchanged.take(5))
@@ -201,10 +201,10 @@ class NamedPropTest {
 
     @Test
     fun `NamedProp should honour class level AsStringOption`() {
-        // Arrange
+        // arrange
         val testObj = Sub2bOfClassWithPropertyAnnotations()
 
-        // Act, Assert
+        // act, assert
         assertThat(NamedProp(testObj, testObj::omitted).valueString!!.length)
             .isZero()
 
@@ -221,10 +221,10 @@ class NamedPropTest {
 
     @Test
     fun `NamedProp should honour AsStringOption at toString`() {
-        // Arrange
+        // arrange
         val testObj = Sub2cOfClassWithPropertyAnnotations()
 
-        // Act, Assert
+        // act, assert
         assertThat(NamedProp(testObj, testObj::omitted).valueString!!.length)
             .isZero()
 
@@ -245,14 +245,14 @@ class NamedPropTest {
 
     @Test
     fun `test namedVal`() {
-        // Arrange
+        // arrange
         class MyTestClass {
             val testProp: Int = Random.nextInt()
         }
         val myTestObj = MyTestClass()
-        // Act
+        // act
         val namedProp = myTestObj.namedVal(myTestObj::testProp) as NamedProp<MyTestClass, Int>
-        // Assert
+        // assert
         assertThat(namedProp.name).isEqualTo(MyTestClass::testProp.name)
         assertThat(namedProp.valueString).isEqualTo("${myTestObj.testProp}")
     }

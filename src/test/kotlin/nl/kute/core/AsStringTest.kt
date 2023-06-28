@@ -59,17 +59,17 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `test with extension object`() {
-        // Arrange
+        // arrange
         val classToPrint = ClassToPrint("test", 10, aPrintableDate)
 
-        // Assert
+        // assert
         assertThat(classToPrint.toString())
             .isEqualTo("ClassToPrint(greet=hallo, num=10, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
         val asStringProducer = classToPrint.asStringBuilder().exceptProperties(ClassToPrint::num).build()
         assertThat(asStringProducer.asString())
             .isEqualTo("ClassToPrint(greet=hallo, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
 
-        // Assert that it works on anonymous class
+        // assert that it works on anonymous class
         assertThat(extensionObject.toString())
             .doesNotContain(
                 "privateToPrint", "this is another printable", // excluded properties
@@ -82,15 +82,15 @@ class AsStringTest: ObjectsStackVerifier {
                 "num=80", // overridden value
             )
 
-        // Arrange
+        // arrange
         classToPrint.num = 20
-        // Assert that updated value is there
+        // assert that updated value is there
         assertThat(classToPrint.toString())
             .isEqualTo("ClassToPrint(greet=hallo, num=20, privateToPrint=2022-01-27, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
     }
 
     @Test
-    fun `test that toString with Mock does not break`() {
+    fun `test that asString with Mockito mock does not break`() {
         val testMock: ClassToPrint = mock(arrayOf(Printable::class)) {
             on { num } doReturn 35
             on { asString() } doReturn "mock as String"
@@ -142,7 +142,7 @@ class AsStringTest: ObjectsStackVerifier {
     @ParameterizedTest
     @ValueSource(strings = ["value", "prop"])
     fun `each call of asString with NamedXxx should evaluate the mutable value`(namedValueType: String) {
-        // Arrange
+        // arrange
         val valueName = "classLevelCounter"
         val namedProp = this.namedVal(::classLevelCounter) as NamedProp<*, Int>
 
@@ -163,12 +163,12 @@ class AsStringTest: ObjectsStackVerifier {
 
         classLevelCounter = 0
         repeat(3) {
-            // Arrange
+            // arrange
             classLevelCounter++
-            // Act
+            // act
             val asString = testObj.toString()
 
-            // Assert
+            // assert
             assertThat(asString)
                 .`as`("Should honour changed value")
                 .matches("^.+\\b$valueName=$classLevelCounter\\D")
@@ -178,7 +178,7 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `each call of asString with NamedSupplier should evaluate the value exactly once`() {
-        // Arrange
+        // arrange
         val counterName = "counter"
         var counter = 0
 
@@ -187,9 +187,8 @@ class AsStringTest: ObjectsStackVerifier {
             // It's just for test purposes, to verify that it's called only once during asString() processing
             ++counter
         }
-
         val namedSupplier = supplier.namedVal(counterName) as NamedSupplier<Int>
-        // Arrange
+
         counter = 0
 
         open class TestClass {
@@ -200,52 +199,52 @@ class AsStringTest: ObjectsStackVerifier {
                 return asStringProducer.asString()
             }
         }
-        assertThat(counter).isZero()
+        assertThat(counter).isZero
         val testObj = TestClass()
 
-        // Act
+        // act
         var asString = testObj.toString()
 
-        // Assert
+        // assert
         assertThat(asString)
             .`as`("Supplier expression should be retrieved only once during processing")
             .matches("^.+\\b$counterName=1\\D")
         assertThat(counter).isEqualTo(1)
 
-        // Act
+        // act
         asString = testObj.toString()
-        // Assert
+        // assert
         assertThat(asString)
             .`as`("")
             .matches("^.+\\b$counterName=2\\D")
         assertThat(counter).isEqualTo(2)
 
-        // Arrange
+        // arrange
         counter = 0
-        // Act
+        // act
         asString = testObj.asStringBuilder()
             .exceptPropertyNames(counterName)
             .withAlsoNamed(namedSupplier)
             .build()
             .asString()
-        // Assert
+        // assert
         assertThat(asString).matches("^.+\\b$counterName=1\\D")
         assertThat(counter)
             .`as`("propertyNamesToExclude should exclude properties only, not named values")
             .isEqualTo(1)
 
-        // Arrange
+        // arrange
         counter = 0
         class SubTestClass(var aProp: String = "a Prop"): TestClass()
 
         with(SubTestClass()) {
             val namedProp = this.namedVal(this::aProp)
-            // Act
+            // act
             asString = this.asStringBuilder()
                 .exceptPropertyNames(aProp, counterName)
                 .withAlsoNamed(namedProp, namedSupplier)
                 .asString()
-            // Assert
+            // assert
             assertThat(asString)
                 .matches("^.+\\b${namedProp.name}=${this.aProp}\\D.*")
                 .matches("^.+\\b$counterName=1\\D.*")
@@ -253,14 +252,14 @@ class AsStringTest: ObjectsStackVerifier {
                 .`as`("propertyNamesToExclude should exclude properties only, not named values")
                 .isEqualTo(1)
         }
-        // Arrange
+        // arrange
         counter = 0
-        // Act - not excluding "counter"
+        // act - not excluding "counter"
         asString = testObj.asStringBuilder()
             .exceptPropertyNames("count")
             .withAlsoNamed(namedSupplier)
             .asString()
-        // Assert
+        // assert
         assertThat(asString).matches("^.+\\b$counterName=1\\D")
         assertThat(counter).isEqualTo(1)
     }
@@ -276,6 +275,7 @@ class AsStringTest: ObjectsStackVerifier {
      */
     @Test
     fun `output with Java class with package visibility property`() {
+        // arrange
         val objToTest = JavaClassWithPackageLevelProperty()
         val subObjToTestNotAccessibleProp = SubClassOfJavaClassWithNotAccessiblePackageLevelProperty()
         val subSubObjToTestNotAccessibleProp = KotlinSubSubClassOfJavaClassWithNotAccessiblePackageLevelProperty()
@@ -286,6 +286,7 @@ class AsStringTest: ObjectsStackVerifier {
         val packLevelAttrOutput = "myPackageLevelAttribute=my package level attribute"
         val publicAttrOutput = "myPublicAccessibleString=my public accessible String"
 
+        // act, assert
         assertThat(objToTest.asString())
             .contains(publicAttrOutput)
 
@@ -318,7 +319,7 @@ class AsStringTest: ObjectsStackVerifier {
      */
     @Test
     fun `output with Java class with protected visibility property`() {
-
+        // arrange
         val objToTest = JavaClassWithProtectedProperty()
         val subObjToTestProtectedProp = SubClassOfJavaClassWithProtectedProperty()
         val subSubObjToTestProtectedProp = KotlinSubSubClassOfJavaJavaClassWithProtectedProperty()
@@ -326,6 +327,7 @@ class AsStringTest: ObjectsStackVerifier {
         val protectedAttrOutput = "myProtectedAttribute=my protected attribute"
         val publicAttrOutput = "myPublicAccessibleString=my public accessible String"
 
+        // act, assert
         assertThat(objToTest.asString())
             .contains(publicAttrOutput)
 
@@ -347,7 +349,7 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `output with Kotlin class with protected visibility property`() {
-
+        // arrange
         val objToTest = ClassWithProtectedProperty()
         val subObjToTestProtectedProp = SubClassOfClassWithProtectedProperty()
         val subSubObjToTestProtectedProp = SubSubClassOfClassWithProtectedProperty()
@@ -355,6 +357,7 @@ class AsStringTest: ObjectsStackVerifier {
         val protectedAttrOutput = "myProtectedAttribute=my protected attribute"
         val publicAttrOutput = "myPublicAccessibleString=my public accessible String"
 
+        // act, assert
         assertThat(objToTest.asString())
             .contains(publicAttrOutput)
 
@@ -376,6 +379,7 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `Java and Kotlin types should adhere to their original toString`() {
+        // arrange
         listOf(
             123,
             "123",
@@ -388,6 +392,7 @@ class AsStringTest: ObjectsStackVerifier {
             this::class,
             this::class.java,
         ).forEach {
+            // act, assert
             assertThat(it.asString()).isEqualTo(it.toString())
         }
     }
@@ -399,6 +404,7 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `synthetic types shouldn't cause exceptions`() {
+        // arrange
         val supplier: () -> String = { "a String supplier" }
 
         listOf(
@@ -407,6 +413,7 @@ class AsStringTest: ObjectsStackVerifier {
             { "an other String supplier" },
             { Any() }
         ).forEachIndexed {i, it ->
+            // act, assert
             assertThat(it.asString())
                 .`as`("Expression #$i should yield format class@hashCode")
                 .isEqualTo("${it::class.toString().replace("class ", "")}@${it.hexHashCode()}")
@@ -415,6 +422,7 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `object with uninitialized lateinit property yields decent output with AsString`() {
+        // arrange
         @Suppress("unused")
         class WithLateinit {
             lateinit var uninitializedStringVar: String
@@ -424,9 +432,9 @@ class AsStringTest: ObjectsStackVerifier {
                     initializedStringVar = "I am initialized"
                 }
             }
-
             override fun toString(): String = asString()
         }
+        // act, assert
         assertThat(WithLateinit().toString())
             .contains("initializedStringVar=I am initialized")
             .contains("uninitializedStringVar=null")

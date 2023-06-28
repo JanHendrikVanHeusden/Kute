@@ -18,41 +18,41 @@ class KotlinLoggerTest {
 
     @Test
     fun `basic test of log method`() {
-        // Arrange
+        // arrange
         logger = { msg -> stringLog = msg }
         val msg = "msg from testLog()"
-        // Act
+        // act
         log(msg)
-        // Assert
+        // assert
         assertThat(stringLog).isEqualTo(this::class.toString() + " - " + msg)
     }
 
     @Test
     fun `log should accept nulls`() {
-        // Arrange
+        // arrange
         logger = { msg -> stringLog = msg }
         val msg = null
-        // Act
+        // act
         log(msg)
-        // Assert
+        // assert
         assertThat(stringLog).isEqualTo(this::class.toString() + " - null")
     }
 
     @Test
     fun `basic test of logWithCaller`() {
-        // Arrange
+        // arrange
         logger = { msg -> stringLog = msg }
         val msg = "msg from testLog()"
         val caller = "I am the caller"
-        // Act
+        // act
         logWithCaller(caller, msg)
-        // Assert
+        // assert
         assertThat(stringLog).isEqualTo("$caller - $msg")
     }
 
     @Test
     fun `test of setting the logger`() {
-        // Arrange
+        // arrange
         // Buffer to store the log message in
         val logBuffer = StringBuffer()
 
@@ -78,7 +78,7 @@ class KotlinLoggerTest {
 
     @Test
     fun `test that erroneous logger will be rejected`() {
-        // Arrange
+        // arrange
         // Buffer to store the log message in
         val logBuffer = StringBuffer()
         val goodLogger: (String?) -> Unit = { msg -> logBuffer.append(msg) }

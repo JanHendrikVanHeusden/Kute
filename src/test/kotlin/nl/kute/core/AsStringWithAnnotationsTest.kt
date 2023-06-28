@@ -394,6 +394,10 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
         assertThat(Words().asString()).isEqualTo("Words(fiveWords=String contains three)")
     }
 
+    /////////////////////////
+    // Test classes / objects
+    /////////////////////////
+
     @AsStringOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
     private open class ClassWithNonDefaultAsStringOptions {
 

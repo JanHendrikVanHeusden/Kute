@@ -25,8 +25,10 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
 
     @Test
     fun `arrays without recursion should yield same output as contentDeepToString`() {
+        // arrange
         val myArray: Array<Any> = arrayOf(0, 1, 2, 3)
         myArray[2] = arrayOf(4, 5, 6)
+        // act, assert
         assertThat(myArray.asString())
             .`as`("Should return same result as `myArray.contentDeepToString()`")
             .isEqualTo("[0, 1, [4, 5, 6], 3]")
@@ -35,6 +37,7 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
 
     @Test
     fun `arrays with self-referencing elements should yield decent output`() {
+        // arrange
         val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
         myArray[2] = arrayOf(4, 5, 6)
         myArray[3] = myArray
@@ -42,11 +45,13 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
 
         val expected =
             "[0, 1, [4, 5, 6], recursive: ${myArray::class.simpleName}(...), recursive: ${myArray::class.simpleName}(...)]"
+        // act, assert
         assertThat(myArray.asString()).isEqualTo(expected)
     }
 
     @Test
     fun `arrays with mutually referencing elements should yield decent output`() {
+        // arrange
         val myArray: Array<Any> = arrayOf("a0", "a1", "a2", "a3", "a4")
         val myList: MutableList<Any> = mutableListOf("L0", "L1", "L2", "L3", "L4")
         myArray[2] = myList
@@ -57,6 +62,7 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
         val expectedForArray = "[a0, a1, [L0, recursive: Array(...), L2, recursive: Array(...), L4], [L0, recursive: Array(...), L2, recursive: Array(...), L4], a4]"
         val expectedForList = "[L0, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L2, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L4]"
 
+        // act, assert
         assertThat(myArray.asString()).isEqualTo(expectedForArray)
         validateObjectsStack()
         assertThat(myList.asString()).isEqualTo(expectedForList)
@@ -65,6 +71,7 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
 
     @Test
     fun `Objects with array properties with mutually referencing elements should yield decent output`() {
+        // arrange
         class MyTestClass {
             val myArray: Array<Any> = arrayOf("a0", "a1", "a2", "a3", "a4")
             val myList: MutableList<Any> = mutableListOf("L0", "L1", "L2", "L3", "L4")
@@ -80,12 +87,13 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
         val expected =
             "MyTestClass(myArray=[a0, a1, [L0, recursive: Array(...), L2, recursive: Array(...), L4], [L0, recursive: Array(...), L2, recursive: Array(...), L4], a4], " +
                     "myList=[L0, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L2, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L4])"
-
+        // act, assert
         assertThat(myTestObj.asString()).isEqualTo(expected)
     }
 
     @Test
     fun `Collections without recursion should yield same output as their default toString method`() {
+        // arrange
         val values = arrayOf("first", "second", "third")
         listOf(
             listOf(*values),
@@ -103,15 +111,18 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
 
     @Test
     fun `Collections with self-referencing elements should yield decent output`() {
+        // arrange
         val mutableList: MutableList<Any> = mutableListOf("first", "second", "third")
         mutableList[1] = mutableList // self reference
         mutableList.add(mutableList) // self reference
+        // act, assert
         assertThat(mutableList.asString())
             .isEqualTo("[first, recursive: ${mutableList::class.simpleName}(...), third, recursive: ${mutableList::class.simpleName}(...)]")
     }
 
     @Test
     fun `Collections with mutually referencing elements should yield decent output`() {
+        // arrange
         val list1: MutableList<Any> = mutableListOf("first 1", "second 1", "third 1")
         val list2: LinkedList<Any> = LinkedList(listOf("first 2", "second 2", "third 2"))
 
@@ -127,6 +138,7 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
             "[first 2, second 2, third 2, [first 1, second 1, third 1, recursive: LinkedList(...), recursive: LinkedList(...)]," +
                     " [first 1, second 1, third 1, recursive: LinkedList(...), recursive: LinkedList(...)]]"
 
+        // act, assert
         assertThat(list1.asString()).isEqualTo(expected1)
         validateObjectsStack()
         assertThat(list2.asString()).isEqualTo(expected2)
@@ -135,6 +147,7 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
 
     @Test
     fun `Objects with collection properties with mutually referencing elements should yield decent output`() {
+        // arrange
         class MyTestClass {
             val list1: MutableList<Any> = mutableListOf("first 1", "second 1", "third 1")
             val list2: LinkedList<Any> = LinkedList(listOf("first 2", "second 2", "third 2"))
@@ -154,6 +167,7 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
                     "[first 1, second 1, third 1, recursive: LinkedList(...), recursive: LinkedList(...)], [first 1, second 1, third 1, " +
                     "recursive: LinkedList(...), recursive: LinkedList(...)]])"
 
+        // act, assert
         assertThat(testObj.asString()).isEqualTo(expected)
     }
 
@@ -164,18 +178,21 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
 
     @Test
     fun `objects with self reference should yield decent output`() {
+        // arrange
         val testObj = GetSelfReference(1)
         val other = GetSelfReference(2)
         testObj.selfRef = testObj
         testObj.otherRef = other
         val className = GetSelfReference::class.simplifyClassName()
         val expected = "$className(id=1, otherRef=$className(id=2, otherRef=null, selfRef=null), selfRef=recursive: $className(...))"
+        // act, assert
         assertThat(testObj.asString()).isEqualTo(expected)
     }
 
     @Suppress("unused")
     @Test
     fun `objects with mutual reference should yield decent output`() {
+        // arrange
         class Parent(val name: String, val children: MutableSet<Any> = mutableSetOf()) {
             override fun toString(): String = asString()
         }
@@ -268,6 +285,7 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
             "name=C2)"
         //@formatter:on
 
+        // act, assert
         assertThat(mother.toString()).isEqualTo(expectedMother)
         validateObjectsStack()
 

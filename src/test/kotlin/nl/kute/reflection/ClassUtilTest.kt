@@ -66,22 +66,6 @@ internal class ClassUtilTest {
             .isEqualTo(Class4::class.java.superSubHierarchy(includeInterfaces = false).map { it.kotlin })
     }
 
-//    @Test
-//    fun `topDownTypeHierarchy for Kotlin object`() {
-//        val myClass4Object = Class4()
-//        val classHierarchy: List<KClass<*>> = myClass4Object.topDownTypeHierarchy()
-//        assertThat(classHierarchy).isEqualTo(myClass4Object::class.java.reverseTypeHierarchy().map { it.kotlin })
-//        assertThat(myClass4Object.topDownTypeHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
-//    }
-//
-//    @Test
-//    fun `topDownTypeHierarchy for Kotlin object - no interfaces`() {
-//        val myClass4Object = Class4()
-//        val classHierarchy: List<KClass<*>> = myClass4Object.topDownTypeHierarchy(includeInterfaces = false)
-//        assertThat(classHierarchy)
-//            .isEqualTo(myClass4Object.topDownTypeHierarchy(includeInterfaces = false))
-//    }
-
     @Test
     fun `reverseTypeHierarchy for Class`() {
         val classHierarchy: List<Class<*>> = Class4::class.java.subSuperHierarchy()

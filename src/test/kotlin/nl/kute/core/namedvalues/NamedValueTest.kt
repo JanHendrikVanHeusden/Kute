@@ -7,20 +7,20 @@ class NamedValueTest {
 
     @Test
     fun `test NamedValue`() {
-        // Arrange
+        // arrange
         val str = StringBuffer("supplied value")
         val theValue = StringBuffer(str)
         val name = "the name"
-        // Act
+        // act
         val namedValue: NamedValue<StringBuffer> = NamedValue(name, theValue)
-        // Assert
+        // assert
         assertThat(namedValue.name).isSameAs(name)
         assertThat(namedValue.valueString).isEqualTo(theValue.toString())
     }
 
     @Test
     fun `Retrieving the value of the NamedValue should evaluate the value every time`() {
-        // Arrange
+        // arrange
         var counter = 0
         class WithValue() {
             override fun toString(): String {
@@ -29,7 +29,7 @@ class NamedValueTest {
         }
         val namedValue = NamedValue("withValue", WithValue())
 
-        // Act, assert
+        // act, assert
         assertThat(counter)
             .`as`("Expression should not be evaluated at construction time")
             .isZero()
@@ -43,12 +43,12 @@ class NamedValueTest {
 
     @Test
     fun `test namedVal`() {
-        // Arrange
+        // arrange
         val valueStr = "the value"
         val name = "the name"
-        // Act
+        // act
         val namedValue = valueStr.namedVal(name) as NamedValue<String>
-        // Assert
+        // assert
         assertThat(namedValue.name).isSameAs(name)
         assertThat(namedValue.valueString).isEqualTo(valueStr)
     }
