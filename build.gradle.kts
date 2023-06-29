@@ -39,7 +39,6 @@ tasks.withType<Test> {
     useJUnitPlatform() // JUnit 5
 }
 
-
 repositories {
     mavenLocal()
     mavenCentral()
@@ -50,8 +49,6 @@ repositories {
         url = uri("https://jitpack.io")
     }
 }
-
-fun property(name: String) = properties[name] as String
 
 plugins {
     // Values retrieved from gradle.properties
@@ -70,6 +67,16 @@ plugins {
     id("jacoco")
     id("idea")
     id("org.jetbrains.dokka") version dokkaVersion
+    `java-gradle-plugin`
+}
+
+gradlePlugin {
+    plugins {
+        create("KuteConfigPlugin") {
+            id = "nl.kute.gradle.config.plugin"
+            implementationClass = "nl.kute.gradle.config.plugin.KuteConfigPlugin"
+        }
+    }
 }
 
 dependencies {
@@ -131,7 +138,6 @@ tasks.withType<DependencyUpdatesTask> {
         isVersionNonStable(this.candidate.version) && !isVersionNonStable(this.currentVersion)
     }
 }
-
 
 fun isVersionNonStable(version: String): Boolean {
     val hasStableKeyword = listOf("RELEASE", "FINAL", "GA")
