@@ -14,7 +14,7 @@ import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
 import nl.kute.core.namedvalues.namedVal
 import nl.kute.hashing.DigestMethod
-import nl.kute.hashing.hexHashCode
+import nl.kute.reflection.simplifyClassName
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty
 import nl.kute.testobjects.java.packagevisibility.KotlinSubSubClassOfJavaClassWithAccessiblePackageLevelProperty
@@ -27,6 +27,7 @@ import nl.kute.testobjects.java.protectedvisibility.SubClassOfJavaClassWithProte
 import nl.kute.testobjects.kotlin.printable.protectedvisibility.SubSubClassOfClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
+import nl.kute.util.identityHashHex
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -406,17 +407,18 @@ class AsStringTest: ObjectsStackVerifier {
     fun `synthetic types shouldn't cause exceptions`() {
         // arrange
         val supplier: () -> String = { "a String supplier" }
+        val property = this@AsStringTest::aPrintableDate
 
         listOf(
-            this@AsStringTest::aPrintableDate,
+            property,
             supplier,
             { "an other String supplier" },
             { Any() }
-        ).forEachIndexed {i, it ->
+        ).forEachIndexed { i, it ->
             // act, assert
             assertThat(it.asString())
-                .`as`("Expression #$i should yield format class@hashCode")
-                .isEqualTo("${it::class.toString().replace("class ", "")}@${it.hexHashCode()}")
+                .`as`("Expression #$i should yield format class@identityHashCode")
+                .isEqualTo("${it::class.simplifyClassName()}@${it.identityHashHex}")
         }
     }
 
@@ -438,6 +440,27 @@ class AsStringTest: ObjectsStackVerifier {
         assertThat(WithLateinit().toString())
             .contains("initializedStringVar=I am initialized")
             .contains("uninitializedStringVar=null")
+    }
+
+    @Test
+    fun `asStringFallBack should include the same identity as non-overridden toString`() {
+        val identityRegex = Regex("""^.+(@[0-9a-f]+)$""")
+        val replacement = "\$1"
+        // Non-overridden toString() removes leading zeroes from the hex hashCode
+        // So the test is repeated a number of times, so we are reasonably sure that it would hit a leading zero
+        // (which asStringFallBack also needs to remove)
+        (1..100).forEach { _ ->
+            Any().let {
+                assertThat(it.asStringFallBack().replace(identityRegex, replacement))
+                    .isNotEmpty
+                    .isEqualTo(it.toString().replace(identityRegex, replacement))
+            }
+        }
+    }
+
+    @Test
+    fun `asStringFallBack should handle nulls correctly`() {
+        assertThat(null.asStringFallBack()).isEqualTo("null")
     }
 
     // ------------------------------------

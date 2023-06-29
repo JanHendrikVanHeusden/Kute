@@ -5,7 +5,12 @@ import kotlin.reflect.KClass
 private val regexPackage = Regex(""".+\.(.*)$""")
 private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
 
-internal fun KClass<*>.simplifyClassName() = simpleName ?: toString().simplifyClassName()
+internal fun KClass<*>.simplifyClassName() =
+    try {
+        simpleName ?: toString().simplifyClassName()
+    } catch (e: Exception) {
+        toString()
+    }
 
 /**
  * Gets the class hierarchy of the `this` receiver, ordered like this:

@@ -19,3 +19,6 @@ package nl.kute.util
  */
 internal inline fun <T> T?.ifNull(block: () -> T): T =
     this ?: block()
+
+internal val Int?.asHexString: String
+    get() = this?.toByteArray()?.toHex() ?: "0"

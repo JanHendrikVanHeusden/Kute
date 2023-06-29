@@ -43,7 +43,7 @@ private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean): Lis
                 //   > 2. Packages and file facades are not yet supported in Kotlin reflection.
                 // In these somewhat exotic cases, as Kotlin can't find properties, we don't bother
                 //   > The message also suggest this: `Please use Java reflection to inspect this class`
-                //   > But that's out of scope for this more exotic stuff, we just don't care too much
+                //   > But that's out of scope for this more exotic stuff, we just don't care that much
                 .map { kClass ->
                     try {
                         kClass.memberProperties

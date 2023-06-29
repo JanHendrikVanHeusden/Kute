@@ -172,7 +172,6 @@ class AsStringMaskTest {
             startMaskAt = startMaskAt,
             mask = mask[0]
         ).mask(input)
-            .also { println(it) }
         ).isEqualTo("aaaaaaaaaa-----")
     }
 
