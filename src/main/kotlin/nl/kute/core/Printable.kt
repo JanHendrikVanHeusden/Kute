@@ -1,8 +1,6 @@
 package nl.kute.core
 
-import nl.kute.printable.annotation.option.PrintOption
-import nl.kute.util.asString
-import kotlin.reflect.KProperty
+import nl.kute.core.annotation.option.AsStringOption
 
 /**
  * Interface with easy-to-use methods for [String] representation; typically for data-centric classes.
@@ -14,8 +12,7 @@ import kotlin.reflect.KProperty
  * Implementing this interface with its default methods is a functionally equal alternative
  * for directly calling the static methods:
  *  * [Any.asString]
- *  * [Any.asStringExcluding]
- *  * [Any.asStringExcludingNames]
+ *  * [AsStringBuilder]
  * ---
  */
 interface Printable {
@@ -23,55 +20,26 @@ interface Printable {
     /**
      * Mimics the format of Kotlin data class's [toString] method.
      * * Super-class properties are included
-     * * Private properties are included
-     * * String value of individual properties is capped at (default) 500; see @[PrintOption] to override the default
+     * * Private properties are included (but not in subclasses)
+     * * String value of individual properties is capped at (default) 500; see @[AsStringOption] to override the default
      * @return A String representation of the [Printable], including class name and property names + values;
-     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify
-     * `
-     * @see [asStringExcluding]
-     * @see [asStringExcludingNames]
+     * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and others:
+     * see package `nl.kute.core.annotation.modify
+     * * For finer control of [asString] output, see [AsStringBuilder].
+     *
+     * @see [AsStringBuilder]
      */
     fun asString(): String = (this as Any).asString()
-
-    /**
-     * Mimics the format of Kotlin data class's [toString] method.
-     * * Super-class properties are included
-     * * Private properties are included
-     * * String value of individual properties is capped at 500; see @[PrintOption] to override the default
-     * @param propsToExclude accessible properties that you don't want to be included in the result.
-     * E.g. `override fun toString() = `[asStringExcluding]`(::myExcludedProp1, ::myExcludedProp2)`
-     * **NB:** Excluding properties will not work from Java classes; use [asStringExcludingNames] instead
-     * @return A String representation of the [Printable], including class name and property names + values;
-     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
-     * @see [asStringExcluding]
-     * @see [asStringExcludingNames]
-     */
-    fun asStringExcluding(vararg propsToExclude: KProperty<*>): String = (this as Any).asStringExcluding(*propsToExclude)
-
-
-    /**
-     * Mimics the format of Kotlin data class's [toString] method.
-     * * Super-class properties are included
-     * * Private properties are included
-     * * String value of individual properties is capped at 500; see @[PrintOption] to override the default
-     *
-     * This method allows you to exclude any properties by name, including inaccessible private ones.
-     * @param propNamesToExclude property names that you don't want to be included in the result; case-sensitive.
-     * E.g. use it when not calling from inside the class:
-     * `someObjectWithPrivateProps.`[asStringExcludingNames]`("myExcludedPrivateProp1", "myExcludedProp2")
-     * @return A String representation of the [Printable], including class name and property names + values;
-     * adhering to related annotations; for these annotations, e.g. @[PrintOption] and others; see package `nl.kute.printable.annotation.modify`
-     * @see [asString]
-     * @see [asStringExcluding]
-     */
-    fun asStringExcludingNames(vararg propNamesToExclude: String): String = (this as Any).asStringExcludingNames(*propNamesToExclude)
 
     /**
      * Abstract override of [toString], so implementing classes are forced to implement it
      * > It is not allowed to provide a default implementation of a member of [Any] in an interface
      *
-     * Suggested simplest implementation is:
-     * > `override fun toString(): String = asString[]`
+     * Suggested and simplest implementation is:
+     * > `override fun toString(): String = asString()`
+     * * adheres to related annotations; for these annotations, e.g. @[AsStringOption] and others:
+     *   see package `nl.kute.core.annotation.modify
+     * * For finer control of [asString] output, see [AsStringBuilder].
      */
     override fun toString(): String
 

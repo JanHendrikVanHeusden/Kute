@@ -1,48 +1,160 @@
 package nl.kute.reflection.annotationfinder
 
+import nl.kute.core.annotation.modify.AsStringHash
+import nl.kute.core.annotation.modify.AsStringMask
+import nl.kute.core.annotation.modify.AsStringReplace
+import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.defaultNullString
 import nl.kute.core.asString
-import nl.kute.printable.annotation.modifiy.PrintHash
-import nl.kute.printable.annotation.modifiy.PrintMask
-import nl.kute.printable.annotation.modifiy.PrintPatternReplace
-import nl.kute.printable.annotation.option.PrintOption
-import nl.kute.printable.annotation.option.defaultNullString
-import nl.kute.reflection.getPropertyFromHierarchy
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.MapEntry
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
+import kotlin.reflect.full.memberProperties
 
-@Suppress("unused") // several properties accessed by reflection only
+@Suppress("unused", "SameReturnValue", "EmptyMethod") // several properties accessed by reflection only
 internal class AnnotationFinderTest {
 
-    @PrintOption(propMaxStringValueLength = 200)
-    private open class With3PrintOptions(@PrintOption(propMaxStringValueLength = 100) open val someVal: String) {
-        @PrintOption(propMaxStringValueLength = 250, showNullAs = "<null>")
+    @Test
+    fun `find property annotations in class hierarchy in expected order`() {
+        val annotationMap: Map<KClass<*>, AsStringReplace> =
+            C3::prop.annotationByPropertySubSuperHierarchy<AsStringReplace>()
+        // contract of annotationsOfProperty explicitly states the order, let's test it!
+        assertThat(annotationMap.entries).containsExactly(
+            MapEntry.entry(C3::class, AsStringReplace(pattern = "C3", replacement = "c3")),
+            MapEntry.entry(C2::class, AsStringReplace(pattern = "C2", replacement = "c2")),
+            MapEntry.entry(C1::class, AsStringReplace(pattern = "C1", replacement = "c1")),
+            MapEntry.entry(I::class, AsStringReplace(pattern = "I", replacement = "i")),
+        )
+    }
+
+    @Test
+    fun `find annotations on private property`() {
+        // arrange
+        val obj = ClassWithAnnotationOnPrivateProperty()
+        val privateProp = obj::class.memberProperties.first { it.name == "myPrivateVal" }
+        // act
+        val hashAnnotation: AsStringHash = privateProp.annotationByPropertySubSuperHierarchy<AsStringHash>()[obj::class]!!
+        // assert
+        assertThat(hashAnnotation).isNotNull
+
+        // arrange, act
+        val optionAnnotation: AsStringOption =
+            privateProp.annotationByPropertySubSuperHierarchy<AsStringOption>()[obj::class]!!
+        // assert
+        assertThat(optionAnnotation).isNotNull
+        assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(5)
+    }
+
+    @Test
+    fun `find annotations on public property that masks private property`() {
+        // arrange
+        val obj = ClassWithAnnotationOnPublicPropertyThatMasksPrivateProperty()
+        val privateProp = obj::class.memberProperties.first { it.name == "myPrivateVal" }
+
+        // act
+        val hashAnnotation: AsStringHash? = privateProp.annotationByPropertySubSuperHierarchy<AsStringHash>()[obj::class]
+        // assert
+        assertThat(hashAnnotation).isNull()
+
+        // arrange, act
+        val maskAnnotation: AsStringMask = privateProp.annotationByPropertySubSuperHierarchy<AsStringMask>()[obj::class]!!
+        // assert
+        assertThat(maskAnnotation).isNotNull
+
+        // arrange, act
+        val optionAnnotation: AsStringOption =
+            privateProp.annotationByPropertySubSuperHierarchy<AsStringOption>()[obj::class]!!
+        // assert
+        assertThat(optionAnnotation).isNotNull
+        assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(200)
+    }
+
+    @Test
+    fun `find AsStringOption on class, property, method`() {
+        val with3AsStringOptions = With3AsStringOptions("my val")
+
+        val printOptByClass: AsStringOption = With3AsStringOptions::class.annotationOfSubSuperHierarchy()!!
+        assertThat(printOptByClass.propMaxStringValueLength).isEqualTo(200)
+        assertThat(printOptByClass.showNullAs).isEqualTo(defaultNullString)
+
+        val printOptOfProperty: AsStringOption = with3AsStringOptions::someVal.annotationOfPropertySubSuperHierarchy()!!
+        assertThat(printOptOfProperty.propMaxStringValueLength).isEqualTo(100)
+        assertThat(printOptOfProperty.showNullAs).isEqualTo(defaultNullString)
+
+        val printOptOfToString: AsStringOption = with3AsStringOptions::class.annotationOfToStringSubSuperHierarchy()!!
+        assertThat(printOptOfToString.propMaxStringValueLength).isEqualTo(250)
+        assertThat(printOptOfToString.showNullAs).isEqualTo("<null>")
+
+        val printOptOfProperty1: AsStringOption = With1AsStringOption::someVal.annotationOfPropertySubSuperHierarchy()!!
+        assertThat(printOptOfProperty1.propMaxStringValueLength).isEqualTo(100)
+        assertThat(printOptOfProperty1.showNullAs).isEqualTo(defaultNullString)
+    }
+
+    @Test
+    fun `find no AsStringOption where not defined`() {
+        val with1AsStringOption = With1AsStringOption("my val")
+
+        val printOptByClass: AsStringOption? = With1AsStringOption::class.annotationOfSubSuperHierarchy()
+        assertThat(printOptByClass).isNull()
+
+        val printOptOfToString: AsStringOption? = with1AsStringOption::class.annotationOfToStringSubSuperHierarchy()
+        assertThat(printOptOfToString).isNull()
+    }
+
+    @Test
+    fun `find AsStringOption on class, property, method of subclass by annotation's inheritance`() {
+        val with3AsStringOptions = With3AsStringOptions("my val")
+        val with3AsStringOptionsByInheritance = WithInheritedAsStringOption("my val on inherited")
+        assertThat(with3AsStringOptionsByInheritance).isInstanceOf(With3AsStringOptions::class.java)
+
+        val printOptByClass: AsStringOption = With3AsStringOptions::class.annotationOfSubSuperHierarchy()!!
+        val printOptByClassInheritance: AsStringOption? = WithInheritedAsStringOption::class.annotationOfSubSuperHierarchy()
+        assertThat(printOptByClassInheritance).isEqualTo(printOptByClass)
+
+        val printOptOfProperty: AsStringOption = with3AsStringOptions::someVal.annotationOfPropertySubSuperHierarchy()!!
+        val printOptOfPropertyByInheritance: AsStringOption? =
+            with3AsStringOptionsByInheritance::someVal.annotationOfPropertySubSuperHierarchy()!!
+        assertThat(printOptOfPropertyByInheritance).isSameAs(printOptOfProperty)
+
+        val printOptOfToString: AsStringOption = with3AsStringOptions::class.annotationOfToStringSubSuperHierarchy()!!
+        val printOptOfToStringByInheritance: AsStringOption? =
+            with3AsStringOptionsByInheritance::class.annotationOfToStringSubSuperHierarchy()
+        assertThat(printOptOfToStringByInheritance).isSameAs(printOptOfToString)
+    }
+
+    ////////////////////////////////////////
+    // Classes / objects to be used in tests
+    ////////////////////////////////////////
+    @AsStringOption(propMaxStringValueLength = 200)
+    private open class With3AsStringOptions(@AsStringOption(propMaxStringValueLength = 100) open val someVal: String) {
+        @AsStringOption(propMaxStringValueLength = 250, showNullAs = "<null>")
         override fun toString(): String = asString()
     }
 
-    private open class With1PrintOption(@PrintOption(propMaxStringValueLength = 100) val someVal: String) {
+    private open class With1AsStringOption(@AsStringOption(propMaxStringValueLength = 100) val someVal: String) {
         override fun toString(): String = asString()
     }
 
-    private open class WithInheritedPrintOption(override val someVal: String) : With3PrintOptions(someVal) {
+    private open class WithInheritedAsStringOption(override val someVal: String) : With3AsStringOptions(someVal) {
         override fun toString(): String = asString()
 
-        @PrintOption(propMaxStringValueLength = 999999, showNullAs = "")
-        @Suppress("unused", "UNUSED_PARAMETER")
+        @AsStringOption(propMaxStringValueLength = 999999, showNullAs = "")
+        @Suppress("unused", "UNUSED_PARAMETER", "EmptyMethod")
         fun toString(iets: String) {}
     }
 
     private open class ClassWithMethodParamSubtypeInheritance<T : Number> {
-        @PrintOption(propMaxStringValueLength = 50, showNullAs = "")
+        @AsStringOption(propMaxStringValueLength = 50, showNullAs = "")
         open fun getList(inList: List<T>): List<T> = emptyList()
 
-        @PrintOption(propMaxStringValueLength = 15, showNullAs = "geen getal")
+        @AsStringOption(propMaxStringValueLength = 15, showNullAs = "geen getal")
         open fun getNum(inNum: T): T? = null
 
+        @Suppress("EmptyMethod") // several properties accessed by reflection only
         open fun doList(inList: List<T>) {}
 
-        @PrintOption(propMaxStringValueLength = 250, showNullAs = "<null>")
+        @AsStringOption(propMaxStringValueLength = 250, showNullAs = "<null>")
         override fun toString(): String = asString()
     }
 
@@ -50,150 +162,56 @@ internal class AnnotationFinderTest {
     private open class SubClassWithMethodParamSubtypeInheritance : ClassWithMethodParamSubtypeInheritance<Int>() {
         override fun getList(inList: List<Int>): ArrayList<Int> = ArrayList()
         override fun getNum(inNum: Int): Int = 12
+
+        @Suppress("EmptyMethod") // several properties accessed by reflection only
         override fun doList(inList: List<Int>) {}
+
         override fun toString(): String = super.toString()
     }
 
     private open class ClassWithAnnotationOnPrivateProperty {
-        @PrintOption(propMaxStringValueLength = 5)
-        @PrintHash
+        @AsStringOption(propMaxStringValueLength = 5)
+        @AsStringHash
         private val myPrivateVal = "value of my private val"
         override fun toString(): String = asString()
     }
 
-    private open class ClassWithAnnotationOnPublicPrivatePropertyThatMasksPrivateProperty: ClassWithAnnotationOnPrivateProperty() {
-        @PrintOption(propMaxStringValueLength = 200)
-        @PrintMask
+    private open class ClassWithAnnotationOnPublicPropertyThatMasksPrivateProperty : ClassWithAnnotationOnPrivateProperty() {
+        @AsStringOption(propMaxStringValueLength = 200)
+        @AsStringMask
         val myPrivateVal = "value of the masking public val"
         override fun toString(): String = asString()
     }
 
     private interface I {
-        @PrintPatternReplace(pattern = "I", replacement = "i")
+        @AsStringReplace(pattern = "I", replacement = "i")
         val prop: String
-        @PrintOption(propMaxStringValueLength = 0)
+
+        @AsStringOption(propMaxStringValueLength = 0)
         override fun toString(): String
     }
-    private open class C1: I {
-        @PrintPatternReplace(pattern = "C1", replacement = "c1")
+
+    private open class C1 : I {
+        @AsStringReplace(pattern = "C1", replacement = "c1")
         override val prop: String = "C1"
-        @PrintOption(propMaxStringValueLength = 1)
+
+        @AsStringOption(propMaxStringValueLength = 1)
         override fun toString(): String = "C1"
     }
-    private open class C2: C1() {
-        @PrintPatternReplace(pattern = "C2", replacement = "c2")
+
+    private open class C2 : C1() {
+        @AsStringReplace(pattern = "C2", replacement = "c2")
         override val prop: String = "C2"
-        @PrintOption(propMaxStringValueLength = 2)
+
+        @AsStringOption(propMaxStringValueLength = 2)
         override fun toString(): String = "C2"
     }
-    private open class C3: C2() {
-        @PrintPatternReplace(pattern = "C3", replacement = "c3")
+
+    private open class C3 : C2() {
+        @AsStringReplace(pattern = "C3", replacement = "c3")
         override val prop: String = "C3"
-        @PrintOption(propMaxStringValueLength = 3)
+
+        @AsStringOption(propMaxStringValueLength = 3)
         override fun toString(): String = "C3"
     }
-
-    @Test
-    fun `find property annotations in class hierarchy in expected order`() {
-        val annotationMap: Map<KClass<*>, PrintPatternReplace> = C3::prop.annotationsOfProperty<PrintPatternReplace>()
-        // contract of annotationsOfProperty explicitly states the order, let's test it!
-        assertThat(annotationMap.entries).containsExactly(
-            MapEntry.entry(C3::class, PrintPatternReplace(pattern = "C3", replacement = "c3")),
-            MapEntry.entry(C2::class, PrintPatternReplace(pattern = "C2", replacement = "c2")),
-            MapEntry.entry(C1::class, PrintPatternReplace(pattern = "C1", replacement = "c1")),
-            MapEntry.entry(I::class, PrintPatternReplace(pattern = "I", replacement = "i")),
-        )
-    }
-
-    @Test
-    fun `find annotations on private property`() {
-        val obj = ClassWithAnnotationOnPrivateProperty()
-        val privateProp = obj.getPropertyFromHierarchy("myPrivateVal")!!
-
-        val hashAnnotation: PrintHash = privateProp.annotationsOfProperty<PrintHash>()[obj::class]!!
-        assertThat(hashAnnotation).isNotNull
-
-        val optionAnnotation: PrintOption = privateProp.annotationsOfProperty<PrintOption>()[obj::class]!!
-        assertThat(optionAnnotation).isNotNull
-        assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(5)
-    }
-
-    @Test
-    fun `find annotations on public property that masks private property`() {
-        val obj = ClassWithAnnotationOnPublicPrivatePropertyThatMasksPrivateProperty()
-        val privateProp = obj.getPropertyFromHierarchy("myPrivateVal")!!
-
-        val hashAnnotation: PrintHash? = privateProp.annotationsOfProperty<PrintHash>()[obj::class]
-        assertThat(hashAnnotation).isNull()
-
-        val maskAnnotation: PrintMask = privateProp.annotationsOfProperty<PrintMask>()[obj::class]!!
-        assertThat(maskAnnotation).isNotNull
-
-        val optionAnnotation: PrintOption = privateProp.annotationsOfProperty<PrintOption>()[obj::class]!!
-        assertThat(optionAnnotation).isNotNull
-        assertThat(optionAnnotation.propMaxStringValueLength).isEqualTo(200)
-    }
-
-    @Test
-    fun `find PrintOption on class, property, method`() {
-        val with3PrintOptions = With3PrintOptions("my val")
-
-        val printOptByClass: PrintOption = With3PrintOptions::class.annotationOfClass()!!
-        assertThat(printOptByClass.propMaxStringValueLength).isEqualTo(200)
-        assertThat(printOptByClass.showNullAs).isEqualTo(defaultNullString)
-
-        val printOptOfObject: PrintOption = with3PrintOptions.annotationOfClass()!!
-        assertThat(printOptOfObject).isSameAs(printOptByClass)
-
-        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfPropertyInHierarchy()!!
-        assertThat(printOptOfProperty.propMaxStringValueLength).isEqualTo(100)
-        assertThat(printOptOfProperty.showNullAs).isEqualTo(defaultNullString)
-
-        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToString()!!
-        assertThat(printOptOfToString.propMaxStringValueLength).isEqualTo(250)
-        assertThat(printOptOfToString.showNullAs).isEqualTo("<null>")
-
-        val printOptOfProperty1: PrintOption = With1PrintOption::someVal.annotationOfPropertyInHierarchy()!!
-        assertThat(printOptOfProperty1.propMaxStringValueLength).isEqualTo(100)
-        assertThat(printOptOfProperty1.showNullAs).isEqualTo(defaultNullString)
-    }
-
-    @Test
-    fun `find no PrintOption where not defined`() {
-        val with1PrintOption = With1PrintOption("my val")
-
-        val printOptByClass: PrintOption? = With1PrintOption::class.annotationOfClass()
-        assertThat(printOptByClass).isNull()
-
-        val printOptOfObject: PrintOption? = with1PrintOption.annotationOfClass()
-        assertThat(printOptOfObject).isNull()
-
-        val printOptOfToString: PrintOption? = with1PrintOption.annotationOfClass()
-        assertThat(printOptOfToString).isNull()
-    }
-
-    @Test
-    fun `find PrintOption on class, property, method of subclass by annotation's inheritance`() {
-        val with3PrintOptions = With3PrintOptions("my val")
-        val with3PrintOptionsByInheritance = WithInheritedPrintOption("my val on inherited")
-        assertThat(with3PrintOptionsByInheritance).isInstanceOf(With3PrintOptions::class.java)
-
-        val printOptByClass: PrintOption = With3PrintOptions::class.annotationOfClass()!!
-        val printOptByClassInheritance: PrintOption? = WithInheritedPrintOption::class.annotationOfClass()
-        assertThat(printOptByClassInheritance).isEqualTo(printOptByClass)
-
-        val printOptOfObject: PrintOption = with3PrintOptions.annotationOfClass()!!
-        val printOptOfObjectByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfClass()
-        assertThat(printOptOfObjectByInheritance).isSameAs(printOptOfObject)
-
-        val printOptOfProperty: PrintOption = with3PrintOptions::someVal.annotationOfPropertyInHierarchy()!!
-        val printOptOfPropertyByInheritance: PrintOption? =
-            with3PrintOptionsByInheritance::someVal.annotationOfPropertyInHierarchy()!!
-        assertThat(printOptOfPropertyByInheritance).isSameAs(printOptOfProperty)
-
-        val printOptOfToString: PrintOption = with3PrintOptions.annotationOfToString()!!
-        val printOptOfToStringByInheritance: PrintOption? = with3PrintOptionsByInheritance.annotationOfToString()
-        assertThat(printOptOfToStringByInheritance).isSameAs(printOptOfToString)
-    }
-
 }

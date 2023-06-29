@@ -1,4 +1,3 @@
-
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
@@ -80,11 +79,15 @@ dependencies {
     val mockitoKotlinVersion by System.getProperties()
     val assertJVersion by System.getProperties()
     val commonsLangVersion by System.getProperties()
+    val awaitilityVersion by System.getProperties()
+    val kotlinCoroutinesVersion by System.getProperties()
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    // TODO: needed?
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
+    compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 
     // Used in tests only.
     // Do not use it in source code, packaged Kute should not rely on any external dependency
@@ -103,6 +106,7 @@ dependencies {
 
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
     testImplementation("org.assertj:assertj-core:$assertJVersion")
+    testImplementation("org.awaitility:awaitility:$awaitilityVersion")
 }
 
 dependencyCheck {

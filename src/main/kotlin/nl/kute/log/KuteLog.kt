@@ -1,0 +1,83 @@
+@file:JvmName("KuteLog")
+
+package nl.kute.log
+
+import nl.kute.util.asString
+import java.util.function.Consumer
+
+/** Logs message [msg], prefixed by the receiver's class name */
+internal fun Any?.log(msg: Any?) = try {
+    loggerWithCaller("${this?.javaClass ?: ""}", msg)
+} catch (e: Exception) {
+    e.printStackTrace() // not much else we can do
+}
+
+/** Logs message [msg], prefixed by the [caller] String */
+internal fun logWithCaller(caller: String, msg: Any?) = try {
+    loggerWithCaller(caller, msg)
+} catch (e: Exception) {
+    e.printStackTrace() // not much else we can do
+}
+
+/** When no other [logger] is set, this logger is used, which simply outputs `msg` to std out (using [println]) */
+internal val stdOutLogger: (Any?) -> Unit = { msg: Any? -> println(msg) }
+
+/** Logger that outputs `msg`, prefixed with the `caller` String, to the current [logger] */
+internal val loggerWithCaller: (String, Any?) -> Unit = { caller, msg: Any? -> logger("$caller - $msg") }
+
+/**
+ * Static [logger].
+ * By default (wen no other logger set explicitly), Kute uses [stdOutLogger] to output to std out (using `println()`).
+ *
+ * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
+ * > To be used from within Kotlin.
+ * > For use from Java code: see [setLogConsumer]
+ *
+ * Typical usage (Kotlin) would be:
+ * ```
+ * private val kuteLogger = Logger.getLogger("nl.kute")
+ * nl.kute.log.logger = { msg -> kuteLogger.error(msg) }
+ * ```
+ */
+var logger: (String?) -> Unit = stdOutLogger
+    set(newLogger) {
+        try {
+            if (newLogger != stdOutLogger) {
+                // basic test to assert that the new logger works (not causing an exception)
+                newLogger("")
+            }
+            field = newLogger // when no exception occurred
+        } catch (e: Exception) {
+            field.invoke(
+                """Tried to set logger, but logger caused exception ${e::class}.
+                | logger will not be changed!
+                | ${e.asString()}
+                | """.trimMargin()
+            )
+        }
+    }
+
+/**
+ * Static [logger].
+ * By default (wen no other logger set explicitly), Kute uses [stdOutLogger] to output to std out (using `println()`).
+ *
+ * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
+ * > To be used from within Java.
+ * > For use from Kotlin code: see [logger]
+ *
+ * More convenient in Java than hassling with [Unit] (as you would with [logger])
+ * > Typical usage (Java) would be:
+ * ```
+ * Logger myLogger = Logger.getLogger("nl.kute")
+ * Consumer<String> kuteErrorlogger = msg -> myLogger.error(msg);
+ * nl.kute.log.setLogConsumer(kuteErrorLogger);
+ * ```
+ */
+fun setLogConsumer(aLogger: Consumer<String?>) {
+    logger = { msg: String? -> aLogger.accept(msg) }
+}
+
+/** Resets the logger to [stdOutLogger]; mainly for test purposes */
+internal fun resetStdOutLogger() {
+    logger = stdOutLogger
+}

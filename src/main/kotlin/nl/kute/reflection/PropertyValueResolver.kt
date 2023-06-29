@@ -1,55 +1,55 @@
 package nl.kute.reflection
 
-import nl.kute.util.asString
+import nl.kute.log.log
+import nl.kute.reflection.error.handlePropValException
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.isAccessible
 
-private fun <V: Any?> getPropValueNonSafe(property: KProperty0<V>?): V? {
+private fun <T : Any?, V : Any?> T?.getPropValueNonSafe(property: KProperty1<T, V>?): V? {
     if (property?.isAccessible == false) {
-        // Might throw IllegalAccessException otherwise
+        // Might throw IllegalAccessException or InaccessibleObjectException, e.g.:
+        //  * when a security manager is in place that blocks access
+        //  * when using named modules (Java Jigsaw) that do not allow deep reflective access
+        property.isAccessible = true
+    }
+    return if (this == null) null else property?.get(this)
+}
+
+@Suppress("UnusedReceiverParameter")
+private fun <T : Any?, V : Any?> T?.getPropValueNonSafe(property: KProperty0<V>?): V? {
+    if (property?.isAccessible == false) {
+        // Might throw IllegalAccessException or InaccessibleObjectException, e.g.:
+        //  * when a security manager is in place that blocks access
+        //  * when using named modules (Java Jigsaw) that do not allow deep reflective access
         property.isAccessible = true
     }
     return property?.get()
 }
 
 /** @return the value of the property; may return `null` if the property can not be accessed */
-@Suppress("UNNECESSARY_SAFE_CALL") // nullability may occur in tests due to mocks that force contrived exceptions
-internal fun <V: Any?> getPropValue(property: KProperty0<V>?): V? {
+internal fun <T : Any?, V : Any?> T.getPropValue(property: KProperty<V>?): V? {
     return try {
-        // Might throw IllegalAccessException if a SecurityManager is active
-        getPropValueNonSafe(property)
-    } catch (e1: Exception) {
-        // no logging framework present, so we can use standard output only
-        try {
-            println("${e1?.javaClass?.simpleName} occurred when retrieving value of property [${property?.declaringClass()?.simpleName}.${property?.name}]; exception: ${e1?.asString()}")
-        } catch (e2: Exception) {
-            println("Exception occurred while evaluating property ${property?.name}; exception: ${e1?.asString()}")
-        }
-        null
-    }
-}
+        when (property) {
+            is KProperty0<V> -> {
+                this?.getPropValueNonSafe(property)
+            }
 
-private fun <T: Any, V: Any?> T.getPropValueNonSafe(property: KProperty1<T, V>?): V? {
-    if (property?.isAccessible == false) {
-        // Might throw IllegalAccessException otherwise
-        property.isAccessible = true
-    }
-    return property?.get(this)
-}
+            is KProperty1<*, *> -> {
+                @Suppress("UNCHECKED_CAST")
+                this?.getPropValueNonSafe(property as KProperty1<T, V>)
+            }
 
-/** @return the value of the property; may return `null` if the property can not be accessed */
-@Suppress("UNNECESSARY_SAFE_CALL") // nullability may occur in tests due to mocks that force contrived exceptions
-internal fun <T: Any, V: Any?> T.getPropValue(property: KProperty1<T, V>?): V? {
-    return try {
-        this.getPropValueNonSafe(property)
-    } catch (e1: Exception) {
-        // no logging framework present, so we can use standard output only
-        try {
-            println("${e1?.javaClass?.simpleName} occurred when retrieving value of property [${property?.declaringClass()?.simpleName}.${property?.name}]; exception: ${e1?.asString()}")
-        } catch (e2: Exception) {
-            println("Exception occurred while evaluating property ${property?.name}; exception: ${e1?.asString()}")
+            else -> {
+                "Unsupported property type ${property!!::class}".let {
+                    log(it)
+                    throw UnsupportedOperationException(it)
+                }
+            }
         }
+    } catch (e: Exception) {
+        property?.handlePropValException(e)
         null
     }
 }

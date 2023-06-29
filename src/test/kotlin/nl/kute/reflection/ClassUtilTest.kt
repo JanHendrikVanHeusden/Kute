@@ -18,7 +18,7 @@ internal class ClassUtilTest {
 
     @Test
     fun `topDownTypeHierarchy for Class`() {
-        val classHierarchy: List<Class<*>> = Class4::class.java.topDownTypeHierarchy()
+        val classHierarchy: List<Class<*>> = Class4::class.java.superSubHierarchy()
 
         // 4 classes that implement 5 interfaces, no duplicates; Any is not included
         assertThat(classHierarchy).hasSize(9)
@@ -37,12 +37,12 @@ internal class ClassUtilTest {
         assertThat(classHierarchy.subList(5, 9))
             .isEqualTo(listOf(Class1::class.java, Class2::class.java, Class3::class.java, Class4::class.java))
 
-        assertThat(Class4::class.java.topDownTypeHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
+        assertThat(Class4::class.java.superSubHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
     }
 
     @Test
     fun `topDownTypeHierarchy for Class - no interfaces`() {
-        val classHierarchy: List<Class<*>> = Class4::class.java.topDownTypeHierarchy(includeInterfaces = false)
+        val classHierarchy: List<Class<*>> = Class4::class.java.superSubHierarchy(includeInterfaces = false)
 
         // 4 classes that implement 5 interfaces, no duplicates; Any is not included
         assertThat(classHierarchy).hasSize(4)
@@ -54,77 +54,61 @@ internal class ClassUtilTest {
 
     @Test
     fun `topDownTypeHierarchy for KClass`() {
-        val classHierarchy: List<KClass<*>> = Class4::class.topDownTypeHierarchy()
-        assertThat(classHierarchy).isEqualTo(Class4::class.java.topDownTypeHierarchy().map { it.kotlin })
-        assertThat(Class4::class.topDownTypeHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
+        val classHierarchy: List<KClass<*>> = Class4::class.superSubHierarchy()
+        assertThat(classHierarchy).isEqualTo(Class4::class.java.superSubHierarchy().map { it.kotlin })
+        assertThat(Class4::class.superSubHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
     }
 
     @Test
     fun `topDownTypeHierarchy for KClass - no interfaces`() {
-        val classHierarchy: List<KClass<*>> = Class4::class.topDownTypeHierarchy(includeInterfaces = false)
+        val classHierarchy: List<KClass<*>> = Class4::class.superSubHierarchy(includeInterfaces = false)
         assertThat(classHierarchy)
-            .isEqualTo(Class4::class.java.topDownTypeHierarchy(includeInterfaces = false).map { it.kotlin })
-    }
-
-    @Test
-    fun `topDownTypeHierarchy for Kotlin object`() {
-        val myClass4Object = Class4()
-        val classHierarchy: List<KClass<*>> = myClass4Object.topDownTypeHierarchy()
-        assertThat(classHierarchy).isEqualTo(myClass4Object::class.java.topDownTypeHierarchy().map { it.kotlin })
-        assertThat(myClass4Object.topDownTypeHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
-    }
-
-    @Test
-    fun `topDownTypeHierarchy for Kotlin object - no interfaces`() {
-        val myClass4Object = Class4()
-        val classHierarchy: List<KClass<*>> = myClass4Object.topDownTypeHierarchy(includeInterfaces = false)
-        assertThat(classHierarchy)
-            .isEqualTo(myClass4Object.topDownTypeHierarchy(includeInterfaces = false))
+            .isEqualTo(Class4::class.java.superSubHierarchy(includeInterfaces = false).map { it.kotlin })
     }
 
     @Test
     fun `reverseTypeHierarchy for Class`() {
-        val classHierarchy: List<Class<*>> = Class4::class.java.reverseTypeHierarchy()
-        assertThat(classHierarchy).isEqualTo(Class4::class.java.topDownTypeHierarchy().reversed())
-        assertThat(Class4::class.java.reverseTypeHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
+        val classHierarchy: List<Class<*>> = Class4::class.java.subSuperHierarchy()
+        assertThat(classHierarchy).isEqualTo(Class4::class.java.superSubHierarchy().reversed())
+        assertThat(Class4::class.java.subSuperHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
     }
 
     @Test
     fun `reverseTypeHierarchy for Class - no interfaces`() {
-        val classHierarchy: List<Class<*>> = Class4::class.java.reverseTypeHierarchy(includeInterfaces = false)
+        val classHierarchy: List<Class<*>> = Class4::class.java.subSuperHierarchy(includeInterfaces = false)
         assertThat(classHierarchy).isEqualTo(
-            Class4::class.java.topDownTypeHierarchy(includeInterfaces = false).reversed()
+            Class4::class.java.superSubHierarchy(includeInterfaces = false).reversed()
         )
     }
 
     @Test
     fun `reverseTypeHierarchy for KClass`() {
-        val classHierarchy: List<KClass<*>> = Class4::class.reverseTypeHierarchy()
-        assertThat(classHierarchy).isEqualTo(Class4::class.java.topDownTypeHierarchy().map { it.kotlin }.reversed())
-        assertThat(Class4::class.reverseTypeHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
+        val classHierarchy: List<KClass<*>> = Class4::class.subSuperHierarchy()
+        assertThat(classHierarchy).isEqualTo(Class4::class.java.superSubHierarchy().map { it.kotlin }.reversed())
+        assertThat(Class4::class.subSuperHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
     }
 
     @Test
     fun `reverseTypeHierarchy for KClass - no interfaces`() {
-        val classHierarchy: List<KClass<*>> = Class4::class.reverseTypeHierarchy(includeInterfaces = false)
+        val classHierarchy: List<KClass<*>> = Class4::class.subSuperHierarchy(includeInterfaces = false)
         assertThat(classHierarchy)
-            .isEqualTo(Class4::class.java.topDownTypeHierarchy(includeInterfaces = false).map { it.kotlin }.reversed())
+            .isEqualTo(Class4::class.java.superSubHierarchy(includeInterfaces = false).map { it.kotlin }.reversed())
     }
 
     @Test
     fun `reverseTypeHierarchy for Kotlin object`() {
         val myClass4Object = Class4()
-        val classHierarchy: List<KClass<*>> = myClass4Object.reverseTypeHierarchy()
-        assertThat(classHierarchy).isEqualTo(Class4::class.java.topDownTypeHierarchy().map { it.kotlin }.reversed())
-        assertThat(myClass4Object.reverseTypeHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
+        val classHierarchy: List<KClass<*>> = myClass4Object.subSuperHierarchy()
+        assertThat(classHierarchy).isEqualTo(Class4::class.java.superSubHierarchy().map { it.kotlin }.reversed())
+        assertThat(myClass4Object.subSuperHierarchy(includeInterfaces = true)).isEqualTo(classHierarchy)
     }
 
     @Test
     fun `reverseTypeHierarchy for Kotlin object - no interfaces`() {
         val myClass4Object = Class4()
-        val classHierarchy: List<KClass<*>> = myClass4Object.reverseTypeHierarchy(includeInterfaces = false)
+        val classHierarchy: List<KClass<*>> = myClass4Object.subSuperHierarchy(includeInterfaces = false)
         assertThat(classHierarchy)
-            .isEqualTo(Class4::class.java.topDownTypeHierarchy(includeInterfaces = false).map { it.kotlin }.reversed())
+            .isEqualTo(Class4::class.java.superSubHierarchy(includeInterfaces = false).map { it.kotlin }.reversed())
     }
 
 }

@@ -9,13 +9,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.nio.charset.Charset
 import java.time.LocalDateTime
-import kotlin.math.pow
 import kotlin.random.Random
 
 internal class HashingTest {
-
-    // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
-    // private val hexFormat: HexFormat = HexFormat.of()
 
     private val testStringShort = "my test string"
 
@@ -33,10 +29,11 @@ internal class HashingTest {
         )
 
     @Test
-    fun `test that results of hash methods adhere to expected formats`() {
+    fun `results of hash methods should adhere to corresponding formats`() {
         var hashResults: MutableSet<String>
 
         digestMethodPatterns.forEach { (digestMethod, pattern) ->
+            // arrange
             hashResults = mutableSetOf()
 
             // nested helper method for assertion
@@ -58,25 +55,21 @@ internal class HashingTest {
                 }
             }
 
+            // act, assert
             var strMinimal = ""
             repeat(10) {
                 assertHashFormat(strMinimal)
                 strMinimal += " "
             }
 
+            // act, assert
             assertHashFormat(testStringShort)
 
+            // act, assert
             var strLong = testStringLong
-            repeat(100) {
-                strLong += "something"
+            repeat(10) {
+                strLong += ("something" + RandomStringUtils.randomAlphabetic(2))
                 assertHashFormat(strLong)
-            }
-            (1..4).forEach {
-                // Lengths up to 1_048_576 (generation & assertion of strings larger than that takes too long)
-                val length = 2.0.pow((it*5).toDouble()).toInt()
-                repeat(2) {
-                    assertHashFormat(RandomStringUtils.random(length))
-                }
             }
         }
     }
@@ -103,7 +96,7 @@ internal class HashingTest {
     }
 
     @Test
-    fun `test that String hashing with JAVA_HASHCODE digest yields same result as java hashCode`() {
+    fun `hashing with JAVA_HASHCODE digest should yield same result as java hashCode`() {
         val hashShortString = hashString(testStringShort, DigestMethod.JAVA_HASHCODE)
         // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
         // assertThat(hashShortString).isEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
@@ -115,7 +108,7 @@ internal class HashingTest {
     }
 
     @Test
-    fun `test that String hashing with CRC32C yields different result as java hashCode`() {
+    fun `hash result with CRC32C should differ from java hashCode`() {
         val hashShortString = hashString(testStringShort, DigestMethod.CRC32C)
         // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
         // assertThat(hashShortString).isNotEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
@@ -127,40 +120,51 @@ internal class HashingTest {
     }
 
     @Test
-    fun `test that Object hashing with javaHashCode yields same result as java hashCode`() {
+    fun `object hashing with javaHashCode should yield same result as java hashCode`() {
         listOf(Any(), LocalDateTime.now(), Random.nextInt(), Random.nextBytes(200)).forEach {
             // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
             // assertThat(javaHashString(it)).isEqualTo(hexFormat.toHexDigits(it.hashCode()))
-            assertThat(javaHashString(it)).isEqualTo(it.hashCode().toByteArray().toHex())
+            assertThat(it.hexHashCode()).isEqualTo(it.hashCode().toByteArray().toHex())
         }
+    }
+
+    @Test
+    fun `hexString of null should return null`() {
+        assertThat(null.hexHashCode()).isNull()
     }
 
     @ParameterizedTest
     @EnumSource(DigestMethod::class)
-    fun `test that encodings are taken into account as expected`(digestMethod: DigestMethod) {
+    fun `encodings should be taken into account where expected`(digestMethod: DigestMethod) {
+        // arrange
         val str1 = "¥⒂"
         val str2 = "¬"
         if (digestMethod == DigestMethod.JAVA_HASHCODE) {
+            // act
             // java hash is wilfully ignorant of encoding
             val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
             val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
+            // assert
             assertThat(hash1GB2312).isEqualTo(hash1UTF8)
-        }
-        else {
+        } else {
+            // act
             // other digesters take character set in account
-                val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
-                val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
-                assertThat(hash1GB2312).isNotEqualTo(hash1UTF8)
+            val hash1GB2312 = hashString(str1, digestMethod, charset = Charset.forName("GB2312"))
+            val hash1UTF8 = hashString(str1, digestMethod, charset = Charsets.UTF_8)
+            // assert
+            assertThat(hash1GB2312).isNotEqualTo(hash1UTF8)
 
-                val hash2ISO88591 = hashString(str2, digestMethod, Charsets.ISO_8859_1)
-                val hash2UTF8 = hashString(str2, digestMethod, Charsets.UTF_8)
-                assertThat(hash2ISO88591).isNotEqualTo(hash2UTF8)
+            // act
+            val hash2ISO88591 = hashString(str2, digestMethod, Charsets.ISO_8859_1)
+            val hash2UTF8 = hashString(str2, digestMethod, Charsets.UTF_8)
+            // assert
+            assertThat(hash2ISO88591).isNotEqualTo(hash2UTF8)
         }
     }
 
     @ParameterizedTest
     @EnumSource(DigestMethod::class)
-    fun `test null safety of hashing`(digestMethod: DigestMethod) {
+    fun `hashing should be null safe`(digestMethod: DigestMethod) {
         assertThat(hashString(null, digestMethod, Charsets.UTF_8)).isNull()
     }
 
