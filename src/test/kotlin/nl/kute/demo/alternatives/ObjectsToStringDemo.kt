@@ -3,27 +3,32 @@ package nl.kute.demo.alternatives
 import nl.kute.log.log
 import nl.kute.reflection.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
+import org.assertj.core.api.Assumptions.assumeThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.LinkedList
 import java.util.Objects
 
-class ObjectsToStringAdvancedPropsDemo {
+class ObjectsToStringDemo {
+
+    // Set to true to enable the tests (not advised, several tests fail with stack overflow)
+    private val testsEnabled = false
 
     companion object {
         init {
             log(
-                "Most of the tests in ${ObjectsToStringAdvancedPropsDemo::class.simplifyClassName()}, when enabled, would fail! " +
+                "\nMost of the tests in ${ObjectsToStringDemo::class.simplifyClassName()}, when enabled, would fail! " +
                         "Demonstrating that `Objects.toString()` will cause StackOverflowError with recursive stuff " +
-                        "and other advanced constructs; or otherwise fall back to non-informative Array.toString() method"
+                        "and other advanced constructs; or otherwise fall back to non-informative output\n"
             )
         }
     }
 
     @Test
-    @Disabled("No recursion here, yet `Objects.toString()` causes stack overflow")
     fun `Object with nested array causes stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("No recursion here, just a nested array, yet `Objects.toString()` causes stack overflow")
+
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3)
             init {
@@ -37,8 +42,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("Would fail, self referencing array elements fall back to non-informative toString output with `Objects toString`")
     fun `Arrays with self-referencing elements should yield decent output with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Would fail, self referencing array elements fall back to non-informative toString output with `Objects toString`")
+
         val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
         myArray[2] = arrayOf(4, 5, 6)
         myArray[3] = myArray
@@ -51,8 +58,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("Would fail, self referencing array elements cause StackOverflowError with `Objects.toString()`")
     fun `Objects with array properties with self-referencing elements cause stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Would fail, self referencing array elements cause StackOverflowError with `Objects.toString()`")
+
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
             init {
@@ -69,8 +78,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("Would fail, mutually referencing array elements cause StackOverflowError with `Objects.toString()`")
     fun `Objects with array properties with mutually referencing elements cause stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Would fail, mutually referencing array elements cause StackOverflowError with `Objects.toString()`")
+
         class MyTestClass {
             val myArray: Array<Any> = arrayOf("a0", "a1", "a2", "a3", "a4")
             val myList: MutableList<Any> = mutableListOf("L0", "L1", "L2", "L3", "L4")
@@ -90,8 +101,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("This test would succeed with decent output if enabled: Collections.toString handles self-reference correctly")
     fun `Collections with self-referencing elements should yield decent output with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("This test would succeed with decent output if enabled: Collections.toString handles self-reference correctly")
+
         val mutableList: MutableList<Any> = mutableListOf("first", "second", "third")
         mutableList[1] = mutableList // self reference
         mutableList.add(mutableList) // self reference
@@ -103,8 +116,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("Would fail, mutually referencing collection elements cause StackOverflowError with `Objects.toString()`")
     fun `Collections with mutually referencing elements cause stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Would fail, mutually referencing collection elements cause StackOverflowError with `Objects.toString()`")
+
         val list1: MutableList<Any> = mutableListOf("first 1", "second 1", "third 1")
         val list2: LinkedList<Any> = LinkedList(listOf("first 2", "second 2", "third 2"))
 
@@ -123,8 +138,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("Object with self reference causes stack overflow with Objects toString")
     fun `objects with self reference cause stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Object with self reference causes stack overflow with Objects toString")
+
         val testObj = GetSelfReference(1)
         val other = GetSelfReference(2)
         testObj.selfRef = testObj
@@ -135,8 +152,10 @@ class ObjectsToStringAdvancedPropsDemo {
 
     @Suppress("unused")
     @Test
-    @Disabled("Would fail, mutually referencing objects cause StackOverflowError with `Objects.toString()`")
     fun `objects with mutual reference cause stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Would fail, mutually referencing objects cause StackOverflowError with `Objects.toString()`")
+
         class Parent(val name: String, val children: MutableSet<Any> = mutableSetOf()) {
             override fun toString(): String = Objects.toString(this)
         }
@@ -163,8 +182,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
     fun `object with uninitialized lateinit property causes stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+
         @Suppress("unused")
         class WithLateinits {
             lateinit var uninitializedStringVar: String
@@ -181,8 +202,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
     fun `object with only uninitialized lateinit property causes stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+
         @Suppress("unused")
         class WithUninitializedLateinit {
             lateinit var uninitializedStringVar: String
@@ -192,8 +215,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
     fun `object with initialized lateinit and init block causes stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+
         @Suppress("unused")
         class WithInitializedLateinit {
             lateinit var initializedStringVar: String
@@ -209,8 +234,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
     fun `object with initialized lateinit causes stack overflow with Objects toString`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+
         @Suppress("unused")
         class WithInitializedLateinit {
             lateinit var initializedStringVar: String
@@ -223,8 +250,10 @@ class ObjectsToStringAdvancedPropsDemo {
     }
 
     @Test
-    @Disabled("This test would succeed if enabled: `Objects.toString()` yields decent output on synthetic types")
     fun `synthetic types shouldn't cause exceptions`() {
+        assumeThat(testsEnabled).isTrue
+            .`as`("This test would succeed if enabled: `Objects.toString()` yields decent output on synthetic types")
+
         // arrange
         val supplier: () -> String = { "a String supplier" }
 

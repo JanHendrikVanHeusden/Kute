@@ -1,26 +1,14 @@
 package nl.kute.hashing
 
-/**
- * With Java 17, we would use `java.util.HexFormat`, like below.
- * But that's Java 17, and we want to be able to run on Java 11+
- */
-
 import nl.kute.hashing.DigestMethod.CRC32C
 import nl.kute.hashing.DigestMethod.JAVA_HASHCODE
 import nl.kute.log.logWithCaller
+import nl.kute.util.asHexString
 import nl.kute.util.asString
-import nl.kute.util.toByteArray
-import nl.kute.util.toHex
+import nl.kute.util.byteArrayToHex
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.util.zip.CRC32C as JavaUtilCRC32C
-
-/**
- * Create a hex String based on the receiver's [hashCode] method. Null safe.
- * @return The receiver's [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`;
- *         or `null` if the receiver is `null`.
- */
-internal fun Any?.hexHashCode(): String? = this?.let { hashCode().toByteArray().toHex() }
 
 /**
  * Create a hex String based on the [input] object's [hashCode] method using `CRC32C`
@@ -30,7 +18,7 @@ internal fun Any?.hexHashCode(): String? = this?.let { hashCode().toByteArray().
  */
 private fun JavaUtilCRC32C.hashCrc32C(input: String, charset: Charset): String {
     this.update(input.toByteArray(charset))
-    val result = this.value.toByteArray().toHex().trimStart('0')
+    val result = this.value.asHexString
     return if (result == "") "0" else result
 }
 
@@ -42,7 +30,7 @@ private fun JavaUtilCRC32C.hashCrc32C(input: String, charset: Charset): String {
  */
 private fun MessageDigest.hashByAlgorithm(input: String, charset: Charset): String {
     this.update(input.toByteArray(charset))
-    return this.digest().toHex()
+    return this.digest().byteArrayToHex()
 }
 
 /**
@@ -56,7 +44,7 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
     return if (input == null) null
     else try {
         when (digestMethod) {
-            JAVA_HASHCODE -> input.hexHashCode()
+            JAVA_HASHCODE -> input.hashCode().asHexString
 
             CRC32C -> (CRC32C.instanceProvider!!.invoke() as JavaUtilCRC32C).hashCrc32C(input, charset)
 
@@ -84,8 +72,9 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
  */
 enum class DigestMethod(val instanceProvider: (() -> Any)? = null) {
     /**
-     * Simply using the java hashCode.
-     * Length is 8 when represented as a hex String.
+     * Simply using the java [hashCode].
+     * Length is 1 to 8 when represented as a hex String. Security is nearly absent
+     * The resulting hex String may be `0`.
      */
     JAVA_HASHCODE,
 

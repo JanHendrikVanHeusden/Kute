@@ -9,7 +9,7 @@ import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.namedVal
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
-import nl.kute.hashing.hexHashCode
+import nl.kute.util.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Disabled

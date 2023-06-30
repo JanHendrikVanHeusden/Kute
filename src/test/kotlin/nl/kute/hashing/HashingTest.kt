@@ -1,7 +1,7 @@
 package nl.kute.hashing
 
-import nl.kute.util.toByteArray
-import nl.kute.util.toHex
+import nl.kute.util.asHexString
+import nl.kute.util.hexHashCode
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -22,56 +22,58 @@ internal class HashingTest {
     /** Expected output patterns by digest method */
     private val digestMethodPatterns =
         mapOf(
-            DigestMethod.JAVA_HASHCODE to Regex("^[a-f0-9]{8}$"),
+            DigestMethod.JAVA_HASHCODE to Regex("^[a-f0-9]{1,8}$"),
             DigestMethod.CRC32C to Regex("^[a-f0-9]{1,8}$"),
             DigestMethod.SHA1 to Regex("^[a-f0-9]{40}$"),
             DigestMethod.MD5 to Regex("^[a-f0-9]{32}$")
         )
 
-    @Test
-    fun `results of hash methods should adhere to corresponding formats`() {
-        var hashResults: MutableSet<String>
+    @ParameterizedTest
+    @EnumSource(DigestMethod::class)
+    fun `results of hash methods should adhere to corresponding formats`(digestMethod: DigestMethod) {
+        // arrange
+        val pattern = digestMethodPatterns[digestMethod]!!
+        val hashResults: MutableSet<String> = mutableSetOf()
 
-        digestMethodPatterns.forEach { (digestMethod, pattern) ->
-            // arrange
-            hashResults = mutableSetOf()
+        // nested helper method for assertion
+        fun assertHashFormat(input: String) {
+            // assert that results adhere to expected format
+            with(hashString(input, digestMethod)) {
+                assertThat(this)
+                    .`as`("$digestMethod hash result [$this] should match \"${pattern.pattern}\"; input = \"$input\"")
+                    .matches(pattern.pattern)
+                assertThat(this!!.let { pattern.matches(it) })
+                    .`as`("$digestMethod hash result [$this] should match \"${pattern.pattern}\"; input = \"$input\"")
+                    .isTrue
+                // convert from hex string to numeric; wrong format would cause NumberFormatException
+                this.toBigInteger(radix = 16)
 
-            // nested helper method for assertion
-            fun assertHashFormat(input: String) {
-                // assert that results adhere to expected format
-                with(hashString(input, digestMethod)) {
-                    assertThat(this?.let { pattern.matches(it) })
-                        .`as`("$digestMethod hash result [$this] does not match \"${pattern.pattern}\"; input = \"$input\"")
-                        .isTrue
-                    // convert from hex string to numeric; wrong format would cause NumberFormatException
-                    this?.toBigInteger(radix = 16)
-
-                    // duplicates (collisions) are definitely possible and acceptable,
-                    // especially for the smaller hashes (java hash and CRC32(c)).
-                    // But with the limited numbers of this test, we know that there should be no collisions
-                    assertThat(hashResults.add(input))
-                        .`as`("$digestMethod should not cause duplicate result!")
-                        .isTrue
-                }
-            }
-
-            // act, assert
-            var strMinimal = ""
-            repeat(10) {
-                assertHashFormat(strMinimal)
-                strMinimal += " "
-            }
-
-            // act, assert
-            assertHashFormat(testStringShort)
-
-            // act, assert
-            var strLong = testStringLong
-            repeat(10) {
-                strLong += ("something" + RandomStringUtils.randomAlphabetic(2))
-                assertHashFormat(strLong)
+                // duplicates (collisions) are definitely possible and acceptable,
+                // especially for the smaller hashes (java hash and CRC32(c)).
+                // But with the limited numbers of this test, we know that there should be no collisions
+                assertThat(hashResults.add(this))
+                    .`as`("$digestMethod should not cause duplicate result!")
+                    .isTrue
             }
         }
+
+        // act, assert
+        var strMinimal = ""
+        repeat(10) {
+            assertHashFormat(strMinimal)
+            strMinimal += " "
+        }
+
+        // act, assert
+        assertHashFormat(testStringShort)
+
+        // act, assert
+        var strLong = testStringLong
+        repeat(10) {
+            strLong += ("something" + RandomStringUtils.randomAlphabetic(2))
+            assertHashFormat(strLong)
+        }
+
     }
 
     @Test
@@ -97,14 +99,22 @@ internal class HashingTest {
 
     @Test
     fun `hashing with JAVA_HASHCODE digest should yield same result as java hashCode`() {
-        val hashShortString = hashString(testStringShort, DigestMethod.JAVA_HASHCODE)
-        // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
+        val hashShortString: String = hashString(testStringShort, DigestMethod.JAVA_HASHCODE)!!
+        val hcOfShort: Int = testStringShort.hashCode()
+        // HexFormat is introduced in Java 17; but we want to be Java 11+ compatible
         // assertThat(hashShortString).isEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
-        assertThat(hashShortString).isEqualTo(testStringShort.hashCode().toByteArray().toHex())
+        assertThat(hashShortString).isEqualTo(Integer.toHexString(hcOfShort))
 
         val hashLongString = hashString(testStringLong, DigestMethod.JAVA_HASHCODE)
+        val hcOfLong: Int = testStringLong.hashCode()
+        // HexFormat is introduced in Java 17; and we want to be Java 11+ compatible
         // assertThat(hashLongString).isEqualTo(hexFormat.toHexDigits(testStringLong.hashCode()))
-        assertThat(hashLongString).isEqualTo(testStringLong.hashCode().toByteArray().toHex())
+        assertThat(hashLongString).isEqualTo(Integer.toHexString(hcOfLong))
+
+        repeat(100) {
+            val str = RandomStringUtils.randomAlphanumeric(0, 10000)
+            assertThat(hashString(str, DigestMethod.JAVA_HASHCODE)).isEqualTo(Integer.toHexString(str.hashCode()))
+        }
     }
 
     @Test
@@ -112,11 +122,11 @@ internal class HashingTest {
         val hashShortString = hashString(testStringShort, DigestMethod.CRC32C)
         // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
         // assertThat(hashShortString).isNotEqualTo(hexFormat.toHexDigits(testStringShort.hashCode()))
-        assertThat(hashShortString).isNotEqualTo(testStringShort.hashCode().toByteArray().toHex())
+        assertThat(hashShortString).isNotEqualTo(testStringShort.hashCode().asHexString)
 
         val hashLongString = hashString(testStringLong, DigestMethod.CRC32C)
         // assertThat(hashLongString).isNotEqualTo(hexFormat.toHexDigits(testStringLong.hashCode()))
-        assertThat(hashLongString).isNotEqualTo(testStringLong.hashCode().toByteArray().toHex())
+        assertThat(hashLongString).isNotEqualTo(testStringLong.hashCode().asHexString)
     }
 
     @Test
@@ -124,7 +134,7 @@ internal class HashingTest {
         listOf(Any(), LocalDateTime.now(), Random.nextInt(), Random.nextBytes(200)).forEach {
             // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
             // assertThat(javaHashString(it)).isEqualTo(hexFormat.toHexDigits(it.hashCode()))
-            assertThat(it.hexHashCode()).isEqualTo(it.hashCode().toByteArray().toHex())
+            assertThat(it.hexHashCode()).isEqualTo(it.hashCode().asHexString)
         }
     }
 
