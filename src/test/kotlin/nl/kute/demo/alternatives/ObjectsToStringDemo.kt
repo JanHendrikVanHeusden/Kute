@@ -26,8 +26,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Object with nested array causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("No recursion here, just a nested array, yet `Objects.toString()` causes stack overflow")
+            .isTrue
 
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3)
@@ -43,8 +44,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Arrays with self-referencing elements should yield decent output with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would fail, self referencing array elements fall back to non-informative toString output with `Objects toString`")
+            .isTrue
 
         val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
         myArray[2] = arrayOf(4, 5, 6)
@@ -59,8 +61,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Objects with array properties with self-referencing elements cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would fail, self referencing array elements cause StackOverflowError with `Objects.toString()`")
+            .isTrue
 
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
@@ -79,8 +82,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Objects with array properties with mutually referencing elements cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would fail, mutually referencing array elements cause StackOverflowError with `Objects.toString()`")
+            .isTrue
 
         class MyTestClass {
             val myArray: Array<Any> = arrayOf("a0", "a1", "a2", "a3", "a4")
@@ -102,8 +106,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Collections with self-referencing elements should yield decent output with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("This test would succeed with decent output if enabled: Collections.toString handles self-reference correctly")
+            .isTrue
 
         val mutableList: MutableList<Any> = mutableListOf("first", "second", "third")
         mutableList[1] = mutableList // self reference
@@ -117,8 +122,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Collections with mutually referencing elements cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would fail, mutually referencing collection elements cause StackOverflowError with `Objects.toString()`")
+            .isTrue
 
         val list1: MutableList<Any> = mutableListOf("first 1", "second 1", "third 1")
         val list2: LinkedList<Any> = LinkedList(listOf("first 2", "second 2", "third 2"))
@@ -139,8 +145,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `objects with self reference cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Object with self reference causes stack overflow with Objects toString")
+            .isTrue
 
         val testObj = GetSelfReference(1)
         val other = GetSelfReference(2)
@@ -153,8 +160,9 @@ class ObjectsToStringDemo {
     @Suppress("unused")
     @Test
     fun `objects with mutual reference cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would fail, mutually referencing objects cause StackOverflowError with `Objects.toString()`")
+            .isTrue
 
         class Parent(val name: String, val children: MutableSet<Any> = mutableSetOf()) {
             override fun toString(): String = Objects.toString(this)
@@ -183,8 +191,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `object with uninitialized lateinit property causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+            .isTrue
 
         @Suppress("unused")
         class WithLateinits {
@@ -203,8 +212,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `object with only uninitialized lateinit property causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+            .isTrue
 
         @Suppress("unused")
         class WithUninitializedLateinit {
@@ -216,8 +226,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `object with initialized lateinit and init block causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+            .isTrue
 
         @Suppress("unused")
         class WithInitializedLateinit {
@@ -235,8 +246,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `object with initialized lateinit causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+            .isTrue
 
         @Suppress("unused")
         class WithInitializedLateinit {
@@ -251,8 +263,9 @@ class ObjectsToStringDemo {
 
     @Test
     fun `synthetic types shouldn't cause exceptions`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("This test would succeed if enabled: `Objects.toString()` yields decent output on synthetic types")
+            .isTrue
 
         // arrange
         val supplier: () -> String = { "a String supplier" }

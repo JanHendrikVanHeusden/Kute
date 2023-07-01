@@ -27,8 +27,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `Object with array properties should yield decent output with Apache ToStringBuilder - same as contentDeepToString`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Will succeed when enabled, nested arrays give decent toString output with `Apache ToStringBuilder`")
+            .isTrue
 
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3)
@@ -51,8 +52,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `Arrays with self-referencing elements should yield decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would succeed when enabled, contains more or less useful output with `Apache ToStringBuilder`")
+            .isTrue
 
         val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
         myArray[2] = arrayOf(4, 5, 6)
@@ -71,8 +73,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `Objects with array properties with self-referencing elements should yield decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would succeed if enabled, self referencing array elements are handled `Apache ToStringBuilder()`")
+            .isTrue
 
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
@@ -98,8 +101,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `Objects with array properties with self-referencing elements should yield decent output with Apache ToStringBuilder - non-reflective`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would succeed when enabled, more or less useful output with `Apache ToStringBuilder`")
+            .isTrue
 
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
@@ -128,8 +132,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `Objects with array properties fall back to non-informative toString output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would fail, objects with array properties fall back to non-informative toString output with `Apache ToStringBuilder`")
+            .isTrue
 
         class MyTestClass {
             val myArray: Array<Any> = arrayOf("a0", "a1", "a2", "a3", "a4")
@@ -153,8 +158,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `Collections with self-referencing elements cause stack overflow with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Collection with self reference causes stack overflow with `Apache ToStringBuilder`")
+            .isTrue
 
         val mutableList: MutableList<Any> = mutableListOf("first", "second", "third")
         mutableList[1] = mutableList // self reference
@@ -169,8 +175,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `Collections with mutually referencing elements cause stack overflow with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would fail, mutually referencing collection elements cause StackOverflowError with `Apache ToStringBuilder()`")
+            .isTrue
 
         val list1: MutableList<Any> = mutableListOf("first 1", "second 1", "third 1")
         val list2: LinkedList<Any> = LinkedList(listOf("first 2", "second 2", "third 2"))
@@ -193,8 +200,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `objects with self reference should yield decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Will succeed if enabled, it provides some useful output with `Apache ToStringBuilder`")
+            .isTrue
 
         val testObj = GetSelfReference(1)
         val other = GetSelfReference(2)
@@ -216,8 +224,9 @@ class ApacheToStringDemo {
     @Suppress("unused")
     @Test
     fun `objects with mutual reference should yield decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would succeed when enabled, provides useful output with `Apache ToStringBuilder`")
+            .isTrue
 
         class Parent(val name: String, val children: MutableSet<Any> = mutableSetOf()) {
             override fun toString(): String = ToStringBuilder.reflectionToString(this)
@@ -261,8 +270,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `object with uninitialized lateinit property yields decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("Would succeed when enabled, yields decent output for uninitialized lateinit var with `Apache ToStringBuilder`")
+            .isTrue
 
         @Suppress("unused")
         class WithLateinit {
@@ -283,8 +293,9 @@ class ApacheToStringDemo {
 
     @Test
     fun `synthetic types shouldn't cause exceptions`() {
-        assumeThat(testsEnabled).isTrue
+        assumeThat(testsEnabled)
             .`as`("This test would succeed if enabled: `ToStringBuilder.reflectionToString` handles synthetic types without exceptions")
+            .isTrue
 
         // arrange
         val supplier: () -> String = { "a String supplier" }
