@@ -61,7 +61,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
             .doesNotContain(aStringToReplaceByAnother)
 
             .`as`("value should be hashed, then capped at 8")
-            .matches(""".+?\bhashed=[a-f0-9]{6}\b.+""")
+            .matches(""".+?\bhashed=#[a-f0-9]{5}\b.+""")
             .doesNotContain(hashed)
 
             .`as`("should adhere to NoPrint annotation")
@@ -115,7 +115,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
             .doesNotContain(aStringToReplaceByAnother)
 
             .`as`("value should be hashed")
-            .matches(""".+?\bhashed=[a-f0-9]{8}\b.+""")
+            .matches(""".+?\bhashed=#[a-f0-9]{8}\b#.+""")
             .doesNotContain(hashed)
 
             .`as`("should adhere to NoPrint annotation")
@@ -165,7 +165,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
             .doesNotContain(aStringToReplaceByAnother)
 
             .`as`("value should be hashed")
-            .matches(""".+?\bhashed=[a-f0-9]{8}\b.+""")
+            .matches(""".+?\bhashed=#[a-f0-9]{8}\b#.+""")
             .doesNotContain(hashed)
 
             .`as`("should adhere to NoPrint annotation")
@@ -206,8 +206,8 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
             .startsWith("${theObjectToPrint::class.java.simpleName}(")
             .endsWith(")")
 
-            .`as`("Month should be hashed")
-            .matches(""".+?\baDateWithMonthMasked=[a-f0-9]{8}\b.+""")
+            .`as`("Value should be hashed")
+            .matches(""".+?\baDateWithMonthMasked=#[a-f0-9]{8}\b#.+""")
             .doesNotContain(aDateWithMonthMasked)
 
             .`as`("should adhere to default `showNullAs`=\"$defaultNullString\"")
@@ -219,7 +219,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
             .doesNotContain(aStringToReplaceByAnother)
 
             .`as`("value should be hashed")
-            .matches(""".+?\bhashed=[a-f0-9]{8}\b.+""")
+            .matches(""".+?\bhashed=#[a-f0-9]{8}\b#.+""")
             .`as`("should not contain literal value of the property to hash")
             .doesNotContain(hashed)
 
@@ -270,7 +270,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
 
 
             .`as`("value should be hashed, then capped at length 2")
-            .matches(""".+?\bhashed=[a-f0-9]{2}\b.+""")
+            .matches(""".+?\bhashed=#[a-f0-9]\b.+""")
             .doesNotContain(hashed)
 
             .`as`("should adhere to NoPrint annotation")

@@ -31,13 +31,13 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
     @Test
     fun `AsStringBuilder without adjustments should give same result as AsString`() {
         // arrange
-        val expected = "ClassWithHashProperty(hashProperty=$hashCode, nullable=$showNullAs, privateProp=I am a private property)"
+        val expected = "ClassWithHashProperty(hashProperty=#$hashCode#, nullable=$showNullAs, privateProp=I am a private property)"
         // act, assert
         assertThat(testObj.asString()).isEqualTo(expected)
         assertThat(testObj.asStringBuilder().asString()).isEqualTo(expected)
 
         // arrange
-        val expectedSub = "SubClassWithPrintMask(nullable=$showNullAs2, replaced=xx is replaced, hashProperty=$hashCode)"
+        val expectedSub = "SubClassWithPrintMask(nullable=$showNullAs2, replaced=xx is replaced, hashProperty=#$hashCode#)"
         // act, assert
         assertThat(testSubObj.asString()).isEqualTo(expectedSub)
         assertThat(testSubObj.asStringBuilder().asString()).isEqualTo(expectedSub)
@@ -73,7 +73,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
         assertThat(asString).isEqualTo(expected)
 
         // arrange
-        val expectedSub = "SubClassWithPrintMask(replaced=xx is replaced, hashProperty=$hashCode)"
+        val expectedSub = "SubClassWithPrintMask(replaced=xx is replaced, hashProperty=#$hashCode#)"
         // act, assert
         val asStringSub = testSubObj.asStringBuilder()
             .exceptPropertyNames("nullable", "privateProp")
@@ -87,7 +87,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
         // arrange
         val namedProp = testObj.namedVal(testSubObj::hashProperty)
         val namedVal = "I call myself privateProp".namedVal(name = "privateProp")
-        val expected = "ClassWithHashProperty(nullable=$showNullAs, hashProperty=$hashCode, privateProp=${namedVal.valueString})"
+        val expected = "ClassWithHashProperty(nullable=$showNullAs, hashProperty=#$hashCode#, privateProp=${namedVal.valueString})"
         // act, assert
         val asString = testObj.asStringBuilder()
             .exceptPropertyNames("privateProp", "hashProperty")
@@ -96,7 +96,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
         assertThat(asString).isEqualTo(expected)
 
         // arrange
-        val expectedSub = "SubClassWithPrintMask(replaced=xx is replaced, hashProperty=$hashCode)"
+        val expectedSub = "SubClassWithPrintMask(replaced=xx is replaced, hashProperty=#$hashCode#)"
         // act, assert
         val asStringSub = testSubObj.asStringBuilder()
             .exceptPropertyNames("nullable", "privateProp")
@@ -108,7 +108,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
     @Test
     fun `AsStringBuilder should honour withAlsoProperties`() {
         // arrange
-        val expected = "ClassWithHashProperty(hashProperty=$hashCode, nullable=$showNullAs, privateProp=I am a private property, replaced=xx is replaced)"
+        val expected = "ClassWithHashProperty(hashProperty=#$hashCode#, nullable=$showNullAs, privateProp=I am a private property, replaced=xx is replaced)"
         // act, assert
         val asString = testObj.asStringBuilder()
             .withAlsoProperties(testSubObj::replaced)
@@ -119,7 +119,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
     @Test
     fun `AsStringBuilder should honour withAlsoNamed`() {
         // arrange
-        val expected = "ClassWithHashProperty(hashProperty=$hashCode, nullable=$showNullAs, privateProp=I am a private property, nullable=$showNullAs2, I am a named value=some string)"
+        val expected = "ClassWithHashProperty(hashProperty=#$hashCode#, nullable=$showNullAs, privateProp=I am a private property, nullable=$showNullAs2, I am a named value=some string)"
         val namedProp = testSubObj.namedVal(testSubObj::nullable)
         val namedValue = "some string".namedVal("I am a named value")
         // act, assert
@@ -143,7 +143,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
     @Test
     fun `AsStringBuilder should ignore non-matching properties in withOnlyProperties`() {
         // arrange
-        val expected = "ClassWithHashProperty(hashProperty=$hashCode)"
+        val expected = "ClassWithHashProperty(hashProperty=#$hashCode#)"
         // act, assert
         val asString = testObj.asStringBuilder()
             .withOnlyProperties(testSubObj::nullable, SubClassWithPrintMask::nullable, testObj::hashProperty)
@@ -156,7 +156,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
     @Test
     fun `AsStringBuilder should honour withOnlyPropertyNames`() {
         // arrange
-        val expected = "SubClassWithPrintMask(replaced=xx is replaced, hashProperty=$hashCode)"
+        val expected = "SubClassWithPrintMask(replaced=xx is replaced, hashProperty=#$hashCode#)"
         // act, assert
         val asString = testSubObj.asStringBuilder()
             .withOnlyPropertyNames("replaced", "hashProperty")

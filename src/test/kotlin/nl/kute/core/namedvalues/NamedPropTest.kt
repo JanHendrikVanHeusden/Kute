@@ -135,7 +135,7 @@ class NamedPropTest {
         assertThat(NamedProp(testObj, testObj::hashed).valueString)
             .isNotEqualTo(testObj.hashed)
             .isEqualTo(AsStringHash().hashString(testObj.hashed))
-            .matches("[a-z0-9]{8}")
+            .matches("#[a-z0-9]{8}#")
 
         assertThat(NamedProp(testObj, testObj::masked).valueString)
             .isNotEqualTo(testObj.masked)
@@ -167,9 +167,9 @@ class NamedPropTest {
             .isNotEqualTo(testObj.hashed)
             .`as`("Should honour the super-property CRC32C method")
             .isEqualTo(AsStringHash(DigestMethod.CRC32C).hashString(testObj.hashed))
-            .matches("[a-z0-9]{8}")
+            .matches("#[a-z0-9]{8}#")
             .`as`("Should not honour the subclass SHA method")
-            .isNotEqualTo(AsStringHash(DigestMethod.SHA1).hashString(testObj.hashed))
+            .doesNotContain(AsStringHash(DigestMethod.SHA1).hashString(testObj.hashed))
 
         assertThat(NamedProp(testObj, testObj::masked).valueString)
             .isNotEqualTo(testObj.masked)
@@ -233,8 +233,8 @@ class NamedPropTest {
             .isEqualTo(testObj.unchanged.length)
 
         assertThat(NamedProp(testObj, testObj::hashed).valueString!!.length)
-            .`as`("Has length 8, which is less than AsStringOption's max prop value length")
-            .isEqualTo(8)
+            .`as`("Has length 10, which is less than AsStringOption's max prop value length")
+            .isEqualTo(10)
 
         listOf(testObj::masked, testObj::replaced).forEach {
             assertThat(NamedProp(testObj, it).valueString!!.length)

@@ -118,7 +118,7 @@ class AsStringTest: ObjectsStackVerifier {
             .contains("iban=NL99 BANK *****0 7906")
             .contains("phoneNumber=06123***789")
             .contains("password=**********")
-            .matches(""".+?\bsocialSecurityNumber=[a-f0-9]{40}\b.*""")
+            .matches(""".+?\bsocialSecurityNumber=#[a-f0-9]{40}\b#.*""")
             // according to AsStringOmit annotation on subclass
             .doesNotContain("mailAddress")
     }
