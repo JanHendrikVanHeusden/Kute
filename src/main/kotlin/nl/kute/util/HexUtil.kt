@@ -13,8 +13,8 @@ internal fun Any?.hexHashCode(): String? = this?.let { hashCode().asHexString }
 
 /**
  * Converts an [Int] to a lower-case unsigned hex string.
- * > NB: `Int.toString(16)` is signed, produces a leading minus sign for negative values;
- * >      that's not what we want!
+ * > NB: Kotlin's `Int.toString(16)` is signed, produces a leading minus sign for negative values;
+ * >     that's not what we want!
  */
 internal val Int?.asHexString: String
     get() = if (this == null) "0"
@@ -22,8 +22,8 @@ internal val Int?.asHexString: String
 
 /**
  * Converts a [Long] to a lower-case unsigned hex string.
- * > NB: `Long.toString(16)` is signed, produces a leading minus sign for negative values;
- * >      that's not what we want!
+ * > NB: Kotlin's `Long.toString(16)` is signed, produces a leading minus sign for negative values;
+ * >     that's not what we want!
  */
 internal val Long?.asHexString: String
     get() = if (this == null) "0"
@@ -40,7 +40,6 @@ internal fun hexStringToLong(hexString: String): Long =
 /**
  * Convert a [ByteArray] to a hex String
  * > Not very readable code, but much faster most other ways in Java 11
- * * In Java 17+ one would use `HexFormat.of()` - but we want Kute to be Java 11+ compatible...
  * * Thanks to [StackOverflow: how to convert a byte array to a hex-string](https://stackoverflow.com/a/24267654)
  * @return the receiver [ByteArray], converted to a hex String, lower case.
  */
@@ -48,7 +47,7 @@ fun ByteArray.byteArrayToHex(): String {
     val retVal = ByteArray(this.size * 2)
     for (j: Int in this.indices) {
         val v: Int = this[j].toInt() and 0xFF
-        // ushr is what >>> is in Java
+        // ushr (unsigned shift right) is what >>> is in Java
         retVal[j * 2] = hexChars[v ushr 4].code.toByte()
         retVal[j * 2 + 1] = hexChars[v and 0x0F].code.toByte()
     }
