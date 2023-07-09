@@ -94,6 +94,10 @@ dependencies {
     // TODO: needed?
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
+    // FIXME: Remove!! just for experimenting with gradle plugin
+    implementation("com.amazonaws:aws-java-sdk-sqs:1.11.409")
+    implementation("org.elasticmq:elasticmq-rest-sqs_2.12:0.14.5")
+
     compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 
     // Used in tests only.
