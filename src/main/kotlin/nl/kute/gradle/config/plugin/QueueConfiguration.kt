@@ -5,6 +5,11 @@ import org.gradle.api.Project
 
 class QueueConfiguration(
     val name: String,
+    val protocol: String,
+    val host: String,
+    val port: String,
+    val contextPath: String,
+    val limits: String,
     project: Project
 ) {
 

@@ -68,13 +68,14 @@ plugins {
     id("idea")
     id("org.jetbrains.dokka") version dokkaVersion
     `java-gradle-plugin`
+//    id("nl.kute.gradle.config.plugin.elasticmq") version "1.0-SNAPSHOT"
 }
 
 gradlePlugin {
     plugins {
-        create("KuteConfigPlugin") {
-            id = "nl.kute.gradle.config.plugin"
-            implementationClass = "nl.kute.gradle.config.plugin.KuteConfigPlugin"
+        create("elasticmq") {
+            id = "nl.kute.gradle.config.plugin.elasticmq"
+            implementationClass = "nl.kute.gradle.config.plugin.ElasticMqPlugin"
         }
     }
 }
@@ -93,6 +94,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     // TODO: needed?
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
+
+    // FIXME: Remove!! just for experimenting with gradle plugin
+    implementation("com.amazonaws:aws-java-sdk-sqs:1.11.409")
+    implementation("org.elasticmq:elasticmq-rest-sqs_2.12:0.14.5")
 
     compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 
