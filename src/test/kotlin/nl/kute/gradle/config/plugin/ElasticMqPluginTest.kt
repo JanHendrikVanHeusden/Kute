@@ -16,6 +16,6 @@ class ElasticMqPluginTest {
     fun `Applying the plugin should register the elasticMq extension`() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(ElasticMqPlugin::class.java)
-        assertThat(project.elasticMq()).isNotNull
+        assertThat(project.elasticmq()).isNotNull
     }
 }

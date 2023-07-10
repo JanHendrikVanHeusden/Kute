@@ -37,6 +37,12 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform() // JUnit 5
+// FIXME: Can't make this working.
+//        Source of `ElasticMqExtension` is missing (in https://medium.com/friday-insurance/how-to-write-a-gradle-plugin-in-kotlin-68d7a3534e71),
+//        makes it difficult to find out how it is supposed to work.
+//        (and other sources also missing or incomplete).
+//    dependsOn("startLocalElasticMq")
+//    finalizedBy("stopLocalElasticMq")
 }
 
 repositories {
@@ -72,9 +78,9 @@ plugins {
 
 gradlePlugin {
     plugins {
-        create("KuteConfigPlugin") {
-            id = "nl.kute.gradle.config.plugin"
-            implementationClass = "nl.kute.gradle.config.plugin.KuteConfigPlugin"
+        create("elasticmq") {
+            id = "nl.kute.gradle.config.plugin.elasticmq"
+            implementationClass = "nl.kute.gradle.config.plugin.ElasticMqPlugin"
         }
     }
 }

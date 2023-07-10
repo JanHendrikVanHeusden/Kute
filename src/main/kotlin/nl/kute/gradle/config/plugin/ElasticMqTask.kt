@@ -16,7 +16,7 @@ sealed class ElasticMqTask(
 
     @TaskAction
     fun doAction() {
-        project.elasticMq().instances.getByName(serverName)?.elasticMqInstance?.action()
+        project.elasticmq().instances.getByName(serverName)?.elasticMqInstance?.action()
     }
 }
 

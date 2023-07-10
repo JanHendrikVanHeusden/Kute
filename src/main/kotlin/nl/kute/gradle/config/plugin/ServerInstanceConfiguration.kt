@@ -5,16 +5,15 @@ import org.elasticmq.rest.sqs.SQSLimits
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 
-internal typealias QueueConfigurationContainer =
-        NamedDomainObjectContainer<QueueConfiguration>
+internal typealias QueueConfigurationContainer = NamedDomainObjectContainer<QueueConfiguration>
 
 class ServerInstanceConfiguration(
     val name: String,
-    val protocol: String,
-    val host: String,
-    val port: String,
-    val contextPath: String,
-    val limits: String,
+    val protocol: String = "http",
+    val host: String = "localhost",
+    val port: String = "9324",
+    val contextPath: String = "path",
+    val limits: String = "relaxed",
     project: Project
 ) {
 

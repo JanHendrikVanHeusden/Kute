@@ -9,10 +9,7 @@ private const val EXTENSION_NAME = "elasticmq"
 open class ElasticMqPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.extensions.create(
-            EXTENSION_NAME,
-            ElasticMqExtension::class.java,
-            project)
+        val extension = project.extensions.create(EXTENSION_NAME, ElasticMqExtension::class.java, project)
 
         project.gradle.buildFinished {
             extension.instances.forEach { serverConfiguration ->
@@ -39,6 +36,6 @@ private fun toValidTaskNameCharacters(char: Char): Char =
 
 private fun String.toCamelCase() = GUtil.toCamelCase(this)
 
-internal fun Project.elasticMq(): ElasticMqExtension =
+internal fun Project.elasticmq(): ElasticMqExtension =
     extensions.getByName(EXTENSION_NAME) as? ElasticMqExtension
         ?: throw IllegalStateException("$EXTENSION_NAME is not of the correct type")
