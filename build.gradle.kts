@@ -1,6 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 group = "nl.kute"
 version = "1.0-SNAPSHOT"
@@ -51,8 +52,6 @@ repositories {
     }
 }
 
-fun property(name: String) = properties[name] as String
-
 plugins {
     // Values retrieved from gradle.properties
     // This seems about the only way; you cannot retrieve them otherwise from outside the plugins' scope
@@ -60,32 +59,35 @@ plugins {
     val owaspDependencyCheckVersion: String by System.getProperties()
     val dependencyCheckVersion: String by System.getProperties()
     val dokkaVersion: String by System.getProperties()
+    val pitestPluginVersion: String by System.getProperties()
 
     kotlin("jvm") version kotlinVersion
 
     `java-library`
+    `java-gradle-plugin`
     `maven-publish`
+    idea
+
+    id("jacoco")
+    id("org.jetbrains.dokka") version dokkaVersion
     id("org.owasp.dependencycheck") version owaspDependencyCheckVersion
     id("com.github.ben-manes.versions") version dependencyCheckVersion
-    id("jacoco")
-    id("idea")
-    id("org.jetbrains.dokka") version dokkaVersion
+
+    id("info.solidsoft.pitest") version pitestPluginVersion
 }
 
 dependencies {
     val dokkaVersion by System.getProperties()
     val jupiterVersion by System.getProperties()
-    val kotestRunnerVersion by System.getProperties()
     val mockitoKotlinVersion by System.getProperties()
     val assertJVersion by System.getProperties()
     val commonsLangVersion by System.getProperties()
     val awaitilityVersion by System.getProperties()
-    val kotlinCoroutinesVersion by System.getProperties()
+    val junitPlatformVersion by System.getProperties()
+    val pitestJUnit5PluginVersion by System.getProperties()
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    // TODO: needed?
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 
@@ -97,16 +99,17 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestRunnerVersion")
-
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
+    testImplementation("org.junit.platform:junit-platform-suite-api:$junitPlatformVersion")
 
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
     testImplementation("org.assertj:assertj-core:$assertJVersion")
     testImplementation("org.awaitility:awaitility:$awaitilityVersion")
+
+    // must be specified explicitly, otherwise runtime exception on task pitest
+    testRuntimeOnly("org.pitest:pitest-junit5-plugin:$pitestJUnit5PluginVersion")
 }
 
 dependencyCheck {
@@ -132,6 +135,54 @@ tasks.withType<DependencyUpdatesTask> {
     }
 }
 
+tasks.withType<Test> {
+
+    testLogging.showStandardStreams = true
+    testLogging.events (
+        TestLogEvent.FAILED,
+        TestLogEvent.PASSED,
+        TestLogEvent.SKIPPED,
+        TestLogEvent.STANDARD_OUT
+    )
+}
+
+pitest {
+    // pitest (and jacoco) output not quite satisfactory (maybe because it's Kotlin, not Java?)
+    // On some classes pitest and jacoco report zero test coverage (0.0);
+    // while IntelliJ shows 100% for that class
+
+    val pitestJUnit5PluginVersion: String by System.getProperties()
+
+    // adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
+    junit5PluginVersion.set(pitestJUnit5PluginVersion)
+    avoidCallsTo.set(setOf("kotlin.jvm.internal"))
+    mutators.set(setOf("STRONGER"))
+    targetClasses.set(setOf("nl.kute.*"))
+    targetTests.set(setOf("nl.kute.*Test"))
+    threads.set(Runtime.getRuntime().availableProcessors())
+    outputFormats.set(setOf("XML", "HTML"))
+    // reuse previous executions, to save time
+    setProperty("withHistory", true)
+
+    if (hasProperty("buildScan")) {
+        extensions.findByName("buildScan")?.withGroovyBuilder {
+            setProperty("termsOfServiceUrl", "https://gradle.com/terms-of-service")
+            // We just want to run pitest, not to perform a build scan
+            // So no need to publishing it on `scans.gradle.com`
+            setProperty("termsOfServiceAgree", "no")
+        }
+    }
+}
+
+tasks.named("pitest") {
+    doLast {
+        println("pitest report: `build/reports/pitest/index.html`")
+    }
+}
+
+apply(plugin = "info.solidsoft.pitest")
+
+//apply<KuteConfigPlugin>()
 
 fun isVersionNonStable(version: String): Boolean {
     val hasStableKeyword = listOf("RELEASE", "FINAL", "GA")
