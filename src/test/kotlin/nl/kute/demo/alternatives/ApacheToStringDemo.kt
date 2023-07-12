@@ -12,8 +12,8 @@ import java.util.LinkedList
 
 class ApacheToStringDemo {
 
-    // Set to true to enable the tests (not advised, several tests fail with stack overflow)
-    private val testsEnabled = false
+    // Set to true to enable the demos (not advised, several of them fail with stack overflow)
+    private val demosEnabled = false
 
     companion object {
         init {
@@ -27,7 +27,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `Object with array properties should yield decent output with Apache ToStringBuilder - same as contentDeepToString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Will succeed when enabled, nested arrays give decent toString output with `Apache ToStringBuilder`")
             .isTrue
 
@@ -52,7 +52,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `Arrays with self-referencing elements should yield decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would succeed when enabled, contains more or less useful output with `Apache ToStringBuilder`")
             .isTrue
 
@@ -73,7 +73,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `Objects with array properties with self-referencing elements should yield decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would succeed if enabled, self referencing array elements are handled `Apache ToStringBuilder()`")
             .isTrue
 
@@ -101,7 +101,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `Objects with array properties with self-referencing elements should yield decent output with Apache ToStringBuilder - non-reflective`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would succeed when enabled, more or less useful output with `Apache ToStringBuilder`")
             .isTrue
 
@@ -132,7 +132,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `Objects with array properties fall back to non-informative toString output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would fail, objects with array properties fall back to non-informative toString output with `Apache ToStringBuilder`")
             .isTrue
 
@@ -158,7 +158,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `Collections with self-referencing elements cause stack overflow with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Collection with self reference causes stack overflow with `Apache ToStringBuilder`")
             .isTrue
 
@@ -175,7 +175,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `Collections with mutually referencing elements cause stack overflow with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would fail, mutually referencing collection elements cause StackOverflowError with `Apache ToStringBuilder()`")
             .isTrue
 
@@ -200,7 +200,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `objects with self reference should yield decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Will succeed if enabled, it provides some useful output with `Apache ToStringBuilder`")
             .isTrue
 
@@ -224,7 +224,7 @@ class ApacheToStringDemo {
     @Suppress("unused")
     @Test
     fun `objects with mutual reference should yield decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would succeed when enabled, provides useful output with `Apache ToStringBuilder`")
             .isTrue
 
@@ -270,7 +270,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `object with uninitialized lateinit property yields decent output with Apache ToStringBuilder`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would succeed when enabled, yields decent output for uninitialized lateinit var with `Apache ToStringBuilder`")
             .isTrue
 
@@ -293,7 +293,7 @@ class ApacheToStringDemo {
 
     @Test
     fun `synthetic types shouldn't cause exceptions`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("This test would succeed if enabled: `ToStringBuilder.reflectionToString` handles synthetic types without exceptions")
             .isTrue
 

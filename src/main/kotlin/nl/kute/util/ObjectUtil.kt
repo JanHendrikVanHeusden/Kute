@@ -6,5 +6,4 @@ internal val Any?.identityHash: Int
 
 /** The identity hashCode as returned by [System.identityHashCode], as hex String. Returns `0` for `null` */
 internal val Any?.identityHashHex: String
-    get() = this?.identityHash?.asHexString?.replace(leadingZeroRegex, "") ?: "0"
-private val leadingZeroRegex = Regex("^0+")
+    get() = this?.identityHash?.asHexString ?: "0"

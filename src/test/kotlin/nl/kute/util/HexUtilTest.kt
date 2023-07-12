@@ -10,6 +10,8 @@ internal class HexUtilTest {
 
     @Test
     fun intAsHexString() {
+        val nullInt: Int? = null
+        assertThat(nullInt.asHexString).isEqualTo("0")
         assertThat(0.asHexString).isEqualTo("0")
         assertThat(1.asHexString).isEqualTo("1")
         assertThat(10.asHexString).isEqualTo("a")
@@ -30,6 +32,8 @@ internal class HexUtilTest {
 
     @Test
     fun longAsHexString() {
+        val nullLong: Long? = null
+        assertThat(nullLong.asHexString).isEqualTo("0")
         assertThat(0L.asHexString).isEqualTo("0")
         assertThat(1L.asHexString).isEqualTo("1")
         assertThat(10L.asHexString).isEqualTo("a")

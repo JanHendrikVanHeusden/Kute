@@ -38,6 +38,11 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform() // JUnit 5
+
+    // Skip the demo's.
+    // These show how `Objects.toString` and Apache's `ToStringBuilder.reflectionToString`
+    // crash with stack overflow on recursive stuff (and other issues)
+    exclude("**/**Demo.class")
 }
 
 
@@ -64,27 +69,27 @@ plugins {
     kotlin("jvm") version kotlinVersion
 
     `java-library`
-    `java-gradle-plugin`
     `maven-publish`
     idea
 
-    id("jacoco")
-    id("org.jetbrains.dokka") version dokkaVersion
     id("org.owasp.dependencycheck") version owaspDependencyCheckVersion
     id("com.github.ben-manes.versions") version dependencyCheckVersion
 
+    id("jacoco")
     id("info.solidsoft.pitest") version pitestPluginVersion
+
+    id("org.jetbrains.dokka") version dokkaVersion
 }
 
 dependencies {
     val dokkaVersion by System.getProperties()
+    val junitPlatformVersion by System.getProperties()
     val jupiterVersion by System.getProperties()
     val mockitoKotlinVersion by System.getProperties()
     val assertJVersion by System.getProperties()
-    val commonsLangVersion by System.getProperties()
     val awaitilityVersion by System.getProperties()
-    val junitPlatformVersion by System.getProperties()
     val pitestJUnit5PluginVersion by System.getProperties()
+    val commonsLangVersion by System.getProperties()
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -136,7 +141,7 @@ tasks.withType<DependencyUpdatesTask> {
 }
 
 tasks.withType<Test> {
-
+    // So test output shows test results (passed, skipped etc.)
     testLogging.showStandardStreams = true
     testLogging.events (
         TestLogEvent.FAILED,
@@ -148,7 +153,7 @@ tasks.withType<Test> {
 
 pitest {
     // pitest (and jacoco) output not quite satisfactory (maybe because it's Kotlin, not Java?)
-    // On some classes pitest and jacoco report zero test coverage (0.0);
+    // On several classes pitest and jacoco report zero test coverage (0.0);
     // while IntelliJ shows 100% for that class
 
     val pitestJUnit5PluginVersion: String by System.getProperties()
@@ -181,8 +186,6 @@ tasks.named("pitest") {
 }
 
 apply(plugin = "info.solidsoft.pitest")
-
-//apply<KuteConfigPlugin>()
 
 fun isVersionNonStable(version: String): Boolean {
     val hasStableKeyword = listOf("RELEASE", "FINAL", "GA")
