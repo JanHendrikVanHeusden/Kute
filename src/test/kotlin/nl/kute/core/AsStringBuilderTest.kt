@@ -9,10 +9,12 @@ import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.namedVal
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
+import nl.kute.log.log
 import nl.kute.util.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assumptions.assumeThat
 import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.Disabled
+import org.awaitility.core.ConditionTimeoutException
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KProperty1
@@ -176,44 +178,62 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
         ).isEqualTo(expected)
     }
 
-    @Disabled("""Most JVM's simply won't react on a call to System.gc(). You may run the test manually to see if it succeeds.
-        The test is merely to document that AsStringBuilder must not keep hard references to the object.
-        You may be able to run this test successfully by running an external tool that enforces garbage collections,
-        like VisualVM, JMeter or other monitoring tools.""")
     @Test
-    fun `AsStringBuilder's object reference shouldn't prevent garbage collections`() {
+    @Suppress("UNUSED_VALUE")
+    fun `AsStringBuilder's shouldn't prevent garbage collection after being built`() {
         // arrange
+        // will be eligible for garbage collection after builder.build()
         var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
-        val builder = toBeGarbageCollected.asStringBuilder()
+        val builder: AsStringBuilder = toBeGarbageCollected.asStringBuilder()
+        builder.build()
 
         @Suppress("UNCHECKED_CAST")
-        val objRefProperty: KProperty1<AsStringBuilder, ObjectWeakReference<ToBeGarbageCollected>> =
+        var objRefProperty: KProperty1<AsStringBuilder, ObjectWeakReference<ToBeGarbageCollected>>? =
             builder::class.memberProperties.first { it.name == "objectReference" } as
                     KProperty1<AsStringBuilder, ObjectWeakReference<ToBeGarbageCollected>>
-        objRefProperty.isAccessible = true
-        val objectWeakReference = objRefProperty.get(builder)
-        assertThat(objectWeakReference.get()).isSameAs(toBeGarbageCollected)
+        objRefProperty!!.isAccessible = true
+        val objectWeakReference: ObjectWeakReference<ToBeGarbageCollected> = objRefProperty.get(builder)
 
-        // act
-        @Suppress("UNUSED_VALUE")
-        toBeGarbageCollected = null // no references anymore, so eligible to garbage collection
-        System.gc()
+        // nullify any references wihtin the test, so eligible to garbage collection
+        // NB: builder is NOT nullified, the test should prove that it doesn't prevent garbage collection
+        objRefProperty = null
+        toBeGarbageCollected = null
 
         // assert
-        await()
-            .alias("The referenced object should be weak referenced only, so eligible to garbage collection")
-            .atMost(10, TimeUnit.SECONDS)
-            .until {
-                System.gc()
-                objectWeakReference.get() == null
-            }
+        try {
+            await()
+                .alias("The referenced object should be weak referenced only, so eligible to garbage collection")
+                .atMost(5, TimeUnit.SECONDS)
+                .with().pollInterval(100, TimeUnit.MILLISECONDS)
+                .until {
+                    System.gc()
+                    objectWeakReference.get() == null
+                }
+        } catch (e: ConditionTimeoutException) {
+            // ignore: test should not fail here
+            log(e.message)
+        }
+        // assume the condition
+        // * if condition met, the test sill be marked as success
+        // * if condition not met, `assumeThat` will mark the test as ignored
+        assumeThat(objectWeakReference.get())
+            .`as`("""Some JVMs simply won't react on a call to System.gc().
+                The test is executed, and succeeds on some JVMs; failure will be ignored though, as we can't be sure.
+                Take care if it starts failing on a machine / JVM on which it succeeded previously.
+                
+                The test is merely to document that AsStringBuilder must not keep hard references to the object.
+                You may be able to run this test successfully by running an external tool that enforces garbage collections,
+                like VisualVM, JMeter or other monitoring tools.""".replace("  +", "\n"))
+            .isNull()
     }
 
     /////////////////////////////
     // Test classes, objects etc.
     /////////////////////////////
     
-    private class ToBeGarbageCollected
+    private class ToBeGarbageCollected {
+        override fun toString(): String = "not garbage collected yet!"
+    }
 
     @AsStringOption(showNullAs = showNullAs)
     private interface InterfaceWithOmitProperty {

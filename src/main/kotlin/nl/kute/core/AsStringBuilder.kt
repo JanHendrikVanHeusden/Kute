@@ -9,7 +9,7 @@ import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.reflection.declaringClass
 import kotlin.reflect.KProperty
 
-class AsStringBuilder private constructor(obj: Any?): AsStringProducer() {
+class AsStringBuilder private constructor(var obj: Any?) : AsStringProducer() {
 
     private val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
     private val objJavaClass: Class<*>? = obj?.javaClass
@@ -22,7 +22,7 @@ class AsStringBuilder private constructor(obj: Any?): AsStringProducer() {
         if (obj == null) {
             emptySet()
         } else {
-            obj::class.propertiesWithPrintModifyingAnnotations().keys
+            obj!!::class.propertiesWithPrintModifyingAnnotations().keys
         }
     }
 
@@ -97,6 +97,7 @@ class AsStringBuilder private constructor(obj: Any?): AsStringProducer() {
                 .toSet()
         propertyNamesToExclude.addAll(classPropertyNames - propNamesToInclude)
         isBuilt = true
+        obj = null // to make it eligible for garbage collection
         return this
     }
 
@@ -111,4 +112,3 @@ class AsStringBuilder private constructor(obj: Any?): AsStringProducer() {
     }
 
 }
-
