@@ -78,72 +78,73 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
             // For built-in stuff except Arrays/Collections, we just stick to the default toString()
             return obj.toString()
         } else {
-            // Check if we were already busy processing this object
-            objectsStack.get().alreadyPresent(obj).also { alreadyPresent ->
-                if (alreadyPresent) {
-                    // avoid endless loop
-                    return "recursive: ${obj::class.simplifyClassName()}(...)"
-                }
-            }
-            // Array and Collection toString methods are vulnerable of stack overflow errors
-            // in case of mutual reference (so where list1 is element of list2 and vice versa).
-            // So we mimic the default toString behaviour, but recursion safe
-            if (obj is Array<*>) {
-                return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
-            }
-            if (obj is Collection<*>) {
-                return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
-            }
-            val objClass = obj::class
             try {
-                val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
-                    objClass.propertiesWithPrintModifyingAnnotations()
-                        .filterNot { propertyNamesToExclude.contains(it.key.name) }
-                        .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
-                val named = nameValues
-                    .filterNot { nameValue -> nameValue is PropertyValue<*, *>
-                            && nameValue.printModifyingAnnotations.any { it is AsStringOmit }
+                // Check if we were already busy processing this object
+                objectsStack.get().addIfNotPresent(obj).also { notPresent ->
+                    if (!notPresent) {
+                        // avoid endless loop
+                        return "recursive: ${obj::class.simplifyClassName()}(...)"
                     }
-                val nameValueSeparator =
-                    if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
-                return annotationsByProperty
-                    .entries.joinToString(
-                        separator = valueSeparator,
-                        prefix = "${objClass.simplifyClassName()}("
-                    ) { entry ->
-                        val prop = entry.key
-                        val annotationSet = entry.value
-                        "${prop.name}=${getPropValueString(prop, annotationSet)}"
-                    } + named.joinToString(prefix = nameValueSeparator, separator = ", ", postfix = ")") {
-                    "${it.name}=${it.valueString ?: defaultNullString}"
                 }
-            } catch (e: SyntheticClassException) {
-                // Kotlin's reflection can't handle synthetic classes, like for lambda, callable reference etc.
-                // (more details, see KDoc of SyntheticClassException)
-                // It's not the intended usage for AsString() anyway, so we just don't care. No log message.
-                return obj.asStringFallBack()
-            } catch (e: Exception) {
-                log(
-                    "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value" +
-                            " for object of class ${this.javaClass};$lineEnd${e.asString(50)}")
-                return obj.asStringFallBack()
-            } catch (t: Throwable) {
-                log(
-                    "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value" +
-                            " for object of class ${this.javaClass};$lineEnd${t.asString(50)}")
-                return obj.asStringFallBack()
+                // Array and Collection toString methods are vulnerable of stack overflow errors
+                // in case of mutual reference (so where list1 is element of list2 and vice versa).
+                // So we mimic the default toString behaviour, but recursion safe
+                if (obj is Array<*>) {
+                    return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
+                }
+                if (obj is Collection<*>) {
+                    return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
+                }
+                val objClass = obj::class
+                try {
+                    val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
+                        objClass.propertiesWithPrintModifyingAnnotations()
+                            .filterNot { propertyNamesToExclude.contains(it.key.name) }
+                            .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
+                    val named = nameValues
+                        .filterNot { nameValue ->
+                            nameValue is PropertyValue<*, *>
+                                    && nameValue.printModifyingAnnotations.any { it is AsStringOmit }
+                        }
+                    val nameValueSeparator =
+                        if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
+                    return annotationsByProperty
+                        .entries.joinToString(
+                            separator = valueSeparator,
+                            prefix = "${objClass.simplifyClassName()}("
+                        ) { entry ->
+                            val prop = entry.key
+                            val annotationSet = entry.value
+                            "${prop.name}=${getPropValueString(prop, annotationSet)}"
+                        } + named.joinToString(prefix = nameValueSeparator, separator = ", ", postfix = ")") {
+                        "${it.name}=${it.valueString ?: defaultNullString}"
+                    }
+                } catch (e: SyntheticClassException) {
+                    // Kotlin's reflection can't handle synthetic classes, like for lambda, callable reference etc.
+                    // (more details, see KDoc of SyntheticClassException)
+                    // It's not the intended usage for AsString() anyway, so we just don't care. No log message.
+                    return obj.asStringFallBack()
+                } catch (e: Exception) {
+                    log(
+                        "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value" +
+                                " for object of class ${this.javaClass};$lineEnd${e.asString(50)}"
+                    )
+                    return obj.asStringFallBack()
+                } catch (t: Throwable) {
+                    log(
+                        "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value" +
+                                " for object of class ${this.javaClass};$lineEnd${t.asString(50)}"
+                    )
+                    return obj.asStringFallBack()
+                }
             } finally {
-                objectsStack.get().remove(obj)
+                objectsStack.get().remove(this)
             }
         }
     } catch (e: Exception) {
         // It's probably a secondary exception somewhere. Not much more we can do here
         e.printStackTrace()
         return ""
-    } finally {
-        this?.let {
-            objectsStack.get().remove(this)
-        }
     }
 }
 
@@ -210,11 +211,11 @@ private class ObjectsProcessed {
         }
 
     /** @return `true` if [obj] is newly added; `false` if it was present already (like [Set]`.add` behaviour */
-    fun <T : Any> alreadyPresent(obj: T): Boolean =
+    fun <T : Any> addIfNotPresent(obj: T): Boolean =
         get(obj).let { objectCounter ->
             objectCounter?.incrementAndGet() ?: ObjectCounter(obj, 1)
                 .also { objectsMap[obj.identityHash] = ObjectCounter(obj, 1) }
-    }.count > 1
+    }.count <= 1
 
     fun <T : Any> remove(obj: T) =
         get(obj)?.let { objectCounter ->

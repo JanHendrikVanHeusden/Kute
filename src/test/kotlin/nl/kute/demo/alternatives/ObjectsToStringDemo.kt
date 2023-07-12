@@ -11,8 +11,8 @@ import java.util.Objects
 
 class ObjectsToStringDemo {
 
-    // Set to true to enable the tests (not advised, several tests fail with stack overflow)
-    private val testsEnabled = false
+    // Set to true to enable the demos (not advised, several of them fail with stack overflow)
+    private val demosEnabled = false
 
     companion object {
         init {
@@ -26,7 +26,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Object with nested array causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("No recursion here, just a nested array, yet `Objects.toString()` causes stack overflow")
             .isTrue
 
@@ -44,7 +44,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Arrays with self-referencing elements should yield decent output with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would fail, self referencing array elements fall back to non-informative toString output with `Objects toString`")
             .isTrue
 
@@ -61,7 +61,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Objects with array properties with self-referencing elements cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would fail, self referencing array elements cause StackOverflowError with `Objects.toString()`")
             .isTrue
 
@@ -82,7 +82,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Objects with array properties with mutually referencing elements cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would fail, mutually referencing array elements cause StackOverflowError with `Objects.toString()`")
             .isTrue
 
@@ -106,7 +106,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Collections with self-referencing elements should yield decent output with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("This test would succeed with decent output if enabled: Collections.toString handles self-reference correctly")
             .isTrue
 
@@ -122,7 +122,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `Collections with mutually referencing elements cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would fail, mutually referencing collection elements cause StackOverflowError with `Objects.toString()`")
             .isTrue
 
@@ -145,7 +145,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `objects with self reference cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Object with self reference causes stack overflow with Objects toString")
             .isTrue
 
@@ -160,7 +160,7 @@ class ObjectsToStringDemo {
     @Suppress("unused")
     @Test
     fun `objects with mutual reference cause stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Would fail, mutually referencing objects cause StackOverflowError with `Objects.toString()`")
             .isTrue
 
@@ -191,7 +191,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `object with uninitialized lateinit property causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
             .isTrue
 
@@ -212,7 +212,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `object with only uninitialized lateinit property causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
             .isTrue
 
@@ -226,7 +226,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `object with initialized lateinit and init block causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
             .isTrue
 
@@ -246,7 +246,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `object with initialized lateinit causes stack overflow with Objects toString`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
             .isTrue
 
@@ -263,7 +263,7 @@ class ObjectsToStringDemo {
 
     @Test
     fun `synthetic types shouldn't cause exceptions`() {
-        assumeThat(testsEnabled)
+        assumeThat(demosEnabled)
             .`as`("This test would succeed if enabled: `Objects.toString()` yields decent output on synthetic types")
             .isTrue
 

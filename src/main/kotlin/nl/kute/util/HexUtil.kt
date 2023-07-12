@@ -12,7 +12,8 @@ package nl.kute.util
 internal fun Any?.hexHashCode(): String? = this?.let { hashCode().asHexString }
 
 /**
- * Converts an [Int] to a lower-case unsigned hex string.
+ * Converts an [Int] to a lower-case unsigned hex string, with leading zeros stripped.
+ * Returns "0" when [Int] receiver is `null`.
  * > NB: Kotlin's `Int.toString(16)` is signed, produces a leading minus sign for negative values;
  * >     that's not what we want!
  */
