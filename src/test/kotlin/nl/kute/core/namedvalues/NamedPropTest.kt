@@ -1,5 +1,6 @@
 package nl.kute.core.namedvalues
 
+import nl.kute.base.GarbageCollectionWaiter
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
@@ -8,10 +9,12 @@ import nl.kute.core.annotation.modify.hashString
 import nl.kute.core.annotation.modify.mask
 import nl.kute.core.annotation.modify.replacePattern
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.asString
 import nl.kute.hashing.DigestMethod
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assumptions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,23 +39,35 @@ class NamedPropTest {
         // arrange
         val thePropValue = "the value"
         class ClassWithProp(override val myProp: String) : WithProp
-        class ClassWithDelegate(val delegate: WithProp = ClassWithProp(thePropValue)): WithProp by delegate
+        class ClassWithConstructorInjectedDelegate(val delegate: WithProp = ClassWithProp(thePropValue)): WithProp by delegate
+        val withPropObject: WithProp = object: WithProp {
+            override val myProp: String = "WithProp object"
+        }
+        class ClassWithDelegateObject: WithProp by withPropObject
+        val classWithObjectDelegate = ClassWithDelegateObject()
 
-        val testObj = ClassWithDelegate()
+        val testObj = ClassWithConstructorInjectedDelegate()
 
         // act
-        val namedPropWithObjectRef = testObj.namedVal(testObj::myProp) as NamedProp<ClassWithDelegate, String>
+        val namedPropWithInjectedRef = testObj.namedVal(testObj::myProp) as NamedProp<ClassWithConstructorInjectedDelegate, String>
         // assert
-        assertThat(namedPropWithObjectRef.valueString)
+        assertThat(namedPropWithInjectedRef.valueString)
             .`as`("It should retrieve the delegate property value by object (testObj)")
             .isEqualTo(thePropValue)
 
         // act
-        val namedPropWithClassRef = testObj.namedVal(ClassWithDelegate::myProp) as NamedProp<ClassWithDelegate, String>
+        val namedPropWithClassRef = testObj.namedVal(ClassWithConstructorInjectedDelegate::myProp) as NamedProp<ClassWithConstructorInjectedDelegate, String>
         // assert
         assertThat(namedPropWithClassRef.valueString)
-            .`as`("It should retrieve the delegate property value by object class (ClassWithDelegate)")
+            .`as`("It should retrieve the delegate property value by object class (ClassWithConstructorInjectedDelegate)")
             .isEqualTo(thePropValue)
+
+        // act
+        val namedPropWithObject = classWithObjectDelegate.namedVal(classWithObjectDelegate::myProp) as NamedProp<ClassWithDelegateObject, String>
+        // assert
+        assertThat(namedPropWithObject.valueString)
+            .`as`("It should retrieve the delegate property value by object class (ClassWithDelegateObject)")
+            .isEqualTo(withPropObject.myProp)
     }
 
     @Test
@@ -255,6 +270,35 @@ class NamedPropTest {
         // assert
         assertThat(namedProp.name).isEqualTo(MyTestClass::testProp.name)
         assertThat(namedProp.valueString).isEqualTo("${myTestObj.testProp}")
+    }
+
+    @Test
+    fun `NamedProp shouldn't prevent garbage collection`() {
+        // arrange
+        class ToBeGarbageCollected {
+            val myString: String = "my String"
+            override fun toString(): String = asString()
+        }
+        var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
+        @Suppress("UNCHECKED_CAST")
+        val namedProp: NamedProp<ToBeGarbageCollected, String?> =
+            toBeGarbageCollected.namedVal(ToBeGarbageCollected::myString) as NamedProp<ToBeGarbageCollected, String?>
+
+        assertThat(namedProp.valueString).isEqualTo("my String")
+
+        // act
+        // nullify the object, should then be eligible for garbage collection
+        @Suppress("UNUSED_VALUE")
+        toBeGarbageCollected = null
+
+        // assert
+        GarbageCollectionWaiter.waitUntilGarbageCollected({namedProp.valueString == null})
+        // assume the condition
+        // * if condition met, the test will be marked as success
+        // * if condition not met, `assumeThat` will mark the test as ignored
+        Assumptions.assumeThat(namedProp.valueString)
+            .`as`(GarbageCollectionWaiter.explanationOnFailGcTest)
+            .isNull()
     }
 
     ///////////////

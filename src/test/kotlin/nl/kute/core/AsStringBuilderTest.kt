@@ -1,5 +1,6 @@
 package nl.kute.core
 
+import nl.kute.base.GarbageCollectionWaiter
 import nl.kute.base.ObjectsStackVerifier
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringHash
@@ -9,14 +10,10 @@ import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.namedVal
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
-import nl.kute.log.log
 import nl.kute.util.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
-import org.awaitility.Awaitility.await
-import org.awaitility.core.ConditionTimeoutException
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
@@ -182,7 +179,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
     @Suppress("UNUSED_VALUE")
     fun `AsStringBuilder's shouldn't prevent garbage collection after being built`() {
         // arrange
-        // will be eligible for garbage collection after builder.build()
+        // this object will be eligible for garbage collection after builder.build():
         var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
         val builder: AsStringBuilder = toBeGarbageCollected.asStringBuilder()
         builder.build()
@@ -193,6 +190,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
                     KProperty1<AsStringBuilder, ObjectWeakReference<ToBeGarbageCollected>>
         objRefProperty!!.isAccessible = true
         val objectWeakReference: ObjectWeakReference<ToBeGarbageCollected> = objRefProperty.get(builder)
+        assertThat(objectWeakReference.get()).isSameAs(toBeGarbageCollected)
 
         // nullify any references wihtin the test, so eligible to garbage collection
         // NB: builder is NOT nullified, the test should prove that it doesn't prevent garbage collection
@@ -200,30 +198,12 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
         toBeGarbageCollected = null
 
         // assert
-        try {
-            await()
-                .alias("The referenced object should be weak referenced only, so eligible to garbage collection")
-                .atMost(5, TimeUnit.SECONDS)
-                .with().pollInterval(100, TimeUnit.MILLISECONDS)
-                .until {
-                    System.gc()
-                    objectWeakReference.get() == null
-                }
-        } catch (e: ConditionTimeoutException) {
-            // ignore: test should not fail here
-            log(e.message)
-        }
+        GarbageCollectionWaiter.waitUntilGarbageCollected({objectWeakReference.get() == null})
         // assume the condition
-        // * if condition met, the test sill be marked as success
+        // * if condition met, the test will be marked as success
         // * if condition not met, `assumeThat` will mark the test as ignored
         assumeThat(objectWeakReference.get())
-            .`as`("""Some JVMs simply won't react on a call to System.gc().
-                The test is executed, and succeeds on some JVMs; failure will be ignored though, as we can't be sure.
-                Take care if it starts failing on a machine / JVM on which it succeeded previously.
-                
-                The test is merely to document that AsStringBuilder must not keep hard references to the object.
-                You may be able to run this test successfully by running an external tool that enforces garbage collections,
-                like VisualVM, JMeter or other monitoring tools.""".replace("  +", "\n"))
+            .`as`(GarbageCollectionWaiter.explanationOnFailGcTest)
             .isNull()
     }
 

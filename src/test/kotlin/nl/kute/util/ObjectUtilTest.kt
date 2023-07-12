@@ -27,7 +27,7 @@ class ObjectUtilTest {
     @Disabled("Result depends on JVM, so no way to guarantee that it will produce" +
             " any identity hashes with leading zeros." +
             " So not running automatically. Run this test manually if needed" +
-            " (it is reasonably safe though to assume it will produce leading zeros).")
+            " (it is reasonably safe to assume it will produce leading zeros though).")
     fun `identityHashHex should remove leading zeros`() {
         var foundLeadingZero = false
         var counter = 0

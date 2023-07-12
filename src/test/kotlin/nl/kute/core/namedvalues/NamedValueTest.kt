@@ -1,6 +1,9 @@
 package nl.kute.core.namedvalues
 
+import nl.kute.base.GarbageCollectionWaiter
+import nl.kute.core.asString
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assumptions
 import org.junit.jupiter.api.Test
 
 class NamedValueTest {
@@ -51,6 +54,35 @@ class NamedValueTest {
         // assert
         assertThat(namedValue.name).isSameAs(name)
         assertThat(namedValue.valueString).isEqualTo(valueStr)
+    }
+
+    @Test
+    fun `NamedValue shouldn't prevent garbage collection`() {
+        // arrange
+        class ToBeGarbageCollected {
+            @Suppress("unused")
+            val myString: String = "my String"
+            override fun toString(): String = asString()
+        }
+        var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
+        val namedValue: NamedValue<ToBeGarbageCollected> =
+            toBeGarbageCollected.namedVal("to be garbage collected") as NamedValue
+
+        assertThat(namedValue.valueString).contains("myString=my String")
+
+        // act
+        // nullify the object, should then be eligible for garbage collection
+        @Suppress("UNUSED_VALUE")
+        toBeGarbageCollected = null
+
+        // assert
+        GarbageCollectionWaiter.waitUntilGarbageCollected({namedValue.valueString == "null"})
+        // assume the condition
+        // * if condition met, the test will be marked as success
+        // * if condition not met, `assumeThat` will mark the test as ignored
+        Assumptions.assumeThat(namedValue.valueString)
+            .`as`(GarbageCollectionWaiter.explanationOnFailGcTest)
+            .isEqualTo("null")
     }
 
 }

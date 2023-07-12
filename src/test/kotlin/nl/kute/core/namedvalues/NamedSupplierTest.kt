@@ -1,8 +1,11 @@
 package nl.kute.core.namedvalues
 
+import nl.kute.base.GarbageCollectionWaiter
+import nl.kute.core.asString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assumptions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -96,6 +99,38 @@ class NamedSupplierTest {
         // assert
         assertThat(namedSupplier.name).isSameAs(name)
         assertThat(namedSupplier.valueString).isSameAs(suppliedValue)
+    }
+
+    @Test
+    @Suppress("UNUSED_VALUE")
+    fun `NamedSupplier shouldn't prevent garbage collection`() {
+        // arrange
+        class ToBeGarbageCollected {
+            @Suppress("unused")
+            val myString: String = "my String"
+            override fun toString(): String = asString()
+        }
+        var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
+        var supplier: Supplier<ToBeGarbageCollected?>? = { toBeGarbageCollected }
+        val namedSupplier: NamedSupplier<ToBeGarbageCollected> =
+            supplier!!.namedVal("to be garbage collected") as NamedSupplier
+
+        assertThat(namedSupplier.valueString).contains("myString=my String")
+
+        // act
+        // nullify the object, should then be eligible for garbage collection
+        toBeGarbageCollected = null
+        supplier = null
+
+        // assert
+        GarbageCollectionWaiter.waitUntilGarbageCollected({namedSupplier.valueString == null})
+
+        // assume the condition
+        // * if condition met, the test will be marked as success
+        // * if condition not met, `assumeThat` will mark the test as ignored
+        Assumptions.assumeThat(namedSupplier.valueString)
+            .`as`(GarbageCollectionWaiter.explanationOnFailGcTest)
+            .isNull()
     }
 
 }

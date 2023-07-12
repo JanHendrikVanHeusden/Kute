@@ -20,32 +20,7 @@ final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property: KPrope
     init {
         val propertyClass = property.declaringClass()?.java
         val objClassJava = objClass?.java
-        coherentProperty =
-            propertyClass == null || objClass == null
-                    // Somehow it will succeed when property is of type KProperty0, even when
-                    // incompatible classes (feels weird).
-                    // This appears necessary for retrieval of values from super hierarchy, so seems "by design"
-                    // of Kotlin designers. So we need to allow the inconsistency in case of KProperty0.
-                    //   > It fails however when it is KProperty1: KProperty1<T, V>.get(obj) with
-                    //   > ClassCastException on call of valueString.
-                    //     > KProperty1<T,V> also defines the object type T
-                    //     > (whereas KProperty0<V> only defines the value type)
-                    || property is KProperty0 // let KProperty0 go, even if incompatible
-                    //   > So for KProperty1, we want to detect incompatibility / inconsistency early,
-                    //   > instead of difficult to track downstream ClassCastException
-                    //   So mark it as not coherent in that case.
-                    || objClassJava?.isAssignableFrom(propertyClass) == true
-
-        if (!coherentProperty) {
-            // Instead of downstream ClassCastException, we better signal the issue early
-            with(IllegalStateException(
-                    """Property ${property.name} is defined in class ${propertyClass?.kotlin?.simplifyClassName()},
-                       |but called on incompatible class ${objClass?.simplifyClassName()} (not in hierarchy).
-                       |The property value will not be retrieved; it will return `null` instead!""".trimMargin()
-                )) {
-                log(this.asString(3))
-            }
-        }
+        coherentProperty = isPropertyCoherent(propertyClass, objClassJava)
     }
 
     override val objectReference: ObjectWeakReference<T?> = ObjectWeakReference(obj)
@@ -84,6 +59,38 @@ final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property: KPrope
         var result = objectReference.get()?.hashCode() ?: 0
         result = 31 * result + name.hashCode()
         return result
+    }
+
+    private fun isPropertyCoherent(propertyClass: Class<out Any>?, objClassJava: Class<out T & Any>?): Boolean {
+        val isCoherent = (propertyClass == null || objClass == null
+                // Somehow retrieving the property value will succeed when property is of type KProperty0, even when
+                // incompatible (non-coherent) classes (feels weird; maybe necessary to support delegation?)
+                // This appears necessary for retrieval of values from super hierarchy, so seems "by design"
+                // of Kotlin designers. So we allow the inconsistency in case of KProperty0.
+                //   > It fails however when it is KProperty1: KProperty1<T, V>.get(obj) with
+                //   > ClassCastException on call of valueString.
+                //     > KProperty1<T,V> also defines the object type T
+                //     > (whereas KProperty0<V> only defines the value type)
+                || property is KProperty0 // let KProperty0 go, even if incompatible
+                //   > So for KProperty1, we want to detect incompatibility / inconsistency early,
+                //   > instead of difficult to track downstream ClassCastException
+                //   So mark it as not coherent in that case.
+                || objClassJava?.isAssignableFrom(propertyClass) == true)
+
+        if (!isCoherent) {
+            // Instead of downstream ClassCastException, we better signal the issue early
+            with(
+                IllegalStateException(
+                    """Property ${property.name} is defined in class ${propertyClass?.kotlin?.simplifyClassName()},
+                           |but called on incompatible class ${objClass?.simplifyClassName()} (not in hierarchy).
+                           |The property value will not be retrieved; it will return `null` instead!""".trimMargin()
+                )
+            ) {
+                // just log it; not throwing it
+                log(this.asString(3))
+            }
+        }
+        return isCoherent
     }
 }
 
