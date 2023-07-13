@@ -14,7 +14,6 @@ import nl.kute.hashing.DigestMethod
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assumptions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,7 +21,7 @@ import kotlin.random.Random
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
 
-class NamedPropTest {
+class NamedPropTest: GarbageCollectionWaiter {
 
     @BeforeEach
     @AfterEach
@@ -283,7 +282,9 @@ class NamedPropTest {
         @Suppress("UNCHECKED_CAST")
         val namedProp: NamedProp<ToBeGarbageCollected, String?> =
             toBeGarbageCollected.namedVal(ToBeGarbageCollected::myString) as NamedProp<ToBeGarbageCollected, String?>
-
+        
+        val checkGarbageCollected = {namedProp.valueString == null}
+        assertThat(checkGarbageCollected.invoke()).isFalse
         assertThat(namedProp.valueString).isEqualTo("my String")
 
         // act
@@ -292,13 +293,7 @@ class NamedPropTest {
         toBeGarbageCollected = null
 
         // assert
-        GarbageCollectionWaiter.waitUntilGarbageCollected({namedProp.valueString == null})
-        // assume the condition
-        // * if condition met, the test will be marked as success
-        // * if condition not met, `assumeThat` will mark the test as ignored
-        Assumptions.assumeThat(namedProp.valueString)
-            .`as`(GarbageCollectionWaiter.explanationOnFailGcTest)
-            .isNull()
+        assertGarbageCollected(checkGarbageCollected)
     }
 
     ///////////////

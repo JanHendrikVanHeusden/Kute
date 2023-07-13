@@ -3,10 +3,9 @@ package nl.kute.core.namedvalues
 import nl.kute.base.GarbageCollectionWaiter
 import nl.kute.core.asString
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assumptions
 import org.junit.jupiter.api.Test
 
-class NamedValueTest {
+class NamedValueTest: GarbageCollectionWaiter {
 
     @Test
     fun `test NamedValue`() {
@@ -68,6 +67,8 @@ class NamedValueTest {
         val namedValue: NamedValue<ToBeGarbageCollected> =
             toBeGarbageCollected.namedVal("to be garbage collected") as NamedValue
 
+        val checkGarbageCollected = {namedValue.valueString == "null"}
+        assertThat(checkGarbageCollected.invoke()).isFalse
         assertThat(namedValue.valueString).contains("myString=my String")
 
         // act
@@ -76,13 +77,7 @@ class NamedValueTest {
         toBeGarbageCollected = null
 
         // assert
-        GarbageCollectionWaiter.waitUntilGarbageCollected({namedValue.valueString == "null"})
-        // assume the condition
-        // * if condition met, the test will be marked as success
-        // * if condition not met, `assumeThat` will mark the test as ignored
-        Assumptions.assumeThat(namedValue.valueString)
-            .`as`(GarbageCollectionWaiter.explanationOnFailGcTest)
-            .isEqualTo("null")
+        assertGarbageCollected(checkGarbageCollected)
     }
 
 }

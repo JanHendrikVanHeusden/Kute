@@ -5,12 +5,11 @@ import nl.kute.core.asString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assumptions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class NamedSupplierTest {
+class NamedSupplierTest: GarbageCollectionWaiter {
 
     @BeforeEach
     @AfterEach
@@ -114,7 +113,9 @@ class NamedSupplierTest {
         var supplier: Supplier<ToBeGarbageCollected?>? = { toBeGarbageCollected }
         val namedSupplier: NamedSupplier<ToBeGarbageCollected> =
             supplier!!.namedVal("to be garbage collected") as NamedSupplier
-
+        
+        val checkGarbageCollected = {namedSupplier.valueString == null}
+        assertThat(checkGarbageCollected.invoke()).isFalse
         assertThat(namedSupplier.valueString).contains("myString=my String")
 
         // act
@@ -123,14 +124,7 @@ class NamedSupplierTest {
         supplier = null
 
         // assert
-        GarbageCollectionWaiter.waitUntilGarbageCollected({namedSupplier.valueString == null})
-
-        // assume the condition
-        // * if condition met, the test will be marked as success
-        // * if condition not met, `assumeThat` will mark the test as ignored
-        Assumptions.assumeThat(namedSupplier.valueString)
-            .`as`(GarbageCollectionWaiter.explanationOnFailGcTest)
-            .isNull()
+        assertGarbageCollected(checkGarbageCollected)
     }
 
 }

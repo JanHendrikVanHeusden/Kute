@@ -12,7 +12,6 @@ import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
 import nl.kute.util.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assumptions.assumeThat
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
@@ -21,7 +20,7 @@ import kotlin.reflect.jvm.isAccessible
 const val showNullAs = "`null`"
 const val showNullAs2 = "[null]"
 
-internal class AsStringBuilderTest: ObjectsStackVerifier {
+internal class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
 
     private val testObj = ClassWithHashProperty()
     private val testSubObj = SubClassWithPrintMask()
@@ -190,7 +189,10 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
                     KProperty1<AsStringBuilder, ObjectWeakReference<ToBeGarbageCollected>>
         objRefProperty!!.isAccessible = true
         val objectWeakReference: ObjectWeakReference<ToBeGarbageCollected> = objRefProperty.get(builder)
+
         assertThat(objectWeakReference.get()).isSameAs(toBeGarbageCollected)
+        val checkGarbageCollected = {objectWeakReference.get() == null}
+        assertThat(checkGarbageCollected.invoke()).isFalse
 
         // nullify any references wihtin the test, so eligible to garbage collection
         // NB: builder is NOT nullified, the test should prove that it doesn't prevent garbage collection
@@ -198,13 +200,7 @@ internal class AsStringBuilderTest: ObjectsStackVerifier {
         toBeGarbageCollected = null
 
         // assert
-        GarbageCollectionWaiter.waitUntilGarbageCollected({objectWeakReference.get() == null})
-        // assume the condition
-        // * if condition met, the test will be marked as success
-        // * if condition not met, `assumeThat` will mark the test as ignored
-        assumeThat(objectWeakReference.get())
-            .`as`(GarbageCollectionWaiter.explanationOnFailGcTest)
-            .isNull()
+        assertGarbageCollected(checkGarbageCollected)
     }
 
     /////////////////////////////
