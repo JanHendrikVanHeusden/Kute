@@ -29,7 +29,6 @@ private val inaccessibleObjectInfo: String =
        |  * set the JVM's `--add-opens` option for the required packages
        | ---""".trimMargin()
 
-@JvmSynthetic // avoid access from external Java code
 internal fun KProperty<*>?.handlePropValException(exception: Exception) {
     val baseErrMsg: String =
         try {

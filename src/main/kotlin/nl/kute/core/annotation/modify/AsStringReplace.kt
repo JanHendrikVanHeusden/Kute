@@ -42,7 +42,6 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @MustBeDocumented
 annotation class AsStringReplace(val pattern: String, val replacement: String = "", val isRegexpPattern: Boolean = true)
 
-@JvmSynthetic // avoid access from external Java code
 internal fun AsStringReplace?.replacePattern(strVal: String?): String? =
     if (this == null) strVal else {
         try {

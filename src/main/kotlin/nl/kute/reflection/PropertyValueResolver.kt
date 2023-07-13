@@ -29,7 +29,6 @@ private fun <T : Any?, V : Any?> T?.getPropValueNonSafe(property: KProperty0<V>?
 }
 
 /** @return the value of the property; may return `null` if the property can not be accessed */
-@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any?, V : Any?> T.getPropValue(property: KProperty<V>?): V? {
     return try {
         when (property) {

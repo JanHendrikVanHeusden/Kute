@@ -11,7 +11,6 @@ import kotlin.reflect.full.findAnnotation
  * @param includeInterfaces * if `true`, annotations of super interfaces are included in the result
  *                          * if `false`, annotations of super interfaces are not included in the result
  */
-@JvmSynthetic // avoid access from external Java code
 internal inline fun <reified A : Annotation> KClass<*>.annotationsOfSubSuperHierarchy(includeInterfaces: Boolean = true): Map<KClass<*>, A> =
     this.subSuperHierarchy().asSequence()
         .map { kClass -> kClass to kClass.findAnnotation<A>() }
@@ -19,6 +18,5 @@ internal inline fun <reified A : Annotation> KClass<*>.annotationsOfSubSuperHier
         .filter { it.second != null }
         .associate { it.first to it.second!! }
 
-@JvmSynthetic // avoid access from external Java code
 internal inline fun <reified A : Annotation> KClass<*>.annotationOfSubSuperHierarchy(): A? =
     this.annotationsOfSubSuperHierarchy<A>().firstNotNullOfOrNull { it.value }

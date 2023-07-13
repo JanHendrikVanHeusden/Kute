@@ -16,7 +16,6 @@ import kotlin.reflect.jvm.javaGetter
  * Find any annotation of type [A] on the receiver property of `this` class and its super types.
  * * The annotations are ordered from lowest to highest level, so from subclass to super class / super interface.
  */
-@JvmSynthetic // avoid access from external Java code
 internal inline fun <reified A : Annotation> KProperty<*>.annotationByPropertySubSuperHierarchy(): Map<KClass<*>, A> {
     val declaringClass: Class<out Any> =
         this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return mapOf()
@@ -34,7 +33,6 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationByPropertySu
     }.filterValues { annotation -> annotation != null } as Map<KClass<*>, A>
 }
 
-@JvmSynthetic // avoid access from external Java code
 internal inline fun <reified A : Annotation> KProperty<*>.annotationSetByPropertySuperSubHierarchy(): Map<KClass<*>, List<A>?> {
     val declaringClass: Class<out Any> =
         this.javaGetter?.declaringClass ?: this.javaField?.declaringClass ?: return mapOf()
@@ -55,7 +53,6 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationSetByPropert
  *
  * If found on multiple inheritance levels, the annotation of the lowest subclass level is returned.
  */
-@JvmSynthetic // avoid access from external Java code
 internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertySubSuperHierarchy(): A? =
     this.annotationByPropertySubSuperHierarchy<A>().values
         .firstOrNull()
@@ -67,12 +64,10 @@ internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertySu
  *   api will always return the same interface), but undefined in that no explicit rule is defined on which interface will
  *   be ranked highest in case of same-level interfaces
  */
-@JvmSynthetic // avoid access from external Java code
 internal inline fun <reified A : Annotation> KProperty<*>.annotationOfPropertySuperSubHierarchy(): A? =
     this.annotationByPropertySubSuperHierarchy<A>().values
         .lastOrNull()
 
-@JvmSynthetic // avoid access from external Java code
 internal inline fun <reified A : Annotation> KProperty<*>.annotationSetOfPropertySuperSubHierarchy(): Set<A> =
     this.annotationSetByPropertySuperSubHierarchy<A>().values
         .filterNotNull()

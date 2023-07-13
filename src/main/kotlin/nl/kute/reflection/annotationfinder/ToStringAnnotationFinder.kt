@@ -10,7 +10,6 @@ import kotlin.reflect.full.memberFunctions
  * Find any annotation of type [A] on the `::toString` methods of `this` class and its super types.
  * The entries are ordered by key ([KClass]) from lowest to highest level, so from subclass to super class / super interface.
  */
-@JvmSynthetic // avoid access from external Java code
 internal inline fun <reified A : Annotation> KClass<*>.annotationsOfToStringSubSuperHierarchy(): Map<KClass<*>, A> =
     subSuperHierarchy().asSequence()
         .map { kClass ->
@@ -26,7 +25,6 @@ internal inline fun <reified A : Annotation> KClass<*>.annotationsOfToStringSubS
  *   api will always return the same interface), but undefined in that no explicit rule is defined on which interface will
  *   be ranked highest in case of same-level interfaces
  */
-@JvmSynthetic // avoid access from external Java code
 internal inline fun <reified A : Annotation> KClass<*>.annotationOfToStringSubSuperHierarchy(): A? =
     annotationsOfToStringSubSuperHierarchy<A>().values.firstOrNull()
 

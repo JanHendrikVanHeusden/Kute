@@ -156,7 +156,6 @@ private val classPrefix = Regex("^class ")
 
 /** To be used as fallback return value in case of exception within [asString] */
 @Suppress("UNNECESSARY_SAFE_CALL")
-@JvmSynthetic // avoid access from external Java code
 internal fun Any?.asStringFallBack(): String =
     // mimics the Java toString() output when toString() would not be overridden
     if (this == null) defaultNullString else {
@@ -248,5 +247,4 @@ private val objectsStack: ThreadLocal<ObjectsProcessed> =
  * > Non-zero return value might signal memory leaks or even chance of [OutOfMemoryError]!
  * @return The size of the object stack
  */
-@JvmSynthetic // avoid access from external Java code
 internal fun getObjectsStackSize() = max(objectsStack.get().size, 0)
