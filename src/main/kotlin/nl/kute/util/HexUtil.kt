@@ -44,7 +44,7 @@ internal fun hexStringToLong(hexString: String): Long =
  * * Thanks to [StackOverflow: how to convert a byte array to a hex-string](https://stackoverflow.com/a/24267654)
  * @return the receiver [ByteArray], converted to a hex String, lower case.
  */
-fun ByteArray.byteArrayToHex(): String {
+internal fun ByteArray.byteArrayToHex(): String {
     val retVal = ByteArray(this.size * 2)
     for (j: Int in this.indices) {
         val v: Int = this[j].toInt() and 0xFF

@@ -10,7 +10,7 @@ import nl.kute.util.asString
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
-@Suppress("RedundantModalityModifier", "MemberVisibilityCanBePrivate") //
+@Suppress("RedundantModalityModifier")
 final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property: KProperty<V>) :
     TypedNameValue<T?, V?>, PropertyValue<T?, V?> {
 

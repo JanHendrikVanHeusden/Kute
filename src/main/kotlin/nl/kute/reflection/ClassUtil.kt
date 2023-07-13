@@ -2,8 +2,8 @@ package nl.kute.reflection
 
 import kotlin.reflect.KClass
 
-private val regexPackage = Regex(""".+\.(.*)$""")
-private fun String.simplifyClassName() = this.replace(regexPackage, "$1")
+private val packageNameRegex = Regex(""".+\.(.*)$""")
+private fun String.simplifyClassName() = this.replace(packageNameRegex, "$1")
 
 internal fun KClass<*>.simplifyClassName() =
     try {
