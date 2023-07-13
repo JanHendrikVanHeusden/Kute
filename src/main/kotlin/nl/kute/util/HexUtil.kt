@@ -9,6 +9,7 @@ package nl.kute.util
  * @return The receiver's [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`;
  *         or `null` if the receiver is `null`.
  */
+@JvmSynthetic // avoid access from external Java code
 internal fun Any?.hexHashCode(): String? = this?.let { hashCode().asHexString }
 
 /**
@@ -18,6 +19,7 @@ internal fun Any?.hexHashCode(): String? = this?.let { hashCode().asHexString }
  * >     that's not what we want!
  */
 internal val Int?.asHexString: String
+    @JvmSynthetic // avoid access from external Java code
     get() = if (this == null) "0"
     else Integer.toHexString(this).ifBlank { "0" }
 
@@ -27,14 +29,17 @@ internal val Int?.asHexString: String
  * >     that's not what we want!
  */
 internal val Long?.asHexString: String
+    @JvmSynthetic // avoid access from external Java code
     get() = if (this == null) "0"
     else java.lang.Long.toHexString(this).ifBlank { "0" }
 
 /** Converts a lower-case unsigned hex string to an [Int] value */
+@JvmSynthetic // avoid access from external Java code
 internal fun hexStringToInt(hexString: String): Int =
     Integer.parseUnsignedInt(hexString, 16)
 
 /** Converts a lower-case unsigned hex string to a [Long] value */
+@JvmSynthetic // avoid access from external Java code
 internal fun hexStringToLong(hexString: String): Long =
     java.lang.Long.parseUnsignedLong(hexString, 16)
 
@@ -44,6 +49,7 @@ internal fun hexStringToLong(hexString: String): Long =
  * * Thanks to [StackOverflow: how to convert a byte array to a hex-string](https://stackoverflow.com/a/24267654)
  * @return the receiver [ByteArray], converted to a hex String, lower case.
  */
+@JvmSynthetic // avoid access from external Java code
 internal fun ByteArray.byteArrayToHex(): String {
     val retVal = ByteArray(this.size * 2)
     for (j: Int in this.indices) {

@@ -2,6 +2,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.config.ExplicitApiMode
 
 group = "nl.kute"
 version = "1.0-SNAPSHOT"
@@ -16,10 +17,14 @@ tasks.withType<KotlinCompile> {
     kotlinOptions {
         // * the jsr-305=strict setting enforces strict nullability checks
         // * the jvm-default-all argument lets Java classes recognise default methods in Kotlin interfaces
-        freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=all")
+        freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=all", "")
         jvmTarget = java.targetCompatibility.toString()
     }
 }
+
+//kotlin {
+//    explicitApi() // all API stuff will need explicit `public` keyword
+//}
 
 sourceSets.main {
     kotlin.srcDirs("src/main/kotlin")

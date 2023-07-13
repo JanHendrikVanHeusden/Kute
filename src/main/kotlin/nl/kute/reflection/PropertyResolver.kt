@@ -17,6 +17,7 @@ import kotlin.reflect.full.memberProperties
  *   So not only `public` or `protected`, but also `internal` and `private` properties.
  * * The properties may or may not be accessible ([KProperty.isAccessible])
  */
+@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.propertiesFromSubSuperHierarchy(): List<KProperty<*>> =
     propertiesFromHierarchy(mostSuper = false)
 

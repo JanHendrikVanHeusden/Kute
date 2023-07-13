@@ -16,9 +16,11 @@ import kotlin.reflect.jvm.javaGetter
 private const val fqn: String = "nl.kute.reflection.MemberUtil"
 
 /** @return is the `this` [KFunction] the `toString` method? */
+@JvmSynthetic // avoid access from external Java code
 internal fun KFunction<*>.isToString(): Boolean = this.name == "toString" && this.parameters.size == 1 // return value
 
 @Suppress("UNNECESSARY_SAFE_CALL") // nullability may occur in tests due to mocks that force contrived exceptions
+@JvmSynthetic // avoid access from external Java code
 internal fun KProperty<*>.declaringClass(): KClass<*>? =
     try {
         this?.javaGetter?.declaringClass?.kotlin ?: this?.javaField?.declaringClass?.kotlin
@@ -27,10 +29,16 @@ internal fun KProperty<*>.declaringClass(): KClass<*>? =
         null
     }
 
+@JvmSynthetic // avoid access from external Java code
 internal fun KProperty<*>.isPrivate() = this.visibility == PRIVATE
+@JvmSynthetic // avoid access from external Java code
 internal fun KProperty<*>.isProtected() = this.visibility == PROTECTED
+@JvmSynthetic // avoid access from external Java code
 internal fun KProperty<*>.isPublic() = this.visibility == PUBLIC
 
+@JvmSynthetic // avoid access from external Java code
 internal fun KFunction<*>.isPrivate() = this.visibility == PRIVATE
+@JvmSynthetic // avoid access from external Java code
 internal fun KFunction<*>.isProtected() = this.visibility == PROTECTED
+@JvmSynthetic // avoid access from external Java code
 internal fun KFunction<*>.isPublic() = this.visibility == PUBLIC

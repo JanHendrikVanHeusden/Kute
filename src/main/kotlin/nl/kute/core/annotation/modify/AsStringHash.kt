@@ -27,5 +27,6 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @MustBeDocumented
 annotation class AsStringHash(val digestMethod: DigestMethod = DigestMethod.CRC32C)
 
+@JvmSynthetic // avoid access from external Java code
 internal fun AsStringHash?.hashString(strVal: String?): String? =
     if (this == null) strVal else "#${hashString(strVal, digestMethod)}#"
