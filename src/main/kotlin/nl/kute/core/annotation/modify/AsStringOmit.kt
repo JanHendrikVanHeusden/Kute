@@ -17,4 +17,4 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @Retention(RUNTIME)
 @Inherited
 @MustBeDocumented
-annotation class AsStringOmit
+public annotation class AsStringOmit

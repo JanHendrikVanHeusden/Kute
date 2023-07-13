@@ -2,13 +2,13 @@ package nl.kute.core.namedvalues
 
 import nl.kute.core.weakreference.ObjectWeakReference
 
-typealias Supplier<T> = () -> T?
+internal typealias Supplier<T> = () -> T?
 
-interface NameValue<V: Any?> {
-    val name: String
-    val valueString: String?
+public interface NameValue<V: Any?> {
+    public val name: String
+    public val valueString: String?
 }
 
-interface TypedNameValue<T: Any?, V: Any?>: NameValue<V> {
-    val objectReference: ObjectWeakReference<T?>
+public interface TypedNameValue<T: Any?, V: Any?>: NameValue<V> {
+    public val objectReference: ObjectWeakReference<T?>
 }

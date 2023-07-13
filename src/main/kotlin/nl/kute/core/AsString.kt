@@ -23,12 +23,12 @@ import java.util.Date
 import kotlin.math.max
 import kotlin.reflect.KProperty
 
-abstract class AsStringProducer {
+public abstract class AsStringProducer {
     @Suppress("RedundantModalityModifier")
     protected final fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String =
         asString(propertyNamesToExclude, *nameValues)
 
-    abstract fun asString(): String
+    public abstract fun asString(): String
 }
 
 /**
@@ -42,7 +42,7 @@ abstract class AsStringProducer {
  * (other annotations, see package `nl.kute.core.annotation.modify`)
  * @see AsStringBuilder
  */
-fun Any?.asString(): String {
+public fun Any?.asString(): String {
     return asString(emptyStringList)
 }
 

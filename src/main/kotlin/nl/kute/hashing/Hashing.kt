@@ -70,7 +70,7 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
  * * Given that, the hashing algorithms of this enum are selected for practicality: compact output (at most 40)
  *   and performance; not in the first place for security.
  */
-enum class DigestMethod(val instanceProvider: (() -> Any)? = null) {
+public enum class DigestMethod(public val instanceProvider: (() -> Any)? = null) {
     /**
      * Simply using the java [hashCode].
      * Length is 1 to 8 when represented as a hex String. Security is nearly absent

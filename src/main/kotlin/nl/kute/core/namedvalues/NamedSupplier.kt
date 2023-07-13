@@ -5,7 +5,7 @@ import nl.kute.log.log
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.asString
 
-class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): NameValue<V?> {
+public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): NameValue<V?> {
     private val supplierReference: ObjectWeakReference<Supplier<V>> = ObjectWeakReference(supplier)
     override val valueString: String?
         // Using `get` so it's evaluated when required only, not at construction time of the NamedSupplier
@@ -29,4 +29,4 @@ class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>):
 }
 
 @Suppress("unused")
-fun <V: Any?> Supplier<V?>.namedVal(name: String): NameValue<V?> = NamedSupplier(name,this)
+public fun <V: Any?> Supplier<V?>.namedVal(name: String): NameValue<V?> = NamedSupplier(name,this)

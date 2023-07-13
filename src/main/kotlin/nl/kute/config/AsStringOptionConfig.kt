@@ -13,7 +13,7 @@ import nl.kute.core.property.clearPropertyAnnotationCache
  * @see initialDefaultNullString
  * @see defaultNullString
  */
-fun setDefaultNullString(nullString: String = initialDefaultNullString) {
+public fun setDefaultNullString(nullString: String = initialDefaultNullString) {
     if (nullString != defaultNullString) {
         defaultNullString = nullString
         applyDefaultOption()
@@ -26,7 +26,7 @@ fun setDefaultNullString(nullString: String = initialDefaultNullString) {
  * @see initialDefaultMaxStringValueLength
  * @see defaultMaxStringValueLength
  */
-fun setMaxPropertyStringLength(maxPropStringLength: Int = initialDefaultMaxStringValueLength) {
+public fun setMaxPropertyStringLength(maxPropStringLength: Int = initialDefaultMaxStringValueLength) {
     if (maxPropStringLength != defaultMaxStringValueLength) {
         defaultMaxStringValueLength = maxPropStringLength
         applyDefaultOption()
@@ -51,7 +51,7 @@ private fun applyDefaultOption() {
  *
  *  > This operation will reset the property cache if necessary.
  */
-fun restoreInitialDefaultAsStringOption() {
+public fun restoreInitialDefaultAsStringOption() {
     setDefaultNullString(initialDefaultNullString)
     setMaxPropertyStringLength(initialDefaultMaxStringValueLength)
 }

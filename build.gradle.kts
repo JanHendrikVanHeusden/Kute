@@ -21,6 +21,10 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+kotlin {
+    explicitApi()
+}
+
 sourceSets.main {
     kotlin.srcDirs("src/main/kotlin")
 }

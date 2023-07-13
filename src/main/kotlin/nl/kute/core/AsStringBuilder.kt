@@ -9,7 +9,7 @@ import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.reflection.declaringClass
 import kotlin.reflect.KProperty
 
-class AsStringBuilder private constructor(private var obj: Any?) : AsStringProducer() {
+public class AsStringBuilder private constructor(private var obj: Any?) : AsStringProducer() {
 
     private val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
     private val objJavaClass: Class<*>? = obj?.javaClass
@@ -46,46 +46,46 @@ class AsStringBuilder private constructor(private var obj: Any?) : AsStringProdu
     private var isBuilt: Boolean = false
 
     /** Allows adding properties of related objects, e.g. member objects, delegates etc. */
-    fun withAlsoProperties(vararg props: KProperty<*>): AsStringBuilder {
+    public fun withAlsoProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
             this.alsoNamed.addAll(props.map { objectReference.get().namedVal(it) })
         }
         return this
     }
-    fun withAlsoNamed(vararg nameValues: NameValue<*>): AsStringBuilder {
+    public fun withAlsoNamed(vararg nameValues: NameValue<*>): AsStringBuilder {
         if (!isBuilt) {
             this.alsoNamed.addAll(nameValues)
         }
         return this
     }
-    fun withOnlyProperties(vararg props: KProperty<*>): AsStringBuilder {
+    public fun withOnlyProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
             this.onlyProperties.addAll(props.filter(isMatchingProperty))
             isOnlyPropertiesSet = true
         }
         return this
     }
-    fun withOnlyPropertyNames(vararg names: String): AsStringBuilder {
+    public fun withOnlyPropertyNames(vararg names: String): AsStringBuilder {
         if (!isBuilt) {
             this.onlyPropertyNames.addAll(names)
             isOnlyPropertyNamesSet = true
         }
         return this
     }
-    fun exceptProperties(vararg props: KProperty<*>): AsStringBuilder {
+    public fun exceptProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
             this.exceptProperties.addAll(props)
         }
         return this
     }
-    fun exceptPropertyNames(vararg names: String): AsStringBuilder {
+    public fun exceptPropertyNames(vararg names: String): AsStringBuilder {
         if (!isBuilt) {
             this.exceptPropertyNames.addAll(names)
         }
         return this
     }
 
-    fun build(): AsStringProducer {
+    public fun build(): AsStringProducer {
         if (isBuilt) {
             return this
         }
@@ -109,9 +109,9 @@ class AsStringBuilder private constructor(private var obj: Any?) : AsStringProdu
         return objectReference.get().objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
     }
 
-    companion object {
+    public companion object {
         @JvmStatic
-        fun Any?.asStringBuilder() = AsStringBuilder(this)
+        public fun Any?.asStringBuilder(): AsStringBuilder = AsStringBuilder(this)
     }
 
 }

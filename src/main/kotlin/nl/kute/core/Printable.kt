@@ -15,7 +15,7 @@ import nl.kute.core.annotation.option.AsStringOption
  *  * [AsStringBuilder]
  * ---
  */
-interface Printable {
+public interface Printable {
 
     /**
      * Mimics the format of Kotlin data class's [toString] method.
@@ -29,7 +29,7 @@ interface Printable {
      *
      * @see [AsStringBuilder]
      */
-    fun asString(): String = (this as Any).asString()
+    public fun asString(): String = (this as Any).asString()
 
     /**
      * Abstract override of [toString], so implementing classes are forced to implement it

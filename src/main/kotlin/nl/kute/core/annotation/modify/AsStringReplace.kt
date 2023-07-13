@@ -40,7 +40,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @Retention(RUNTIME)
 @Inherited
 @MustBeDocumented
-annotation class AsStringReplace(val pattern: String, val replacement: String = "", val isRegexpPattern: Boolean = true)
+public annotation class AsStringReplace(val pattern: String, val replacement: String = "", val isRegexpPattern: Boolean = true)
 
 internal fun AsStringReplace?.replacePattern(strVal: String?): String? =
     if (this == null) strVal else {

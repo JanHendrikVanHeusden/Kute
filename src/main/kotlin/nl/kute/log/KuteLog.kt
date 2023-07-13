@@ -39,7 +39,7 @@ internal val loggerWithCaller: (String, Any?) -> Unit = { caller, msg: Any? -> l
  * nl.kute.log.logger = { msg -> kuteLogger.error(msg) }
  * ```
  */
-var logger: (String?) -> Unit = stdOutLogger
+public var logger: (String?) -> Unit = stdOutLogger
     set(newLogger) {
         try {
             if (newLogger != stdOutLogger) {
@@ -73,7 +73,7 @@ var logger: (String?) -> Unit = stdOutLogger
  * nl.kute.log.setLogConsumer(kuteErrorLogger);
  * ```
  */
-fun setLogConsumer(aLogger: Consumer<String?>) {
+public fun setLogConsumer(aLogger: Consumer<String?>) {
     logger = { msg: String? -> aLogger.accept(msg) }
 }
 

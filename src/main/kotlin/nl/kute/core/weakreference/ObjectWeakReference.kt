@@ -3,7 +3,7 @@ package nl.kute.core.weakreference
 import nl.kute.core.annotation.option.defaultNullString
 import java.lang.ref.WeakReference
 
-class ObjectWeakReference<T: Any?>(obj: T?): WeakReference<T?>(obj) {
+public class ObjectWeakReference<T: Any?>(obj: T?): WeakReference<T?>(obj) {
     override fun toString(): String = this.get()?.toString() ?: defaultNullString
 
     override fun equals(other: Any?): Boolean {

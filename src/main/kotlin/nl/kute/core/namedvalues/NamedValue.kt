@@ -2,7 +2,7 @@ package nl.kute.core.namedvalues
 
 import nl.kute.core.weakreference.ObjectWeakReference
 
-class NamedValue<V: Any?>(override val name: String, value: V?): NameValue<V?> {
+public class NamedValue<V: Any?>(override val name: String, value: V?): NameValue<V?> {
     private val valueReference: ObjectWeakReference<V?> = ObjectWeakReference(value)
     override val valueString: String
         // Using `get` so it's evaluated when required only, not at construction time of the NamedValue
@@ -28,4 +28,4 @@ class NamedValue<V: Any?>(override val name: String, value: V?): NameValue<V?> {
 }
 
 @Suppress("unused")
-fun <V: Any?>V?.namedVal(name: String): NameValue<V?> = NamedValue(name, this)
+public fun <V: Any?>V?.namedVal(name: String): NameValue<V?> = NamedValue(name, this)
