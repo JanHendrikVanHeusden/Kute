@@ -16,14 +16,14 @@ import org.junit.jupiter.api.BeforeEach
  */
 internal interface ObjectsStackVerifier {
 
-    // If overriding (not advised), make sure to include a call this super method!
+    // If overriding (not advised), make sure to include a call to this super method!
     //
     // Do not clear the objects stack
     // If it would ever fail, we better keep the objects in it for debugging purposes
     @BeforeEach
     fun validateObjectStackBefore() = this.validateObjectsStack()
 
-    // If overriding (not advised), make sure to include a call this super method!
+    // If overriding (not advised), make sure to include a call to this super method!
     //
     // Do not clear the objects stack
     // If it would ever fail, we better keep the objects in it for debugging purposes
@@ -39,7 +39,7 @@ internal interface ObjectsStackVerifier {
  * This may apply particularly to tests that heavily rely on the objects stack, like objects with
  * self-references or circular mutual references.
  */
-internal fun Any.validateObjectsStack() {
+internal fun ObjectsStackVerifier.validateObjectsStack() {
     getObjectsStackSize().let { objectStackSize ->
         Assertions.assertThat(objectStackSize)
             .`as`(

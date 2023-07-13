@@ -1,8 +1,7 @@
 package nl.kute.util
 
-import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
+import org.assertj.core.api.Assumptions.assumeThat
 import org.junit.jupiter.api.Test
 
 class ObjectUtilTest {
@@ -24,24 +23,24 @@ class ObjectUtilTest {
     }
 
     @Test
-    @Disabled("Result depends on JVM, so no way to guarantee that it will produce" +
-            " any identity hashes with leading zeros." +
-            " So not running automatically. Run this test manually if needed" +
-            " (it is reasonably safe to assume it will produce leading zeros though).")
     fun `identityHashHex should remove leading zeros`() {
         var foundLeadingZero = false
         var counter = 0
         // When trying hard enough, we should encounter a value with leading 0
         // Typically within 5 to 50 attempts.
-        while (!foundLeadingZero && counter <= 10000) {
-            val randomString = RandomStringUtils.randomAlphabetic(5)
-            counter++
-            val identityHashHex = randomString.identityHashHex
+        while (!foundLeadingZero && ++counter <= 1000) {
+            val obj = Any()
+            val identityHashHex = obj.identityHashHex
             if (identityHashHex.length < 8) {
                 foundLeadingZero = true
-                println("succeeded after $counter attempts")
+                // println("succeeded after $counter attempts")
             }
         }
-        assertThat(foundLeadingZero).isTrue
+        assumeThat(foundLeadingZero)
+            .`as`("It is reasonably safe to assume that System.identityHashCode / identityHashHex" +
+                    " will produce indentity hashes with leading zeros (hex representation shorter than 8)." +
+                    " But the implementation is JVM dependent, hence no guarantees there.\n" +
+                    " So failing will be igored (hence `assumeThat()`, not `assertThat()`.")
+            .isTrue
     }
 }
