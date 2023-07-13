@@ -18,6 +18,7 @@ import nl.kute.reflection.annotationfinder.annotationSetOfPropertySuperSubHierar
 import nl.kute.reflection.getPropValue
 import nl.kute.reflection.propertiesFromSubSuperHierarchy
 import nl.kute.util.ifNull
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -78,7 +79,9 @@ internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<
     }
 }
 
-private val propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> = mutableMapOf()
+private val propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> = ConcurrentHashMap()
+
+internal fun clearPropertyAnnotationCache() = propsWithAnnotationsCacheByClass.clear()
 
 internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {
     (prop.annotationOfPropertySuperSubHierarchy<AsStringOmit>())?.let { annotation ->

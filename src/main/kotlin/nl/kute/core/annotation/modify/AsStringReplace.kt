@@ -4,6 +4,7 @@ import nl.kute.core.asString
 import nl.kute.log.log
 import nl.kute.util.ifNull
 import java.lang.annotation.Inherited
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
 /**
@@ -54,7 +55,7 @@ internal fun AsStringReplace?.replacePattern(strVal: String?): String? =
         }
     }
 
-private val cachingRegexFactory: Map<String, Regex> = object: HashMap<String, Regex>() {
+private val cachingRegexFactory: Map<String, Regex> = object: ConcurrentHashMap<String, Regex>() {
     override fun get(key: String): Regex = super.get(key).ifNull {
         Regex(key).also { this[key] = it }
     }
