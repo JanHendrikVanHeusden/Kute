@@ -46,6 +46,7 @@ public annotation class AsStringMask(
     val maxLength: Int = Int.MAX_VALUE,
 )
 
+@JvmSynthetic // avoid access from external Java code
 internal fun AsStringMask?.mask(strVal: String?): String? {
     if (this == null) {
         return strVal

@@ -5,6 +5,7 @@ import kotlin.reflect.KClass
 private val packageNameRegex = Regex(""".+\.(.*)$""")
 private fun String.simplifyClassName() = this.replace(packageNameRegex, "$1")
 
+@JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.simplifyClassName() =
     try {
         simpleName ?: toString().simplifyClassName()
@@ -19,6 +20,7 @@ internal fun KClass<*>.simplifyClassName() =
  * 3. the class itself
  * @return class hierarchy as an unmodifiable list
  */
+@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.superSubHierarchy(includeInterfaces: Boolean = true): List<KClass<in T>> =
     this.java.superSubHierarchy(includeInterfaces).map { it.kotlin }
 
@@ -26,6 +28,7 @@ internal fun <T : Any> KClass<T>.superSubHierarchy(includeInterfaces: Boolean = 
  * Gets the class hierarchy of the [Class]
  * @see KClass.subSuperHierarchy
  */
+@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> Class<T>.superSubHierarchy(includeInterfaces: Boolean = true): List<Class<in T>> =
     getSuperSubHierarchy(this, includeInterfaces).sortedBy { !it.isInterface }
 
@@ -36,6 +39,7 @@ internal fun <T : Any> Class<T>.superSubHierarchy(includeInterfaces: Boolean = t
  * 3. any interfaces, in order of hierarchy; super interfaces first
  * @return class hierarchy as an unmodifiable list
  */
+@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.subSuperHierarchy(includeInterfaces: Boolean = true): List<KClass<in T>> =
     this.java.subSuperHierarchy(includeInterfaces).map { it.kotlin }
 
@@ -43,6 +47,7 @@ internal fun <T : Any> KClass<T>.subSuperHierarchy(includeInterfaces: Boolean = 
  * Gets the class hierarchy of the [Class]
  * @see KClass.subSuperHierarchy
  */
+@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> Class<T>.subSuperHierarchy(includeInterfaces: Boolean = true): List<Class<in T>> =
     this.superSubHierarchy(includeInterfaces).reversed()
 
@@ -51,6 +56,7 @@ internal fun <T : Any> Class<T>.subSuperHierarchy(includeInterfaces: Boolean = t
  * @see KClass.subSuperHierarchy
  */
 @Suppress("UNCHECKED_CAST")
+@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> T.subSuperHierarchy(includeInterfaces: Boolean = true): List<KClass<in T>> =
     (this::class.java.subSuperHierarchy(includeInterfaces) as List<Class<in T>>).map { it.kotlin }
 

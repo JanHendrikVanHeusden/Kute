@@ -2,6 +2,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.config.ExplicitApiMode
 
 group = "nl.kute"
 version = "1.0-SNAPSHOT"

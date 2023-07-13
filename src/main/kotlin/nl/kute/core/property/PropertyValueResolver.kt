@@ -27,6 +27,7 @@ import kotlin.reflect.KProperty
  *  * otherwise: the [toString] value of the property, modified if needed by annotations @[AsStringOmit],
  *  @[AsStringReplace], @[AsStringMask], @[AsStringHash]
  */
+@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): String? {
     if (this == null) {
         return null
@@ -67,6 +68,7 @@ private inline fun <reified A : Annotation> Set<Annotation>.findAnnotation(): A?
 private inline fun <reified A : Annotation> Set<Annotation>.findAnnotations(): Set<A> =
     this.filterIsInstance<A>().toSet()
 
+@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
     val localRefToCache = propsWithAnnotationsCacheByClass
     return localRefToCache[this].ifNull {
@@ -82,6 +84,7 @@ internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<
 
 private var propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> = ConcurrentHashMap()
 
+@JvmSynthetic // avoid access from external Java code
 internal fun clearPropertyAnnotationCache() {
     // create a new map instead of clearing the old one, to avoid intermediate situations
     // while concurrently reading from / writing to the map, as these operations may not be atomic
@@ -90,8 +93,10 @@ internal fun clearPropertyAnnotationCache() {
 
 // Mainly for testing purposes
 internal val propertyAnnotationCacheSize
+    @JvmSynthetic // avoid access from external Java code
     get() = propsWithAnnotationsCacheByClass.size
 
+@JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {
     (prop.annotationOfPropertySuperSubHierarchy<AsStringOmit>())?.let { annotation ->
         annotations.add(annotation)

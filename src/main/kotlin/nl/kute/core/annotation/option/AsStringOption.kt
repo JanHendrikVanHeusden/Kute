@@ -11,6 +11,7 @@ public const val initialDefaultNullString: String = "null"
  * @see nl.kute.config.setDefaultNullString
  */
 public var defaultNullString: String = initialDefaultNullString
+    @JvmSynthetic // avoid access from external Java code
     internal set
 
 /**
@@ -21,6 +22,7 @@ public const val initialDefaultMaxStringValueLength: Int = 500
 
 /** Current default value for the maximum length of the output **per property** */
 public var defaultMaxStringValueLength: Int = initialDefaultMaxStringValueLength
+    @JvmSynthetic // avoid access from external Java code
     internal set
 
 /**
@@ -44,10 +46,12 @@ public annotation class AsStringOption(
     public companion object DefaultOption {
         /** [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified  */
         public var defaultAsStringOption: AsStringOption = AsStringOption(defaultNullString, defaultMaxStringValueLength)
+            @JvmSynthetic // avoid access from external Java code
             internal set
     }
 }
 
+@JvmSynthetic // avoid access from external Java code
 internal fun AsStringOption.applyOption(strVal: String?): String =
     strVal?.take(propMaxStringValueLength) ?: showNullAs
 
