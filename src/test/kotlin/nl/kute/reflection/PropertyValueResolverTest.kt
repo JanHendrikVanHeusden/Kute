@@ -1,5 +1,8 @@
 package nl.kute.reflection
 
+import nl.kute.core.asString
+import nl.kute.core.property.clearPropertyAnnotationCache
+import nl.kute.core.property.propertyAnnotationCacheSize
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
@@ -56,6 +59,29 @@ internal class PropertyValueResolverTest {
             .isNull()
         // examine the logging, to verify that the exception was actually hit
         assertThat(logBuffer).contains("Exception occurred when retrieving value of property")
+    }
+
+    @Test
+    fun `clear property cache should clear the cache`() {
+        // arrange
+        clearPropertyAnnotationCache()
+        assertThat(propertyAnnotationCacheSize).isZero
+        // act, assert
+        var t1AsString = T1(1, "x", LocalDateTime.MIN).asString()
+        assertThat(t1AsString).startsWith("T1(")
+        var t3AsString = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX).asString()
+        assertThat(t3AsString).startsWith("T3")
+        assertThat(propertyAnnotationCacheSize).isEqualTo(2)
+
+        // arrange
+        clearPropertyAnnotationCache()
+        // act, assert
+        assertThat(propertyAnnotationCacheSize).isZero
+        t1AsString = T1(1, "x", LocalDateTime.MIN).asString()
+        assertThat(t1AsString).startsWith("T1(")
+        t3AsString = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX).asString()
+        assertThat(t3AsString).startsWith("T3")
+        assertThat(propertyAnnotationCacheSize).isEqualTo(2)
     }
 
     /////////////////////////////

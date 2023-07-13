@@ -1,22 +1,27 @@
 package nl.kute.core.annotation.option
 
-import nl.kute.core.property.clearPropertyAnnotationCache
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
-/** Default value for how to represent `null` */
+/** Initial default value for how to represent `null` */
 const val initialDefaultNullString: String = "null"
 
-/** Current value for how to represent `null` */
+/**
+ * Current default value for how to represent `null`
+ * @see nl.kute.config.setDefaultNullString
+ */
 var defaultNullString: String = initialDefaultNullString
-    private set
+    internal set
 
-/** Default value for the maximum length of the output **per property** */
+/**
+ * Default value for the maximum length of the output **per property**
+ * @see nl.kute.config.setMaxPropertyStringLength
+ */
 const val initialDefaultMaxStringValueLength: Int = 500
 
-/** Current value for the maximum length of the output **per property** */
-internal var defaultMaxStringValueLength: Int = initialDefaultMaxStringValueLength
-    private set
+/** Current default value for the maximum length of the output **per property** */
+var defaultMaxStringValueLength: Int = initialDefaultMaxStringValueLength
+    internal set
 
 /**
  * The [AsStringOption] annotation can be placed:
@@ -46,36 +51,3 @@ annotation class AsStringOption(
 internal fun AsStringOption.applyOption(strVal: String?): String =
     strVal?.take(propMaxStringValueLength) ?: showNullAs
 
-class DefaultOption {
-
-    fun restoreInitialDefault() {
-        setNullString(initialDefaultNullString)
-        setMaxPropertyStringLength(initialDefaultMaxStringValueLength)
-    }
-
-    fun setNullString(nullString: String = initialDefaultNullString): DefaultOption {
-        if (nullString != defaultNullString) {
-            defaultNullString = nullString
-            setNewDefaultOption()
-        }
-        return this
-    }
-    fun setMaxPropertyStringLength(maxPropStringLength: Int = initialDefaultMaxStringValueLength): DefaultOption {
-        if (maxPropStringLength != defaultMaxStringValueLength) {
-            defaultMaxStringValueLength = maxPropStringLength
-            setNewDefaultOption()
-        }
-        return this
-    }
-
-    private fun setNewDefaultOption() {
-        AsStringOption.defaultAsStringOption = AsStringOption(defaultNullString, defaultMaxStringValueLength)
-        // Clearing the cahce is necessary because the property cache typically references the old value.
-        //
-        // Replacing the "old" defaultAsStringOption by the new one is not atomic so would require synchronization
-        // on the underlying map, we don't want to do that. So better clear the cache completely
-        // (setting the defaults is typically done when the application is initialized, so cache would typically
-        // be empty (or almost empty) yet.
-        clearPropertyAnnotationCache()
-    }
-}

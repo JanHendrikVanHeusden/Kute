@@ -68,20 +68,29 @@ private inline fun <reified A : Annotation> Set<Annotation>.findAnnotations(): S
     this.filterIsInstance<A>().toSet()
 
 internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
-    return propsWithAnnotationsCacheByClass[this].ifNull {
+    val localRefToCache = propsWithAnnotationsCacheByClass
+    return localRefToCache[this].ifNull {
         // map each property to an (empty yet) mutable set of annotations
         propertiesFromSubSuperHierarchy().associateWith { mutableSetOf<Annotation>() }
             // populate the set of annotations per property
             .onEach { (prop, annotations) -> collectPropertyAnnotations(prop, annotations) }
             .filter { entry -> entry.value.none { it is AsStringOmit } }
             // add to cache
-            .also { propsWithAnnotationsCacheByClass[this] = it }
+            .also { localRefToCache[this] = it }
     }
 }
 
-private val propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> = ConcurrentHashMap()
+private var propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> = ConcurrentHashMap()
 
-internal fun clearPropertyAnnotationCache() = propsWithAnnotationsCacheByClass.clear()
+internal fun clearPropertyAnnotationCache() {
+    // create a new map instead of clearing the old one, to avoid intermediate situations
+    // while concurrently reading from / writing to the map, as these operations may not be atomic
+    propsWithAnnotationsCacheByClass = ConcurrentHashMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> ()
+}
+
+// Mainly for testing purposes
+internal val propertyAnnotationCacheSize
+    get() = propsWithAnnotationsCacheByClass.size
 
 internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {
     (prop.annotationOfPropertySuperSubHierarchy<AsStringOmit>())?.let { annotation ->
