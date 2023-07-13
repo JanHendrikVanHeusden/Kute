@@ -23,6 +23,7 @@ tasks.withType<KotlinCompile> {
 }
 
 kotlin {
+    // requires public stuff to explicitly specify `public`; and requires explicit return types for these
     explicitApi()
 }
 
