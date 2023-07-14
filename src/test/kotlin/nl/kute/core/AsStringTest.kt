@@ -24,7 +24,7 @@ import nl.kute.testobjects.java.packagevisibility.sub.SubClassOfJavaClassWithNot
 import nl.kute.testobjects.java.protectedvisibility.JavaClassWithProtectedProperty
 import nl.kute.testobjects.java.protectedvisibility.KotlinSubSubClassOfJavaJavaClassWithProtectedProperty
 import nl.kute.testobjects.java.protectedvisibility.SubClassOfJavaClassWithProtectedProperty
-import nl.kute.testobjects.kotlin.printable.protectedvisibility.SubSubClassOfClassWithProtectedProperty
+import nl.kute.testobjects.kotlin.protectedvisibility.SubSubClassOfClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
 import nl.kute.util.identityHashHex
@@ -159,7 +159,7 @@ class AsStringTest: ObjectsStackVerifier {
         class TestClass {
             override fun toString(): String = asStringBuilder().withAlsoNamed(namedXxx()).asString()
         }
-        assertThat(classLevelCounter).isZero()
+        assertThat(classLevelCounter).isZero
         val testObj = TestClass()
 
         classLevelCounter = 0

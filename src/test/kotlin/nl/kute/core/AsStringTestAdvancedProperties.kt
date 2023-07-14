@@ -30,7 +30,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     @Test
     fun `test with lazy property`() {
         val testObj = ClassWithLazyProp()
-        assertThat(ClassWithLazyProp.initializationCounter).isZero()
+        assertThat(ClassWithLazyProp.initializationCounter).isZero
 
         assertThat(testObj.asString()).contains("lazyValue=I am lazily initialized")
         assertThat(ClassWithLazyProp.initializationCounter).isEqualTo(1)
@@ -61,12 +61,12 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     @Test
     fun `test with delegate property - 2`() {
         val testObj = ClassWithDelegatedPropertyWithOpFuns(PropertyDelegateWithOperatorFuns())
-        assertThat(testObj.delegate.getAccessCounter).isZero()
-        assertThat(testObj.delegate.setAccessCounter).isZero()
+        assertThat(testObj.delegate.getAccessCounter).isZero
+        assertThat(testObj.delegate.setAccessCounter).isZero
 
         assertThat(testObj.toString()).contains("delegatedProperty=0")
         assertThat(testObj.delegate.getAccessCounter).isEqualTo(1)
-        assertThat(testObj.delegate.setAccessCounter).isZero()
+        assertThat(testObj.delegate.setAccessCounter).isZero
 
         testObj.delegatedProperty = 25
         assertThat(testObj.toString()).contains("delegatedProperty=25")
@@ -86,7 +86,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         val halloInternalValue = "hallo internal value"
         val halloValueFromGetter = "hallo from get"
 
-        assertThat(testObj.getAccessCounter).isZero()
+        assertThat(testObj.getAccessCounter).isZero
 
         // demonstrate that the internal value is as expected
         val halloProperty = testObj::class.memberProperties.first { it.name == "hallo" }

@@ -18,7 +18,7 @@ class AnnotationFinderTest {
     @Test
     fun `find property annotations in class hierarchy in expected order`() {
         val annotationMap: Map<KClass<*>, AsStringReplace> =
-            C3::prop.annotationByPropertySubSuperHierarchy<AsStringReplace>()
+            C3::prop.annotationByPropertySubSuperHierarchy()
         // contract of annotationsOfProperty explicitly states the order, let's test it!
         assertThat(annotationMap.entries).containsExactly(
             MapEntry.entry(C3::class, AsStringReplace(pattern = "C3", replacement = "c3")),

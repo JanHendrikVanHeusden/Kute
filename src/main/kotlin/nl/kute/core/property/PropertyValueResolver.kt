@@ -70,15 +70,15 @@ private inline fun <reified A : Annotation> Set<Annotation>.findAnnotations(): S
 
 @JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
-    val localRefToCache = propsWithAnnotationsCacheByClass
-    return localRefToCache[this].ifNull {
+    val theCache = propsWithAnnotationsCacheByClass
+    return theCache[this].ifNull {
         // map each property to an (empty yet) mutable set of annotations
         propertiesFromSubSuperHierarchy().associateWith { mutableSetOf<Annotation>() }
             // populate the set of annotations per property
             .onEach { (prop, annotations) -> collectPropertyAnnotations(prop, annotations) }
             .filter { entry -> entry.value.none { it is AsStringOmit } }
             // add to cache
-            .also { localRefToCache[this] = it }
+            .also { theCache[this] = it }
     }
 }
 

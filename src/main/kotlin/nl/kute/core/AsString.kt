@@ -6,6 +6,7 @@ package nl.kute.core
 import nl.kute.config.defaultNullString
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.property.getPropValueString
@@ -111,7 +112,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                     return annotationsByProperty
                         .entries.joinToString(
                             separator = valueSeparator,
-                            prefix = "${objClass.simplifyClassName()}("
+                            prefix = "${obj.objectIdentity()}("
                         ) { entry ->
                             val prop = entry.key
                             val annotationSet = entry.value

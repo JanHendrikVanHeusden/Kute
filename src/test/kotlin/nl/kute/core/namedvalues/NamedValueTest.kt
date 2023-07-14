@@ -24,7 +24,7 @@ class NamedValueTest: GarbageCollectionWaiter {
     fun `Retrieving the value of the NamedValue should evaluate the value every time`() {
         // arrange
         var counter = 0
-        class WithValue() {
+        class WithValue {
             override fun toString(): String {
                 return "${++counter}"
             }
@@ -34,7 +34,7 @@ class NamedValueTest: GarbageCollectionWaiter {
         // act, assert
         assertThat(counter)
             .`as`("Expression should not be evaluated at construction time")
-            .isZero()
+            .isZero
 
         repeat(10) {
             assertThat(namedValue.valueString)

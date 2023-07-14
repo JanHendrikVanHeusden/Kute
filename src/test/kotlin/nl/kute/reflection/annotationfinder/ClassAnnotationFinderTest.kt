@@ -69,7 +69,7 @@ class ClassAnnotationFinderTest {
         val iExpected = AsStringOption(showNullAs = "I", propMaxStringValueLength = 10)
 
         val asStringOptionAnnotations: Map<KClass<*>, AsStringOption> =
-            T3::class.annotationsOfSubSuperHierarchy<AsStringOption>()
+            T3::class.annotationsOfSubSuperHierarchy()
         assertThat(asStringOptionAnnotations)
             .hasSize(3)
 

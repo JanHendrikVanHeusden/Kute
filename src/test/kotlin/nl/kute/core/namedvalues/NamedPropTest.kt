@@ -220,7 +220,7 @@ class NamedPropTest: GarbageCollectionWaiter {
 
         // act, assert
         assertThat(NamedProp(testObj, testObj::omitted).valueString!!.length)
-            .isZero()
+            .isZero
 
         assertThat(NamedProp(testObj, testObj::unchanged).valueString!!.length)
             .`as`("Should not honour class level AsStringOption, it has a property-level AsStringOption in the class hierarchy`)")
@@ -240,7 +240,7 @@ class NamedPropTest: GarbageCollectionWaiter {
 
         // act, assert
         assertThat(NamedProp(testObj, testObj::omitted).valueString!!.length)
-            .isZero()
+            .isZero
 
         assertThat(NamedProp(testObj, testObj::unchanged).valueString!!.length)
             .`as`("Should not honour class level AsStringOption, it has a property-level AsStringOption in the class hierarchy`)")

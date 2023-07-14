@@ -1,5 +1,6 @@
 package nl.kute.config
 
+import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
 
 /** Initial default value for how to represent `null` in the [nl.kute.core.asString] */
@@ -8,13 +9,18 @@ public const val initialDefaultNullString: String = "null"
 /** Initial default value for the maximum length **per property** in the [nl.kute.core.asString] output */
 public const val initialDefaultMaxStringValueLength: Int = 500
 
+/** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.core.asString] output */
+public const val initialDefaultIncludeIdentityHash: Boolean = false
+
 /** Initial default options for the output of [nl.kute.core.asString] */
 public val initialDefaultAsStringOption: AsStringOption =
     AsStringOption(initialDefaultNullString, initialDefaultMaxStringValueLength)
 
-/**
- * Builder class, intended to apply the [AsStringOption] as a default (see [AsStringOptionBuilder.applyAsDefault]).
- */
+/** Initial default options for the output of [nl.kute.core.asString] */
+public val initialDefaultAsStringClassOption: AsStringClassOption =
+    AsStringClassOption(initialDefaultIncludeIdentityHash)
+
+/** Builder class, intended to apply the [AsStringOption] as a default (see [AsStringOptionBuilder.applyAsDefault]) */
 public class AsStringOptionBuilder {
 
     private val currentDefaultOption = AsStringOption.defaultAsStringOption

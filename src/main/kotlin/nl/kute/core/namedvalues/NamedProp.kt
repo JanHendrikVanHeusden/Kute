@@ -14,6 +14,7 @@ import kotlin.reflect.KProperty0
 public final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property: KProperty<V>) :
     TypedNameValue<T?, V?>, PropertyValue<T?, V?> {
 
+    @Suppress("MemberVisibilityCanBePrivate")
     public val coherentProperty: Boolean
     private val objClass = obj?.let { it::class }
 

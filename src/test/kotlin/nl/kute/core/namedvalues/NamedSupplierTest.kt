@@ -44,7 +44,7 @@ class NamedSupplierTest: GarbageCollectionWaiter {
         // act, assert
         assertThat(counter)
             .`as`("Expression should not be evaluated at construction time")
-            .isZero()
+            .isZero
 
         repeat(10) {
             assertThat(namedSupplier.valueString)
