@@ -1,29 +1,12 @@
 package nl.kute.core.annotation.option
 
+import nl.kute.config.initialDefaultAsStringOption
+import nl.kute.config.initialDefaultIncludeIdentityHash
+import nl.kute.config.initialDefaultMaxStringValueLength
+import nl.kute.config.initialDefaultNullString
+import nl.kute.core.property.resetPropertyAnnotationCache
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
-
-/** Initial default value for how to represent `null` */
-public const val initialDefaultNullString: String = "null"
-
-/**
- * Current default value for how to represent `null`
- * @see nl.kute.config.setDefaultNullString
- */
-public var defaultNullString: String = initialDefaultNullString
-    @JvmSynthetic // avoid access from external Java code
-    internal set
-
-/**
- * Default value for the maximum length of the output **per property**
- * @see nl.kute.config.setMaxPropertyStringLength
- */
-public const val initialDefaultMaxStringValueLength: Int = 500
-
-/** Current default value for the maximum length of the output **per property** */
-public var defaultMaxStringValueLength: Int = initialDefaultMaxStringValueLength
-    @JvmSynthetic // avoid access from external Java code
-    internal set
 
 /**
  * The [AsStringOption] annotation can be placed:
@@ -41,17 +24,26 @@ public annotation class AsStringOption(
     val showNullAs: String = initialDefaultNullString,
     /** The maximum String value length **per property**.
      * Default is 500 (by [initialDefaultMaxStringValueLength]). 0 means: an empty String; negative values mean: [Int.MAX_VALUE], so effectively no maximum. */
-    val propMaxStringValueLength: Int = initialDefaultMaxStringValueLength
+    val propMaxStringValueLength: Int = initialDefaultMaxStringValueLength,
+    val includeIdentityHash: Boolean = initialDefaultIncludeIdentityHash
 ) {
     public companion object DefaultOption {
-        /** [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified  */
-        public var defaultAsStringOption: AsStringOption = AsStringOption(defaultNullString, defaultMaxStringValueLength)
-            @JvmSynthetic // avoid access from external Java code
-            internal set
+        /**
+         * [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified.
+         * > When changed, the property cache will be reset (cleared)
+         */
+        public var defaultAsStringOption: AsStringOption = initialDefaultAsStringOption
+            @JvmSynthetic
+            internal set(newDefault) {
+                if (newDefault != field) {
+                    field = newDefault
+                    // Clearing the cache is necessary because the property cache typically references the old and obsolete settings.
+                    resetPropertyAnnotationCache()
+                }
+            }
     }
 }
 
 @JvmSynthetic // avoid access from external Java code
 internal fun AsStringOption.applyOption(strVal: String?): String =
     strVal?.take(propMaxStringValueLength) ?: showNullAs
-

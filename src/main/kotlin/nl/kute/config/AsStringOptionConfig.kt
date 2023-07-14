@@ -1,57 +1,101 @@
 package nl.kute.config
 
 import nl.kute.core.annotation.option.AsStringOption
-import nl.kute.core.annotation.option.defaultMaxStringValueLength
-import nl.kute.core.annotation.option.defaultNullString
-import nl.kute.core.annotation.option.initialDefaultMaxStringValueLength
-import nl.kute.core.annotation.option.initialDefaultNullString
-import nl.kute.core.property.clearPropertyAnnotationCache
+
+/** Initial default value for how to represent `null` in the [nl.kute.core.asString] */
+public const val initialDefaultNullString: String = "null"
+
+/** Initial default value for the maximum length **per property** in the [nl.kute.core.asString] output */
+public const val initialDefaultMaxStringValueLength: Int = 500
+
+/** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.core.asString] output */
+public const val initialDefaultIncludeIdentityHash: Boolean = false
+
+/** Initial default options for the output of [nl.kute.core.asString] */
+public val initialDefaultAsStringOption: AsStringOption =
+    AsStringOption(initialDefaultNullString, initialDefaultMaxStringValueLength, initialDefaultIncludeIdentityHash)
 
 /**
- * Sets the global default for the representation of `null` values.
- * > This operation will reset the property cache if necessary.
- * @see initialDefaultNullString
- * @see defaultNullString
+ * Builder class, intended to apply the [AsStringOption] as a default (see [AsStringOptionBuilder.applyAsDefault]).
  */
-public fun setDefaultNullString(nullString: String = initialDefaultNullString) {
-    if (nullString != defaultNullString) {
-        defaultNullString = nullString
-        applyDefaultOption()
+public class AsStringOptionBuilder {
+
+    private val currentDefaultOption = AsStringOption.defaultAsStringOption
+    private val currentDefaultNullStr = currentDefaultOption.showNullAs
+    private val currentDefaultPropMaxLength = currentDefaultOption.propMaxStringValueLength
+    private val currentDefaultIncludeHash = currentDefaultOption.includeIdentityHash
+
+    private var newAsStringOption: AsStringOption = currentDefaultOption
+
+    /**
+     * Assigns the [AsStringOption] that is built to [AsStringOption.defaultAsStringOption], as the new application default
+     *  > This operation will reset (clear) the property cache, if necessary
+     * @return the newly applied default [AsStringOption]
+     */
+    public fun applyAsDefault(): AsStringOption {
+        AsStringOption.defaultAsStringOption = newAsStringOption
+        return newAsStringOption
+    }
+
+    /**
+     * Builds and returns the [AsStringOption] that is built, but does not apply it.
+     * @return the newly built [AsStringOption]
+     */
+    public fun build(): AsStringOption {
+        return newAsStringOption
+    }
+
+    private fun setNewDefaultOption(newAsStringOption: AsStringOption) {
+        this.newAsStringOption = newAsStringOption
+    }
+
+    private fun setNewDefaultOption(showNullAs: String = currentDefaultNullStr, propMaxLength: Int = currentDefaultPropMaxLength, includeHash: Boolean = currentDefaultIncludeHash) {
+        setNewDefaultOption(AsStringOption(showNullAs,  propMaxLength, includeHash))
+    }
+
+    /**
+     * Sets the new value for [AsStringOption.showNullAs]
+     * @return the builder (`this`)
+     */
+    public fun showNullAs(showNullAs: String): AsStringOptionBuilder {
+        setNewDefaultOption(showNullAs = showNullAs)
+        return this
+    }
+
+    /**
+     * Sets the new value for [AsStringOption.propMaxStringValueLength]
+     * @return the builder (`this`)
+     */
+    public fun maxPropertyStringLength(propMaxLength: Int): AsStringOptionBuilder {
+        setNewDefaultOption(propMaxLength = propMaxLength)
+        return this
+    }
+
+    /**
+     * Sets the new value for [AsStringOption.includeIdentityHash]
+     * @return the builder (`this`)
+     */
+    public fun includeIdentityHash(includeHash: Boolean): AsStringOptionBuilder {
+        setNewDefaultOption(includeHash = includeHash)
+        return this
     }
 }
 
-/**
- * Sets the global default for the maximum length of the output **per property**
- * > This operation will reset the property cache if necessary.
- * @see initialDefaultMaxStringValueLength
- * @see defaultMaxStringValueLength
- */
-public fun setMaxPropertyStringLength(maxPropStringLength: Int = initialDefaultMaxStringValueLength) {
-    if (maxPropStringLength != defaultMaxStringValueLength) {
-        defaultMaxStringValueLength = maxPropStringLength
-        applyDefaultOption()
-    }
-}
+/** Convenience method to retrieve [AsStringOption.defaultAsStringOption]'s [AsStringOption.showNullAs] */
+internal val defaultNullString: String
+    get() = AsStringOption.defaultAsStringOption.showNullAs
 
-private fun applyDefaultOption() {
-    AsStringOption.defaultAsStringOption = AsStringOption(defaultNullString, defaultMaxStringValueLength)
-    // Clearing the cache is necessary because the property cache typically references the old and obsolete settings.
-    //
-    // Replacing the "old" defaultAsStringOption by the new one is non-atomic, so would require additional
-    // synchronization on the underlying map, we don't want to do that. So better clear the cache completely
-    // (setting the defaults is typically done when the application is initialized, so cache would typically
-    // be empty (or almost empty) yet.
-    clearPropertyAnnotationCache()
-}
+/** Convenience method to retrieve [AsStringOption.defaultAsStringOption]'s [AsStringOption.propMaxStringValueLength] */
+internal val defaultMaxStringValueLength: Int
+    get() = AsStringOption.defaultAsStringOption.propMaxStringValueLength
+
+/** Convenience method to retrieve [AsStringOption.defaultAsStringOption]'s [AsStringOption.includeIdentityHash] */
+internal val defaultIncludeIdentityHash: Boolean
+    get() = AsStringOption.defaultAsStringOption.includeIdentityHash
 
 /**
- * Reset config options:
- *  * Reset [defaultNullString] to [initialDefaultNullString]
- *  * Reset [defaultMaxStringValueLength] to [initialDefaultMaxStringValueLength]
- *
- *  > This operation will reset the property cache if necessary.
+ * Reset config options: resets [AsStringOption.defaultAsStringOption] to [initialDefaultAsStringOption]
+ *  > This operation will reset (clear) the property cache, if necessary
  */
-public fun restoreInitialDefaultAsStringOption() {
-    setDefaultNullString(initialDefaultNullString)
-    setMaxPropertyStringLength(initialDefaultMaxStringValueLength)
-}
+public fun restoreInitialDefaultAsStringOption(): AsStringOption =
+    initialDefaultAsStringOption.also { AsStringOption.defaultAsStringOption = it }

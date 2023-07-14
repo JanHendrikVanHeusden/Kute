@@ -1,13 +1,13 @@
 package nl.kute.core
 
 import nl.kute.base.ObjectsStackVerifier
+import nl.kute.config.defaultMaxStringValueLength
+import nl.kute.config.defaultNullString
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
-import nl.kute.core.annotation.option.defaultMaxStringValueLength
-import nl.kute.core.annotation.option.defaultNullString
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy

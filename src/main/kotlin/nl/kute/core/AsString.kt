@@ -3,9 +3,9 @@
 
 package nl.kute.core
 
+import nl.kute.config.defaultNullString
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringOption
-import nl.kute.core.annotation.option.defaultNullString
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.property.getPropValueString

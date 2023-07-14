@@ -84,8 +84,13 @@ internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<
 
 private var propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> = ConcurrentHashMap()
 
+/**
+ * Resets the property cache.
+ * > This is typically needed when the [AsStringOption.defaultAsStringOption] is changed,
+ *   to avoid inconsistent intermediate results.
+ */
 @JvmSynthetic // avoid access from external Java code
-internal fun clearPropertyAnnotationCache() {
+internal fun resetPropertyAnnotationCache() {
     // create a new map instead of clearing the old one, to avoid intermediate situations
     // while concurrently reading from / writing to the map, as these operations may not be atomic
     propsWithAnnotationsCacheByClass = ConcurrentHashMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> ()

@@ -1,7 +1,7 @@
 package nl.kute.reflection
 
 import nl.kute.core.asString
-import nl.kute.core.property.clearPropertyAnnotationCache
+import nl.kute.core.property.resetPropertyAnnotationCache
 import nl.kute.core.property.propertyAnnotationCacheSize
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
@@ -64,7 +64,7 @@ internal class PropertyValueResolverTest {
     @Test
     fun `clear property cache should clear the cache`() {
         // arrange
-        clearPropertyAnnotationCache()
+        resetPropertyAnnotationCache()
         assertThat(propertyAnnotationCacheSize).isZero
         // act, assert
         var t1AsString = T1(1, "x", LocalDateTime.MIN).asString()
@@ -74,7 +74,7 @@ internal class PropertyValueResolverTest {
         assertThat(propertyAnnotationCacheSize).isEqualTo(2)
 
         // arrange
-        clearPropertyAnnotationCache()
+        resetPropertyAnnotationCache()
         // act, assert
         assertThat(propertyAnnotationCacheSize).isZero
         t1AsString = T1(1, "x", LocalDateTime.MIN).asString()
