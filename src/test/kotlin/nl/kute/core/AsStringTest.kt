@@ -185,7 +185,7 @@ class AsStringTest: ObjectsStackVerifier {
 
         val supplier = {
             // Don't do this normally! A Supplier should not have side effects!
-            // It's just for test purposes, to verify that it's called only once during asString() processing
+            // It's just for testing purposes, to verify that it's called only once during asString() processing
             ++counter
         }
         val namedSupplier = supplier.namedVal(counterName) as NamedSupplier<Int>

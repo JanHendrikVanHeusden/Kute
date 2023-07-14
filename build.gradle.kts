@@ -2,7 +2,6 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.jetbrains.kotlin.config.ExplicitApiMode
 
 group = "nl.kute"
 version = "1.0-SNAPSHOT"
@@ -33,7 +32,7 @@ sourceSets.main {
 
 sourceSets.test {
     // To tell Gradle not to look in "src/test/java" (for Java classes)
-    // Only a few Java classes exist within Kute for test purposes, to construct Java objects that are extended by Kotlin classes
+    // Only a few Java classes exist within Kute for testing purposes, to construct Java objects that are extended by Kotlin classes
     java.srcDirs("src/test/kotlin")
     kotlin.srcDirs("src/test/kotlin")
 }

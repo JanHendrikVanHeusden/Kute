@@ -88,7 +88,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                 }
                 // Array and Collection toString methods are vulnerable of stack overflow errors
                 // in case of mutual reference (so where list1 is element of list2 and vice versa).
-                // So we mimic the default toString behaviour, but recursion safe
+                // So we mimic the default toString behaviour, but let it be recursion safe!
                 if (obj is Array<*>) {
                     return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
                 }

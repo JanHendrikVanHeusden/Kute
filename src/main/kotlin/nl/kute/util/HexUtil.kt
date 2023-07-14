@@ -6,6 +6,7 @@ package nl.kute.util
 
 /**
  * Create a hex String based on the receiver's [hashCode] method. Null safe.
+ * > Mainly for testing purposes
  * @return The receiver's [hashCode] as a hexadecimal String, consisting of characters `0..9`, `a..f`;
  *         or `null` if the receiver is `null`.
  */
@@ -32,16 +33,6 @@ internal val Long?.asHexString: String
     @JvmSynthetic // avoid access from external Java code
     get() = if (this == null) "0"
     else java.lang.Long.toHexString(this).ifBlank { "0" }
-
-/** Converts a lower-case unsigned hex string to an [Int] value */
-@JvmSynthetic // avoid access from external Java code
-internal fun hexStringToInt(hexString: String): Int =
-    Integer.parseUnsignedInt(hexString, 16)
-
-/** Converts a lower-case unsigned hex string to a [Long] value */
-@JvmSynthetic // avoid access from external Java code
-internal fun hexStringToLong(hexString: String): Long =
-    java.lang.Long.parseUnsignedLong(hexString, 16)
 
 /**
  * Convert a [ByteArray] to a hex String
