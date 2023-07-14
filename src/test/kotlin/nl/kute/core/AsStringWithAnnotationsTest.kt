@@ -11,7 +11,8 @@ import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.asStringClassOptionCacheSize
 import nl.kute.core.annotation.option.resetAsStringClassOptionCache
-import nl.kute.core.annotation.option.restoreInitialDefaultAsStringClassOption
+import nl.kute.config.restoreInitialDefaultAsStringClassOption
+import nl.kute.config.setDefaultAsStringClassOption
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
@@ -482,7 +483,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
             .isEqualTo(1)
 
         // act
-        AsStringClassOption.defaultAsStringClassOption = AsStringClassOption(true)
+        setDefaultAsStringClassOption(AsStringClassOption(true))
 
         // assert
         assertThat(AsStringClassOption.defaultAsStringClassOption.includeIdentityHash).isTrue
@@ -525,7 +526,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     fun `re-applying same value of AsStringClassOption should not empty the cache`() {
         // arrange
         assertThat(AsStringClassOption.defaultAsStringClassOption.includeIdentityHash).isFalse
-        AsStringClassOption.defaultAsStringClassOption = AsStringClassOption(includeIdentityHash = true)
+        setDefaultAsStringClassOption(AsStringClassOption(includeIdentityHash = true))
         assertThat(asStringClassOptionCacheSize).isZero
 
         class MyTestClass
@@ -537,7 +538,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
 
         // act
         @Suppress("KotlinConstantConditions")
-        AsStringClassOption.defaultAsStringClassOption = AsStringClassOption(("aa" == "aa"))
+        setDefaultAsStringClassOption(AsStringClassOption(("aa" == "aa")))
         // assert
         assertThat(asStringClassOptionCacheSize)
             .`as`("MyTestClass should still be present in cache")

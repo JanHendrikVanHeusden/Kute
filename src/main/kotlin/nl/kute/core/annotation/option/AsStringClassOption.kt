@@ -1,7 +1,6 @@
 package nl.kute.core.annotation.option
 
 import nl.kute.config.initialDefaultAsStringClassOption
-import nl.kute.config.initialDefaultAsStringOption
 import nl.kute.config.initialDefaultIncludeIdentityHash
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.simplifyClassName
@@ -33,7 +32,8 @@ public annotation class AsStringClassOption(
          * > When changed, the property cache will be reset (cleared).
          */
         public var defaultAsStringClassOption: AsStringClassOption = initialDefaultAsStringClassOption
-            set(newDefault) {
+            @JvmSynthetic // avoid access from external Java code
+            internal set(newDefault) {
                 if (newDefault != field) {
                     field = newDefault
                     // Clearing the cache is necessary because the property cache typically references the old and obsolete settings.
@@ -84,11 +84,3 @@ internal val asStringClassOptionCacheSize
     @JvmSynthetic // avoid access from external Java code
     get() = asStringClassOptionCache.size
 
-/**
- * Reset config options: resets [AsStringOption.defaultAsStringOption] to [initialDefaultAsStringOption].
- * Mainly for testing purposes.
- *  > This operation will reset (clear) the property cache, if necessary
- */
-@JvmSynthetic
-internal fun restoreInitialDefaultAsStringClassOption(): AsStringClassOption =
-    initialDefaultAsStringClassOption.also { AsStringClassOption.defaultAsStringClassOption = it }
