@@ -1,8 +1,8 @@
 package nl.kute.reflection
 
 import nl.kute.core.asString
-import nl.kute.core.property.resetPropertyAnnotationCache
 import nl.kute.core.property.propertyAnnotationCacheSize
+import nl.kute.core.property.resetPropertyAnnotationCache
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +16,7 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
 @Suppress("unused") // several properties accessed by reflection only
-internal class PropertyValueResolverTest {
+class PropertyValueResolverTest {
 
     @BeforeEach
     @AfterEach

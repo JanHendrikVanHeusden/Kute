@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach
  *  > To be exact, it must be 0 before and after each call; but we can't easily implement that in a
  *  > test base interface like this one
  */
-internal interface ObjectsStackVerifier {
+interface ObjectsStackVerifier {
 
     // If overriding (not advised), make sure to include a call to this super method!
     //
@@ -39,7 +39,7 @@ internal interface ObjectsStackVerifier {
  * This may apply particularly to tests that heavily rely on the objects stack, like objects with
  * self-references or circular mutual references.
  */
-internal fun ObjectsStackVerifier.validateObjectsStack() {
+fun ObjectsStackVerifier.validateObjectsStack() {
     getObjectsStackSize().let { objectStackSize ->
         Assertions.assertThat(objectStackSize)
             .`as`(

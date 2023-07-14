@@ -33,7 +33,7 @@ public annotation class AsStringOption(
          * > When changed, the property cache will be reset (cleared)
          */
         public var defaultAsStringOption: AsStringOption = initialDefaultAsStringOption
-            @JvmSynthetic
+            @JvmSynthetic // avoid access from external Java code
             internal set(newDefault) {
                 if (newDefault != field) {
                     field = newDefault

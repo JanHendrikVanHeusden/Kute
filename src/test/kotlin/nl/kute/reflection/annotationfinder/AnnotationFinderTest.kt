@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
 @Suppress("unused", "SameReturnValue", "EmptyMethod") // several properties accessed by reflection only
-internal class AnnotationFinderTest {
+class AnnotationFinderTest {
 
     @Test
     fun `find property annotations in class hierarchy in expected order`() {

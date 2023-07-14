@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 import kotlin.reflect.KVisibility.PRIVATE
 import kotlin.reflect.full.memberProperties
 
-internal class PropertyResolverTest {
+class PropertyResolverTest {
 
     @Test
     fun `propertiesFromHierarchy on abstract class or interface`() {

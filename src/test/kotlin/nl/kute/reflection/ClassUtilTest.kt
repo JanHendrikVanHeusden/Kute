@@ -6,7 +6,7 @@ import java.rmi.Remote
 import kotlin.reflect.KClass
 import java.io.Serializable as javaSerializable
 
-internal class ClassUtilTest {
+class ClassUtilTest {
 
     private interface Intf1
     private interface Intf2 : Intf1

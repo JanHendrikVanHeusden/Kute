@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 import kotlin.random.Random
 
-internal class HexUtilTest {
+class HexUtilTest {
 
     @Test
     fun intAsHexString() {

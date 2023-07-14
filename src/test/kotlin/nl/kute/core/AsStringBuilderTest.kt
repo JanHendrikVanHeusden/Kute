@@ -20,7 +20,7 @@ import kotlin.reflect.jvm.isAccessible
 const val showNullAs = "`null`"
 const val showNullAs2 = "[null]"
 
-internal class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
+class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
 
     private val testObj = ClassWithHashProperty()
     private val testSubObj = SubClassWithPrintMask()

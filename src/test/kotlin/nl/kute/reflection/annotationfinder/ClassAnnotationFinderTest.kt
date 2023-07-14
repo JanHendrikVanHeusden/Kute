@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import java.lang.annotation.Inherited
 import kotlin.reflect.KClass
 
-internal class ClassAnnotationFinderTest {
+class ClassAnnotationFinderTest {
 
     // A bunch of classes with some random annotations sprinkled
     // Obviously, retention must be "runtime" in order to detect it

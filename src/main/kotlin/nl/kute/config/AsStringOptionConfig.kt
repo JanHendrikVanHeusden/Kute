@@ -83,19 +83,24 @@ public class AsStringOptionBuilder {
 
 /** Convenience method to retrieve [AsStringOption.defaultAsStringOption]'s [AsStringOption.showNullAs] */
 internal val defaultNullString: String
+    @JvmSynthetic // avoid access from external Java code
     get() = AsStringOption.defaultAsStringOption.showNullAs
 
 /** Convenience method to retrieve [AsStringOption.defaultAsStringOption]'s [AsStringOption.propMaxStringValueLength] */
 internal val defaultMaxStringValueLength: Int
+    @JvmSynthetic // avoid access from external Java code
     get() = AsStringOption.defaultAsStringOption.propMaxStringValueLength
 
 /** Convenience method to retrieve [AsStringOption.defaultAsStringOption]'s [AsStringOption.includeIdentityHash] */
 internal val defaultIncludeIdentityHash: Boolean
+    @JvmSynthetic // avoid access from external Java code
     get() = AsStringOption.defaultAsStringOption.includeIdentityHash
 
 /**
- * Reset config options: resets [AsStringOption.defaultAsStringOption] to [initialDefaultAsStringOption]
+ * Reset config options: resets [AsStringOption.defaultAsStringOption] to [initialDefaultAsStringOption].
+ * Mainly for testing purposes.
  *  > This operation will reset (clear) the property cache, if necessary
  */
-public fun restoreInitialDefaultAsStringOption(): AsStringOption =
+@JvmSynthetic
+internal fun restoreInitialDefaultAsStringOption(): AsStringOption =
     initialDefaultAsStringOption.also { AsStringOption.defaultAsStringOption = it }

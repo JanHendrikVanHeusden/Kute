@@ -11,7 +11,7 @@ import java.nio.charset.Charset
 import java.time.LocalDateTime
 import kotlin.random.Random
 
-internal class HashingTest {
+class HashingTest {
 
     private val testStringShort = "my test string"
 
