@@ -1,7 +1,6 @@
 package nl.kute.core.annotation.option
 
 import nl.kute.config.initialDefaultAsStringOption
-import nl.kute.config.initialDefaultIncludeIdentityHash
 import nl.kute.config.initialDefaultMaxStringValueLength
 import nl.kute.config.initialDefaultNullString
 import nl.kute.core.property.resetPropertyAnnotationCache
@@ -11,8 +10,12 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 /**
  * The [AsStringOption] annotation can be placed:
  *  * on classes
- *  * on the [toString] method of these classes
- *  * on properties of these classes
+ *  * on the [toString] method of classes
+ *  * on properties of classes
+ *
+ * Besides that, the [AsStringOption.defaultAsStringOption] is used as a default
+ * when no explicit [AsStringOption] annotation is applied.
+ *
  * It allows specifying how property values are to be parsed in the [nl.kute.core.asString] return value.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
@@ -24,13 +27,12 @@ public annotation class AsStringOption(
     val showNullAs: String = initialDefaultNullString,
     /** The maximum String value length **per property**.
      * Default is 500 (by [initialDefaultMaxStringValueLength]). 0 means: an empty String; negative values mean: [Int.MAX_VALUE], so effectively no maximum. */
-    val propMaxStringValueLength: Int = initialDefaultMaxStringValueLength,
-    val includeIdentityHash: Boolean = initialDefaultIncludeIdentityHash
+    val propMaxStringValueLength: Int = initialDefaultMaxStringValueLength
 ) {
     public companion object DefaultOption {
         /**
          * [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified.
-         * > When changed, the property cache will be reset (cleared)
+         * > When changed, the property cache will be reset (cleared).
          */
         public var defaultAsStringOption: AsStringOption = initialDefaultAsStringOption
             @JvmSynthetic // avoid access from external Java code

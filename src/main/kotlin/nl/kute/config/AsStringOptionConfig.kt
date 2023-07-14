@@ -8,12 +8,9 @@ public const val initialDefaultNullString: String = "null"
 /** Initial default value for the maximum length **per property** in the [nl.kute.core.asString] output */
 public const val initialDefaultMaxStringValueLength: Int = 500
 
-/** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.core.asString] output */
-public const val initialDefaultIncludeIdentityHash: Boolean = false
-
 /** Initial default options for the output of [nl.kute.core.asString] */
 public val initialDefaultAsStringOption: AsStringOption =
-    AsStringOption(initialDefaultNullString, initialDefaultMaxStringValueLength, initialDefaultIncludeIdentityHash)
+    AsStringOption(initialDefaultNullString, initialDefaultMaxStringValueLength)
 
 /**
  * Builder class, intended to apply the [AsStringOption] as a default (see [AsStringOptionBuilder.applyAsDefault]).
@@ -23,7 +20,6 @@ public class AsStringOptionBuilder {
     private val currentDefaultOption = AsStringOption.defaultAsStringOption
     private val currentDefaultNullStr = currentDefaultOption.showNullAs
     private val currentDefaultPropMaxLength = currentDefaultOption.propMaxStringValueLength
-    private val currentDefaultIncludeHash = currentDefaultOption.includeIdentityHash
 
     private var newAsStringOption: AsStringOption = currentDefaultOption
 
@@ -49,8 +45,8 @@ public class AsStringOptionBuilder {
         this.newAsStringOption = newAsStringOption
     }
 
-    private fun setNewDefaultOption(showNullAs: String = currentDefaultNullStr, propMaxLength: Int = currentDefaultPropMaxLength, includeHash: Boolean = currentDefaultIncludeHash) {
-        setNewDefaultOption(AsStringOption(showNullAs,  propMaxLength, includeHash))
+    private fun setNewDefaultOption(showNullAs: String = currentDefaultNullStr, propMaxLength: Int = currentDefaultPropMaxLength) {
+        setNewDefaultOption(AsStringOption(showNullAs, propMaxLength))
     }
 
     /**
@@ -70,15 +66,6 @@ public class AsStringOptionBuilder {
         setNewDefaultOption(propMaxLength = propMaxLength)
         return this
     }
-
-    /**
-     * Sets the new value for [AsStringOption.includeIdentityHash]
-     * @return the builder (`this`)
-     */
-    public fun includeIdentityHash(includeHash: Boolean): AsStringOptionBuilder {
-        setNewDefaultOption(includeHash = includeHash)
-        return this
-    }
 }
 
 /** Convenience method to retrieve [AsStringOption.defaultAsStringOption]'s [AsStringOption.showNullAs] */
@@ -90,11 +77,6 @@ internal val defaultNullString: String
 internal val defaultMaxStringValueLength: Int
     @JvmSynthetic // avoid access from external Java code
     get() = AsStringOption.defaultAsStringOption.propMaxStringValueLength
-
-/** Convenience method to retrieve [AsStringOption.defaultAsStringOption]'s [AsStringOption.includeIdentityHash] */
-internal val defaultIncludeIdentityHash: Boolean
-    @JvmSynthetic // avoid access from external Java code
-    get() = AsStringOption.defaultAsStringOption.includeIdentityHash
 
 /**
  * Reset config options: resets [AsStringOption.defaultAsStringOption] to [initialDefaultAsStringOption].

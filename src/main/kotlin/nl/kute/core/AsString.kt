@@ -64,7 +64,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
     try {
         val obj = this ?: return defaultNullString
         if (!(obj is Array<*> || obj is Collection<*>) && (
-                    this is Number
+                    obj is Number
                             || obj is CharSequence
                             || obj is Char
                             || obj is Date
