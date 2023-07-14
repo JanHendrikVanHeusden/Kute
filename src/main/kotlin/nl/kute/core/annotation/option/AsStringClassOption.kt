@@ -23,9 +23,7 @@ import kotlin.reflect.KClass
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-public annotation class AsStringClassOption(
-    val includeIdentityHash: Boolean = initialDefaultIncludeIdentityHash
-) {
+public annotation class AsStringClassOption(val includeIdentityHash: Boolean = initialDefaultIncludeIdentityHash) {
     public companion object DefaultOption {
         /**
          * [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified.
@@ -43,7 +41,8 @@ public annotation class AsStringClassOption(
     }
 }
 
-private fun Any.objectIdentity(asStringClassOption: AsStringClassOption): String {
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.objectIdentity(asStringClassOption: AsStringClassOption): String {
     val className = this::class.simplifyClassName()
     return if (asStringClassOption.includeIdentityHash) {
         "$className@${this.identityHashHex}"
@@ -53,11 +52,7 @@ private fun Any.objectIdentity(asStringClassOption: AsStringClassOption): String
 }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Any.objectIdentity(): String {
-    return this.objectIdentity(getAsStringClassOption())
-}
-
-private fun Any.getAsStringClassOption(): AsStringClassOption =
+internal fun Any.getAsStringClassOption(): AsStringClassOption =
     this::class.let { kClass ->
         val cache = asStringClassOptionCache
         cache[kClass].ifNull {

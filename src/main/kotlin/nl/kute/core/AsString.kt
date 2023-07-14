@@ -5,7 +5,9 @@ package nl.kute.core
 
 import nl.kute.config.defaultNullString
 import nl.kute.core.annotation.modify.AsStringOmit
+import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
@@ -23,6 +25,7 @@ import java.time.temporal.Temporal
 import java.util.Date
 import kotlin.math.max
 import kotlin.reflect.KProperty
+import nl.kute.core.annotation.option.AsStringClassOption.DefaultOption.defaultAsStringClassOption as defaultClassOption
 
 public abstract class AsStringProducer {
     @Suppress("RedundantModalityModifier")
@@ -77,7 +80,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                     )
         ) {
             // For built-in stuff except Arrays/Collections, we just stick to the default toString()
-            return obj.toString()
+            return obj.systemClassObjAsString()
         } else {
             try {
                 // Check if we were already busy processing this object
@@ -90,11 +93,12 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                 // Array and Collection toString methods are vulnerable of stack overflow errors
                 // in case of mutual reference (so where list1 is element of list2 and vice versa).
                 // So we mimic the default toString behaviour, but let it be recursion safe!
+                val includeHash = defaultClassOption.includeIdentityHash
                 if (obj is Array<*>) {
-                    return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
+                    return obj.joinToString(prefix = "${obj.systemObjectIdentity(includeHash)}[", separator = ", ", postfix = "]") { it.asString() }
                 }
                 if (obj is Collection<*>) {
-                    return obj.joinToString(prefix = "[", separator = ", ", postfix = "]") { it.asString() }
+                    return obj.joinToString(prefix = "${obj.systemObjectIdentity(includeHash)}[", separator = ", ", postfix = "]") { it.asString() }
                 }
                 val objClass = obj::class
                 try {
@@ -146,6 +150,31 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
         // It's probably a secondary exception somewhere. Not much more we can do here
         e.printStackTrace()
         return ""
+    }
+}
+
+private fun Any.objectIdentity() = this.objectIdentity(getAsStringClassOption())
+
+private fun Any.systemObjectIdentity(includeHash: Boolean = defaultClassOption.includeIdentityHash) =
+    if (includeHash) "${this::class.simplifyClassName()}@${this.identityHashHex}"
+    else this::class.simplifyClassName()
+
+/**
+ * Construct a meaningful String representation for system class objects where [toString] is not overridden
+ * (so Strings like `java.lang.Object@5340477f`).
+ * If [AsStringClassOption.defaultAsStringClassOption] has [AsStringClassOption.includeIdentityHash], the hash
+ * value is included as well, e.g. `Any@5340477f()`
+ * @return
+ *  * When [toString] is like `java.lang.Object@1234acef`, a meaningful String, e.g. `Any()`;
+ *  * Otherwise, the default [toString] of the object.
+ */
+private fun Any.systemClassObjAsString(): String {
+    this.toString().let { defaultString ->
+        return if (defaultString.startsWith("java.lang.") && defaultString.contains('@')) {
+            "${this.systemObjectIdentity()}()"
+        } else {
+            defaultString
+        }
     }
 }
 

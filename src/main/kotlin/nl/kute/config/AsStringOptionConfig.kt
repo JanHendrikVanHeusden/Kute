@@ -86,9 +86,11 @@ internal val defaultMaxStringValueLength: Int
 
 /**
  * Reset config options: resets [AsStringOption.defaultAsStringOption] to [initialDefaultAsStringOption].
- *  > This operation will reset (clear) the property cache, if necessary
+ * Mainly for testing purposes.
+ *  > This operation will also reset (clear) the property cache, if necessary
  */
-public fun restoreInitialDefaultAsStringOption(): AsStringOption =
+@JvmSynthetic // avoid access from external Java code
+internal fun restoreInitialDefaultAsStringOption(): AsStringOption =
     initialDefaultAsStringOption.also { AsStringOption.defaultAsStringOption = it }
 
 public fun setDefaultAsStringClassOption(newOption: AsStringClassOption) {
@@ -98,7 +100,8 @@ public fun setDefaultAsStringClassOption(newOption: AsStringClassOption) {
 /**
  * Reset config options: resets [AsStringOption.defaultAsStringOption] to [initialDefaultAsStringOption].
  * Mainly for testing purposes.
- *  > This operation will reset (clear) the property cache, if necessary
+ *  > This operation will also reset (clear) the cache for AsStringClasOption cache, if necessary.
  */
-public fun restoreInitialDefaultAsStringClassOption(): AsStringClassOption =
+@JvmSynthetic // avoid access from external Java code
+internal fun restoreInitialDefaultAsStringClassOption(): AsStringClassOption =
     initialDefaultAsStringClassOption.also { AsStringClassOption.defaultAsStringClassOption = it }
