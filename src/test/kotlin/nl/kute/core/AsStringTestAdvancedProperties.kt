@@ -148,12 +148,6 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
     }
 
-    @Test
-    fun test() {
-        println(Any())
-        println(Any().asString())
-    }
-
     // ------------------------------------
     // Classes etc. to be used in the tests
     // ------------------------------------

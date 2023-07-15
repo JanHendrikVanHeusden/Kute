@@ -3,7 +3,9 @@ package nl.kute.reflection
 import kotlin.reflect.KClass
 
 private val packageNameRegex = Regex(""".+\.(.*)$""")
-private fun String.simplifyClassName() = this.replace(packageNameRegex, "$1")
+
+@JvmSynthetic // avoid access from external Java code
+internal fun String.simplifyClassName() = this.replace(packageNameRegex, "$1")
 
 @JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.simplifyClassName(): String =

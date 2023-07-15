@@ -11,6 +11,7 @@ import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
+import nl.kute.core.namedvalues.namedVal
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.log.log
@@ -26,6 +27,8 @@ import java.util.Date
 import kotlin.math.max
 import kotlin.reflect.KProperty
 import nl.kute.core.annotation.option.AsStringClassOption.DefaultOption.defaultAsStringClassOption as defaultClassOption
+
+internal typealias AsStringHandler = (Any) -> String
 
 public abstract class AsStringProducer {
     @Suppress("RedundantModalityModifier")
@@ -46,9 +49,11 @@ public abstract class AsStringProducer {
  * (other annotations, see package `nl.kute.core.annotation.modify`)
  * @see AsStringBuilder
  */
-public fun Any?.asString(): String {
-    return asString(emptyStringList)
-}
+public fun Any?.asString(): String = asString(emptyStringList)
+
+// TODO: tests!
+public fun Any?.asString(vararg props: KProperty<*>): String =
+    asString(emptyStringList, *props.map { this.namedVal(it) }.toTypedArray())
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -67,39 +72,24 @@ public fun Any?.asString(): String {
 private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
     try {
         val obj = this ?: return defaultNullString
-        if (!(obj is Array<*> || obj is Collection<*>) && (
-                    obj is Number
-                            || obj is CharSequence
-                            || obj is Char
-                            || obj is Date
-                            || obj is Temporal
-                            || obj::class.java.packageName.startsWith("kotlin")
-                            || obj::class.java.packageName.startsWith("java.")
-                            || obj::class.java.packageName.startsWith("sun.")
-                            || obj::class.java.packageName.startsWith("com.sun.")
-                    )
-        ) {
-            // For built-in stuff except Arrays/Collections, we just stick to the default toString()
-            return obj.systemClassObjAsString()
+        val objectCategory = AsStringObjectCategory.resolveObjectCategory(obj)
+        // If no stack guarding needed, we can handle the object here already
+        if (objectCategory.hasHandler() && !objectCategory.guardStack) {
+            return objectCategory.handler!!(obj)
         } else {
             try {
                 // Check if we were already busy processing this object
-                objectsStack.get().addIfNotPresent(obj).also { notPresent ->
+                objectsStackGuard.get().addIfNotPresent(obj).also { notPresent ->
                     if (!notPresent) {
                         // avoid endless loop
                         return "recursive: ${obj::class.simplifyClassName()}(...)"
                     }
                 }
-                // Array and Collection toString methods are vulnerable of stack overflow errors
-                // in case of mutual reference (so where list1 is element of list2 and vice versa).
-                // So we mimic the default toString behaviour, but let it be recursion safe!
-                val includeHash = defaultClassOption.includeIdentityHash
-                if (obj is Array<*>) {
-                    return obj.joinToString(prefix = "${obj.systemObjectIdentity(includeHash)}[", separator = ", ", postfix = "]") { it.asString() }
+                if (objectCategory.hasHandler() && objectCategory.guardStack) {
+                    // stack guarding performed, handle it
+                    return objectCategory.handler!!(obj)
                 }
-                if (obj is Collection<*>) {
-                    return obj.joinToString(prefix = "${obj.systemObjectIdentity(includeHash)}[", separator = ", ", postfix = "]") { it.asString() }
-                }
+                // no handler, so custom object, let's process it, with all params provided
                 val objClass = obj::class
                 try {
                     val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
@@ -143,7 +133,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                     return obj.asStringFallBack()
                 }
             } finally {
-                objectsStack.get().remove(this)
+                objectsStackGuard.get().remove(this)
             }
         }
     } catch (e: Exception) {
@@ -155,8 +145,12 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
 
 private fun Any.objectIdentity() = this.objectIdentity(getAsStringClassOption())
 
-private fun Any.systemObjectIdentity(includeHash: Boolean = defaultClassOption.includeIdentityHash) =
-    if (includeHash) "${this::class.simplifyClassName()}@${this.identityHashHex}"
+private fun Any.collectionIdentity(includeIdentity: Boolean = defaultClassOption.includeIdentityHash) =
+    if (includeIdentity) "${this::class.simplifyClassName()}@${this.identityHashHex}"
+    else ""
+
+private fun Any.systemClassIdentity(includeIdentity: Boolean = defaultClassOption.includeIdentityHash) =
+    if (includeIdentity) "${this::class.simplifyClassName()}@${this.identityHashHex}"
     else this::class.simplifyClassName()
 
 /**
@@ -171,11 +165,23 @@ private fun Any.systemObjectIdentity(includeHash: Boolean = defaultClassOption.i
 private fun Any.systemClassObjAsString(): String {
     this.toString().let { defaultString ->
         return if (defaultString.startsWith("java.lang.") && defaultString.contains('@')) {
-            "${this.systemObjectIdentity()}()"
+            "${systemClassIdentity()}()"
         } else {
             defaultString
         }
     }
+}
+
+internal fun Annotation.annotationAsString(): String = toString().simplifyClassName()
+
+internal fun Collection<*>.collectionAsString(): String {
+    val includeIdentity = defaultClassOption.includeIdentityHash
+    return joinToString(prefix = "${collectionIdentity(includeIdentity)}[", separator = ", ", postfix = "]") { it.asString() }
+}
+
+internal fun Array<*>.arrayAsString(): String {
+    val includeIdentity = defaultClassOption.includeIdentityHash
+    return joinToString(prefix = "${collectionIdentity(includeIdentity)}[", separator = ", ", postfix = "]") { it.asString() }
 }
 
 private val emptyStringList: List<String> = listOf()
@@ -194,15 +200,73 @@ internal fun Any?.asStringFallBack(): String =
     }
 
 /**
+ * Enum to provide categorization of objects.
+ * @param handler The handler is used for basic and system types, like [Collection]s, [Array]s,
+ * [Throwable]s, [Annotation]s, [Number], [String], [Date], [Temporal], [Char] etc.
+ *  * When a [handler] is provided, it should be invoked by the caller
+ *  * When no [handler] is provided, the caller itself should provide the implementation
+ */
+internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null, val guardStack: Boolean = false) {
+// TODO: tests
+    /**
+     * Internal stuff like [Number], [String], [Date], [Temporal], [Char],
+     * these have sensible [toString] implementations that we shouldn't override
+     */
+    BASE( { it.toString() }),
+
+    /** Override: collections [toString] is vulnerable for stack overflow (in case of recursive data) */
+    COLLECTION( { (it as Collection<*>).collectionAsString() }, true),
+
+    /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
+    ARRAY( { (it as Array<*>).arrayAsString() }, true),
+
+    /** Override: [Throwable.toString] is way too verbose */
+    THROWABLE( { (it as Throwable).asString() }),
+
+    /** Override: [Annotation.toString] strip package name */
+    ANNOTATION( { (it as Annotation).annotationAsString() }),
+
+    /**
+     * Override for Java & Kotlin internals: provide sensible alternative for classes
+     * without [toString] implementation; add identity if required
+     */
+    SYSTEM( { it.systemClassObjAsString() }),
+
+    /** Custom handling */
+    CUSTOM(guardStack = true);
+
+    @JvmSynthetic // avoid access from external Java code
+    internal fun hasHandler(): Boolean = handler != null
+
+    companion object CategoryResolver {
+        @JvmSynthetic // avoid access from external Java code
+        internal fun resolveObjectCategory(obj: Any): AsStringObjectCategory {
+            return when {
+                obj is Array<*> -> ARRAY
+                obj is Collection<*> -> COLLECTION
+                (obj is CharSequence || obj is Char || obj is Date || obj is Temporal) -> BASE
+                obj is Annotation -> ANNOTATION
+                obj is Throwable -> THROWABLE
+                (obj::class.java.packageName.startsWith("kotlin")
+                        || obj::class.java.packageName.startsWith("java.")
+                        || obj::class.java.packageName.startsWith("sun.")
+                        || obj::class.java.packageName.startsWith("com.sun.")) -> SYSTEM
+                else -> CUSTOM
+            }
+        }
+    }
+}
+
+/**
  * Helper class to keep track of objects being processed in [asString].
  *
- * > @Developer: take care when setting _breakpoints_ in class [ObjectsProcessed]!
+ * > @Developer: take care when setting _breakpoints_ in class [ObjectsStackGuard]!
  *
  * > Even simply showing an object (with recursive references) in the debugger will implicitly call `toString()`,
  * > **this may already influence the content of the [objectsMap]** (so may influence result of [asString]);
  * > or may cause stack overflow too.
  */
-private class ObjectsProcessed {
+private class ObjectsStackGuard {
 
     class ObjectCounter(@AsStringOmit val obj: Any, var count: Int) {
         fun incrementAndGet() = run { ++count; this }
@@ -264,11 +328,11 @@ private class ObjectsProcessed {
  * Keeps track of objects being processed within [asString], to avoid endless loops in case of recursive
  * (mutually referencing or self-referencing) objects.
  *
- * **The thread's [objectsStack] must always empty before and after an outbound call to [asString].**
+ * **The thread's [objectsStackGuard] must always empty before and after an outbound call to [asString].**
  * @see getObjectsStackSize
  */
-private val objectsStack: ThreadLocal<ObjectsProcessed> =
-    ThreadLocal.withInitial(::ObjectsProcessed)
+private val objectsStackGuard: ThreadLocal<ObjectsStackGuard> =
+    ThreadLocal.withInitial(::ObjectsStackGuard)
 
 /**
  * To be used within tests.
@@ -279,4 +343,4 @@ private val objectsStack: ThreadLocal<ObjectsProcessed> =
  * @return The size of the object stack
  */
 @JvmSynthetic // avoid access from external Java code
-internal fun getObjectsStackSize() = max(objectsStack.get().size, 0)
+internal fun getObjectsStackSize() = max(objectsStackGuard.get().size, 0)
