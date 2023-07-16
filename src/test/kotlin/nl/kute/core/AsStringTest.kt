@@ -3,11 +3,15 @@
 package nl.kute.core
 
 import nl.kute.base.ObjectsStackVerifier
+import nl.kute.config.restoreInitialDefaultAsStringClassOption
+import nl.kute.config.setDefaultAsStringClassOption
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringReplace
+import nl.kute.core.annotation.option.AsStringClassOption
+import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.NamedProp
 import nl.kute.core.namedvalues.NamedSupplier
@@ -16,6 +20,7 @@ import nl.kute.core.namedvalues.namedVal
 import nl.kute.hashing.DigestMethod
 import nl.kute.reflection.simplifyClassName
 import nl.kute.testobjects.java.JavaClassToTest
+import nl.kute.testobjects.java.JavaClassWithStatic
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty
 import nl.kute.testobjects.java.packagevisibility.KotlinSubSubClassOfJavaClassWithAccessiblePackageLevelProperty
 import nl.kute.testobjects.java.packagevisibility.SubClassOfJavaClassWithAccessiblePackageLevelProperty
@@ -24,12 +29,14 @@ import nl.kute.testobjects.java.packagevisibility.sub.SubClassOfJavaClassWithNot
 import nl.kute.testobjects.java.protectedvisibility.JavaClassWithProtectedProperty
 import nl.kute.testobjects.java.protectedvisibility.KotlinSubSubClassOfJavaJavaClassWithProtectedProperty
 import nl.kute.testobjects.java.protectedvisibility.SubClassOfJavaClassWithProtectedProperty
-import nl.kute.testobjects.kotlin.protectedvisibility.SubSubClassOfClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
+import nl.kute.testobjects.kotlin.protectedvisibility.SubSubClassOfClassWithProtectedProperty
 import nl.kute.util.identityHashHex
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assumptions.assumeThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -38,7 +45,9 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.time.LocalDate
 import java.util.Date
+import java.util.Stack
 import java.util.UUID
+import java.util.concurrent.ArrayBlockingQueue
 
 class AsStringTest: ObjectsStackVerifier {
 
@@ -49,6 +58,12 @@ class AsStringTest: ObjectsStackVerifier {
     @BeforeEach
     fun setUp() {
         classLevelCounter = 0
+    }
+
+    @BeforeEach
+    @AfterEach
+    fun setUpAndTearDown() {
+        restoreInitialDefaultAsStringClassOption()
     }
 
     @Test
@@ -399,6 +414,65 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
+    fun `system classes without overridden toString should yield output with class name`() {
+        // arrange
+        val testObj = Any()
+        assumeThat(testObj.toString()).startsWith("java.lang.Object@")
+        // act, assert
+        assertThat(testObj.asString()).isEqualTo("Any()")
+    }
+
+    @Test
+    fun `system classes without overridden toString should include identity when set`() {
+        // arrange
+        setDefaultAsStringClassOption(AsStringClassOption(true))
+        val testObj = Any()
+        assumeThat(testObj.toString()).startsWith("java.lang.Object@")
+        val identityHashHex = testObj.identityHashHex
+        // act, assert
+        assertThat(testObj.asString()).isEqualTo("Any@$identityHashHex()")
+    }
+
+    @Test
+    fun `annotations should yield output without package name`() {
+        val asStringOption = AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 12)
+        assertThat(asStringOption.asString())
+            .isEqualTo("AsStringOption(propMaxStringValueLength=12, showNullAs=<null>)")
+        // just to show the difference
+        assumeThat(asStringOption.toString())
+            .isEqualTo("@nl.kute.core.annotation.option.AsStringOption(propMaxStringValueLength=12, showNullAs=<null>)")
+    }
+
+    @Test
+    fun `collections should yield same output as default toString`() {
+        // This applies to several Java and Kotlin built in types. Not tested all (there are 30+ of them)
+        // It may not apply to non-Java/Kotlin collections, e.g. from Google (Guave) or Apache (not tested)
+        val map = hashMapOf(1 to "first", 2 to "second", 3 to "third")
+        assertThat(map.asString())
+            .isEqualTo(map.toString())
+            .isEqualTo("{1=first, 2=second, 3=third}")
+
+        val list = listOf("one", "two", "three")
+        assertThat(list.asString())
+            .isEqualTo(list.toString())
+            .isEqualTo("[one, two, three]")
+
+        val queue = ArrayBlockingQueue<String>(20)
+        queue.addAll(listOf("one", "two", "three"))
+        assertThat(queue.asString())
+            .isEqualTo(queue.toString())
+            .isEqualTo("[one, two, three]")
+
+        val stack = Stack<String>()
+        stack.push("one")
+        stack.push("two")
+        stack.push("three")
+        assertThat(stack.asString())
+            .isEqualTo(stack.toString())
+            .isEqualTo("[one, two, three]")
+    }
+
+    @Test
     fun `null asString should yield 'null'`() {
         assertThat(null.asString()).isEqualTo("null")
     }
@@ -443,6 +517,23 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
+    fun `asString should honour provided properties and their annotations`() {
+        open class TestClass {
+            @AsStringMask(endMaskAt = 1)
+            val prop1: String = "prop1"
+            val prop2: Date = java.sql.Date.valueOf(LocalDate.of(2022, 6, 14))
+            @AsStringOmit
+            val prop3: Int = 3
+            val prop4: LocalDate = LocalDate.of(2023, 7, 15)
+        }
+        class SubClass: TestClass() {
+            val prop5: Exception = object: IllegalArgumentException("that's wrong") {
+                override fun toString(): String = asString()
+            }
+        }
+    }
+
+    @Test
     fun `asStringFallBack should include the same identity as non-overridden toString`() {
         val identityRegex = Regex("""^.+(@[0-9a-f]+)$""")
         val `@hexHash` = "\$1"
@@ -461,6 +552,64 @@ class AsStringTest: ObjectsStackVerifier {
     @Test
     fun `asStringFallBack should handle nulls correctly`() {
         assertThat(null.asStringFallBack()).isEqualTo("null")
+    }
+
+    @Test
+    fun `asString should give proper output for nested objects`() {
+        // arrange
+        @Suppress("CanBeParameter")
+        class MyTestClass(val level: String) {
+            val someProp = "some prop at level: $level"
+            lateinit var nested: MyTestClass
+        }
+        val testObj = MyTestClass("outer")
+        testObj.nested = MyTestClass("nested")
+
+        // act, assert
+        assertThat(testObj.asString())
+            .isEqualTo("MyTestClass(level=outer, nested=MyTestClass(level=nested, nested=null, someProp=some prop at level: nested), someProp=some prop at level: outer)")
+    }
+
+    @Test
+    fun `asString with Kotlin companion properties does not include companion properties`() {
+        val testObj = WithCompanion()
+        // not showing static var
+        assertThat(testObj.asString())
+            .`as`("does by default not contain the companion property")
+            .isEqualTo("WithCompanion(instanceProp=instance prop)")
+
+        // but they can work around it by adding it as a property
+        assertThat(testObj.toString())
+            .`as`("added companion prop by builder with additional property")
+            .isEqualTo("WithCompanion(instanceProp=instance prop, companionProp=companion prop)")
+
+        // assign a new value
+        WithCompanion.companionProp = "a new value for the companion prop"
+        // assert that the new value is reflected in the output
+        assertThat(testObj.toString())
+            .`as`("added static var by builder with named supplier")
+            .isEqualTo("WithCompanion(instanceProp=instance prop, companionProp=a new value for the companion prop)")
+    }
+
+    @Test
+    fun `asString with Java object does not include static variables`() {
+        val testObj = JavaClassWithStatic()
+        // not showing static var
+        assertThat(testObj.asString())
+            .`as`("does by default not contain the static var")
+            .isEqualTo("JavaClassWithStatic(instanceVar=instance var)")
+
+        // but they can work around it by using a named supplier
+        assertThat(testObj.toString())
+            .`as`("added static var by builder with named supplier")
+            .isEqualTo("JavaClassWithStatic(instanceVar=instance var, staticVar=static var)")
+
+        // assign a new value
+        JavaClassWithStatic.staticVar = "a new value for the static var"
+        // assert that the new value is reflected in the output
+        assertThat(testObj.toString())
+            .`as`("added static var by builder with named supplier")
+            .isEqualTo("JavaClassWithStatic(instanceVar=instance var, staticVar=a new value for the static var)")
     }
 
     // ------------------------------------
@@ -577,4 +726,20 @@ class AsStringTest: ObjectsStackVerifier {
 
         override fun toString(): String = asString()
     }
+
+    private class WithCompanion {
+        val instanceProp = "instance prop"
+
+        private val producer: AsStringProducer by lazy {
+            asStringBuilder()
+                .withAlsoProperties(WithCompanion::companionProp)
+                .build()
+        }
+
+        override fun toString(): String = producer.asString()
+        companion object {
+            var companionProp = "companion prop"
+    }
+}
+
 }

@@ -7,6 +7,7 @@ import nl.kute.core.namedvalues.namedVal
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.reflection.declaringClass
+import nl.kute.reflection.simplifyClassName
 import kotlin.reflect.KProperty
 
 public class AsStringBuilder private constructor(private var obj: Any?) : AsStringProducer() {
@@ -107,6 +108,12 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
     override fun asString(): String {
         build()
         return objectReference.get().objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
+    }
+
+    override fun toString(): String {
+        return "${this::class.simplifyClassName()} -> ${objJavaClass?.name?.simplifyClassName() ?: "null"}" +
+                " (built = $isBuilt; excluded = $propertyNamesToExclude; properties = ${classPropertyNames - propertyNamesToExclude};" +
+                " alsoNamed = ${alsoNamed.map { it.name }})"
     }
 
     public companion object {

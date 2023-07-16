@@ -18,7 +18,7 @@ class AsStringReplaceTest {
 
     @BeforeEach
     @AfterEach
-    fun setUp() {
+    fun setUpAndTearDown() {
         resetStdOutLogger()
     }
 

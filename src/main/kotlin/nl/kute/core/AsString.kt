@@ -16,6 +16,7 @@ import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.log.log
 import nl.kute.reflection.error.SyntheticClassException
+import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.asHexString
 import nl.kute.util.asString
@@ -26,6 +27,7 @@ import java.time.temporal.Temporal
 import java.util.Date
 import kotlin.math.max
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 import nl.kute.core.annotation.option.AsStringClassOption.DefaultOption.defaultAsStringClassOption as defaultClassOption
 
 internal typealias AsStringHandler = (Any) -> String
@@ -36,13 +38,16 @@ public abstract class AsStringProducer {
         asString(propertyNamesToExclude, *nameValues)
 
     public abstract fun asString(): String
+
+    abstract override fun toString(): String
+
 }
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
  * * Super-class properties are included
  * * Private properties are included (but not in subclasses)
- * * String value of individual properties is capped at 500; see @[AsStringOption] to override the default.
+ * * String value of individual properties is capped at 500; see @[AsStringClassOption] to override the default.
  * * Want more control of what is included or not? See [AsStringBuilder]
  * @return A String representation of the receiver object, including class name and property names + values;
  * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and other
@@ -51,8 +56,17 @@ public abstract class AsStringProducer {
  */
 public fun Any?.asString(): String = asString(emptyStringList)
 
+/**
+ * [toString] alternative, with only the provided properties.
+ * * String value of individual properties is capped at 500; see @[AsStringClassOption] to override the default.
+ * * Want more options? See [AsStringBuilder]
+ * @return A String representation of the receiver object, including class name and property names + values;
+ * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and other
+ * (other annotations, see package `nl.kute.core.annotation.modify`)
+ * @see AsStringBuilder
+ */
 // TODO: tests!
-public fun Any?.asString(vararg props: KProperty<*>): String =
+public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
     asString(emptyStringList, *props.map { this.namedVal(it) }.toTypedArray())
 
 /**
@@ -137,6 +151,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
             }
         }
     } catch (e: Exception) {
+        // Should not happen!
         // It's probably a secondary exception somewhere. Not much more we can do here
         e.printStackTrace()
         return ""
@@ -162,15 +177,8 @@ private fun Any.systemClassIdentity(includeIdentity: Boolean = defaultClassOptio
  *  * When [toString] is like `java.lang.Object@1234acef`, a meaningful String, e.g. `Any()`;
  *  * Otherwise, the default [toString] of the object.
  */
-private fun Any.systemClassObjAsString(): String {
-    this.toString().let { defaultString ->
-        return if (defaultString.startsWith("java.lang.") && defaultString.contains('@')) {
-            "${systemClassIdentity()}()"
-        } else {
-            defaultString
-        }
-    }
-}
+private fun Any.systemClassObjAsString(): String =
+    if (this::class.hasImplementedToString()) this.toString() else "${systemClassIdentity()}()"
 
 internal fun Annotation.annotationAsString(): String = toString().simplifyClassName()
 
@@ -244,13 +252,16 @@ internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null,
             return when {
                 obj is Array<*> -> ARRAY
                 obj is Collection<*> -> COLLECTION
-                (obj is CharSequence || obj is Char || obj is Date || obj is Temporal) -> BASE
+                (obj is Number || obj is CharSequence || obj is Char || obj is Temporal) -> BASE
+                ((obj is Date) && with(obj::class.java.packageName) {
+                    // Date is not final. Only the Java provided classes are handled as BASE
+                    startsWith("java.util") || startsWith("java.sql")
+                }) -> BASE
                 obj is Annotation -> ANNOTATION
                 obj is Throwable -> THROWABLE
-                (obj::class.java.packageName.startsWith("kotlin")
-                        || obj::class.java.packageName.startsWith("java.")
-                        || obj::class.java.packageName.startsWith("sun.")
-                        || obj::class.java.packageName.startsWith("com.sun.")) -> SYSTEM
+                with(obj::class.java.packageName) {
+                    startsWith("kotlin") || startsWith("java.") || startsWith("sun.") || startsWith("com.sun.")
+                } -> SYSTEM
                 else -> CUSTOM
             }
         }

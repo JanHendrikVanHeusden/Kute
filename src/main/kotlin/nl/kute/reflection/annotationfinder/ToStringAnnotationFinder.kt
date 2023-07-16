@@ -1,10 +1,9 @@
 package nl.kute.reflection.annotationfinder
 
-import nl.kute.reflection.isToString
 import nl.kute.reflection.subSuperHierarchy
+import nl.kute.reflection.toStringMethod
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.memberFunctions
 
 /**
  * Find any annotation of type [A] on the `::toString` methods of `this` class and its super types.
@@ -14,7 +13,7 @@ import kotlin.reflect.full.memberFunctions
 internal inline fun <reified A : Annotation> KClass<*>.annotationsOfToStringSubSuperHierarchy(): Map<KClass<*>, A> =
     subSuperHierarchy().asSequence()
         .map { kClass ->
-            kClass to kClass.memberFunctions.first { it.isToString() }.findAnnotation<A>()
+            kClass to kClass.toStringMethod()?.findAnnotation<A>()
         }
         .filter { it.second != null }
         .associate { it.first to it.second!! }

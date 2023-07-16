@@ -2,11 +2,25 @@
 
 package nl.kute.reflection
 
+import nl.kute.core.AsStringProducer
+import nl.kute.core.namedvalues.NameValue
 import nl.kute.reflection.error.SyntheticClassException
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.jvmErasure
+
+/**
+ * These classes should not be included, these properties contain of meta info about objects being "asString-ed",
+ * would make it verbose and confusing
+ */
+private val kutePropertyClassesToOmit: Array<Class<out Any>> =
+    arrayOf(AsStringProducer::class.java, NameValue::class.java)
+
+/** Property filter based on [kutePropertyClassesToOmit] (should be negated when applied) */
+private val kutePropertyClassFilter: (KProperty<*>) -> Boolean =
+    { property: KProperty<*> -> kutePropertyClassesToOmit.any { it.isAssignableFrom(property.returnType.jvmErasure.java) } }
 
 /**
  * Get the properties from the class hierarchy (see [subSuperHierarchy]).
@@ -31,7 +45,7 @@ internal fun <T : Any> KClass<T>.propertiesFromSubSuperHierarchy(): List<KProper
  * * The properties may or may not be accessible ([KProperty.isAccessible])
  */
 @Suppress("SameParameterValue")
-private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean): List<KProperty<*>> {
+private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean, filterKuteProps: Boolean = true): List<KProperty<*>> {
     val classHierarchy: List<KClass<in T>> = if (mostSuper) this.superSubHierarchy() else this.subSuperHierarchy()
     val linkedHashSet: LinkedHashSet<KProperty1<T, *>> = linkedSetOf()
     return linkedHashSet.also { theSet ->
@@ -55,10 +69,11 @@ private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean): Lis
                 }
                 .flatten()
                 // include private properties only if in the class itself, not if it's in a superclass
-                // note that Kotlin regards protected and properties as private! (also with Java package level)
+                // note that Kotlin regards protected stuff as private! (also with Java package level)
                 .filter { !it.isPrivate() || it.declaringClass() == this }
                 // In case of overloads or name-shadowing, keep the property that is first in the hierarchy
                 .distinctBy { prop -> prop.name }
+                .filterNot { filterKuteProps && kutePropertyClassFilter.invoke(it) }
                 .toList() as List<KProperty1<T, *>>
         )
     }.toList()

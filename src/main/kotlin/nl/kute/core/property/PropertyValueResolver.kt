@@ -1,5 +1,6 @@
 package nl.kute.core.property
 
+import nl.kute.core.AsStringObjectCategory
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
@@ -16,6 +17,7 @@ import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationSetOfPropertySuperSubHierarchy
 import nl.kute.reflection.getPropValue
+import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.propertiesFromSubSuperHierarchy
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
@@ -33,10 +35,17 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         return null
     }
     val value: Any? = this.getPropValue(prop)
-    var strValue = if (value is Array<*> || value is Collection<*>)
+
+    val hasHandler: Boolean = value?.let { AsStringObjectCategory.resolveObjectCategory(value) }?.hasHandler() == true
+    var strValue: String? = if (hasHandler)
         value.asString()
-    else {
-        value?.toString()
+    else if (value == null) {
+        null
+    }
+    else if (value::class.hasImplementedToString()) {
+        value.toString()
+    } else {
+        value.asString()
     }
     if (annotations.isEmpty()) {
         return strValue

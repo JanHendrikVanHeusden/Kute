@@ -13,7 +13,7 @@ class NamedSupplierTest: GarbageCollectionWaiter {
 
     @BeforeEach
     @AfterEach
-    fun setUp() {
+    fun setUpAndTearDown() {
         resetStdOutLogger()
     }
 

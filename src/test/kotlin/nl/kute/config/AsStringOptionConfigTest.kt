@@ -2,8 +2,8 @@ package nl.kute.config
 
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.asString
-import nl.kute.core.property.resetPropertyAnnotationCache
 import nl.kute.core.property.propertyAnnotationCacheSize
+import nl.kute.core.property.resetPropertyAnnotationCache
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -13,7 +13,7 @@ class AsStringOptionConfigTest {
 
     @BeforeEach
     @AfterEach
-    fun setUp() {
+    fun setUpAndTearDown() {
         restoreInitialDefaultAsStringOption()
     }
 

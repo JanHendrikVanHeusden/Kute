@@ -20,7 +20,7 @@ class PropertyValueResolverTest {
 
     @BeforeEach
     @AfterEach
-    fun setUp() {
+    fun setUpAndTearDown() {
         resetStdOutLogger()
     }
 

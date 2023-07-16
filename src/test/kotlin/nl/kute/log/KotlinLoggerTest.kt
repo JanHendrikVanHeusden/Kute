@@ -11,7 +11,7 @@ class KotlinLoggerTest {
 
     @BeforeEach
     @AfterEach
-    fun setUp() {
+    fun setUpAndTearDown() {
         stringLog = null
         resetStdOutLogger()
     }

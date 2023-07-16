@@ -10,7 +10,6 @@ import nl.kute.core.asString
 import nl.kute.util.asHexString
 import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assumptions.assumeThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -19,7 +18,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
 
     @BeforeEach
     @AfterEach
-    fun setUp() {
+    fun setUpAndTearDown() {
         restoreInitialDefaultAsStringClassOption()
     }
 
@@ -159,23 +158,4 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
             .isEqualTo(1)
     }
 
-    @Test
-    fun `system classes without overridden toString should yield output with class name`() {
-        // arrange
-        val testObj = Any()
-        assumeThat(testObj.toString()).startsWith("java.lang.Object@")
-        // act, assert
-        assertThat(testObj.asString()).isEqualTo("Any()")
-    }
-
-    @Test
-    fun `system classes without overridden toString should include identity when set`() {
-        // arrange
-        setDefaultAsStringClassOption(AsStringClassOption(true))
-        val testObj = Any()
-        assumeThat(testObj.toString()).startsWith("java.lang.Object@")
-        val identityHashHex = testObj.identityHashHex
-        // act, assert
-        assertThat(testObj.asString()).isEqualTo("Any@$identityHashHex()")
-    }
 }
