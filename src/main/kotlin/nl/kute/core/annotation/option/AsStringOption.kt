@@ -3,7 +3,7 @@ package nl.kute.core.annotation.option
 import nl.kute.config.initialAsStringOption
 import nl.kute.config.initialMaxStringValueLength
 import nl.kute.config.initialNullString
-import nl.kute.core.property.resetPropertyAnnotationCache
+import nl.kute.config.notifyConfigChange
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
@@ -39,8 +39,8 @@ public annotation class AsStringOption(
             internal set(newDefault) {
                 if (newDefault != field) {
                     field = newDefault
-                    // Clearing the cache is necessary because the property cache typically references the old and obsolete settings.
-                    resetPropertyAnnotationCache()
+                    // not using Observable delegate here, old/new values are not needed, simple notification will do
+                    AsStringOption::class.notifyConfigChange()
                 }
             }
     }

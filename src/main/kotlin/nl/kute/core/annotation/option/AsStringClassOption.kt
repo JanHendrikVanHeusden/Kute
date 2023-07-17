@@ -2,6 +2,8 @@ package nl.kute.core.annotation.option
 
 import nl.kute.config.initialAsStringClassOption
 import nl.kute.config.initialIncludeIdentityHash
+import nl.kute.config.notifyConfigChange
+import nl.kute.config.subscribeConfigChange
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.identityHashHex
@@ -34,8 +36,8 @@ public annotation class AsStringClassOption(val includeIdentityHash: Boolean = i
             internal set(newDefault) {
                 if (newDefault != field) {
                     field = newDefault
-                    // Clearing the cache is necessary because the property cache typically references the old and obsolete settings.
-                    resetAsStringClassOptionCache()
+                    // not using Observable delegate here, old/new values are not needed, simple notification will do
+                    AsStringClassOption::class.notifyConfigChange()
                 }
             }
     }
@@ -73,6 +75,10 @@ internal fun resetAsStringClassOptionCache() {
     // while concurrently reading from / writing to the map, as these operations may not be atomic
     asStringClassOptionCache = ConcurrentHashMap()
 }
+
+@Suppress("unused")
+private val configChangeCallback = { resetAsStringClassOptionCache() }
+    .also { AsStringClassOption::class.subscribeConfigChange(it) }
 
 // Mainly for testing purposes
 internal val asStringClassOptionCacheSize

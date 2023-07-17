@@ -2,6 +2,11 @@ package nl.kute.config
 
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.util.ifNull
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.KClass
+
+private typealias ConfigChangeCallback = () -> Unit
 
 /**
  * Builder-like class, to prepare and apply newly set values as defaults
@@ -122,3 +127,18 @@ internal fun restoreInitialAsStringOption(): AsStringOption =
 @JvmSynthetic // avoid access from external Java code
 internal fun restoreInitialAsStringClassOption(): AsStringClassOption =
     initialAsStringClassOption.also { AsStringClassOption.defaultOption = it }
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KClass<*>.notifyConfigChange() {
+    configChangeSubscriptions[this]?.forEach { callback -> callback.invoke() }
+}
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KClass<*>.subscribeConfigChange(callback: ConfigChangeCallback) {
+    configChangeSubscriptions[this].ifNull {
+        mutableListOf<ConfigChangeCallback>().also { configChangeSubscriptions[this] = it }
+    }.add(callback)
+}
+
+private val configChangeSubscriptions:
+        MutableMap<KClass<*>, MutableList<ConfigChangeCallback>> = ConcurrentHashMap()

@@ -1,5 +1,6 @@
 package nl.kute.core.property
 
+import nl.kute.config.subscribeConfigChange
 import nl.kute.core.AsStringObjectCategory
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
@@ -105,6 +106,10 @@ internal fun resetPropertyAnnotationCache() {
     propsWithAnnotationsCacheByClass = ConcurrentHashMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> ()
 }
 
+@Suppress("unused")
+private val configChangeCallback = { resetPropertyAnnotationCache() }
+    .also { AsStringOption::class.subscribeConfigChange(it) }
+
 // Mainly for testing purposes
 internal val propertyAnnotationCacheSize
     @JvmSynthetic // avoid access from external Java code
@@ -126,7 +131,7 @@ internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, 
     (prop.annotationSetOfPropertySuperSubHierarchy<AsStringReplace>()).let { annotationSet ->
         annotations.addAll(annotationSet)
     }
-    // AsStringOption from lowest subclass in hierarchy with this annotation
+    // AsStringOption from the lowest subclass in hierarchy with this annotation
     val asStringOptionClassAnnotation =
         annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: AsStringOption.defaultOption
     (prop.annotationOfPropertySubSuperHierarchy() ?: asStringOptionClassAnnotation).let { annotation ->
