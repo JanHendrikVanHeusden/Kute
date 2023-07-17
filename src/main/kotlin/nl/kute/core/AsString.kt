@@ -4,6 +4,7 @@
 package nl.kute.core
 
 import nl.kute.config.defaultNullString
+import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
@@ -11,7 +12,6 @@ import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
-import nl.kute.core.namedvalues.namedProp
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.log.log
@@ -59,17 +59,19 @@ public abstract class AsStringProducer {
 public fun Any?.asString(): String = asString(emptyStringList)
 
 /**
- * [toString] alternative, with only the provided properties.
+ * Convenient [asString] alternative, with only the provided properties.
  * * String value of individual properties is capped at 500; see @[AsStringClassOption] to override the default.
  * * Want more options? See [AsStringBuilder]
+ *
+ * > This method builds an [AsStringBuilder] object on each call, which is marginally less efficient
+ * > than defining a reusable immutable [AsStringBuilder] as a class instance value.
  * @return A String representation of the receiver object, including class name and property names + values;
  * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and other
  * (other annotations, see package `nl.kute.core.annotation.modify`)
  * @see [AsStringBuilder]
  */
-// TODO: tests!
 public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
-    asString(emptyStringList, *props.map { this.namedProp(it) }.toTypedArray())
+    asStringBuilder().withOnlyProperties(*props).asString()
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.

@@ -15,8 +15,8 @@ import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.NamedProp
 import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
-import nl.kute.core.namedvalues.namedSupplier
 import nl.kute.core.namedvalues.namedProp
+import nl.kute.core.namedvalues.namedSupplier
 import nl.kute.core.namedvalues.namedValue
 import nl.kute.hashing.DigestMethod
 import nl.kute.reflection.simplifyClassName
@@ -611,6 +611,39 @@ class AsStringTest: ObjectsStackVerifier {
         assertThat(testObj.toString())
             .`as`("added static var by builder with named supplier")
             .isEqualTo("JavaClassWithStatic(instanceVar=instance var, staticVar=a new value for the static var)")
+    }
+
+    @Test
+    fun `asString with properties should honour annotations`() {
+        // arrange
+        @Suppress("UNUSED_PARAMETER")
+        class TestClass(aParamThatIsNotUsed: String) {
+            val prop1 = "prop 1"
+            @AsStringOmit
+            val prop2 = "prop 2"
+            val prop3 = "prop 3"
+            @AsStringReplace(".+", "[ $0 ]", isRegexpPattern = true )
+            val prop4 = "prop 4"
+        }
+        class AnotherClass(val otherProp: String = "another Prop")
+
+        val testObj = TestClass("something")
+        val allPropString = "TestClass(prop1=prop 1, prop3=prop 3, prop4=[ prop 4 ])"
+
+        // act, assert
+        assertThat(testObj.asString()).isEqualTo(allPropString)
+        assertThat(testObj.asString(TestClass::prop1, TestClass::prop2, TestClass::prop3, TestClass::prop4))
+            .isEqualTo(allPropString)
+
+        assertThat(testObj.asString(TestClass::prop1, TestClass::prop2, TestClass::prop3, TestClass::prop4))
+            .isEqualTo(allPropString)
+
+        assertThat(testObj.asString(TestClass::prop1, TestClass::prop2, TestClass::prop4))
+            .isEqualTo(allPropString.replace(", prop3=prop 3", ""))
+
+        assertThat(testObj.asString(TestClass::prop3, TestClass::prop4, TestClass::prop1))
+            .`as`("properties keep original order, regardless of order in param list")
+            .isEqualTo(allPropString)
     }
 
     // ------------------------------------
