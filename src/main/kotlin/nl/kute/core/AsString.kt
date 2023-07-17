@@ -11,7 +11,7 @@ import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
-import nl.kute.core.namedvalues.namedVal
+import nl.kute.core.namedvalues.namedProp
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.log.log
@@ -56,7 +56,6 @@ public abstract class AsStringProducer {
  * (other annotations, see package `nl.kute.core.annotation.modify`)
  * @see AsStringBuilder
  */
-//TODO: kdoc
 public fun Any?.asString(): String = asString(emptyStringList)
 
 /**
@@ -69,9 +68,8 @@ public fun Any?.asString(): String = asString(emptyStringList)
  * @see AsStringBuilder
  */
 // TODO: tests!
-//TODO: kdoc
 public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
-    asString(emptyStringList, *props.map { this.namedVal(it) }.toTypedArray())
+    asString(emptyStringList, *props.map { this.namedProp(it) }.toTypedArray())
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.

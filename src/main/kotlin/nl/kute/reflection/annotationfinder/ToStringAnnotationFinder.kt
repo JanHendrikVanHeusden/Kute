@@ -1,7 +1,7 @@
 package nl.kute.reflection.annotationfinder
 
 import nl.kute.reflection.subSuperHierarchy
-import nl.kute.reflection.toStringMethod
+import nl.kute.reflection.toStringImplementingMethod
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
@@ -13,7 +13,7 @@ import kotlin.reflect.full.findAnnotation
 internal inline fun <reified A : Annotation> KClass<*>.annotationsOfToStringSubSuperHierarchy(): Map<KClass<*>, A> =
     subSuperHierarchy().asSequence()
         .map { kClass ->
-            kClass to kClass.toStringMethod()?.findAnnotation<A>()
+            kClass to kClass.toStringImplementingMethod()?.findAnnotation<A>()
         }
         .filter { it.second != null }
         .associate { it.first to it.second!! }

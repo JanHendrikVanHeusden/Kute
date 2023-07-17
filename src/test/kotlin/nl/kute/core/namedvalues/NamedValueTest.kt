@@ -44,12 +44,12 @@ class NamedValueTest: GarbageCollectionWaiter {
     }
 
     @Test
-    fun `test namedVal`() {
+    fun `test namedValue`() {
         // arrange
         val valueStr = "the value"
         val name = "the name"
         // act
-        val namedValue = valueStr.namedVal(name) as NamedValue<String>
+        val namedValue = valueStr.namedValue(name) as NamedValue<String>
         // assert
         assertThat(namedValue.name).isSameAs(name)
         assertThat(namedValue.valueString).isEqualTo(valueStr)
@@ -65,7 +65,7 @@ class NamedValueTest: GarbageCollectionWaiter {
         }
         var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
         val namedValue: NamedValue<ToBeGarbageCollected> =
-            toBeGarbageCollected.namedVal("to be garbage collected") as NamedValue
+            toBeGarbageCollected.namedValue("to be garbage collected") as NamedValue
 
         val checkGarbageCollected = {namedValue.valueString == "null"}
         assertThat(checkGarbageCollected.invoke()).isFalse

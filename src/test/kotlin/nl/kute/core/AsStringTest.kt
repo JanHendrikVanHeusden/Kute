@@ -16,7 +16,9 @@ import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.NamedProp
 import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
-import nl.kute.core.namedvalues.namedVal
+import nl.kute.core.namedvalues.namedSupplier
+import nl.kute.core.namedvalues.namedProp
+import nl.kute.core.namedvalues.namedValue
 import nl.kute.hashing.DigestMethod
 import nl.kute.reflection.simplifyClassName
 import nl.kute.testobjects.java.JavaClassToTest
@@ -160,14 +162,14 @@ class AsStringTest: ObjectsStackVerifier {
     fun `each call of asString with NamedXxx should evaluate the mutable value`(namedValueType: String) {
         // arrange
         val valueName = "classLevelCounter"
-        val namedProp = this.namedVal(::classLevelCounter) as NamedProp<*, Int>
+        val namedProp = this.namedProp(::classLevelCounter) as NamedProp<*, Int>
 
         val mapOfNamedValues: Map<String, () -> NameValue<Int?>> = mapOf(
             // We can simply use the same NamedProp every time, it will evaluate the property value at runtime
             "prop" to { namedProp },
             // A new NamedValue needs to be constructed on every call, because it simply stores the value at time of construction.
             // If you don't like that, use `NamedProp` or `NamedSupplier` instead
-            "value" to { classLevelCounter.namedVal(valueName) as NamedValue<Int> }
+            "value" to { classLevelCounter.namedValue(valueName) as NamedValue<Int> }
         )
         val namedXxx = mapOfNamedValues[namedValueType]!!
 
@@ -203,7 +205,7 @@ class AsStringTest: ObjectsStackVerifier {
             // It's just for testing purposes, to verify that it's called only once during asString() processing
             ++counter
         }
-        val namedSupplier = supplier.namedVal(counterName) as NamedSupplier<Int>
+        val namedSupplier = supplier.namedSupplier(counterName) as NamedSupplier<Int>
 
         counter = 0
 
@@ -254,7 +256,7 @@ class AsStringTest: ObjectsStackVerifier {
         class SubTestClass(var aProp: String = "a Prop"): TestClass()
 
         with(SubTestClass()) {
-            val namedProp = this.namedVal(this::aProp)
+            val namedProp = this.namedProp(this::aProp)
             // act
             asString = this.asStringBuilder()
                 .exceptPropertyNames(aProp, counterName)

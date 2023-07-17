@@ -3,12 +3,12 @@ package nl.kute.testobjects.java;
 import nl.kute.core.AsStringBuilder;
 import nl.kute.core.AsStringProducer;
 
-import static nl.kute.core.namedvalues.NamedSupplierKt.namedVal;
+import static nl.kute.core.namedvalues.NamedSupplierKt.namedSupplier;
 
 public class JavaClassWithStatic {
     private final AsStringProducer producer =
             AsStringBuilder.Companion.asStringBuilder(this)
-                    .withAlsoNamed(namedVal(() -> staticVar, "staticVar"))
+                    .withAlsoNamed(namedSupplier(() -> staticVar, "staticVar"))
                     .build();
     @SuppressWarnings("unused")
     private final String instanceVar = "instance var";

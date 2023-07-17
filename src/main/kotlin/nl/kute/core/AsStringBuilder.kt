@@ -3,7 +3,7 @@
 package nl.kute.core
 
 import nl.kute.core.namedvalues.NameValue
-import nl.kute.core.namedvalues.namedVal
+import nl.kute.core.namedvalues.namedProp
 import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.reflection.declaringClass
@@ -50,7 +50,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
     /** Allows adding properties of related objects, e.g. member objects, delegates etc. */
     public fun withAlsoProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
-            this.alsoNamed.addAll(props.map { objectReference.get().namedVal(it) })
+            this.alsoNamed.addAll(props.map { objectReference.get().namedProp(it) })
         }
         return this
     }

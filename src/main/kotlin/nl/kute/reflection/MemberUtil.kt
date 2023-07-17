@@ -18,23 +18,29 @@ import kotlin.reflect.jvm.kotlinFunction
 
 private const val fqn: String = "nl.kute.reflection.MemberUtil"
 
+/**
+ * Determines the [toString]-method, if overridden. [toString] of [Any] or [Object] are ignored.
+ * @return The class's [toString] method, if overridden.
+ * Otherwise `null`, if not overridden, or if the receiver class is [Any] or [Object]
+ */
 @Suppress("UNCHECKED_CAST")
 @JvmSynthetic // avoid access from external Java code
-internal fun KClass<*>.toStringMethod(): KFunction<String>? {
-    var isOverridden = false
+internal fun KClass<*>.toStringImplementingMethod(): KFunction<String>? {
     val toStringInfo = classToStringMethodCache[this]
     if (toStringInfo != null && toStringInfo.second) {
         return toStringInfo.first as KFunction<String>
     }
+    var isOverridden = false
     return toStringInfo?.first.ifNull {
         with(this.java) {
             this.methods.firstOrNull {
                 it.name == "toString" && it.returnType == String::class.java && it.parameters.isEmpty()
             }.also {
-                isOverridden = it != null && it.declaringClass != Object::class.java && it.declaringClass != Any::class.java
+                isOverridden = it != null && it.declaringClass != Any::class.java && it.declaringClass != Object::class.java
             }?.kotlinFunction
         }.also {
             if (it != null) {
+                // add it to cache
                 classToStringMethodCache[this] = it to isOverridden
                 return if (isOverridden) it as KFunction<String>? else null
             }
@@ -44,7 +50,7 @@ internal fun KClass<*>.toStringMethod(): KFunction<String>? {
 
 @JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.hasImplementedToString(): Boolean =
-    classToStringMethodCache[this]?.second ?: (this.toStringMethod() != null)
+    classToStringMethodCache[this]?.second ?: (this.toStringImplementingMethod() != null)
 
 
 // The 2nd part of the Pair indicates whether the toString() method was overridden

@@ -48,21 +48,21 @@ class NamedPropTest: GarbageCollectionWaiter {
         val testObj = ClassWithConstructorInjectedDelegate()
 
         // act
-        val namedPropWithInjectedRef = testObj.namedVal(testObj::myProp) as NamedProp<ClassWithConstructorInjectedDelegate, String>
+        val namedPropWithInjectedRef = testObj.namedProp(testObj::myProp) as NamedProp<ClassWithConstructorInjectedDelegate, String>
         // assert
         assertThat(namedPropWithInjectedRef.valueString)
             .`as`("It should retrieve the delegate property value by object (testObj)")
             .isEqualTo(thePropValue)
 
         // act
-        val namedPropWithClassRef = testObj.namedVal(ClassWithConstructorInjectedDelegate::myProp) as NamedProp<ClassWithConstructorInjectedDelegate, String>
+        val namedPropWithClassRef = testObj.namedProp(ClassWithConstructorInjectedDelegate::myProp) as NamedProp<ClassWithConstructorInjectedDelegate, String>
         // assert
         assertThat(namedPropWithClassRef.valueString)
             .`as`("It should retrieve the delegate property value by object class (ClassWithConstructorInjectedDelegate)")
             .isEqualTo(thePropValue)
 
         // act
-        val namedPropWithObject = classWithObjectDelegate.namedVal(classWithObjectDelegate::myProp) as NamedProp<ClassWithDelegateObject, String>
+        val namedPropWithObject = classWithObjectDelegate.namedProp(classWithObjectDelegate::myProp) as NamedProp<ClassWithDelegateObject, String>
         // assert
         assertThat(namedPropWithObject.valueString)
             .`as`("It should retrieve the delegate property value by object class (ClassWithDelegateObject)")
@@ -83,7 +83,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         // act
         val testClass1Property0: KProperty0<String> = testObj1::myTestProperty
         // call property of TestClass1 with object of TestClass2: unrelated, incompatible
-        val namedProp0 = testObj2.namedVal(testClass1Property0)
+        val namedProp0 = testObj2.namedProp(testClass1Property0)
         // assert
         assertThat(namedProp0.valueString)
             .`as`("Somehow with KProperty0 (object reference testObj1) this succeeds, even with incompatible object (testObj2)")
@@ -93,7 +93,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         // act
         // With KProperty1 this fails, on call with unrelated object; it should be handled properly
         val testClass1Property1: KProperty1<TestClass1, String> = TestClass1::myTestProperty
-        val namedProp1 = testObj2.namedVal(testClass1Property1)
+        val namedProp1 = testObj2.namedProp(testClass1Property1)
         // assert
         assertThat(namedProp1.valueString)
             .`as`("With KProperty1 (class reference TestClass1) it will fail; is handled & returns `null`")
@@ -258,14 +258,14 @@ class NamedPropTest: GarbageCollectionWaiter {
     }
 
     @Test
-    fun `test namedVal`() {
+    fun `test namedProp`() {
         // arrange
         class MyTestClass {
             val testProp: Int = Random.nextInt()
         }
         val myTestObj = MyTestClass()
         // act
-        val namedProp = myTestObj.namedVal(myTestObj::testProp) as NamedProp<MyTestClass, Int>
+        val namedProp = myTestObj.namedProp(myTestObj::testProp) as NamedProp<MyTestClass, Int>
         // assert
         assertThat(namedProp.name).isEqualTo(MyTestClass::testProp.name)
         assertThat(namedProp.valueString).isEqualTo("${myTestObj.testProp}")
@@ -281,7 +281,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
         @Suppress("UNCHECKED_CAST")
         val namedProp: NamedProp<ToBeGarbageCollected, String?> =
-            toBeGarbageCollected.namedVal(ToBeGarbageCollected::myString) as NamedProp<ToBeGarbageCollected, String?>
+            toBeGarbageCollected.namedProp(ToBeGarbageCollected::myString) as NamedProp<ToBeGarbageCollected, String?>
         
         val checkGarbageCollected = {namedProp.valueString == null}
         assertThat(checkGarbageCollected.invoke()).isFalse

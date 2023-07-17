@@ -7,7 +7,8 @@ import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
-import nl.kute.core.namedvalues.namedVal
+import nl.kute.core.namedvalues.namedProp
+import nl.kute.core.namedvalues.namedValue
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
 import nl.kute.util.hexHashCode
@@ -83,8 +84,8 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
     @Test
     fun `exceptPropertyNames shouldn't filter out named values`() {
         // arrange
-        val namedProp = testObj.namedVal(testSubObj::hashProperty)
-        val namedVal = "I call myself privateProp".namedVal(name = "privateProp")
+        val namedProp = testObj.namedProp(testSubObj::hashProperty)
+        val namedVal = "I call myself privateProp".namedValue(name = "privateProp")
         val expected = "ClassWithHashProperty(nullable=$showNullAs, hashProperty=#$hashCode#, privateProp=${namedVal.valueString})"
         // act, assert
         val asString = testObj.asStringBuilder()
@@ -118,8 +119,8 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
     fun `AsStringBuilder should honour withAlsoNamed`() {
         // arrange
         val expected = "ClassWithHashProperty(hashProperty=#$hashCode#, nullable=$showNullAs, privateProp=I am a private property, nullable=$showNullAs2, I am a named value=some string)"
-        val namedProp = testSubObj.namedVal(testSubObj::nullable)
-        val namedValue = "some string".namedVal("I am a named value")
+        val namedProp = testSubObj.namedProp(testSubObj::nullable)
+        val namedValue = "some string".namedValue("I am a named value")
         // act, assert
         val asString = testObj.asStringBuilder()
             .withAlsoNamed(namedProp, namedValue)
