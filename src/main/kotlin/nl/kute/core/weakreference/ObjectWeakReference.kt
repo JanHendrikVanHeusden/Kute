@@ -3,6 +3,7 @@ package nl.kute.core.weakreference
 import nl.kute.config.defaultNullString
 import java.lang.ref.WeakReference
 
+//TODO: kdoc
 public class ObjectWeakReference<T: Any?>(obj: T?): WeakReference<T?>(obj) {
     override fun toString(): String = this.get()?.toString() ?: defaultNullString
 

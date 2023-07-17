@@ -32,11 +32,13 @@ import nl.kute.core.annotation.option.AsStringClassOption.DefaultOption.defaultA
 
 internal typealias AsStringHandler = (Any) -> String
 
+//TODO: kdoc
 public abstract class AsStringProducer {
     @Suppress("RedundantModalityModifier")
     protected final fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String =
         asString(propertyNamesToExclude, *nameValues)
 
+    //TODO: kdoc
     public abstract fun asString(): String
 
     abstract override fun toString(): String
@@ -54,6 +56,7 @@ public abstract class AsStringProducer {
  * (other annotations, see package `nl.kute.core.annotation.modify`)
  * @see AsStringBuilder
  */
+//TODO: kdoc
 public fun Any?.asString(): String = asString(emptyStringList)
 
 /**
@@ -66,6 +69,7 @@ public fun Any?.asString(): String = asString(emptyStringList)
  * @see AsStringBuilder
  */
 // TODO: tests!
+//TODO: kdoc
 public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
     asString(emptyStringList, *props.map { this.namedVal(it) }.toTypedArray())
 

@@ -5,14 +5,14 @@ package nl.kute.log
 import nl.kute.util.asString
 import java.util.function.Consumer
 
-/** Logs message [msg], prefixed by the receiver's class name */
+/** Logs message [msg] to [loggerWithCaller], prefixed by the receiver's class name  */
 public fun Any?.log(msg: Any?): Unit = try {
     loggerWithCaller("${this?.javaClass ?: ""}", msg)
 } catch (e: Exception) {
     e.printStackTrace() // not much else we can do
 }
 
-/** Logs message [msg], prefixed by the [caller] String */
+/** Logs message [msg] to [loggerWithCaller], prefixed by the [caller] String */
 public fun logWithCaller(caller: String, msg: Any?): Unit = try {
     loggerWithCaller(caller, msg)
 } catch (e: Exception) {

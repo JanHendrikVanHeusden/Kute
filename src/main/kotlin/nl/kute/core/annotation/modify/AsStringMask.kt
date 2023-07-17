@@ -22,6 +22,7 @@ import kotlin.math.min
 @Retention(RUNTIME)
 @Inherited
 @MustBeDocumented
+//TODO: kdoc
 public annotation class AsStringMask(
     /** At which character index (inclusive) masking should start? */
     val startMaskAt: Int = 0,

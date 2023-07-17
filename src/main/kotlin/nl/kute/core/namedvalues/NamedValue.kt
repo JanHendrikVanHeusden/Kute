@@ -2,6 +2,7 @@ package nl.kute.core.namedvalues
 
 import nl.kute.core.weakreference.ObjectWeakReference
 
+//TODO: kdoc
 public class NamedValue<V: Any?>(override val name: String, value: V?): NameValue<V?> {
     private val valueReference: ObjectWeakReference<V?> = ObjectWeakReference(value)
     override val valueString: String
@@ -28,4 +29,5 @@ public class NamedValue<V: Any?>(override val name: String, value: V?): NameValu
 }
 
 @Suppress("unused")
+//TODO: kdoc
 public fun <V: Any?>V?.namedVal(name: String): NameValue<V?> = NamedValue(name, this)

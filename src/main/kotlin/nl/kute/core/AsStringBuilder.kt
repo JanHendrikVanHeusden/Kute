@@ -10,6 +10,7 @@ import nl.kute.reflection.declaringClass
 import nl.kute.reflection.simplifyClassName
 import kotlin.reflect.KProperty
 
+//TODO: kdoc
 public class AsStringBuilder private constructor(private var obj: Any?) : AsStringProducer() {
 
     private val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
@@ -53,12 +54,14 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         }
         return this
     }
+    //TODO: kdoc
     public fun withAlsoNamed(vararg nameValues: NameValue<*>): AsStringBuilder {
         if (!isBuilt) {
             this.alsoNamed.addAll(nameValues)
         }
         return this
     }
+    //TODO: kdoc
     public fun withOnlyProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
             this.onlyProperties.addAll(props.filter(isMatchingProperty))
@@ -66,6 +69,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         }
         return this
     }
+    //TODO: kdoc
     public fun withOnlyPropertyNames(vararg names: String): AsStringBuilder {
         if (!isBuilt) {
             this.onlyPropertyNames.addAll(names)
@@ -73,12 +77,14 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         }
         return this
     }
+    //TODO: kdoc
     public fun exceptProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
             this.exceptProperties.addAll(props)
         }
         return this
     }
+    //TODO: kdoc
     public fun exceptPropertyNames(vararg names: String): AsStringBuilder {
         if (!isBuilt) {
             this.exceptPropertyNames.addAll(names)
@@ -86,6 +92,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         return this
     }
 
+    //TODO: kdoc
     public fun build(): AsStringProducer {
         if (isBuilt) {
             return this
@@ -116,8 +123,10 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
                 " alsoNamed = ${alsoNamed.map { it.name }})"
     }
 
+    //TODO: kdoc
     public companion object {
         @JvmStatic
+        //TODO: kdoc
         public fun Any?.asStringBuilder(): AsStringBuilder = AsStringBuilder(this)
     }
 

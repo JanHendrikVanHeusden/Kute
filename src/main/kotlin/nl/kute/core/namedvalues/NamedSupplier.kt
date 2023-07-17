@@ -5,6 +5,7 @@ import nl.kute.log.log
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.asString
 
+//TODO: kdoc
 public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): NameValue<V?> {
     private val supplierReference: ObjectWeakReference<Supplier<V>> = ObjectWeakReference(supplier)
     override val valueString: String?
@@ -29,4 +30,5 @@ public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplie
 }
 
 @Suppress("unused")
+//TODO: kdoc
 public fun <V: Any?> Supplier<V?>.namedVal(name: String): NameValue<V?> = NamedSupplier(name,this)

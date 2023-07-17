@@ -93,6 +93,7 @@ internal val defaultMaxStringValueLength: Int
 internal fun restoreInitialDefaultAsStringOption(): AsStringOption =
     initialDefaultAsStringOption.also { AsStringOption.defaultAsStringOption = it }
 
+//TODO: kdoc
 public fun setDefaultAsStringClassOption(newOption: AsStringClassOption) {
     AsStringClassOption.defaultAsStringClassOption = newOption
 }

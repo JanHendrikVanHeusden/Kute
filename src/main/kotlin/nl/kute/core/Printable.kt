@@ -15,6 +15,7 @@ import nl.kute.core.annotation.option.AsStringOption
  *  * [AsStringBuilder]
  * ---
  */
+//TODO: kdoc
 public interface Printable {
 
     /**
@@ -29,6 +30,7 @@ public interface Printable {
      *
      * @see [AsStringBuilder]
      */
+    //TODO: kdoc
     public fun asString(): String = (this as Any).asString()
 
     /**
