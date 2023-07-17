@@ -3,14 +3,13 @@
 package nl.kute.core
 
 import nl.kute.base.ObjectsStackVerifier
-import nl.kute.config.restoreInitialDefaultAsStringClassOption
-import nl.kute.config.setDefaultAsStringClassOption
+import nl.kute.config.AsStringConfig
+import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringReplace
-import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.NamedProp
@@ -53,7 +52,7 @@ import java.util.concurrent.ArrayBlockingQueue
 
 class AsStringTest: ObjectsStackVerifier {
 
-    private val names: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
+    private val people: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
 
     private var classLevelCounter = 0
 
@@ -65,7 +64,7 @@ class AsStringTest: ObjectsStackVerifier {
     @BeforeEach
     @AfterEach
     fun setUpAndTearDown() {
-        restoreInitialDefaultAsStringClassOption()
+        restoreInitialAsStringClassOption()
     }
 
     @Test
@@ -120,9 +119,9 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `test with Kotlin subclass of Java class`() {
-        val kotlinSubClass = KotlinClassToTest("my str", 35, "this is another", names)
+        val kotlinSubClass = KotlinClassToTest("my str", 35, "this is another", people)
         assertThat(JavaClassToTest::class.java.isAssignableFrom(kotlinSubClass.javaClass))
-        assertThat(kotlinSubClass.toString()).isEqualTo("KotlinClassToTest(anotherStr=this is another, names=${names.contentDeepToString()})")
+        assertThat(kotlinSubClass.toString()).isEqualTo("KotlinClassToTest(anotherStr=this is another, names=${people.contentDeepToString()})")
     }
 
     @Test
@@ -427,7 +426,7 @@ class AsStringTest: ObjectsStackVerifier {
     @Test
     fun `system classes without overridden toString should include identity when set`() {
         // arrange
-        setDefaultAsStringClassOption(AsStringClassOption(true))
+        AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
         val testObj = Any()
         assumeThat(testObj.toString()).startsWith("java.lang.Object@")
         val identityHashHex = testObj.identityHashHex

@@ -1,7 +1,7 @@
 package nl.kute.core.annotation.option
 
-import nl.kute.config.initialDefaultAsStringClassOption
-import nl.kute.config.initialDefaultIncludeIdentityHash
+import nl.kute.config.initialAsStringClassOption
+import nl.kute.config.initialIncludeIdentityHash
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.identityHashHex
@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
 /**
  * The [AsStringClassOption] annotation can be placed on classes only.
  *
- * Besides that, the [AsStringClassOption.defaultAsStringClassOption] is used as a default
+ * Besides that, the [AsStringClassOption.defaultOption] is used as a default
  * when no explicit [AsStringClassOption] annotation is applied.
  *
  * It allows specifying how property values are to be parsed in the [nl.kute.core.asString] return value.
@@ -23,13 +23,13 @@ import kotlin.reflect.KClass
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-public annotation class AsStringClassOption(val includeIdentityHash: Boolean = initialDefaultIncludeIdentityHash) {
+public annotation class AsStringClassOption(val includeIdentityHash: Boolean = initialIncludeIdentityHash) {
     public companion object DefaultOption {
         /**
          * [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified.
          * > When changed, the property cache will be reset (cleared).
          */
-        public var defaultAsStringClassOption: AsStringClassOption = initialDefaultAsStringClassOption
+        public var defaultOption: AsStringClassOption = initialAsStringClassOption
             @JvmSynthetic // avoid access from external Java code
             internal set(newDefault) {
                 if (newDefault != field) {
@@ -56,7 +56,7 @@ internal fun Any.getAsStringClassOption(): AsStringClassOption =
     this::class.let { kClass ->
         val cache = asStringClassOptionCache
         cache[kClass].ifNull {
-            (this::class.annotationOfSubSuperHierarchy() ?: AsStringClassOption.defaultAsStringClassOption)
+            (this::class.annotationOfSubSuperHierarchy() ?: AsStringClassOption.defaultOption)
                 .also { cache[kClass] = it }
         }
     }
@@ -65,7 +65,7 @@ private var asStringClassOptionCache: MutableMap<KClass<*>, AsStringClassOption>
 
 /**
  * Resets the class level cache for [AsStringClassOption].
- * > This is typically needed when the [AsStringClassOption.defaultAsStringClassOption] is changed,
+ * > This is typically needed when the [AsStringClassOption.defaultOption] is changed,
  *   to avoid inconsistent intermediate results.
  */
 internal fun resetAsStringClassOptionCache() {

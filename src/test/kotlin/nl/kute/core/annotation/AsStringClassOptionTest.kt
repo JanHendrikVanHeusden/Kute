@@ -1,8 +1,8 @@
 package nl.kute.core.annotation
 
 import nl.kute.base.ObjectsStackVerifier
-import nl.kute.config.restoreInitialDefaultAsStringClassOption
-import nl.kute.config.setDefaultAsStringClassOption
+import nl.kute.config.AsStringConfig
+import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.asStringClassOptionCacheSize
 import nl.kute.core.annotation.option.resetAsStringClassOptionCache
@@ -19,7 +19,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
     @BeforeEach
     @AfterEach
     fun setUpAndTearDown() {
-        restoreInitialDefaultAsStringClassOption()
+        restoreInitialAsStringClassOption()
     }
 
     @Test
@@ -46,7 +46,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
         @AsStringClassOption(includeIdentityHash = true)
         open class MyTestClass
 
-        assertThat(AsStringClassOption.defaultAsStringClassOption.includeIdentityHash).isFalse
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         @AsStringClassOption // applies default (false)
         class MySubClass: MyTestClass()
 
@@ -84,7 +84,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
         // arrange
         resetAsStringClassOptionCache()
         assertThat(asStringClassOptionCacheSize).isZero
-        assertThat(AsStringClassOption.defaultAsStringClassOption.includeIdentityHash).isFalse
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
 
         open class MyTestClass
         val myTestObj = MyTestClass()
@@ -96,10 +96,10 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
             .isEqualTo(1)
 
         // act
-        setDefaultAsStringClassOption(AsStringClassOption(true))
+        AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
 
         // assert
-        assertThat(AsStringClassOption.defaultAsStringClassOption.includeIdentityHash).isTrue
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isTrue
         assertThat(asStringClassOptionCacheSize)
             .`as`("Change of defaultAsStringClassOption should clear the cache")
             .isEqualTo(0)
@@ -107,11 +107,11 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
         assertThat(asStringClassOptionCacheSize).isEqualTo(1)
 
         // act
-        restoreInitialDefaultAsStringClassOption()
+        restoreInitialAsStringClassOption()
         assertThat(asStringClassOptionCacheSize)
             .`as`("Change of defaultAsStringClassOption should clear the cache")
             .isEqualTo(0)
-        assertThat(AsStringClassOption.defaultAsStringClassOption.includeIdentityHash).isFalse
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         assertThat(myTestObj.asString()).isEqualTo("MyTestClass()")
         assertThat(asStringClassOptionCacheSize).isEqualTo(1)
 
@@ -138,8 +138,8 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
     @Test
     fun `re-applying same value of AsStringClassOption should not empty the cache`() {
         // arrange
-        assertThat(AsStringClassOption.defaultAsStringClassOption.includeIdentityHash).isFalse
-        setDefaultAsStringClassOption(AsStringClassOption(includeIdentityHash = true))
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
+        AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
         assertThat(asStringClassOptionCacheSize).isZero
 
         class MyTestClass
@@ -151,7 +151,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
 
         // act
         @Suppress("KotlinConstantConditions")
-        setDefaultAsStringClassOption(AsStringClassOption(("aa" == "aa")))
+        AsStringConfig().withIncludeIdentityHash("aa" == "aa").applyAsDefault()
         // assert
         assertThat(asStringClassOptionCacheSize)
             .`as`("MyTestClass should still be present in cache")

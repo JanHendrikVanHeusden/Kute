@@ -95,7 +95,7 @@ private var propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KPropert
 
 /**
  * Resets the property cache.
- * > This is typically needed when the [AsStringOption.defaultAsStringOption] is changed,
+ * > This is typically needed when the [AsStringOption.defaultOption] is changed,
  *   to avoid inconsistent intermediate results.
  */
 @JvmSynthetic // avoid access from external Java code
@@ -128,7 +128,7 @@ internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, 
     }
     // AsStringOption from lowest subclass in hierarchy with this annotation
     val asStringOptionClassAnnotation =
-        annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: AsStringOption.defaultAsStringOption
+        annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: AsStringOption.defaultOption
     (prop.annotationOfPropertySubSuperHierarchy() ?: asStringOptionClassAnnotation).let { annotation ->
         annotations.add(annotation)
     }

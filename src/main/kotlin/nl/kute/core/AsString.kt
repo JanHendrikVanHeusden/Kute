@@ -28,7 +28,7 @@ import java.util.Date
 import kotlin.math.max
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
-import nl.kute.core.annotation.option.AsStringClassOption.DefaultOption.defaultAsStringClassOption as defaultClassOption
+import nl.kute.core.annotation.option.AsStringClassOption.DefaultOption.defaultOption as defaultClassOption
 
 internal typealias AsStringHandler = (Any) -> String
 
@@ -54,7 +54,7 @@ public abstract class AsStringProducer {
  * @return A String representation of the receiver object, including class name and property names + values;
  * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and other
  * (other annotations, see package `nl.kute.core.annotation.modify`)
- * @see AsStringBuilder
+ * @see [AsStringBuilder]
  */
 public fun Any?.asString(): String = asString(emptyStringList)
 
@@ -65,7 +65,7 @@ public fun Any?.asString(): String = asString(emptyStringList)
  * @return A String representation of the receiver object, including class name and property names + values;
  * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and other
  * (other annotations, see package `nl.kute.core.annotation.modify`)
- * @see AsStringBuilder
+ * @see [AsStringBuilder]
  */
 // TODO: tests!
 public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
@@ -173,7 +173,7 @@ private fun Any.systemClassIdentity(includeIdentity: Boolean = defaultClassOptio
 /**
  * Construct a meaningful String representation for system class objects where [toString] is not overridden
  * (so Strings like `java.lang.Object@5340477f`).
- * If [AsStringClassOption.defaultAsStringClassOption] has [AsStringClassOption.includeIdentityHash], the hash
+ * If [AsStringClassOption.defaultOption] has [AsStringClassOption.includeIdentityHash], the hash
  * value is included as well, e.g. `Any@5340477f()`
  * @return
  *  * When [toString] is like `java.lang.Object@1234acef`, a meaningful String, e.g. `Any()`;
@@ -342,7 +342,7 @@ private class ObjectsStackGuard {
  * (mutually referencing or self-referencing) objects.
  *
  * **The thread's [objectsStackGuard] must always empty before and after an outbound call to [asString].**
- * @see getObjectsStackSize
+ * @see [getObjectsStackSize]
  */
 private val objectsStackGuard: ThreadLocal<ObjectsStackGuard> =
     ThreadLocal.withInitial(::ObjectsStackGuard)

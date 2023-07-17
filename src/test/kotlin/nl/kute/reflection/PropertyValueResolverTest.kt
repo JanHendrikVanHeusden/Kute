@@ -84,6 +84,16 @@ class PropertyValueResolverTest {
         assertThat(propertyAnnotationCacheSize).isEqualTo(2)
     }
 
+    @Test
+    fun `repeated calls of asString on same class should be cached only once`() {
+        resetPropertyAnnotationCache()
+        class MyTestClass
+        repeat(5) {
+            MyTestClass().asString()
+            assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        }
+    }
+
     /////////////////////////////
     // Test classes, objects etc.
     /////////////////////////////

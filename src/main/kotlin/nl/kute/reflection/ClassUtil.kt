@@ -28,7 +28,7 @@ internal fun <T : Any> KClass<T>.superSubHierarchy(includeInterfaces: Boolean = 
 
 /**
  * Gets the class hierarchy of the [Class]
- * @see KClass.subSuperHierarchy
+ * @see [KClass.subSuperHierarchy]
  */
 @JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> Class<T>.superSubHierarchy(includeInterfaces: Boolean = true): List<Class<in T>> =
@@ -47,7 +47,7 @@ internal fun <T : Any> KClass<T>.subSuperHierarchy(includeInterfaces: Boolean = 
 
 /**
  * Gets the class hierarchy of the [Class]
- * @see KClass.subSuperHierarchy
+ * @see [KClass.subSuperHierarchy]
  */
 @JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> Class<T>.subSuperHierarchy(includeInterfaces: Boolean = true): List<Class<in T>> =
@@ -55,7 +55,7 @@ internal fun <T : Any> Class<T>.subSuperHierarchy(includeInterfaces: Boolean = t
 
 /**
  * Gets the class hierarchy of the object's [KClass]
- * @see KClass.subSuperHierarchy
+ * @see [KClass.subSuperHierarchy]
  */
 @Suppress("UNCHECKED_CAST")
 @JvmSynthetic // avoid access from external Java code

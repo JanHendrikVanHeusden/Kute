@@ -9,12 +9,12 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class AsStringOptionConfigTest {
+class AsStringConfigTest {
 
     @BeforeEach
     @AfterEach
     fun setUpAndTearDown() {
-        restoreInitialDefaultAsStringOption()
+        restoreInitialAsStringOption()
     }
 
     @Test
@@ -24,8 +24,8 @@ class AsStringOptionConfigTest {
             val str600 = "x".repeat(600)
             open val aNullValue: Any? = null
         }
-        val initialMaxPropStrLength = AsStringOption.defaultAsStringOption.propMaxStringValueLength
-        val initialNullStr = AsStringOption.defaultAsStringOption.showNullAs
+        val initialMaxPropStrLength = AsStringOption.defaultOption.propMaxStringValueLength
+        val initialNullStr = AsStringOption.defaultOption.showNullAs
 
         assertThat(initialMaxPropStrLength)
             .isEqualTo(500)
@@ -47,7 +47,7 @@ class AsStringOptionConfigTest {
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
 
         // act, assert - max length
-        AsStringOptionBuilder().maxPropertyStringLength(20).applyAsDefault()
+        AsStringConfig().withMaxPropertyStringLength(20).applyAsDefault()
         assertThat(propertyAnnotationCacheSize).isEqualTo(0)
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(20)}\b.+$""")
@@ -55,7 +55,7 @@ class AsStringOptionConfigTest {
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
 
         // act, assert - null str
-        AsStringOptionBuilder().showNullAs("--!").applyAsDefault()
+        AsStringConfig().withShowNullAs("--!").applyAsDefault()
         assertThat(propertyAnnotationCacheSize).isEqualTo(0)
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(20)}\b.+$""")
@@ -63,7 +63,7 @@ class AsStringOptionConfigTest {
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
 
         // act, assert - reset defaults
-        restoreInitialDefaultAsStringOption()
+        restoreInitialAsStringOption()
         assertThat(propertyAnnotationCacheSize).isEqualTo(0)
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(500)}\b.+$""")
@@ -100,9 +100,9 @@ class AsStringOptionConfigTest {
         assertIt("Verifying `Before` situation")
 
         // act
-        AsStringOptionBuilder()
-            .showNullAs("*")
-            .maxPropertyStringLength(2)
+        AsStringConfig()
+            .withShowNullAs("*")
+            .withMaxPropertyStringLength(2)
             .applyAsDefault()
 
         // assert
@@ -112,9 +112,9 @@ class AsStringOptionConfigTest {
     @Test
     fun `re-applying same values should not empty the cache`() {
         // arrange
-        AsStringOptionBuilder()
-            .showNullAs("---")
-            .maxPropertyStringLength(12)
+        AsStringConfig()
+            .withShowNullAs("---")
+            .withMaxPropertyStringLength(12)
             .applyAsDefault()
         assertThat(propertyAnnotationCacheSize).isZero
 
@@ -126,9 +126,9 @@ class AsStringOptionConfigTest {
             .isEqualTo(1)
 
         // act
-        AsStringOptionBuilder()
-            .showNullAs("-".repeat(3))
-            .maxPropertyStringLength(9+3)
+        AsStringConfig()
+            .withShowNullAs("-".repeat(3))
+            .withMaxPropertyStringLength(9+3)
             .applyAsDefault()
         // assert
         assertThat(propertyAnnotationCacheSize)
@@ -136,13 +136,4 @@ class AsStringOptionConfigTest {
             .isEqualTo(1)
     }
 
-    @Test
-    fun `repeated calls of asString on same class should be cached only once`() {
-        resetPropertyAnnotationCache()
-        class MyTestClass
-        repeat(5) {
-            MyTestClass().asString()
-            assertThat(propertyAnnotationCacheSize).isEqualTo(1)
-        }
-    }
 }
