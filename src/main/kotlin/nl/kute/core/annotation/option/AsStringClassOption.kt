@@ -20,12 +20,17 @@ import kotlin.reflect.KClass
  * when no explicit [AsStringClassOption] annotation is applied.
  *
  * It allows specifying how property values are to be parsed in the [nl.kute.core.asString] return value.
+ * @param includeIdentityHash Should the identity hash be included?
+ * If included, the identity hash is `@` followed by the hex representation as of [System.identityHashCode]
+ * (up to 8 hex characters), identical to the hex string seen in non-overridden [toString] output.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
 public annotation class AsStringClassOption(val includeIdentityHash: Boolean = initialIncludeIdentityHash) {
+
+    /** Static holder for [defaultOption] */
     public companion object DefaultOption {
         /**
          * [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified.

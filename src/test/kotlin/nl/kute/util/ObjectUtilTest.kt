@@ -38,9 +38,9 @@ class ObjectUtilTest {
         }
         assumeThat(foundLeadingZero)
             .`as`("It is reasonably safe to assume that System.identityHashCode / identityHashHex" +
-                    " will produce indentity hashes with leading zeros (hex representation shorter than 8)." +
+                    " will produce identity hashes with leading zeros (hex representation shorter than 8)." +
                     " But the implementation is JVM dependent, hence no guarantees there.\n" +
-                    " So failing will be igored (hence `assumeThat()`, not `assertThat()`.")
+                    " So failing will be ignored (hence `assumeThat()`, not `assertThat()`.")
             .isTrue
     }
 }

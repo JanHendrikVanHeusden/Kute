@@ -29,7 +29,7 @@ internal val loggerWithCaller: (String, Any?) -> Unit = { caller, msg: Any? -> l
 
 /**
  * Static [logger].
- * By default (wen no other logger set explicitly), Kute uses [stdOutLogger] to output to std out (using `println()`).
+ * By default, wen no other logger set explicitly, Kute uses [stdOutLogger] to output to std out (using `println()`).
  *
  * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
  * > To be used from within Kotlin.
@@ -61,7 +61,7 @@ public var logger: (String?) -> Unit = stdOutLogger
 
 /**
  * Static [logger].
- * By default (wen no other logger set explicitly), Kute uses [stdOutLogger] to output to std out (using `println()`).
+ * By default, wen no other logger set explicitly, Kute uses [stdOutLogger] to output to std out (using `println()`).
  *
  * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
  * > To be used from within Java.

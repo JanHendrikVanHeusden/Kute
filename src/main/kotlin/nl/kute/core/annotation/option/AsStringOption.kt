@@ -29,6 +29,8 @@ public annotation class AsStringOption(
      * Default is 500 (by [initialMaxStringValueLength]). 0 means: an empty String; negative values mean: [Int.MAX_VALUE], so effectively no maximum. */
     val propMaxStringValueLength: Int = initialMaxStringValueLength
 ) {
+
+    /** Static holder for [defaultOption] */
     public companion object DefaultOption {
         /**
          * [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified.

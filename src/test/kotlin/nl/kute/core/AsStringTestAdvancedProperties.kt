@@ -240,13 +240,13 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             var companionVar: String = "my companion var"
         }
     }
-    @Suppress("unused", "SameReturnValue")
+    @Suppress("SameReturnValue")
     private data class ClassWithExtensionProperty(val str: String) {
         val String.extensionPropAtClass: String
             get() = "$this; I am a class-level extension property"
     }
 
-    @Suppress("unused", "SameReturnValue")
+    @Suppress("SameReturnValue")
     class ClassWithExtensionProperties {
         @Suppress("MemberVisibilityCanBePrivate")
         val String.classLevelStringExtProp: String

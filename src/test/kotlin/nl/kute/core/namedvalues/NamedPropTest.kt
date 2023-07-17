@@ -322,7 +322,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         override val omitted = "I am trying not to be omitted"
 
         @AsStringHash(DigestMethod.SHA1)
-        override val hashed = "I am trying to be hashed with a different hash mehod"
+        override val hashed = "I am trying to be hashed with a different hash method"
 
         @AsStringMask(startMaskAt = 2, endMaskAt = -2)
         override val masked = "I am trying to be masked differently"

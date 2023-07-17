@@ -195,7 +195,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
         val checkGarbageCollected = {objectWeakReference.get() == null}
         assertThat(checkGarbageCollected.invoke()).isFalse
 
-        // nullify any references wihtin the test, so eligible to garbage collection
+        // nullify any references within the test, so eligible to garbage collection
         // NB: builder is NOT nullified, the test should prove that it doesn't prevent garbage collection
         objRefProperty = null
         toBeGarbageCollected = null

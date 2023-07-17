@@ -1,3 +1,5 @@
+@file:Suppress("RedundantNotNullExtensionReceiverOfInline")
+
 package nl.kute.reflection.annotationfinder
 
 import nl.kute.reflection.subSuperHierarchy

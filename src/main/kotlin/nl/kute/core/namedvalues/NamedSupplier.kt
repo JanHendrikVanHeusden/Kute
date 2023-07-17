@@ -29,6 +29,5 @@ public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplie
     // So we rely on the default (super): each NamedSupplier object is different from any other.
 }
 
-@Suppress("unused")
 //TODO: kdoc
 public fun <V: Any?> Supplier<V?>.namedSupplier(name: String): NameValue<V?> = NamedSupplier(name,this)

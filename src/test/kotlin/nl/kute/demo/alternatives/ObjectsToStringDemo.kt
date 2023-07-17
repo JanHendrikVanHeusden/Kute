@@ -230,7 +230,6 @@ class ObjectsToStringDemo {
             .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
             .isTrue
 
-        @Suppress("unused")
         class WithInitializedLateinit {
             lateinit var initializedStringVar: String
             init {
@@ -250,7 +249,6 @@ class ObjectsToStringDemo {
             .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
             .isTrue
 
-        @Suppress("unused")
         class WithInitializedLateinit {
             lateinit var initializedStringVar: String
             override fun toString(): String = Objects.toString(this)

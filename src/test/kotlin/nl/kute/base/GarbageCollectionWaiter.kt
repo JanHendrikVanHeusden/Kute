@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 interface GarbageCollectionWaiter {
 
     fun assertGarbageCollected(condition: Supplier<Boolean>, failOnTimeout: Boolean = false, maxWaitSeconds: Int = 2) {
-        // If the tests would not succed on your machine / JVM, you may be able to run this test successfully
+        // If the tests do not succeed on your machine / JVM, you may be able to run this test successfully
         // by also using an external tool that enforces garbage collections, like VisualVM, JMeter or other monitoring tools.
         // (you may want to increase the waiting time)
         try {

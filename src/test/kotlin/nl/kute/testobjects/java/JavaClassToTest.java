@@ -19,7 +19,8 @@ public class JavaClassToTest implements Printable {
     }
 
     @Override
-    public @NotNull String toString() {
+    @NotNull
+    public String toString() {
         return asString();
     }
 

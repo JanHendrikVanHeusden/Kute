@@ -28,6 +28,5 @@ public class NamedValue<V: Any?>(override val name: String, value: V?): NameValu
 
 }
 
-@Suppress("unused")
 //TODO: kdoc
 public fun <V: Any?>V?.namedValue(name: String): NameValue<V?> = NamedValue(name, this)

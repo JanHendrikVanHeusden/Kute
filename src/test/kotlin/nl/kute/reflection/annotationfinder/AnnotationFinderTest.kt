@@ -141,14 +141,14 @@ class AnnotationFinderTest {
 
         @AsStringOption(propMaxStringValueLength = 999999, showNullAs = "")
         @Suppress("unused", "UNUSED_PARAMETER", "EmptyMethod")
-        fun toString(iets: String) {}
+        fun toString(something: String) {}
     }
 
     private open class ClassWithMethodParamSubtypeInheritance<T : Number> {
         @AsStringOption(propMaxStringValueLength = 50, showNullAs = "")
         open fun getList(inList: List<T>): List<T> = emptyList()
 
-        @AsStringOption(propMaxStringValueLength = 15, showNullAs = "geen getal")
+        @AsStringOption(propMaxStringValueLength = 15, showNullAs = "no number")
         open fun getNum(inNum: T): T? = null
 
         @Suppress("EmptyMethod") // several properties accessed by reflection only

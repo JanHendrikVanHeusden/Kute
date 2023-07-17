@@ -97,6 +97,5 @@ public final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property:
     }
 }
 
-@Suppress("unused")
 //TODO: kdoc
 public fun <T : Any?, V : Any?> T?.namedProp(prop: KProperty<V?>): TypedNameValue<T?, V?> = NamedProp(this, prop)

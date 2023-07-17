@@ -27,7 +27,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *    > [https://www.regular-expressions.info/catastrophic.html](https://www.regular-expressions.info/catastrophic.html)
  *
  * @param pattern The expression to replace, either as regular expression (when [isRegexpPattern] is `true`),
- *   or as a literal (when [isRegexpPattern] is `false`. Each occurrence will be replaced by [replacement].
+ *   or as a literal (when [isRegexpPattern] is `false`). Each occurrence will be replaced by [replacement].
  *    * Invalid regular expression will result in an empty String being returned.
  * @param replacement The replacement; back references are allowed. Default is an empty string `""`
  *  * If [isRegexpPattern] is `true`, regex group capture is supported, Java style (`$1`, `$2` etc.)

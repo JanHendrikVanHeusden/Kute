@@ -28,7 +28,7 @@ class AsStringMaskTest {
 
         val maskOverlap = AsStringMask(startMaskAt = 5, endMaskAt = -7)
         assertThat(maskOverlap.mask("1234567890"))
-            .`as`("when start of mask beyond end of mask, mpyjomh should be masked")
+            .`as`("when start of mask beyond end of mask, nothing should be masked")
             .isEqualTo("1234567890")
 
         val maskEnd0 = AsStringMask(endMaskAt = 0)
