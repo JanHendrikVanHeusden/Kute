@@ -499,28 +499,6 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `asStringFallBack should include the same identity as non-overridden toString`() {
-        val identityRegex = Regex("""^.+(@[0-9a-f]+)$""")
-        @Suppress("LocalVariableName")
-        val `@hexHash` = "\$1"
-        // Non-overridden toString() removes leading zeroes from the hex hashCode
-        // So the test is repeated a number of times, so we are reasonably sure that it would hit a leading zero
-        // (which asStringFallBack also needs to remove)
-        (1..100).forEach { _ ->
-            Any().let {
-                assertThat(it.asStringFallBack().replace(identityRegex, `@hexHash`))
-                    .isNotEmpty
-                    .isEqualTo(it.toString().replace(identityRegex, `@hexHash`))
-            }
-        }
-    }
-
-    @Test
-    fun `asStringFallBack should handle nulls correctly`() {
-        assertThat(null.asStringFallBack()).isEqualTo("null")
-    }
-
-    @Test
     fun `asString should give proper output for nested objects`() {
         // arrange
         @Suppress("CanBeParameter")

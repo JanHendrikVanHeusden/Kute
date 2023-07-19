@@ -50,7 +50,8 @@ internal fun KClass<*>.toStringImplementingMethod(): KFunction<String>? {
 
 @JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.hasImplementedToString(): Boolean =
-    classToStringMethodCache[this]?.second ?: (this.toStringImplementingMethod() != null)
+    if (this.java.isPrimitive) true
+    else classToStringMethodCache[this]?.second ?: (this.toStringImplementingMethod() != null)
 
 
 // The 2nd part of the Pair indicates whether the toString() method was overridden

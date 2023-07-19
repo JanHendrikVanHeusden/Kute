@@ -163,13 +163,16 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
     }
 }
 
-private fun Any.objectIdentity() = this.objectIdentity(getAsStringClassOption())
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.objectIdentity() = this.objectIdentity(getAsStringClassOption())
 
-private fun Any.collectionIdentity(includeIdentity: Boolean = defaultClassOption.includeIdentityHash) =
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.collectionIdentity(includeIdentity: Boolean = defaultClassOption.includeIdentityHash) =
     if (includeIdentity) "${this::class.simplifyClassName()}@${this.identityHashHex}"
     else ""
 
-private fun Any.systemClassIdentity(includeIdentity: Boolean = defaultClassOption.includeIdentityHash) =
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.systemClassIdentity(includeIdentity: Boolean = defaultClassOption.includeIdentityHash) =
     if (includeIdentity) "${this::class.simplifyClassName()}@${this.identityHashHex}"
     else this::class.simplifyClassName()
 
@@ -182,23 +185,26 @@ private fun Any.systemClassIdentity(includeIdentity: Boolean = defaultClassOptio
  *  * When [toString] is like `java.lang.Object@1234acef`, a meaningful String, e.g. `Any()`;
  *  * Otherwise, the default [toString] of the object.
  */
-// TODO: tests
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.systemClassObjAsString(): String =
-    if (this::class.hasImplementedToString()) this.toString() else "${systemClassIdentity()}()"
+    if (this::class.java.isPrimitive) this.toString()
+    else if (this::class.hasImplementedToString()) this.toString() else "${systemClassIdentity()}()"
 
-// TODO: tests
 @JvmSynthetic // avoid access from external Java code
 internal fun Annotation.annotationAsString(): String = toString().simplifyClassName()
 
-// TODO: tests
 @JvmSynthetic // avoid access from external Java code
 internal fun Collection<*>.collectionAsString(): String {
     val includeIdentity = defaultClassOption.includeIdentityHash
     return joinToString(prefix = "${collectionIdentity(includeIdentity)}[", separator = ", ", postfix = "]") { it.asString() }
 }
 
-// TODO: tests
+@JvmSynthetic // avoid access from external Java code
+internal fun Map<*, *>.mapAsString(): String {
+    val includeIdentity = defaultClassOption.includeIdentityHash
+    return this.entries.joinToString(prefix = "${collectionIdentity(includeIdentity)}{", separator = ", ", postfix = "}") { it.asString() }
+}
+
 @JvmSynthetic // avoid access from external Java code
 internal fun Array<*>.arrayAsString(): String {
     val includeIdentity = defaultClassOption.includeIdentityHash
@@ -207,7 +213,6 @@ internal fun Array<*>.arrayAsString(): String {
 
 private val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
 
-// TODO: tests
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.syntheticClassObjectAsString(): String {
     return this.toString().let {
@@ -219,7 +224,6 @@ internal fun Any.syntheticClassObjectAsString(): String {
 
 private val javaLambdaRegex = Regex("/[0-pa-fx]+@")
 
-// TODO: tests
 @JvmSynthetic // avoid access from external Java code
 internal fun Any?.javaSyntheticClassObjectAsString(): String =
     // the replacement removes a not very useful lengthy octal number, so
@@ -268,6 +272,9 @@ internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null,
     /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
     ARRAY( { (it as Array<*>).arrayAsString() }, true),
 
+    /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
+    MAP( { (it as Map<*, *>).mapAsString() }, true),
+
     /** Override: [Throwable.toString] is way too verbose */
     THROWABLE( { (it as Throwable).asString() }),
 
@@ -301,6 +308,7 @@ internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null,
                 (obj is Number || obj is CharSequence || obj is Char || obj is Temporal) -> BASE
                 obj is Array<*> -> ARRAY
                 obj is Collection<*> -> COLLECTION
+                obj is Map<*, *> -> MAP
                 obj.isJavaDate() -> BASE
                 obj is Annotation -> ANNOTATION
                 obj is Throwable -> THROWABLE
