@@ -16,4 +16,4 @@ package nl.kute.reflection.error
  * [SyntheticClassException] should be used to flag these situations to quit early, otherwise
  * it may cause further exceptions downstream
  */
-internal class SyntheticClassException(message: String?, cause: Throwable?): Exception(message, cause)
+internal class SyntheticClassException(message: String?, cause: Throwable? = null): Exception(message, cause)

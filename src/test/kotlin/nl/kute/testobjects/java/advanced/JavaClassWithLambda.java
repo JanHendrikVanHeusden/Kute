@@ -1,9 +1,10 @@
-package nl.kute.testobjects.java;
+package nl.kute.testobjects.java.advanced;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class JavaClassWithLambda {
     public final Supplier<Integer> intSupplier = () -> 5;
-    public final BiFunction<Integer, Integer, String> intsToString = (i, j) -> String.valueOf(i) + j;
+    public final BiFunction<Integer, Integer, String> intsToString =
+            (i, j) -> String.valueOf(i) + j;
 }

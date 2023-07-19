@@ -11,7 +11,14 @@ import nl.kute.core.property.resetPropertyAnnotationCache
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.simplifyClassName
-import nl.kute.testobjects.java.JavaClassWithLambda
+import nl.kute.testobjects.java.advanced.JavaClassWithAnonymousClass
+import nl.kute.testobjects.java.advanced.JavaClassWithCallable
+import nl.kute.testobjects.java.advanced.JavaClassWithLambda
+import nl.kute.testobjects.kotlin.advanced.CallableFactory
+import nl.kute.testobjects.kotlin.advanced.CallableFactoryWithLambda
+import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClass
+import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClassFactory
+import nl.kute.testobjects.kotlin.advanced.KotlinClassWithCallable
 import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -26,7 +33,11 @@ import kotlin.reflect.jvm.javaField
 
 private typealias DoubleCalculator = (Double, Double) -> Double
 
+@Suppress("ClassWithTooManyDependencies")
 class AsStringTestAdvancedProperties: ObjectsStackVerifier {
+
+    // Convenience for use in Regex
+    private val dollar = """\$"""
 
     @BeforeEach
     @AfterEach
@@ -261,12 +272,13 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         val intSupplierIdHash = withLambda.intSupplier.identityHashHex
         val intsToStringIdHash = withLambda.intsToString.identityHashHex
         // Something like
-        // `JavaClassWithLambda(intSupplier=JavaClassWithLambda$$Lambda$366@73d6d0c, intsToString=JavaClassWithLambda$$Lambda$367@238ad8c)`
+        // `JavaClassWithLambda(intSupplier=JavaClassWithLambda$$Lambda$366@73d6d0c,
+        //  intsToString=JavaClassWithLambda$$Lambda$367@238ad8c)`
         // Not really meaningful, but at least it shouldn't throw exceptions
-        val dollar = """\$"""
-        println(dollar)
         assertThat(withLambda.asString())
-            .matches("""$theClassName\(intSupplier=$theClassName$dollar${dollar}Lambda$dollar[\d]+@$intSupplierIdHash, intsToString=$theClassName$dollar${dollar}Lambda$dollar[\d]+@$intsToStringIdHash\)""")
+            .matches("""$theClassName\(intSupplier=$theClassName$dollar${dollar}Lambda$dollar\d+@$intSupplierIdHash,""" +
+            """ intsToString=$theClassName$dollar${dollar}Lambda$dollar\d+@$intsToStringIdHash\)"""
+            )
 
         // Class itself should be cached, but lambdas not (might explode the caches)
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
@@ -295,6 +307,191 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         assertThat(WithLateinit().toString())
             .contains("initializedStringVar=I am initialized")
             .contains("uninitializedStringVar=null")
+    }
+
+    @Test
+    fun `Java class with anonymous inner class should not cause exception`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        val testObj = JavaClassWithAnonymousClass()
+        val prop1IdHash = testObj.propWithAnonymousInnerClass.identityHashHex
+        val prop2IdHash = testObj.propWithLambda.identityHashHex
+        val className = testObj::class.simplifyClassName()
+
+        // act
+        val asStringResult = testObj.asString()
+
+        // assert
+        // something like JavaClassWithAnonymousClass(propWithAnonymousInnerClass=JavaClassWithAnonymousClass$1@14dd7b39,
+        //  propWithLambda=JavaClassWithAnonymousClass$$Lambda$365@5fd9b663)
+        assertThat(asStringResult)
+            .matches("""$className\(propWithAnonymousInnerClass=$className$dollar\d+@$prop1IdHash,"""
+                    + """ propWithLambda=$className$dollar${dollar}Lambda$dollar\d+@$prop2IdHash\)""")
+
+        // Only the class should be cached, not the properties (might explode the cache)
+        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `Java class with Callable should not cause exception`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        val testObj = JavaClassWithCallable()
+        val propIdHash = testObj.myCallable.identityHashHex
+        val className = testObj::class.simplifyClassName()
+
+        // act
+        val asStringResult = testObj.asString()
+
+        // assert
+        // something like JavaClassWithCallable(myCallable=JavaClassWithCallable$1@7fc4780b)
+        assertThat(asStringResult)
+            .matches("""$className\(myCallable=$className$dollar\d+@$propIdHash\)""")
+
+        // Only the class should be cached, not the properties (might explode the cache)
+        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `Kotlin class with anonymous inner class should not cause exception`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        repeat(5) {
+            val testObj = KotlinClassWithAnonymousClass()
+            val propWithLambdaIdHash = testObj.propWithLambda.identityHashHex
+            val asStringResult = testObj.asString()
+            val className = testObj::class.simplifyClassName()
+            // something like
+            // KotlinClassWithAnonymousClass(propWithAnonymousInnerClass=KotlinClassWithAnonymousClass$propWithAnonymousInnerClass$1(),
+            //  propWithLambda=KotlinClassWithAnonymousClass$$Lambda$372@1f9e9475)
+            assertThat(asStringResult)
+                .matches(
+                    """$className\(propWithAnonymousInnerClass=$className${dollar}propWithAnonymousInnerClass${dollar}\d+\(\),"""
+                            + """ propWithLambda=$className$dollar${dollar}Lambda$dollar\d+@$propWithLambdaIdHash\)"""
+                )
+        }
+        // Only the classes should be cached, not the properties (might explode the cache)
+        assertThat(propertyAnnotationCacheSize).isEqualTo(2)
+        assertThat(asStringClassOptionCacheSize).isEqualTo(2)
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `Kotlin class with anonymous inner class factory should not blow up the cache`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+        val testObj = KotlinClassWithAnonymousClassFactory()
+        assertThat(testObj.asString()).isNotEmpty
+
+        repeat(5) {
+            assertThat(testObj.createLambda().asString()).isNotEmpty
+            assertThat(testObj.createAnonymousInnerClass().asString()).isNotEmpty
+        }
+        // Only the classes should be cached, not the properties (might explode the cache)
+        assertThat(propertyAnnotationCacheSize).isEqualTo(2)
+        assertThat(asStringClassOptionCacheSize).isEqualTo(2)
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `Kotlin class with Callable should not cause exception`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        val testObj = KotlinClassWithCallable()
+        val asStringResult = testObj.asString()
+        val className = testObj::class.simplifyClassName()
+
+        // act, assert
+        // something like KotlinClassWithCallable(myCallable=KotlinClassWithCallable$myCallable$1())
+        assertThat(asStringResult)
+            .matches("""$className\(myCallable=$className${dollar}myCallable$dollar\d+\(\)\)""")
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `Kotlin class with SAM conversion`() {
+        // SAM = Single Abstract Method. See https://www.baeldung.com/kotlin/sam-conversions
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        repeat(10) {
+            val callableFactory = CallableFactoryWithLambda()
+            callableFactory.getCallable().asString()
+            callableFactory.getCallable().asString()
+        }
+        // The callables should not be cached (might explode the cache)
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `Kotlin class with Callable object factory should not blow up the cache`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        val callableFactory = CallableFactory()
+        repeat(10) {
+            callableFactory.createCallable().asString()
+        }
+        // Only the class should be cached, not the properties (might explode the cache)
+        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
     }
 
     // ------------------------------------
