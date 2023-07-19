@@ -45,7 +45,7 @@ internal fun KProperty<*>?.handlePropValException(exception: Exception) {
                     log(
                         """$baseErrMsg
                 | $illegalAccessInfo
-                | Objects that are not accessible will be represented as `null`.
+                | Objects that are not accessible will be represented as `null` Maybe a security manager blocks it.
                 | This warning is shown only once.""".trimMargin()
                     )
                     illegalAccessReported = true
@@ -59,6 +59,7 @@ internal fun KProperty<*>?.handlePropValException(exception: Exception) {
                         """$baseErrMsg
                 | $inaccessibleObjectInfo
                 | Objects that are not accessible will be represented as `null`.
+                | Maybe a module-system (Osgi, Jigsaw [Java Platform Module System]) blocks it.
                 | This warning is shown only once.""".trimMargin()
                     )
                     inaccessibleObjectReported = true

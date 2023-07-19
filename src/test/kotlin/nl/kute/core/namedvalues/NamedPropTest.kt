@@ -70,7 +70,7 @@ class NamedPropTest: GarbageCollectionWaiter {
     }
 
     @Test
-    fun `incompatible property should be handled correctly`() {
+    fun `incoherent property should be handled correctly`() {
         // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
@@ -103,10 +103,15 @@ class NamedPropTest: GarbageCollectionWaiter {
             .doesNotContain("ClassCastException")
             .`as`("Should be handled early by validation in NamedProp")
             .contains("IllegalStateException")
-            .`as`("Error message should give relevant information")
+            .`as`("Error message should contain relevant information")
             .contains(TestClass1::class.simpleName)
             .contains(TestClass2::class.simpleName)
             .contains(namedProp1.name)
+        logMsg = ""
+        namedProp1.valueString
+        assertThat(logMsg)
+            .`as`("subsequent attempts should not log anymore")
+            .isEmpty()
     }
 
     @Test

@@ -11,7 +11,20 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
 @Suppress("RedundantModalityModifier")
-//TODO: kdoc
+/**
+ * [NameValue] wrapper for a [property], with a weak reference [objectReference] to the object
+ * the property is to be associated with.
+ * > Due to weak referencing, the [NamedProp] does not prevent garbage collection of the object
+ * @param obj The object the property is associated with
+ * @param property The property to retrieve the value with.
+ *
+ * > The property is of the more general type [KProperty] (specifically, not [kotlin.reflect.KProperty1]).
+ * > this allows more flexibility in values to be handled, but it also allows incoherent calls,
+ * > e.g. `NamedProp(objOfaClass, AnotherClass::someProperty)`.
+ *
+ * > [NamedProp] accepts such incoherent calls, but the resulting [valueString] may be `null`, and a log
+ * > message is issued on construction of the [NamedProp].
+ */
 public final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property: KProperty<V>) :
     TypedNameValue<T?, V?>, PropertyValue<T?, V?> {
 

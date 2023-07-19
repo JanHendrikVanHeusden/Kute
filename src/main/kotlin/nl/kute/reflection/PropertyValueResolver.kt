@@ -44,6 +44,7 @@ internal fun <T : Any?, V : Any?> T.getPropValue(property: KProperty<V>?): V? {
 
             else -> {
                 "Unsupported property type ${property!!::class}".let {
+                    // should not happen
                     log(it)
                     throw UnsupportedOperationException(it)
                 }

@@ -26,6 +26,7 @@ import nl.kute.util.lineEnd
 import java.time.temporal.Temporal
 import java.util.Date
 import kotlin.math.max
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import nl.kute.core.annotation.option.AsStringClassOption.DefaultOption.defaultOption as defaultClassOption
@@ -34,6 +35,7 @@ internal typealias AsStringHandler = (Any) -> String
 
 //TODO: kdoc
 public abstract class AsStringProducer {
+    //TODO: kdoc
     @Suppress("RedundantModalityModifier")
     protected final fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String =
         asString(propertyNamesToExclude, *nameValues)
@@ -135,8 +137,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                 } catch (e: SyntheticClassException) {
                     // Kotlin's reflection can't handle synthetic classes, like for lambda, callable reference etc.
                     // (more details, see KDoc of SyntheticClassException)
-                    // It's not the intended usage for AsString() anyway, so we just don't care. No log message.
-                    return obj.asStringFallBack()
+                    return obj.syntheticClassObjectAsString()
                 } catch (e: Exception) {
                     log(
                         "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value" +
@@ -181,20 +182,55 @@ private fun Any.systemClassIdentity(includeIdentity: Boolean = defaultClassOptio
  *  * When [toString] is like `java.lang.Object@1234acef`, a meaningful String, e.g. `Any()`;
  *  * Otherwise, the default [toString] of the object.
  */
-private fun Any.systemClassObjAsString(): String =
+// TODO: tests
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.systemClassObjAsString(): String =
     if (this::class.hasImplementedToString()) this.toString() else "${systemClassIdentity()}()"
 
+// TODO: tests
+@JvmSynthetic // avoid access from external Java code
 internal fun Annotation.annotationAsString(): String = toString().simplifyClassName()
 
+// TODO: tests
+@JvmSynthetic // avoid access from external Java code
 internal fun Collection<*>.collectionAsString(): String {
     val includeIdentity = defaultClassOption.includeIdentityHash
     return joinToString(prefix = "${collectionIdentity(includeIdentity)}[", separator = ", ", postfix = "]") { it.asString() }
 }
 
+// TODO: tests
+@JvmSynthetic // avoid access from external Java code
 internal fun Array<*>.arrayAsString(): String {
     val includeIdentity = defaultClassOption.includeIdentityHash
     return joinToString(prefix = "${collectionIdentity(includeIdentity)}[", separator = ", ", postfix = "]") { it.asString() }
 }
+
+private val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
+
+// TODO: tests
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.syntheticClassObjectAsString(): String {
+    return this.toString().let {
+        if (it.matches(lambdaToStringRegex))
+            lambdaToString(it)
+        else this.asStringFallBack()
+    }
+}
+
+private val javaLambdaRegex = Regex("/[0-pa-fx]+@")
+
+// TODO: tests
+@JvmSynthetic // avoid access from external Java code
+internal fun Any?.javaSyntheticClassObjectAsString(): String =
+    // the replacement removes a not very useful lengthy octal number, so
+    //    `JavaClassWithLambda$$Lambda$366/0x0000000800291440@27a0a5a2`
+    // -> `JavaClassWithLambda$$Lambda$366@27a0a5a2`
+    this.toString().simplifyClassName().replace(javaLambdaRegex, "@")
+
+
+// Lambda's have a nice toString(), e.g. `() -> kotlin.String`, let's use that; optionally with a identityHash
+private fun Any.lambdaToString(toString: String = this.toString()) =
+    if (defaultClassOption.includeIdentityHash) "$toString @${this.identityHashHex}" else toString
 
 private val emptyStringList: List<String> = listOf()
 
@@ -239,6 +275,14 @@ internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null,
     ANNOTATION( { (it as Annotation).annotationAsString() }),
 
     /**
+     * Override: *Java* lambda's cause `kotlin.reflect.jvm.internal.KotlinReflectionInternalError`
+     * if not handled specifically
+     * > *Kotlin* lambdas are not viably recognisable by reflection or other means...
+     * > so this category is for Java lambdas only.
+     */
+    JAVA_LAMBDA( { it.javaSyntheticClassObjectAsString() }),
+
+    /**
      * Override for Java & Kotlin internals: provide sensible alternative for classes
      * without [toString] implementation; add identity if required
      */
@@ -254,23 +298,32 @@ internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null,
         @JvmSynthetic // avoid access from external Java code
         internal fun resolveObjectCategory(obj: Any): AsStringObjectCategory {
             return when {
+                (obj is Number || obj is CharSequence || obj is Char || obj is Temporal) -> BASE
                 obj is Array<*> -> ARRAY
                 obj is Collection<*> -> COLLECTION
-                (obj is Number || obj is CharSequence || obj is Char || obj is Temporal) -> BASE
-                ((obj is Date) && with(obj::class.java.packageName) {
-                    // Date is not final. Only the Java provided classes are handled as BASE
-                    startsWith("java.util") || startsWith("java.sql")
-                }) -> BASE
+                obj.isJavaDate() -> BASE
                 obj is Annotation -> ANNOTATION
                 obj is Throwable -> THROWABLE
-                with(obj::class.java.packageName) {
-                    startsWith("kotlin") || startsWith("java.") || startsWith("sun.") || startsWith("com.sun.")
-                } -> SYSTEM
+                // not really best check ever... but seems the best we have...
+                // NB: Kotlin lambdas are not viably recognisable by reflection or other means...
+                //     so this category is for Java lambdas only.
+                obj::class.java.let {
+                    it.isSynthetic && it.toString().contains("\$\$Lambda\$")
+                } -> JAVA_LAMBDA
+                obj::class.isSystemClass() -> SYSTEM
                 else -> CUSTOM
             }
         }
     }
 }
+
+private val systemClassPackageNames = listOf("kotlin", "java.")
+private fun KClass<*>.isSystemClass() =
+    systemClassPackageNames.any { this.java.packageName.startsWith(it) }
+
+private val datePackageNames = listOf("java.util", "java.sql")
+private fun Any.isJavaDate() =
+    (this is Date) && datePackageNames.any { this::class.java.packageName.startsWith(it) }
 
 /**
  * Helper class to keep track of objects being processed in [asString].
@@ -279,7 +332,7 @@ internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null,
  *
  * > Even simply showing an object (with recursive references) in the debugger will implicitly call `toString()`,
  * > **this may already influence the content of the [objectsMap]** (so may influence result of [asString]);
- * > or may cause stack overflow too.
+ * > or may even cause stack overflow.
  */
 private class ObjectsStackGuard {
 

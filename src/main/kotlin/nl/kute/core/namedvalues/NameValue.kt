@@ -4,7 +4,10 @@ import nl.kute.core.weakreference.ObjectWeakReference
 
 internal typealias Supplier<T> = () -> T?
 
-//TODO: kdoc
+/**
+ * Interface for wrapper classes to provide name / value combinations from various sources.
+ * For usage, see: [nl.kute.core.AsStringBuilder]
+ */
 public interface NameValue<V: Any?> {
     //TODO: kdoc
     public val name: String
