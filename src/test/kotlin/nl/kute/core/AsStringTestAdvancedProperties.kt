@@ -3,18 +3,44 @@
 package nl.kute.core
 
 import nl.kute.base.ObjectsStackVerifier
+import nl.kute.config.restoreInitialAsStringClassOption
+import nl.kute.core.annotation.option.asStringClassOptionCacheSize
+import nl.kute.core.annotation.option.resetAsStringClassOptionCache
+import nl.kute.core.property.propertyAnnotationCacheSize
+import nl.kute.core.property.resetPropertyAnnotationCache
+import nl.kute.log.logger
+import nl.kute.log.resetStdOutLogger
+import nl.kute.reflection.simplifyClassName
+import nl.kute.testobjects.java.JavaClassWithLambda
+import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty0
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaField
 
+private typealias DoubleCalculator = (Double, Double) -> Double
+
 class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
-    /** Demonstrates that a non-initialized lateinit var is regarded as null */
+    @BeforeEach
+    @AfterEach
+    fun setUpAndTearDown() {
+        restoreInitialAsStringClassOption()
+
+        resetPropertyAnnotationCache()
+        resetAsStringClassOptionCache()
+
+        resetStdOutLogger()
+    }
+
     @Test
-    fun `test with lateinit vars`() {
+    fun `uninitialized lateinit vars should be shown as null`() {
         // arrange
         val testObj = ClassWithLateInitVars()
         val initStr = "I am initialized!"
@@ -22,6 +48,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
         // act, assert
         assertThat(testObj.asString())
+            .`as`("non-initialized lateinit var should be regarded as null")
             .contains("myUninitializedLateInitVar=null")
             .contains("myInitializedLateInitVar=I am initialized!")
     }
@@ -148,6 +175,128 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
     }
 
+    @Test
+    fun `kotlin synthetic types shouldn't cause exceptions`() {
+        // Synthetic types etc. will cause UnsupportedOperationException on some reflective calls
+        // The exception is caught, and we have to fall back to a default String representation
+
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+        val property: KProperty0<Any> = this::aPrintableDate
+
+        // act, assert
+        assertThat(property.asString())
+            .`as`("Property should yield format class@identityHashCode")
+            .isEqualTo("${property::class.simplifyClassName()}@${property.identityHashHex}")
+
+        // Lambdas should not be cached (might explode the caches)
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `kotlin lambda's should yield decent output and should not cause exceptions`() {
+        // Lambdas are synthetic types, and will cause UnsupportedOperationException on some reflective calls
+        // The exception is caught, and as lambdas have a nice toString method, we are using that
+        // It's a pity there seems no viable way to determine that it's a lambda via reflection :-(
+
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+        //      () -> kotlin.String
+        val supplier: () -> String = { "a String supplier" }
+        //      (kotlin.Int, kotlin.Int) -> kotlin.Int
+        val multiplier: (Int, Int) -> Int = { i, j -> i * j }
+        //      (kotlin.Double, kotlin.Double) -> kotlin.Double
+        val doubleDivider: DoubleCalculator = { d, e -> d / e }
+
+        listOf(
+            supplier,
+            { "an other String supplier" },
+            multiplier,
+            doubleDivider,
+            { Any() }
+        ).forEachIndexed { i, it ->
+            // act, assert
+            assertThat(it.asString())
+                .`as`("Expression #$i should yield format (...) -> ...")
+                .matches("""^\(.*?\) -> .+$""")
+        }
+        // Lambdas should not be cached (might explode the caches)
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+
+        // for completeness, also test it with instance variables
+        class KotlinClassWithLambda(val lambda1: () -> Int = { 5 }, val lambda2: () -> Unit = {})
+        assertThat(KotlinClassWithLambda().asString())
+            .isEqualTo("KotlinClassWithLambda(lambda1=() -> kotlin.Int, lambda2=() -> kotlin.Unit)")
+    }
+
+    @Test
+    fun `java lambda's should not cause exceptions`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        val withLambda = JavaClassWithLambda()
+        val theClassName = withLambda::class.simplifyClassName()
+        val intSupplierIdHash = withLambda.intSupplier.identityHashHex
+        val intsToStringIdHash = withLambda.intsToString.identityHashHex
+        // Something like
+        // `JavaClassWithLambda(intSupplier=JavaClassWithLambda$$Lambda$366@73d6d0c, intsToString=JavaClassWithLambda$$Lambda$367@238ad8c)`
+        // Not really meaningful, but at least it shouldn't throw exceptions
+        val dollar = """\$"""
+        println(dollar)
+        assertThat(withLambda.asString())
+            .matches("""$theClassName\(intSupplier=$theClassName$dollar${dollar}Lambda$dollar[\d]+@$intSupplierIdHash, intsToString=$theClassName$dollar${dollar}Lambda$dollar[\d]+@$intsToStringIdHash\)""")
+
+        // Class itself should be cached, but lambdas not (might explode the caches)
+        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `object with uninitialized lateinit property should yield decent output with AsString`() {
+        // arrange
+        @Suppress("unused")
+        class WithLateinit {
+            lateinit var uninitializedStringVar: String
+            lateinit var initializedStringVar: String
+            init {
+                if (LocalDate.now().isAfter(LocalDate.of(2000, 1, 1))) {
+                    initializedStringVar = "I am initialized"
+                }
+            }
+            override fun toString(): String = asString()
+        }
+        // act, assert
+        assertThat(WithLateinit().toString())
+            .contains("initializedStringVar=I am initialized")
+            .contains("uninitializedStringVar=null")
+    }
+
     // ------------------------------------
     // Classes etc. to be used in the tests
     // ------------------------------------
@@ -258,8 +407,12 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         val extPropClassLevel: String =
             "a String that calls class level prop extension".classLevelStringExtProp
     }
+
+    private val aPrintableDate = object {
+        override fun toString(): String = LocalDate.of(2022, 1, 27).toString()
+    }
+
 }
 
 private val String.extensionPropAtPackage: String
     get() = "$this; I am a package extension property"
-
