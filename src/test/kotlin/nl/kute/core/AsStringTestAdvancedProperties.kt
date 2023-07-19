@@ -13,12 +13,14 @@ import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.simplifyClassName
 import nl.kute.testobjects.java.advanced.JavaClassWithAnonymousClass
 import nl.kute.testobjects.java.advanced.JavaClassWithCallable
+import nl.kute.testobjects.java.advanced.JavaClassWithHigherOrderFunction
 import nl.kute.testobjects.java.advanced.JavaClassWithLambda
 import nl.kute.testobjects.kotlin.advanced.CallableFactory
 import nl.kute.testobjects.kotlin.advanced.CallableFactoryWithLambda
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClass
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClassFactory
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithCallable
+import nl.kute.testobjects.kotlin.advanced.KotlinClassWithHigherOrderFunction
 import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -33,6 +35,18 @@ import kotlin.reflect.jvm.javaField
 
 private typealias DoubleCalculator = (Double, Double) -> Double
 
+/**
+ * Several of the more exotic or advanced types, e.g. anonymous inner classes, Java lambda's,
+ * synthetic classes, higher order functions, etc. may be generated "on the fly" and/or
+ * cause exceptions in Kotlin reflection; and, there seems no viable and reliable way to detect
+ * these types beforehand.
+ *
+ * So these exceptions need to be handled, and for types generated "on the fly", it is important
+ * that these are *NOT* cached, as this could easily blow up the cache ([OutOfMemoryError]'s).
+ *
+ * Because of this, several tests check the log output, to verify that no unhandled exception occurred;
+ * and also check the cache sizes, to verify that these objects do not blow up the cache / impair stability.
+ */
 @Suppress("ClassWithTooManyDependencies")
 class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
@@ -187,7 +201,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `kotlin synthetic types shouldn't cause exceptions`() {
+    fun `kotlin synthetic types shouldn't cause exceptions and not blow up the cache`() {
         // Synthetic types etc. will cause UnsupportedOperationException on some reflective calls
         // The exception is caught, and we have to fall back to a default String representation
 
@@ -214,7 +228,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `kotlin lambda's should yield decent output and should not cause exceptions`() {
+    fun `kotlin lambda's should yield decent output and should not cause exceptions and not blow up the cache`() {
         // Lambdas are synthetic types, and will cause UnsupportedOperationException on some reflective calls
         // The exception is caught, and as lambdas have a nice toString method, we are using that
         // It's a pity there seems no viable way to determine that it's a lambda via reflection :-(
@@ -259,7 +273,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `java lambda's should not cause exceptions`() {
+    fun `java lambda's should not cause exception and not blow up the cache`() {
         // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
@@ -310,7 +324,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `Java class with anonymous inner class should not cause exception`() {
+    fun `Java class with anonymous inner class should not cause exception and not blow up the cache`() {
         // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
@@ -343,7 +357,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `Java class with Callable should not cause exception`() {
+    fun `Java class with Callable should not cause exception and not blow up the cache`() {
         // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
@@ -373,7 +387,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `Kotlin class with anonymous inner class should not cause exception`() {
+    fun `Kotlin class with anonymous inner class should not cause exception and not blow up the cache`() {
         // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
@@ -405,7 +419,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `Kotlin class with anonymous inner class factory should not blow up the cache`() {
+    fun `Kotlin class with anonymous inner class factory should cause exceptions and not blow up the cache`() {
         // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
@@ -413,11 +427,11 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         assertThat(propertyAnnotationCacheSize).isZero
         assertThat(asStringClassOptionCacheSize).isZero
         val testObj = KotlinClassWithAnonymousClassFactory()
-        assertThat(testObj.asString()).isNotEmpty
+        assertThat(testObj.asString()).isNotBlank
 
         repeat(5) {
-            assertThat(testObj.createLambda().asString()).isNotEmpty
-            assertThat(testObj.createAnonymousInnerClass().asString()).isNotEmpty
+            assertThat(testObj.createLambda().asString()).isNotBlank
+            assertThat(testObj.createAnonymousInnerClass().asString()).isNotBlank
         }
         // Only the classes should be cached, not the properties (might explode the cache)
         assertThat(propertyAnnotationCacheSize).isEqualTo(2)
@@ -449,7 +463,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `Kotlin class with SAM conversion`() {
+    fun `Kotlin class with SAM conversion should not cause exceptions and not blow up the cache`() {
         // SAM = Single Abstract Method. See https://www.baeldung.com/kotlin/sam-conversions
         // arrange
         var logMsg = ""
@@ -473,7 +487,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `Kotlin class with Callable object factory should not blow up the cache`() {
+    fun `Kotlin class with Callable object factory should not cause exception and not blow up the cache`() {
         // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
@@ -486,6 +500,55 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             callableFactory.createCallable().asString()
         }
         // Only the class should be cached, not the properties (might explode the cache)
+        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `Java class with higher order function should not cause exception and not blow up the cache`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        val withHigherOrder = JavaClassWithHigherOrderFunction()
+        repeat(10) {
+            assertThat(withHigherOrder.asString()).isNotBlank
+            assertThat(withHigherOrder.higherOrderFunction.apply(withHigherOrder.reverseIt)).isNotNull
+            assertThat(withHigherOrder.higherOrderFunction.apply(withHigherOrder.toUpper).asString()).isNotNull
+        }
+        // The higher order functions should not be cached (might explode the cache)
+        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+
+        assertThat(logMsg)
+            .`as`("No exception should be logged")
+            .isEmpty()
+    }
+
+    @Test
+    fun `Kotlin class with higher order function should not cause exception and not blow up the cache`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
+
+        val withHigherOrder =
+            KotlinClassWithHigherOrderFunction()
+        repeat(10) {
+            assertThat(withHigherOrder.asString()).isNotBlank
+            assertThat(withHigherOrder.higherOrderFunction (withHigherOrder.reverseIt)).isNotNull
+            assertThat(withHigherOrder.higherOrderFunction (withHigherOrder.toUpper).asString()).isNotNull
+        }
+        // The higher order functions should not be cached (might explode the cache)
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
         assertThat(asStringClassOptionCacheSize).isEqualTo(1)
 
