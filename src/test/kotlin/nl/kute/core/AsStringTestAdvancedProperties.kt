@@ -3,6 +3,7 @@
 package nl.kute.core
 
 import nl.kute.base.ObjectsStackVerifier
+import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.annotation.option.asStringClassOptionCacheSize
 import nl.kute.core.annotation.option.resetAsStringClassOptionCache
@@ -239,12 +240,17 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
         assertThat(propertyAnnotationCacheSize).isZero
         assertThat(asStringClassOptionCacheSize).isZero
-        //      () -> kotlin.String
+        //      () -> String
         val supplier: () -> String = { "a String supplier" }
-        //      (kotlin.Int, kotlin.Int) -> kotlin.Int
+        //      (Int, Int) -> Int
         val multiplier: (Int, Int) -> Int = { i, j -> i * j }
-        //      (kotlin.Double, kotlin.Double) -> kotlin.Double
+        //      (Double, Double) -> Double
         val doubleDivider: DoubleCalculator = { d, e -> d / e }
+
+        assertThat(supplier.asString()).isEqualTo("() -> kotlin.String")
+
+        AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
+        assertThat(supplier.asString()).isEqualTo("() -> kotlin.String @${supplier.identityHashHex}")
 
         listOf(
             supplier,
@@ -258,6 +264,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
                 .`as`("Expression #$i should yield format (...) -> ...")
                 .matches("""^\(.*?\) -> .+$""")
         }
+
         // Lambdas should not be cached (might explode the caches)
         assertThat(propertyAnnotationCacheSize).isZero
         assertThat(asStringClassOptionCacheSize).isZero
@@ -265,8 +272,10 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         assertThat(logMsg)
             .`as`("No exception should be logged")
             .isEmpty()
+    }
 
-        // for completeness, also test it with instance variables
+    @Test
+    fun `kotlin class with lambda property should yield decent output and should not cause exceptions and not blow up the cache`() {
         class KotlinClassWithLambda(val lambda1: () -> Int = { 5 }, val lambda2: () -> Unit = {})
         assertThat(KotlinClassWithLambda().asString())
             .isEqualTo("KotlinClassWithLambda(lambda1=() -> kotlin.Int, lambda2=() -> kotlin.Unit)")

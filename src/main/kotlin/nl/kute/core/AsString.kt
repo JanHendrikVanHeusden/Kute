@@ -217,7 +217,7 @@ private val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
 internal fun Any.syntheticClassObjectAsString(): String {
     return this.toString().let {
         if (it.matches(lambdaToStringRegex))
-            lambdaToString(it)
+            lambdaIdentity(it)
         else this.asStringFallBack()
     }
 }
@@ -231,10 +231,9 @@ internal fun Any?.javaSyntheticClassObjectAsString(): String =
     // -> `JavaClassWithLambda$$Lambda$366@27a0a5a2`
     this.toString().simplifyClassName().replace(javaLambdaRegex, "@")
 
-
 // Lambda's have a nice toString(), e.g. `() -> kotlin.String`, let's use that; optionally with a identityHash
-private fun Any.lambdaToString(toString: String = this.toString()) =
-    if (defaultClassOption.includeIdentityHash) "$toString @${this.identityHashHex}" else toString
+private fun Any.lambdaIdentity(lambdaString: String = this.toString()) =
+    if (defaultClassOption.includeIdentityHash) "$lambdaString @${this.identityHashHex}" else lambdaString
 
 private val emptyStringList: List<String> = listOf()
 

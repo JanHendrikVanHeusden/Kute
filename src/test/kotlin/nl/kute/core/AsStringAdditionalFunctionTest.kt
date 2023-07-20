@@ -193,13 +193,31 @@ class AsStringAdditionalFunctionTest {
     }
 
     @Test
-    fun `syntheticClassObjectAsString should return the lambda type`() {
-        assertThat( { "this is the lambda return value" }.syntheticClassObjectAsString() )
-            .isEqualTo("() -> kotlin.String")
+    fun `syntheticClassObjectAsString should return the lambda type and honour default AsStringClassOption`() {
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse()
 
+        val stringSupplier = { "this is the lambda return value" }
+        val stringSupplierIdHash = stringSupplier.identityHashHex
         val intFunction: (Int, Int) -> Int = { i, j -> i + j }
+        val intFunctionIdHash = intFunction.identityHashHex
+        val swap: (Pair<Int, Int>) -> Pair<Int, Int> = { p -> Pair(p.second, p.first) }
+        val swapIdHash = swap.identityHashHex
+
+        assertThat(stringSupplier.syntheticClassObjectAsString())
+            .isEqualTo("() -> kotlin.String")
         assertThat(intFunction.syntheticClassObjectAsString())
             .isEqualTo("(kotlin.Int, kotlin.Int) -> kotlin.Int")
+        assertThat(swap.syntheticClassObjectAsString())
+            .isEqualTo("(kotlin.Pair<kotlin.Int, kotlin.Int>) -> kotlin.Pair<kotlin.Int, kotlin.Int>")
+
+        AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
+
+        assertThat(stringSupplier.syntheticClassObjectAsString())
+            .isEqualTo("() -> kotlin.String @$stringSupplierIdHash")
+        assertThat(intFunction.syntheticClassObjectAsString())
+            .isEqualTo("(kotlin.Int, kotlin.Int) -> kotlin.Int @$intFunctionIdHash")
+        assertThat(swap.syntheticClassObjectAsString())
+            .isEqualTo("(kotlin.Pair<kotlin.Int, kotlin.Int>) -> kotlin.Pair<kotlin.Int, kotlin.Int> @$swapIdHash")
     }
 
     @Test
