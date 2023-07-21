@@ -78,7 +78,7 @@ public final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property:
     }
 
     private fun isPropertyCoherent(propertyClass: Class<out Any>?, objClassJava: Class<out T & Any>?): Boolean {
-        val isCoherent = (propertyClass == null || objClass == null
+        val isCoherent = ((propertyClass == null || objClass == null
                 // Somehow retrieving the property value will succeed when property is of type KProperty0, even when
                 // incompatible (non-coherent) classes (feels weird; maybe necessary to support delegation?)
                 // This appears necessary for retrieval of values from super hierarchy, so seems "by design"
@@ -87,11 +87,7 @@ public final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property:
                 //   > ClassCastException on call of valueString.
                 //     > KProperty1<T,V> also defines the object type T
                 //     > (whereas KProperty0<V> only defines the value type)
-                || property is KProperty0 // let KProperty0 go, even if incompatible
-                //   > So for KProperty1, we want to detect incompatibility / inconsistency early,
-                //   > instead of difficult to track downstream ClassCastException
-                //   So mark it as not coherent in that case.
-                || objClassJava?.isAssignableFrom(propertyClass) == true)
+                || property is KProperty0) || propertyClass.isAssignableFrom(objClassJava as Class<*>))
 
         if (!isCoherent) {
             // Instead of downstream ClassCastException, we better signal the issue early
