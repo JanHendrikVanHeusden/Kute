@@ -1,6 +1,6 @@
 package nl.kute.core.namedvalues
 
-import nl.kute.base.GarbageCollectionWaiter
+import nl.kute.test.base.GarbageCollectionWaiter
 import nl.kute.core.asString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger

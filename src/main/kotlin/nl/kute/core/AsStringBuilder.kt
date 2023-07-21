@@ -10,7 +10,23 @@ import nl.kute.reflection.declaringClass
 import nl.kute.reflection.simplifyClassName
 import kotlin.reflect.KProperty
 
-//TODO: kdoc
+/**
+ * Builder to allow more options than [nl.kute.core.asString], like additional properties, filtering out properties
+ * (by property or by name), specify ordering, etc.
+ *
+ * Building it can be done explicitly by calling [AsStringBuilder.build], or implicitly by the first call to
+ * [AsStringBuilder.asString].
+ * * After being built, the [AsStringBuilder] is effectively immutable.
+ * * Without any further settings (e.g. [exceptProperties], [withAlsoProperties], [alsoNamed] etc.),
+ *   the call to [AsStringBuilder.asString] produces the same result as [nl.kute.core.asString]
+ *
+ * *Usage:*
+ * * For best performance, the [AsStringBuilder] object (or the [AsStringProducer] object produced by the [build]
+ *   method) may be stored as an instance variable within the class it applies to.
+ *   This avoids the cost of building it over and over (like when it is part of a log-statement or of a
+ *   `toString()` method).
+ * * An [AsStringBuilder] does not prevent garbage collection of the object it applies to (it uses weak reference).
+ */
 public class AsStringBuilder private constructor(private var obj: Any?) : AsStringProducer() {
 
     private val objectReference: ObjectWeakReference<*> = ObjectWeakReference(obj)
@@ -47,21 +63,37 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
 
     private var isBuilt: Boolean = false
 
-    /** Allows adding properties of related objects, e.g. member objects, delegates etc. */
+    /**
+     * Allows adding additional related properties, e.g. member objects, delegates etc.
+     * @param props the properties to be added to the output of [asString]
+     */
     public fun withAlsoProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
             this.alsoNamed.addAll(props.map { objectReference.get().namedProp(it) })
         }
         return this
     }
-    //TODO: kdoc
+
+    /**
+     * Allows adding additional related [NameValue]s, that provide property-like named values.
+     *
+     * This allows to add arbitrary values to the [asString] output, e.g. unrelated properties,
+     * calculated values, etc.
+     * > For usage of these, see the subclasses of [NameValue]
+     * @param nameValues The [NameValue]s to add to the output of [asString]
+     */
     public fun withAlsoNamed(vararg nameValues: NameValue<*>): AsStringBuilder {
         if (!isBuilt) {
             this.alsoNamed.addAll(nameValues)
         }
         return this
     }
-    //TODO: kdoc
+
+    /**
+     * Restricts the output to only the object's properties listed in [props].
+     * > *NB:* [NameValue]s added by [withAlsoNamed] and [withAlsoProperties] are not filtered out.
+     * @param props The restrictive list of properties to be included in the output of [toString].
+     */
     public fun withOnlyProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
             this.onlyProperties.addAll(props.filter(isMatchingProperty))
@@ -123,7 +155,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
                 " alsoNamed = ${alsoNamed.map { it.name }})"
     }
 
-    //TODO: kdoc
+    /** Static method [asStringBuilder] to create an [AsStringBuilder] object */
     public companion object {
         @JvmStatic
         //TODO: kdoc

@@ -1,7 +1,7 @@
 package nl.kute.core
 
-import nl.kute.base.ObjectsStackVerifier
-import nl.kute.base.validateObjectsStack
+import nl.kute.test.base.ObjectsStackVerifier
+import nl.kute.test.base.validateObjectsStack
 import nl.kute.reflection.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

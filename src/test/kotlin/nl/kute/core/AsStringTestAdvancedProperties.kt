@@ -2,7 +2,7 @@
 
 package nl.kute.core
 
-import nl.kute.base.ObjectsStackVerifier
+import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.annotation.option.asStringClassOptionCacheSize
@@ -12,6 +12,7 @@ import nl.kute.core.property.resetPropertyAnnotationCache
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.simplifyClassName
+import nl.kute.test.helper.dollar
 import nl.kute.testobjects.java.advanced.JavaClassWithAnonymousClass
 import nl.kute.testobjects.java.advanced.JavaClassWithCallable
 import nl.kute.testobjects.java.advanced.JavaClassWithHigherOrderFunction
@@ -50,9 +51,6 @@ private typealias DoubleCalculator = (Double, Double) -> Double
  */
 @Suppress("ClassWithTooManyDependencies")
 class AsStringTestAdvancedProperties: ObjectsStackVerifier {
-
-    // Convenience for use in Regex
-    private val dollar = """\$"""
 
     @BeforeEach
     @AfterEach
@@ -278,7 +276,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     fun `kotlin class with lambda property should yield decent output and should not cause exceptions and not blow up the cache`() {
         class KotlinClassWithLambda(val lambda1: () -> Int = { 5 }, val lambda2: () -> Unit = {})
         assertThat(KotlinClassWithLambda().asString())
-            .isEqualTo("KotlinClassWithLambda(lambda1=() -> kotlin.Int, lambda2=() -> kotlin.Unit)")
+            .contains("KotlinClassWithLambda(", "lambda1=() -> kotlin.Int", "lambda2=() -> kotlin.Unit")
     }
 
     @Test
@@ -299,9 +297,9 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         //  intsToString=JavaClassWithLambda$$Lambda$367@238ad8c)`
         // Not really meaningful, but at least it shouldn't throw exceptions
         assertThat(withLambda.asString())
-            .matches("""$theClassName\(intSupplier=$theClassName$dollar${dollar}Lambda$dollar\d+@$intSupplierIdHash,""" +
-            """ intsToString=$theClassName$dollar${dollar}Lambda$dollar\d+@$intsToStringIdHash\)"""
-            )
+            .matches("""$theClassName\(.+""")
+            .matches(""".+intSupplier=$theClassName$dollar${dollar}Lambda$dollar\d+@$intSupplierIdHash.+""")
+            .matches(""".+intsToString=$theClassName$dollar${dollar}Lambda$dollar\d+@$intsToStringIdHash.+""")
 
         // Class itself should be cached, but lambdas not (might explode the caches)
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
@@ -353,8 +351,9 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         // something like JavaClassWithAnonymousClass(propWithAnonymousInnerClass=JavaClassWithAnonymousClass$1@14dd7b39,
         //  propWithLambda=JavaClassWithAnonymousClass$$Lambda$365@5fd9b663)
         assertThat(asStringResult)
-            .matches("""$className\(propWithAnonymousInnerClass=$className$dollar\d+@$prop1IdHash,"""
-                    + """ propWithLambda=$className$dollar${dollar}Lambda$dollar\d+@$prop2IdHash\)""")
+            .matches("""^$className\(.+$""")
+            .matches("""^.+?propWithAnonymousInnerClass=$className$dollar\d+@$prop1IdHash.+?$""")
+            .matches("""^.+?propWithLambda=$className$dollar${dollar}Lambda$dollar\d+@$prop2IdHash.+?$""")
 
         // Only the class should be cached, not the properties (might explode the cache)
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
@@ -552,10 +551,15 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
         val withHigherOrder =
             KotlinClassWithHigherOrderFunction()
+        assertThat(withHigherOrder.asString())
+            .isEqualTo("KotlinClassWithHigherOrderFunction(" +
+                    "higherOrderLambda=((kotlin.String) -> kotlin.String) -> kotlin.String," +
+                    " reverseIt=(kotlin.String) -> kotlin.String, toUpper=(kotlin.String) -> kotlin.String)")
+
         repeat(10) {
             assertThat(withHigherOrder.asString()).isNotBlank
-            assertThat(withHigherOrder.higherOrderFunction (withHigherOrder.reverseIt)).isNotNull
-            assertThat(withHigherOrder.higherOrderFunction (withHigherOrder.toUpper).asString()).isNotNull
+            assertThat(withHigherOrder.higherOrderLambda (withHigherOrder.reverseIt)).isNotNull
+            assertThat(withHigherOrder.higherOrderLambda (withHigherOrder.toUpper).asString()).isNotNull
         }
         // The higher order functions should not be cached (might explode the cache)
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)

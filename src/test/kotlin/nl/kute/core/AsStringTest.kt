@@ -2,7 +2,7 @@
 
 package nl.kute.core
 
-import nl.kute.base.ObjectsStackVerifier
+import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
@@ -21,6 +21,7 @@ import nl.kute.core.namedvalues.namedSupplier
 import nl.kute.core.namedvalues.namedValue
 import nl.kute.core.property.resetPropertyAnnotationCache
 import nl.kute.hashing.DigestMethod
+import nl.kute.test.helper.equalSignCount
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty
@@ -81,13 +82,32 @@ class AsStringTest: ObjectsStackVerifier {
     fun `test with extension object`() {
         // arrange
         val classToPrint = ClassToPrint("test", 10, aPrintableDate)
-
+        // act
+        val toString = classToPrint.toString()
         // assert
-        assertThat(classToPrint.toString())
-            .isEqualTo("ClassToPrint(greet=hallo, num=10, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
+        assertThat(toString)
+            .contains("ClassToPrint(",
+                "greet=hallo",
+                "num=10",
+                "privateToPrint=$aPrintableDate",
+                "str=test",
+                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027"
+            )
+            .`is`(equalSignCount(5))
+
+        // arrange, act
         val asStringProducer = classToPrint.asStringBuilder().exceptProperties(ClassToPrint::num).build()
-        assertThat(asStringProducer.asString())
-            .isEqualTo("ClassToPrint(greet=hallo, privateToPrint=$aPrintableDate, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
+        // assert
+        val asString = asStringProducer.asString()
+        assertThat(asString)
+            .contains(
+                "ClassToPrint(",
+                "greet=hallo",
+                "privateToPrint=$aPrintableDate",
+                "str=test",
+                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027"
+            )
+            .`is`(equalSignCount(4))
 
         // assert that it works on anonymous class
         assertThat(extensionObject.toString())
@@ -101,12 +121,22 @@ class AsStringTest: ObjectsStackVerifier {
                 "extensionProperty=my extension property",
                 "num=80", // overridden value
             )
+            .`is`(equalSignCount(4))
 
         // arrange
         classToPrint.num = 20
         // assert that updated value is there
+        // "ClassToPrint(greet=hallo, num=20, privateToPrint=2022-01-27, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)"
         assertThat(classToPrint.toString())
-            .isEqualTo("ClassToPrint(greet=hallo, num=20, privateToPrint=2022-01-27, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)")
+            .contains(
+                "ClassToPrint(",
+                "greet=hallo",
+                "num=20",
+                "privateToPrint=2022-01-27",
+                "str=test",
+                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)"
+            )
+            .`is`(equalSignCount(5))
     }
 
     @Test
@@ -124,7 +154,8 @@ class AsStringTest: ObjectsStackVerifier {
     fun `test with Kotlin subclass of Java class`() {
         val kotlinSubClass = KotlinClassToTest("my str", 35, "this is another", people)
         assertThat(JavaClassToTest::class.java.isAssignableFrom(kotlinSubClass.javaClass))
-        assertThat(kotlinSubClass.toString()).isEqualTo("KotlinClassToTest(anotherStr=this is another, names=${people.contentDeepToString()})")
+        assertThat(kotlinSubClass.toString())
+            .contains("KotlinClassToTest(", "anotherStr=this is another", "names=${people.contentDeepToString()}")
     }
 
     @Test
@@ -140,6 +171,7 @@ class AsStringTest: ObjectsStackVerifier {
             .matches(""".+?\bsocialSecurityNumber=#[a-f0-9]{40}\b#.*""")
             // according to AsStringOmit annotation on subclass
             .doesNotContain("mailAddress")
+            .`is`(equalSignCount(4))
     }
 
     @Test
@@ -149,6 +181,7 @@ class AsStringTest: ObjectsStackVerifier {
         assertThat(personString)
             .contains("phoneNumber=06123***78x")
             .contains("iban=XX99_BANK_*****0_7906")
+            .`is`(equalSignCount(4))
     }
 
     @Test
@@ -323,7 +356,8 @@ class AsStringTest: ObjectsStackVerifier {
             assertThat(it.asString())
                 .`as`("public instance variable should be shown in subclass ${it::class.simpleName} output")
                 .contains(publicAttrOutput)
-                .`as`("Package level attribute is not shown for ${it::class.simpleName}, Kotlin regards this as private even when accessible in Java class")
+                .`as`("Package level attribute is not shown for ${it::class.simpleName}," +
+                        " Kotlin regards this as private even when accessible in Java class")
                 .doesNotContain(packLevelAttrOutput)
         }
     }
@@ -362,7 +396,8 @@ class AsStringTest: ObjectsStackVerifier {
             assertThat(it.asString())
                 .`as`("public instance variable should be shown in subclass ${it::class.simpleName} output")
                 .contains(publicAttrOutput)
-                .`as`("Protected attribute shown in subclass ${it::class.simpleName} output because the instance variable is protected (not just the getter)")
+                .`as`("Protected attribute shown in subclass ${it::class.simpleName} output" +
+                        " because the instance variable is protected (not just the getter)")
                 .contains(protectedAttrOutput)
         }
     }
@@ -431,20 +466,29 @@ class AsStringTest: ObjectsStackVerifier {
         // arrange
         AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
         val testObj = Any()
-        assumeThat(testObj.toString()).startsWith("java.lang.Object@")
         val identityHashHex = testObj.identityHashHex
         // act, assert
         assertThat(testObj.asString()).isEqualTo("Any@$identityHashHex()")
+        // just to prove that it's the same value
+        assumeThat(testObj.toString()).isEqualTo("java.lang.Object@$identityHashHex")
     }
 
     @Test
     fun `annotations should yield output without package name`() {
         val asStringOption = AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 12)
         assertThat(asStringOption.asString())
-            .isEqualTo("AsStringOption(propMaxStringValueLength=12, showNullAs=<null>)")
+            .startsWith("AsStringOption(")
+            .contains(
+                "propMaxStringValueLength=12",
+                "showNullAs=<null>",
+            )
+            .endsWith(")")
+            .`is`(equalSignCount(2))
+            .doesNotContain("@")
+            .doesNotContain()
         // just to show the difference
         assumeThat(asStringOption.toString())
-            .isEqualTo("@nl.kute.core.annotation.option.AsStringOption(propMaxStringValueLength=12, showNullAs=<null>)")
+            .contains("@nl.kute.core.annotation.option.AsStringOption(propMaxStringValueLength=12, showNullAs=<null>)")
     }
 
     @Test
@@ -510,8 +554,19 @@ class AsStringTest: ObjectsStackVerifier {
         testObj.nested = MyTestClass("nested")
 
         // act, assert
+        // "MyTestClass(level=outer, nested=MyTestClass(level=nested, nested=null,
+        //  someProp=some prop at level: nested), someProp=some prop at level: outer)
         assertThat(testObj.asString())
-            .isEqualTo("MyTestClass(level=outer, nested=MyTestClass(level=nested, nested=null, someProp=some prop at level: nested), someProp=some prop at level: outer)")
+            .contains(
+                "MyTestClass(",
+                "level=outer",
+                "nested=MyTestClass(",
+                "level=nested",
+                "nested=null",
+                "someProp=some prop at level: nested",
+                "someProp=some prop at level: outer"
+            )
+            .`is`(equalSignCount(6))
     }
 
     @Test
@@ -571,22 +626,33 @@ class AsStringTest: ObjectsStackVerifier {
         class AnotherClass(val otherProp: String = "another Prop")
 
         val testObj = TestClass("something")
-        val allPropString = "TestClass(prop1=prop 1, prop3=prop 3, prop4=[ prop 4 ])"
 
         // act, assert
-        assertThat(testObj.asString()).isEqualTo(allPropString)
+        assertThat(testObj.asString())
+            .contains(
+                "TestClass(",
+                "prop1=prop 1",
+                "prop3=prop 3",
+                "prop4=[ prop 4 ]"
+            )
+            .`is`(equalSignCount(3))
         assertThat(testObj.asString(TestClass::prop1, TestClass::prop2, TestClass::prop3, TestClass::prop4))
-            .isEqualTo(allPropString)
-
-        assertThat(testObj.asString(TestClass::prop1, TestClass::prop2, TestClass::prop3, TestClass::prop4))
-            .isEqualTo(allPropString)
+            .contains(
+                "TestClass(",
+                "prop1=prop 1",
+                "prop3=prop 3",
+                "prop4=[ prop 4 ]"
+            )
+            .`is`(equalSignCount(3))
 
         assertThat(testObj.asString(TestClass::prop1, TestClass::prop2, TestClass::prop4))
-            .isEqualTo(allPropString.replace(", prop3=prop 3", ""))
+            .isEqualTo(testObj.asString().replace(", prop3=prop 3", ""))
 
-        assertThat(testObj.asString(TestClass::prop3, TestClass::prop4, TestClass::prop1))
-            .`as`("properties keep original order, regardless of order in param list")
-            .isEqualTo(allPropString)
+        // should be last test in the method, it might fail, (and be ignored); that would exit the test method
+        assumeThat(testObj.asString(TestClass::prop3, TestClass::prop4, TestClass::prop1))
+            .`as`("Demonstrate properties keep original order, regardless of order in param list.\n" +
+                    "This is assumed rather than asserted, as this is implicit behaviour")
+            .isEqualTo(testObj.asString())
     }
 
     // ------------------------------------

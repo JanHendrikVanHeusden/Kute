@@ -23,7 +23,7 @@ private val illegalAccessInfo: String =
 
 private val inaccessibleObjectInfo: String =
     """ You may want either to:
-       |  * export your module to `nl.kute` (preferred) to allow reflective accesss (with Jigsaw named modules)
+       |  * export your module to `nl.kute` (preferred) to allow reflective access (with Osgi or Jigsaw named modules)
        |  * set the JVM's illegal access flag to `--illegal-access=permit` or `--illegal-access=warn`
        |    (not working anymore in Java 17+ see https://openjdk.org/jeps/403)
        |  * set the JVM's `--add-opens` option for the required packages
@@ -45,7 +45,7 @@ internal fun KProperty<*>?.handlePropValException(exception: Exception) {
                     log(
                         """$baseErrMsg
                 | $illegalAccessInfo
-                | Objects that are not accessible will be represented as `null` Maybe a security manager blocks it.
+                | Objects that are not accessible will be represented as `null`. Maybe a security manager blocks it.
                 | This warning is shown only once.""".trimMargin()
                     )
                     illegalAccessReported = true
@@ -68,7 +68,7 @@ internal fun KProperty<*>?.handlePropValException(exception: Exception) {
 
             is InvocationTargetException -> {
                 if (this?.isLateinit == true && exception.cause is UninitializedPropertyAccessException) {
-                    // lateinit property not yet initialized, no need to print error message. Just consider it null
+                    // lateinit property not yet initialized, no need to print error message. Just consider it null.
                 } else {
                     log(baseErrMsg)
                 }

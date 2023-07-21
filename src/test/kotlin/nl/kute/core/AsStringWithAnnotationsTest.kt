@@ -1,6 +1,6 @@
 package nl.kute.core
 
-import nl.kute.base.ObjectsStackVerifier
+import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.config.defaultMaxStringValueLength
 import nl.kute.config.defaultNullString
 import nl.kute.core.annotation.modify.AsStringHash

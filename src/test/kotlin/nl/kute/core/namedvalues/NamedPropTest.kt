@@ -1,6 +1,6 @@
 package nl.kute.core.namedvalues
 
-import nl.kute.base.GarbageCollectionWaiter
+import nl.kute.test.base.GarbageCollectionWaiter
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit

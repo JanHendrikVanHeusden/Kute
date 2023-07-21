@@ -1,6 +1,6 @@
 package nl.kute.core
 
-import nl.kute.base.ObjectsStackVerifier
+import nl.kute.test.base.ObjectsStackVerifier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

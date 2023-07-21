@@ -1,6 +1,6 @@
 package nl.kute.core.annotation
 
-import nl.kute.base.ObjectsStackVerifier
+import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.annotation.option.AsStringClassOption

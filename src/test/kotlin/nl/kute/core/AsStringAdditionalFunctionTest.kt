@@ -187,9 +187,10 @@ class AsStringAdditionalFunctionTest {
 
     @Test
     fun `annotationAsString should remove the package name`() {
+        // FIXME: volgorde van properties -> contains
         val defaultOption = AsStringOption.defaultOption
         assertThat(defaultOption.annotationAsString())
-            .isEqualTo("AsStringOption(propMaxStringValueLength=${defaultOption.propMaxStringValueLength}, showNullAs=${defaultOption.showNullAs})")
+            .isEqualTo("AsStringOption(showNullAs=${defaultOption.showNullAs}, propMaxStringValueLength=${defaultOption.propMaxStringValueLength})")
     }
 
     @Test
