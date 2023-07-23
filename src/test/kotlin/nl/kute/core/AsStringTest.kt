@@ -2,7 +2,6 @@
 
 package nl.kute.core
 
-import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
@@ -11,6 +10,7 @@ import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.asStringClassOptionCacheSize
 import nl.kute.core.annotation.option.resetAsStringClassOptionCache
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.NamedProp
@@ -19,9 +19,12 @@ import nl.kute.core.namedvalues.NamedValue
 import nl.kute.core.namedvalues.namedProp
 import nl.kute.core.namedvalues.namedSupplier
 import nl.kute.core.namedvalues.namedValue
+import nl.kute.core.property.propertyAnnotationCacheSize
 import nl.kute.core.property.resetPropertyAnnotationCache
 import nl.kute.hashing.DigestMethod
+import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.test.helper.equalSignCount
+import nl.kute.test.helper.isObjectAsString
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty
@@ -86,28 +89,27 @@ class AsStringTest: ObjectsStackVerifier {
         val toString = classToPrint.toString()
         // assert
         assertThat(toString)
-            .contains("ClassToPrint(",
+            .isObjectAsString(
+                "ClassToPrint",
                 "greet=hallo",
                 "num=10",
                 "privateToPrint=$aPrintableDate",
                 "str=test",
-                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027"
+                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
             )
-            .`is`(equalSignCount(5))
 
         // arrange, act
         val asStringProducer = classToPrint.asStringBuilder().exceptProperties(ClassToPrint::num).build()
         // assert
         val asString = asStringProducer.asString()
         assertThat(asString)
-            .contains(
-                "ClassToPrint(",
+            .isObjectAsString(
+                "ClassToPrint",
                 "greet=hallo",
                 "privateToPrint=$aPrintableDate",
                 "str=test",
-                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027"
+                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
             )
-            .`is`(equalSignCount(4))
 
         // assert that it works on anonymous class
         assertThat(extensionObject.toString())
@@ -128,13 +130,13 @@ class AsStringTest: ObjectsStackVerifier {
         // assert that updated value is there
         // "ClassToPrint(greet=hallo, num=20, privateToPrint=2022-01-27, str=test, uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)"
         assertThat(classToPrint.toString())
-            .contains(
-                "ClassToPrint(",
+            .isObjectAsString(
+                "ClassToPrint",
                 "greet=hallo",
                 "num=20",
                 "privateToPrint=2022-01-27",
                 "str=test",
-                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027)"
+                "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
             )
             .`is`(equalSignCount(5))
     }
@@ -146,16 +148,19 @@ class AsStringTest: ObjectsStackVerifier {
             on { asString() } doReturn "mock as String"
         }
         assertThat(testMock.asString()).isEqualTo("mock as String")
-        // mocks have their own toString; should just not break
-        assertThat(testMock.toString()).isNotNull
     }
 
     @Test
     fun `test with Kotlin subclass of Java class`() {
+        // num is private in the super class, so not included in the subclass asString()
         val kotlinSubClass = KotlinClassToTest("my str", 35, "this is another", people)
         assertThat(JavaClassToTest::class.java.isAssignableFrom(kotlinSubClass.javaClass))
         assertThat(kotlinSubClass.toString())
-            .contains("KotlinClassToTest(", "anotherStr=this is another", "names=${people.contentDeepToString()}")
+            .isObjectAsString(
+                "KotlinClassToTest(",
+                "anotherStr=this is another",
+                "names=${people.contentDeepToString()}",
+            )
     }
 
     @Test
@@ -206,7 +211,7 @@ class AsStringTest: ObjectsStackVerifier {
             // If you don't like that, use `NamedProp` or `NamedSupplier` instead
             "value" to { classLevelCounter.namedValue(valueName) as NamedValue<Int> }
         )
-        val namedXxx = mapOfNamedValues[namedValueType]!!
+        val namedXxx: () -> NameValue<Int?> = mapOfNamedValues[namedValueType]!!
 
         class TestClass {
             override fun toString(): String = asStringBuilder().withAlsoNamed(namedXxx()).asString()
@@ -225,7 +230,6 @@ class AsStringTest: ObjectsStackVerifier {
             assertThat(asString)
                 .`as`("Should honour changed value")
                 .matches("^.+\\b$valueName=$classLevelCounter\\D")
-            assertThat(classLevelCounter).isEqualTo(classLevelCounter)
         }
     }
 
@@ -435,6 +439,8 @@ class AsStringTest: ObjectsStackVerifier {
     @Test
     fun `Java and Kotlin types should adhere to their original toString`() {
         // arrange
+        resetAsStringClassOptionCache()
+        resetPropertyAnnotationCache()
         listOf(
             123,
             "123",
@@ -450,6 +456,9 @@ class AsStringTest: ObjectsStackVerifier {
             // act, assert
             assertThat(it.asString()).isEqualTo(it.toString())
         }
+        // should not be cached
+        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(asStringClassOptionCacheSize).isZero
     }
 
     @Test
@@ -539,7 +548,14 @@ class AsStringTest: ObjectsStackVerifier {
             val prop5: Exception = object: IllegalArgumentException("that's wrong") {
                 override fun toString(): String = asString()
             }
+            override fun toString(): String = asString()
         }
+        val testObj = SubClass()
+        assertThat(testObj.toString())
+            .startsWith("SubClass(")
+            .contains(
+                "prop5=message=that's wrong",
+            )
     }
 
     @Test

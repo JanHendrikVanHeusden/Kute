@@ -1,6 +1,5 @@
 package nl.kute.util
 
-
 /**
  * @param maxStackTraceLines The maximum number of stack trace lines to be included in the result; default = 5.
  *                           When 0 or negative, an empty String is returned.

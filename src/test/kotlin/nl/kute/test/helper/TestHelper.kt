@@ -1,5 +1,6 @@
 package nl.kute.test.helper
 
+import org.assertj.core.api.AbstractStringAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Condition
 
@@ -20,6 +21,7 @@ fun containsExactCharCount(theChar: Char, expectedCount: Int): Condition<String>
     }.`as` { "a String containing exactly $expectedCount `$theChar` character(s), but it contains $actualCount of it" }
 }
 
+
 /**
  * @return AssertJ [Condition] to assert that the exact number of `=` characters in a String
  * is equal to [expectedCount].
@@ -29,38 +31,83 @@ fun containsExactCharCount(theChar: Char, expectedCount: Int): Condition<String>
 internal fun equalSignCount(expectedCount: Int): Condition<String> =
     containsExactCharCount('=', expectedCount)
 
-fun containsExhaustiveInAnyOrder(
-    vararg strings: String,
-    ignoreChars: String = " ",
-    ignorePrefix: String = "",
-    ignoreSuffix: String = ""): Condition<String> {
+/**
+ * Convenience assertion for [nl.kute.core.asString], which asserts that:
+ * * the given input String starts with the given [className] (where trailing `(` is ignored) followed by `(`
+ * * that the remainder of the input String consists exactly of the given [propertyStrings], in any order
+ * * with as last String [withLastPropertyString] (where trailing `)` is ignored)
+ * * followed by `)`
+ * * with the intermittent `, ` separators and trailing `)` ignored
+ * @return if the assertion succeeds, the resulting [AbstractStringAssert];
+ * otherwise an [AssertionError] is thrown
+ */
+fun AbstractStringAssert<*>.isObjectAsString(className: String, vararg propertyStrings: String, withLastPropertyString: String = "") =
+    this.containsExhaustiveInAnyOrder(
+        *propertyStrings,
+        withPrefix = "${className.trimEnd('(')}(",
+        withSuffix = "${withLastPropertyString.trimEnd(')')})",
+        ignoreChars = ", "
+    )
 
-    var strippedString: String
+/**
+ * Assertion that the given input String:
+ *  * is prefixed / suffixed by [withPrefix] / [withSuffix], if not blank,
+ *  * contains **only** the [strings] and the prefix and suffix,
+ *  * with [ignoreChars] ignored *after* the [strings] and [withPrefix] / [withSuffix] are matched.
+ * > The assertion is exhaustive, meaning that when [withPrefix], [withSuffix] and [strings] are removed from the
+ * > input String, and all characters of [ignoreChars] are removed, the remaining String should be empty.
+ * * The values of [withPrefix] and [withSuffix] may or may not also be present in the [strings] arguments; this does
+ *   not affect the assertion result.
+ * @return if the assertion succeeds, the resulting [AbstractStringAssert];
+ * otherwise an [AssertionError] is thrown
+ */
+fun AbstractStringAssert<*>.containsExhaustiveInAnyOrder(
+    vararg strings: String,
+    ignoreChars: String = "",
+    withPrefix: String = "",
+    withSuffix: String = ""): AbstractStringAssert<*> =
+    this.`is`(containsExhaustiveInAnyOrderCondition(*strings,
+        ignoreChars = ignoreChars,
+        withPrefix = withPrefix,
+        withSuffix = withSuffix)
+    )
+
+private fun containsExhaustiveInAnyOrderCondition(
+    vararg strings: String,
+    ignoreChars: String = "",
+    withPrefix: String = "",
+    withSuffix: String = ""
+): Condition<String> {
+
     var remainingString: String
     var errorMessage: String? = null
     return object: Condition<String>() {
         override fun matches(string: String): Boolean {
-            strippedString = string.removePrefix(ignorePrefix).removeSuffix(ignoreSuffix)
             try {
-                assertThat(strippedString).contains(*strings)
+                assertThat(string)
+                    .startsWith(withPrefix)
+                    .endsWith(withSuffix)
+                    .contains(*(if (strings.isEmpty()) arrayOf("") else strings))
             } catch (e: AssertionError) {
                 errorMessage = e.message
                 throw e
             }
-            remainingString = strippedString
+            remainingString = string.removePrefix(withPrefix).removeSuffix(withSuffix)
             strings.forEach { remainingString = remainingString.replace(it, "") }
             if (ignoreChars.isNotEmpty()) {
                 ignoreChars.forEach {
                     remainingString = remainingString.replace(it.toString(), "")
                 }
-                if (remainingString.isNotEmpty()) {
-                    errorMessage =
-                        "a String containing exactly ${strings.contentDeepToString()}" +
-                                " (with prefix and suffix ignored, if specified), but it also contains " +
-                                if (remainingString.isBlank()) "${remainingString.length} whitespace characters"
-                                else "the characters of `$remainingString`"
-                }
             }
+            if (remainingString.isNotEmpty()) {
+                val ignoreCharMsg = if (ignoreChars.isEmpty()) "" else ", and with characters of `$ignoreChars` ignored"
+                errorMessage =
+                    "a String containing exactly ${strings.contentDeepToString()}" +
+                            " (with prefix and suffix, if specified$ignoreCharMsg), but it also contains " +
+                            if (remainingString.isBlank()) "${remainingString.length} whitespace characters"
+                            else "the characters of `$remainingString`"
+            }
+
             return remainingString.isEmpty()
         }
     }.`as` { errorMessage }

@@ -1,7 +1,5 @@
 package nl.kute.core
 
-import nl.kute.test.base.GarbageCollectionWaiter
-import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringOmit
@@ -11,8 +9,9 @@ import nl.kute.core.namedvalues.namedProp
 import nl.kute.core.namedvalues.namedValue
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
-import nl.kute.test.helper.containsExhaustiveInAnyOrder
-import nl.kute.test.helper.equalSignCount
+import nl.kute.test.base.GarbageCollectionWaiter
+import nl.kute.test.base.ObjectsStackVerifier
+import nl.kute.test.helper.isObjectAsString
 import nl.kute.util.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -39,14 +38,12 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
         // SubClassWithPrintMask(nullable=$showNullAs2, replaced=xx is replaced, hashProperty=#$hashCode#)
         assertThat(testSubObj.asStringBuilder().asString())
             .isEqualTo(testSubObj.asString())
-            .`is`(containsExhaustiveInAnyOrder(
+            .isObjectAsString(
+                "SubClassWithPrintMask",
                 "nullable=$showNullAs2",
                 "replaced=xx is replaced",
-                "hashProperty=#$hashCode#",
-            ignoreChars = ", ",
-            ignorePrefix = "SubClassWithPrintMask(",
-            ignoreSuffix = ")"
-            ))
+                "hashProperty=#$hashCode#"
+            )
     }
 
     @Test
@@ -85,9 +82,12 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
             .asString()
         // assert
         assertThat(asStringSub)
-            .contains("SubClassWithPrintMask(", "replaced=xx is replaced", "hashProperty=#$hashCode#")
             .doesNotContain("nullable=", "privateProp=")
-            .`is`(equalSignCount(2))
+            .isObjectAsString(
+                "SubClassWithPrintMask",
+                "replaced=xx is replaced",
+                "hashProperty=#$hashCode#",
+            )
     }
 
     @Test
@@ -103,13 +103,12 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
             .asString()
         // assert
         assertThat(asString)
-            .contains(
-                "ClassWithHashProperty(",
+            .isObjectAsString(
+                "ClassWithHashProperty",
                 "nullable=$showNullAs",
                 "hashProperty=#$hashCode#",
-                "privateProp=${namedVal.valueString}"
+                "privateProp=${namedVal.valueString}",
             )
-            .`is`(equalSignCount(3))
 
         // act
         val asStringSub = testSubObj.asStringBuilder()
@@ -117,9 +116,12 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
             .asString()
         // assert
         assertThat(asStringSub)
-            .contains("replaced=", "hashProperty=#${hashCode}")
             .doesNotContain("nullable=", "privateProp=")
-            .`is`(equalSignCount(2))
+            .isObjectAsString(
+                "SubClassWithPrintMask",
+                "replaced=xx is replaced",
+                "hashProperty=#${hashCode}#",
+            )
     }
 
     @Test
@@ -129,14 +131,13 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
             .withAlsoProperties(testSubObj::replaced)
             .asString()
         assertThat(asString)
-            .contains(
-                "ClassWithHashProperty(",
+            .isObjectAsString(
+                "ClassWithHashProperty",
                 "hashProperty=#$hashCode#",
                 "nullable=$showNullAs",
-                "privateProp=I am a private property"
+                "privateProp=I am a private property",
+                withLastPropertyString = "replaced=xx is replaced",
             )
-            .endsWith(", replaced=xx is replaced)")
-            .`is`(equalSignCount(4))
     }
 
     @Test
@@ -149,15 +150,13 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
             .withAlsoNamed(namedProp, namedValue)
             .asString()
         assertThat(asString)
-            .contains(
-                "ClassWithHashProperty(",
+            .isObjectAsString(
+                "ClassWithHashProperty",
                 "hashProperty=#$hashCode#",
-                "nullable=$showNullAs",
                 "privateProp=I am a private property",
-                "nullable=$showNullAs2"
+                "nullable=$showNullAs",
+                withLastPropertyString = "nullable=$showNullAs2, I am a named value=some string"
             )
-            .endsWith(", I am a named value=some string)")
-            .`is`(equalSignCount(5))
     }
 
     @Test
@@ -176,11 +175,11 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
         // arrange
         val testObj = SubClassWithPrintMask()
         assertThat(testObj.asString())
-            .contains(
-                "SubClassWithPrintMask(",
+            .isObjectAsString(
+                "SubClassWithPrintMask",
                 "nullable=[null]",
                 "replaced=xx is replaced",
-                "hashProperty=#9813ac95#)"
+                "hashProperty=#9813ac95#",
             )
 
         // act, assert
@@ -189,15 +188,15 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
             .withAlsoNamed("the value".namedValue("name of named value"))
             .withOnlyProperties(SubClassWithPrintMask::replaced)
             .asString())
-            .contains(
+            .doesNotContain("nullable=")
+            .isObjectAsString(
                 "SubClassWithPrintMask(",
                 "replaced=xx is replaced",
                 "hashProperty=#9813ac95#",
-                "name of named value=the value"
+                withLastPropertyString = "name of named value=the value)"
             )
-            .doesNotContain("nullable=")
-            .`is`(equalSignCount(3))
     }
+
     @Test
     fun `AsStringBuilder should ignore non-matching properties in withOnlyProperties`() {
         // arrange
@@ -219,9 +218,12 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
             .withOnlyPropertyNames("replaced", "hashProperty")
             .asString()
         assertThat(asString)
-            .contains("SubClassWithPrintMask(","replaced=xx is replaced", "hashProperty=#$hashCode#")
             .doesNotContain("nullable=")
-            .`is`(equalSignCount(2))
+            .isObjectAsString(
+                "SubClassWithPrintMask(",
+                "replaced=xx is replaced",
+                "hashProperty=#$hashCode#"
+            )
     }
 
     @Test
