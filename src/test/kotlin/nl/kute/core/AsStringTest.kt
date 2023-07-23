@@ -23,8 +23,8 @@ import nl.kute.core.property.propertyAnnotationCacheSize
 import nl.kute.core.property.resetPropertyAnnotationCache
 import nl.kute.hashing.DigestMethod
 import nl.kute.test.base.ObjectsStackVerifier
-import nl.kute.test.helper.equalSignCount
-import nl.kute.test.helper.isObjectAsString
+import nl.kute.core.test.helper.equalSignCount
+import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty

@@ -21,34 +21,6 @@ fun containsExactCharCount(theChar: Char, expectedCount: Int): Condition<String>
     }.`as` { "a String containing exactly $expectedCount `$theChar` character(s), but it contains $actualCount of it" }
 }
 
-
-/**
- * @return AssertJ [Condition] to assert that the exact number of `=` characters in a String
- * is equal to [expectedCount].
- * > Typically usage is to assert the number of properties captured in a [nl.kute.core.asString] return value,
- * > by counting the `=` characters.
- */
-internal fun equalSignCount(expectedCount: Int): Condition<String> =
-    containsExactCharCount('=', expectedCount)
-
-/**
- * Convenience assertion for [nl.kute.core.asString], which asserts that:
- * * the given input String starts with the given [className] (where trailing `(` is ignored) followed by `(`
- * * that the remainder of the input String consists exactly of the given [propertyStrings], in any order
- * * with as last String [withLastPropertyString] (where trailing `)` is ignored)
- * * followed by `)`
- * * with the intermittent `, ` separators and trailing `)` ignored
- * @return if the assertion succeeds, the resulting [AbstractStringAssert];
- * otherwise an [AssertionError] is thrown
- */
-fun AbstractStringAssert<*>.isObjectAsString(className: String, vararg propertyStrings: String, withLastPropertyString: String = "") =
-    this.containsExhaustiveInAnyOrder(
-        *propertyStrings,
-        withPrefix = "${className.trimEnd('(')}(",
-        withSuffix = "${withLastPropertyString.trimEnd(')')})",
-        ignoreChars = ", "
-    )
-
 /**
  * Assertion that the given input String:
  *  * is prefixed / suffixed by [withPrefix] / [withSuffix], if not blank,
