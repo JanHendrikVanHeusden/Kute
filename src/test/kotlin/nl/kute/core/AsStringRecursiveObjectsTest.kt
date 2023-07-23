@@ -1,5 +1,6 @@
 package nl.kute.core
 
+import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.test.base.validateObjectsStack
 import nl.kute.reflection.simplifyClassName
@@ -83,12 +84,14 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
             }
         }
 
-        val myTestObj = MyTestClass()
-        val expected =
-            "MyTestClass(myArray=[a0, a1, [L0, recursive: Array(...), L2, recursive: Array(...), L4], [L0, recursive: Array(...), L2, recursive: Array(...), L4], a4], " +
-                    "myList=[L0, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L2, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L4])"
         // act, assert
-        assertThat(myTestObj.asString()).isEqualTo(expected)
+        val myTestObj = MyTestClass()
+        assertThat(myTestObj.asString())
+            .isObjectAsString(
+                "MyTestClass",
+                "myArray=[a0, a1, [L0, recursive: Array(...), L2, recursive: Array(...), L4], [L0, recursive: Array(...), L2, recursive: Array(...), L4], a4]",
+                "myList=[L0, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L2, [a0, a1, recursive: ArrayList(...), recursive: ArrayList(...), a4], L4]"
+            )
     }
 
     @Test
@@ -161,14 +164,18 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
         }
 
         val testObj = MyTestClass()
-        val expected =
-            "MyTestClass(list1=[first 1, second 1, third 1, [first 2, second 2, third 2, recursive: ArrayList(...), recursive: ArrayList(...)]," +
-                    " [first 2, second 2, third 2, recursive: ArrayList(...), recursive: ArrayList(...)]], list2=[first 2, second 2, third 2, " +
-                    "[first 1, second 1, third 1, recursive: LinkedList(...), recursive: LinkedList(...)], [first 1, second 1, third 1, " +
-                    "recursive: LinkedList(...), recursive: LinkedList(...)]])"
 
         // act, assert
-        assertThat(testObj.asString()).isEqualTo(expected)
+        assertThat(testObj.asString())
+            .isObjectAsString(
+                "MyTestClass",
+                "list1=[first 1, second 1, third 1, [first 2, second 2, third 2," +
+                        " recursive: ArrayList(...), recursive: ArrayList(...)], [first 2, second 2, third 2," +
+                        " recursive: ArrayList(...), recursive: ArrayList(...)]]",
+                "list2=[first 2, second 2, third 2, [first 1, second 1, third 1," +
+                        " recursive: LinkedList(...), recursive: LinkedList(...)], [first 1, second 1, third 1, " +
+                        "recursive: LinkedList(...), recursive: LinkedList(...)]]"
+            )
     }
 
     @Suppress("unused")
@@ -187,6 +194,12 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
         val expected = "$className(id=1, otherRef=$className(id=2, otherRef=null, selfRef=null), selfRef=recursive: $className(...))"
         // act, assert
         assertThat(testObj.asString()).isEqualTo(expected)
+            .isObjectAsString(
+                className,
+                "id=1",
+                "otherRef=${testObj.otherRef.asString()}",
+                "selfRef=recursive: $className(...)"
+            )
     }
 
     @Suppress("unused")

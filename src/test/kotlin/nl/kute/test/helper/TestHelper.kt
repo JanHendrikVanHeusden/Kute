@@ -18,7 +18,7 @@ fun containsExactCharCount(theChar: Char, expectedCount: Int): Condition<String>
             actualCount = string.count { it == theChar }
             return actualCount == expectedCount
         }
-    }.`as` { "a String containing exactly $expectedCount `$theChar` character(s), but it contains $actualCount of it" }
+    }.`as` { "a String containing exactly $expectedCount `$theChar` character(s); but it contains $actualCount of it" }
 }
 
 /**
@@ -74,8 +74,8 @@ private fun containsExhaustiveInAnyOrderCondition(
             if (remainingString.isNotEmpty()) {
                 val ignoreCharMsg = if (ignoreChars.isEmpty()) "" else ", and with characters of `$ignoreChars` ignored"
                 errorMessage =
-                    "a String containing exactly ${strings.contentDeepToString()}" +
-                            " (with prefix and suffix, if specified$ignoreCharMsg), but it also contains " +
+                    "a String containing exactly\n${strings.contentDeepToString()}" +
+                            "\n(with prefix and suffix, if specified$ignoreCharMsg).\nBut it also contains " +
                             if (remainingString.isBlank()) "${remainingString.length} whitespace characters"
                             else "the characters of `$remainingString`"
             }
@@ -83,4 +83,28 @@ private fun containsExhaustiveInAnyOrderCondition(
             return remainingString.isEmpty()
         }
     }.`as` { errorMessage }
+}
+
+/**
+ * Trims the first character off the String if that character `==` [charToTrim].
+ * > `null` safe.
+ * @return If the first character is [charToTrim], a new String with the first character of the input String trimmed;
+ * otherwise, the original input String
+ */
+fun String?.trimFirstIf(charToTrim: Char): String? {
+    return if (this == null) null else {
+        if (this.startsWith(charToTrim)) this.drop(1)  else this
+    }
+}
+
+/**
+ * Trims the last character off the String if that character `==` [charToTrim].
+ * > `null` safe.
+ * @return If the last character is [charToTrim], a new String without the last character of the input String trimmed;
+ * otherwise, the original input String
+ */
+fun String?.trimLastIf(charToTrim: Char): String? {
+    return if (this == null) null else {
+        if (this.endsWith(charToTrim)) this.dropLast(1) else this
+    }
 }

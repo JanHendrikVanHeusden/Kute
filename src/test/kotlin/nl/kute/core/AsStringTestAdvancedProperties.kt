@@ -9,6 +9,7 @@ import nl.kute.core.annotation.option.asStringClassOptionCacheSize
 import nl.kute.core.annotation.option.resetAsStringClassOptionCache
 import nl.kute.core.property.propertyAnnotationCacheSize
 import nl.kute.core.property.resetPropertyAnnotationCache
+import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.simplifyClassName
@@ -73,8 +74,11 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         // act, assert
         assertThat(testObj.asString())
             .`as`("non-initialized lateinit var should be regarded as null")
-            .contains("myUninitializedLateInitVar=null")
-            .contains("myInitializedLateInitVar=I am initialized!")
+            .isObjectAsString(
+                "ClassWithLateInitVars",
+                "myUninitializedLateInitVar=null",
+                "myInitializedLateInitVar=I am initialized!"
+            )
     }
 
     /** Demonstrates that the (implicit) lazy initialization is performed only once */
@@ -276,7 +280,11 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     fun `kotlin class with lambda property should yield decent output and should not cause exceptions and not blow up the cache`() {
         class KotlinClassWithLambda(val lambda1: () -> Int = { 5 }, val lambda2: () -> Unit = {})
         assertThat(KotlinClassWithLambda().asString())
-            .contains("KotlinClassWithLambda(", "lambda1=() -> kotlin.Int", "lambda2=() -> kotlin.Unit")
+            .isObjectAsString(
+                "KotlinClassWithLambda",
+                "lambda1=() -> kotlin.Int",
+                "lambda2=() -> kotlin.Unit"
+            )
     }
 
     @Test
@@ -326,8 +334,11 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         }
         // act, assert
         assertThat(WithLateinit().toString())
-            .contains("initializedStringVar=I am initialized")
-            .contains("uninitializedStringVar=null")
+            .isObjectAsString(
+                "WithLateinit",
+                "initializedStringVar=I am initialized",
+                "uninitializedStringVar=null"
+            )
     }
 
     @Test
@@ -552,9 +563,12 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         val withHigherOrder =
             KotlinClassWithHigherOrderFunction()
         assertThat(withHigherOrder.asString())
-            .isEqualTo("KotlinClassWithHigherOrderFunction(" +
-                    "higherOrderLambda=((kotlin.String) -> kotlin.String) -> kotlin.String," +
-                    " reverseIt=(kotlin.String) -> kotlin.String, toUpper=(kotlin.String) -> kotlin.String)")
+            .isObjectAsString(
+                "KotlinClassWithHigherOrderFunction(",
+                "higherOrderLambda=((kotlin.String) -> kotlin.String) -> kotlin.String",
+                " reverseIt=(kotlin.String) -> kotlin.String",
+                "toUpper=(kotlin.String) -> kotlin.String"
+            )
 
         repeat(10) {
             assertThat(withHigherOrder.asString()).isNotBlank

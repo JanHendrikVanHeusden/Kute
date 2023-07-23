@@ -2,6 +2,8 @@ package nl.kute.core.test.helper
 
 import nl.kute.test.helper.containsExactCharCount
 import nl.kute.test.helper.containsExhaustiveInAnyOrder
+import nl.kute.test.helper.trimFirstIf
+import nl.kute.test.helper.trimLastIf
 import org.assertj.core.api.AbstractStringAssert
 import org.assertj.core.api.Condition
 
@@ -27,7 +29,7 @@ internal fun equalSignCount(expectedCount: Int): Condition<String> =
 fun AbstractStringAssert<*>.isObjectAsString(className: String, vararg propertyStrings: String, withLastPropertyString: String = "") =
     this.containsExhaustiveInAnyOrder(
         *propertyStrings,
-        withPrefix = "${className.trimEnd('(')}(",
-        withSuffix = "${withLastPropertyString.trimEnd(')')})",
+        withPrefix = "${className.trimLastIf('(')}(",
+        withSuffix = "${withLastPropertyString.trimFirstIf(')')})",
         ignoreChars = ", "
     )

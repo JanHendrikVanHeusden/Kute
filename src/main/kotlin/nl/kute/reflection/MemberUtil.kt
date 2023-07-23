@@ -63,7 +63,7 @@ internal fun KProperty<*>.declaringClass(): KClass<*>? =
     try {
         this?.javaGetter?.declaringClass?.kotlin ?: this?.javaField?.declaringClass?.kotlin
     } catch (e: Exception) {
-        logWithCaller(fqn, "${e.javaClass.simpleName} occurred when retrieving declaring class of property [${this?.name}]; exception: ${e.asString()}")
+        logWithCaller(fqn, "${e.javaClass.name.simplifyClassName()} occurred when retrieving declaring class of property [${this?.name}]; exception: ${e.asString()}")
         null
     }
 

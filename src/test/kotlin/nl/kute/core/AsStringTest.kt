@@ -38,6 +38,7 @@ import nl.kute.testobjects.java.protectedvisibility.SubClassOfJavaClassWithProte
 import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubSubClassOfClassWithProtectedProperty
+import nl.kute.util.asString
 import nl.kute.util.identityHashHex
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -169,7 +170,8 @@ class AsStringTest: ObjectsStackVerifier {
         val personString = person.toString()
         assertThat(personString)
             // according to annotations on interface properties, not on subclass;
-            // so the "overriding" annotations are not honored
+            // so the "overriding" annotations are not honoured
+            .startsWith("Person(")
             .contains("iban=NL99 BANK *****0 7906")
             .contains("phoneNumber=06123***789")
             .contains("password=**********")
@@ -485,19 +487,21 @@ class AsStringTest: ObjectsStackVerifier {
     @Test
     fun `annotations should yield output without package name`() {
         val asStringOption = AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 12)
+
         assertThat(asStringOption.asString())
-            .startsWith("AsStringOption(")
-            .contains(
+            .isObjectAsString(
+                "AsStringOption",
                 "propMaxStringValueLength=12",
-                "showNullAs=<null>",
+                "showNullAs=<null>"
             )
-            .endsWith(")")
-            .`is`(equalSignCount(2))
-            .doesNotContain("@")
-            .doesNotContain()
+
         // just to show the difference
         assumeThat(asStringOption.toString())
-            .contains("@nl.kute.core.annotation.option.AsStringOption(propMaxStringValueLength=12, showNullAs=<null>)")
+            .isObjectAsString(
+                "@nl.kute.core.annotation.option.AsStringOption",
+                "propMaxStringValueLength=12",
+                "showNullAs=<null>"
+            )
     }
 
     @Test
@@ -550,12 +554,16 @@ class AsStringTest: ObjectsStackVerifier {
             }
             override fun toString(): String = asString()
         }
+
         val testObj = SubClass()
         assertThat(testObj.toString())
             .startsWith("SubClass(")
             .contains(
-                "prop5=message=that's wrong",
-            )
+                "prop1=*rop1",
+                "prop2=${testObj.prop2}",
+                "prop4=${testObj.prop4}",
+                "prop5=${testObj.prop5.asString().lines().first()}"
+            ).doesNotContain("prop3=")
     }
 
     @Test
@@ -645,16 +653,16 @@ class AsStringTest: ObjectsStackVerifier {
 
         // act, assert
         assertThat(testObj.asString())
-            .contains(
-                "TestClass(",
+            .isObjectAsString(
+                "TestClass",
                 "prop1=prop 1",
                 "prop3=prop 3",
                 "prop4=[ prop 4 ]"
             )
             .`is`(equalSignCount(3))
         assertThat(testObj.asString(TestClass::prop1, TestClass::prop2, TestClass::prop3, TestClass::prop4))
-            .contains(
-                "TestClass(",
+            .isObjectAsString(
+                "TestClass",
                 "prop1=prop 1",
                 "prop3=prop 3",
                 "prop4=[ prop 4 ]"

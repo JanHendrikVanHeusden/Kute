@@ -6,6 +6,7 @@ import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.reflection.hasImplementedToString
 import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat
@@ -187,10 +188,13 @@ class AsStringAdditionalFunctionTest {
 
     @Test
     fun `annotationAsString should remove the package name`() {
-        // FIXME: volgorde van properties -> contains
         val defaultOption = AsStringOption.defaultOption
         assertThat(defaultOption.annotationAsString())
-            .isEqualTo("AsStringOption(showNullAs=${defaultOption.showNullAs}, propMaxStringValueLength=${defaultOption.propMaxStringValueLength})")
+            .isObjectAsString(
+                "AsStringOption",
+                "showNullAs=${defaultOption.showNullAs}",
+                "propMaxStringValueLength=${defaultOption.propMaxStringValueLength}"
+            )
     }
 
     @Test

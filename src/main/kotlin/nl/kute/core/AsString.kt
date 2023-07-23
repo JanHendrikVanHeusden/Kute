@@ -140,13 +140,13 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                     return obj.syntheticClassObjectAsString()
                 } catch (e: Exception) {
                     log(
-                        "ERROR: Exception ${e.javaClass.simpleName} occurred when retrieving string value" +
+                        "ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
                                 " for object of class ${this.javaClass};$lineEnd${e.asString(50)}"
                     )
                     return obj.asStringFallBack()
                 } catch (t: Throwable) {
                     log(
-                        "FATAL ERROR: Throwable ${t.javaClass.simpleName} occurred when retrieving string value" +
+                        "FATAL ERROR: Throwable ${t.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
                                 " for object of class ${this.javaClass};$lineEnd${t.asString(50)}"
                     )
                     return obj.asStringFallBack()

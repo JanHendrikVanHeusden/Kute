@@ -193,7 +193,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
                 "SubClassWithPrintMask(",
                 "replaced=xx is replaced",
                 "hashProperty=#9813ac95#",
-                withLastPropertyString = "name of named value=the value)"
+                withLastPropertyString = "name of named value=the value"
             )
     }
 

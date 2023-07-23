@@ -2,6 +2,7 @@ package nl.kute.core.annotation.modify
 
 import nl.kute.core.asString
 import nl.kute.log.log
+import nl.kute.reflection.simplifyClassName
 import nl.kute.util.ifNull
 import java.lang.annotation.Inherited
 import java.util.concurrent.ConcurrentHashMap
@@ -51,7 +52,7 @@ internal fun AsStringReplace?.replacePattern(strVal: String?): String? =
         } catch (e: Exception) {
             // The property's value is probably sensitive
             // So make sure not to use the value in the error message
-            log("${e.javaClass.simpleName} occurred when replacing a value using pattern `$pattern`; and replacement `$replacement` exception: [${e.asString()}]")
+            log("${e.javaClass.name.simplifyClassName()} occurred when replacing a value using pattern `$pattern`; and replacement `$replacement` exception: [${e.asString()}]")
             ""
         }
     }

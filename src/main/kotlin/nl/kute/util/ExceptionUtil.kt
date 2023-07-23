@@ -1,5 +1,7 @@
 package nl.kute.util
 
+import nl.kute.reflection.simplifyClassName
+
 /**
  * @param maxStackTraceLines The maximum number of stack trace lines to be included in the result; default = 5.
  *                           When 0 or negative, an empty String is returned.
@@ -17,4 +19,4 @@ internal fun Throwable.stackTraceLinesAsString(maxStackTraceLines: Int = 5): Str
  */
 @JvmSynthetic // avoid access from external Java code
 internal fun Throwable.asString(maxStackTraceLines: Int = 5): String =
-    "${this.javaClass.simpleName}: message=$message$lineEnd\t cause=${cause?.javaClass?.simpleName}$lineEnd ${this.stackTraceLinesAsString(maxStackTraceLines)}"
+    "${this::class.simplifyClassName()}: message=$message$lineEnd\t cause=${cause?.javaClass?.name?.simplifyClassName()}$lineEnd ${this.stackTraceLinesAsString(maxStackTraceLines)}"
