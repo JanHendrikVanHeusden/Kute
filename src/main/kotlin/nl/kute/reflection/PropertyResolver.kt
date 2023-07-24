@@ -45,7 +45,7 @@ internal fun <T : Any> KClass<T>.propertiesFromSubSuperHierarchy(): List<KProper
  * * The properties may or may not be accessible ([KProperty.isAccessible])
  */
 @Suppress("SameParameterValue")
-private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean, filterKuteProps: Boolean = true): List<KProperty<*>> {
+private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean, skipKuteProps: Boolean = true): List<KProperty<*>> {
     val classHierarchy: List<KClass<in T>> = if (mostSuper) this.superSubHierarchy() else this.subSuperHierarchy()
     val linkedHashSet: LinkedHashSet<KProperty1<T, *>> = linkedSetOf()
     return linkedHashSet.also { theSet ->
@@ -82,7 +82,7 @@ private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean, filt
                 .filter { !it.isPrivate() || it.declaringClass() == this }
                 // In case of overloads or name-shadowing, keep the property that is first in the hierarchy
                 .distinctBy { prop -> prop.name }
-                .filterNot { filterKuteProps && kutePropertyClassFilter.invoke(it) }
+                .filterNot { skipKuteProps && kutePropertyClassFilter.invoke(it) }
                 .toList() as List<KProperty1<T, *>>
         )
     }.toList()

@@ -26,7 +26,10 @@ public annotation class AsStringOption(
     /** How to show nulls? Default is "`"null"`" (by [initialNullString]), but you may opt for something else */
     val showNullAs: String = initialNullString,
     /** The maximum String value length **per property**.
-     * Default is 500 (by [initialMaxStringValueLength]). 0 means: an empty String; negative values mean: [Int.MAX_VALUE], so effectively no maximum. */
+     * * default is 500 (by [initialMaxStringValueLength])
+     * * 0 results in an empty String;
+     * * negative values mean: [Int.MAX_VALUE], so effectively no maximum.
+     */
     val propMaxStringValueLength: Int = initialMaxStringValueLength
 ) {
 

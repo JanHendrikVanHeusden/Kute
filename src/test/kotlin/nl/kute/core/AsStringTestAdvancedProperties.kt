@@ -277,13 +277,17 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
+    @Suppress("UNUSED_ANONYMOUS_PARAMETER", "UNUSED_LAMBDA_EXPRESSION")
     fun `kotlin class with lambda property should yield decent output and should not cause exceptions and not blow up the cache`() {
-        class KotlinClassWithLambda(val lambda1: () -> Int = { 5 }, val lambda2: () -> Unit = {})
+        // A lambda that is a property of a class does NOT yield UnsupportedOperationException
+        // So it's handled differently from local lambda variables.
+        class KotlinClassWithLambda(val lambda1: () -> Int = { 5 }, val lambda2: (Int, Double) -> Unit = { i, d -> {/**/}
+        })
         assertThat(KotlinClassWithLambda().asString())
             .isObjectAsString(
                 "KotlinClassWithLambda",
                 "lambda1=() -> kotlin.Int",
-                "lambda2=() -> kotlin.Unit"
+                "lambda2=(kotlin.Int, kotlin.Double) -> kotlin.Unit"
             )
     }
 
