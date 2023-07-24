@@ -2,7 +2,6 @@
 
 package nl.kute.core
 
-import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.annotation.option.asStringClassOptionCacheSize
@@ -13,6 +12,7 @@ import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.simplifyClassName
+import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.test.helper.dollar
 import nl.kute.testobjects.java.advanced.JavaClassWithAnonymousClass
 import nl.kute.testobjects.java.advanced.JavaClassWithCallable
@@ -249,10 +249,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         //      (Double, Double) -> Double
         val doubleDivider: DoubleCalculator = { d, e -> d / e }
 
-        assertThat(supplier.asString()).isEqualTo("() -> kotlin.String")
-
-        AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
-        assertThat(supplier.asString()).isEqualTo("() -> kotlin.String @${supplier.identityHashHex}")
+        assertThat(supplier.asString()).isEqualTo("() -> String")
 
         listOf(
             supplier,
@@ -277,17 +274,29 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    @Suppress("UNUSED_ANONYMOUS_PARAMETER", "UNUSED_LAMBDA_EXPRESSION")
     fun `kotlin class with lambda property should yield decent output and should not cause exceptions and not blow up the cache`() {
         // A lambda that is a property of a class does NOT yield UnsupportedOperationException
         // So it's handled differently from local lambda variables.
-        class KotlinClassWithLambda(val lambda1: () -> Int = { 5 }, val lambda2: (Int, Double) -> Unit = { i, d -> {/**/}
-        })
-        assertThat(KotlinClassWithLambda().asString())
+        class KotlinClassWithLambda {
+            val lambda1: () -> Int = { 5 }
+            @Suppress("UNUSED_LAMBDA_EXPRESSION")
+            val lambda2: (Int, Double) -> Unit = { _, _ -> { /**/ } }
+        }
+
+        val testObj = KotlinClassWithLambda()
+        val identityHashHex = testObj.identityHashHex
+        assertThat(testObj.asString())
             .isObjectAsString(
                 "KotlinClassWithLambda",
-                "lambda1=() -> kotlin.Int",
-                "lambda2=(kotlin.Int, kotlin.Double) -> kotlin.Unit"
+                "lambda1=() -> Int",
+                "lambda2=(Int, Double) -> Unit"
+            )
+        AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
+        assertThat(testObj.asString())
+            .isObjectAsString(
+                "KotlinClassWithLambda@$identityHashHex",
+                "lambda1=() -> Int",
+                "lambda2=(Int, Double) -> Unit"
             )
     }
 
@@ -569,9 +578,9 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         assertThat(withHigherOrder.asString())
             .isObjectAsString(
                 "KotlinClassWithHigherOrderFunction(",
-                "higherOrderLambda=((kotlin.String) -> kotlin.String) -> kotlin.String",
-                " reverseIt=(kotlin.String) -> kotlin.String",
-                "toUpper=(kotlin.String) -> kotlin.String"
+                "higherOrderLambda=((String) -> String) -> String",
+                " reverseIt=(String) -> String",
+                "toUpper=(String) -> String"
             )
 
         repeat(10) {
@@ -582,6 +591,13 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         // The higher order functions should not be cached (might explode the cache)
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
         assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+
+        class KotlinClassWithHigherOrderLambda(aDouble: Double, anotherDouble: Double) {
+            val higherOrderLambda: ((Double, Double) -> () -> Int) -> () -> Int =
+                { doublesToInt -> doublesToInt.invoke(aDouble, anotherDouble) }
+        }
+        assertThat(KotlinClassWithHigherOrderLambda(1.23456, 2.34567).asString())
+            .isEqualTo("KotlinClassWithHigherOrderLambda(higherOrderLambda=((Double, Double) -> () -> Int) -> () -> Int)")
 
         assertThat(logMsg)
             .`as`("No exception should be logged")

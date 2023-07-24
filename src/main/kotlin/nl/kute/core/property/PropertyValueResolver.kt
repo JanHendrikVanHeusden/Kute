@@ -12,6 +12,7 @@ import nl.kute.core.annotation.modify.replacePattern
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.applyOption
 import nl.kute.core.asString
+import nl.kute.core.isLambdaProperty
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
@@ -48,8 +49,8 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
     } else {
         value.asString()
     }
-    if (annotations.isEmpty()) {
-        return strValue
+    if (prop.isLambdaProperty(strValue)) {
+        strValue = strValue!!.lambdaSignatureString()
     }
     if (annotations.any { it is AsStringOmit }) {
         return ""
@@ -138,3 +139,19 @@ internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, 
         annotations.add(annotation)
     }
 }
+
+private val lambdaParamPackageNameRegex = Regex("""([ (<])\b[a-zA-Z0-9_$]+?\.+?(.+?\b([,)>]|$))""")
+
+/**
+ * Strips off the package names of a String that is supposed to be a lambda signature,
+ * e.g.
+ *  * `(kotlin.Int, kotlin.String) -> kotlin.String`
+ *      => `(Int, String) -> String`
+ *  * `(kotlin.Pair<kotlin.Int, kotlin.Int>) -> kotlin.Pair<kotlin.Int, kotlin.Int>`
+ *      => `(Pair<Int, Int>) -> Pair<Int, Int>`
+ */
+@JvmSynthetic // avoid access from external Java code
+internal fun String.lambdaSignatureString(): String =
+    this.replace(lambdaParamPackageNameRegex, "$1$2").let { stripped ->
+        if (stripped == this) stripped else stripped.lambdaSignatureString()
+    }
