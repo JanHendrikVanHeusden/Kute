@@ -3,7 +3,7 @@
 package nl.kute.reflection
 
 import nl.kute.log.logWithCaller
-import nl.kute.util.asString
+import nl.kute.util.throwableAsString
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
@@ -63,7 +63,7 @@ internal fun KProperty<*>.declaringClass(): KClass<*>? =
     try {
         this?.javaGetter?.declaringClass?.kotlin ?: this?.javaField?.declaringClass?.kotlin
     } catch (e: Exception) {
-        logWithCaller(fqn, "${e.javaClass.name.simplifyClassName()} occurred when retrieving declaring class of property [${this?.name}]; exception: ${e.asString()}")
+        logWithCaller(fqn, "${e.javaClass.name.simplifyClassName()} occurred when retrieving declaring class of property [${this?.name}]; exception: ${e.throwableAsString()}")
         null
     }
 

@@ -5,7 +5,7 @@ import nl.kute.hashing.DigestMethod.JAVA_HASHCODE
 import nl.kute.log.logWithCaller
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.asHexString
-import nl.kute.util.asString
+import nl.kute.util.throwableAsString
 import nl.kute.util.byteArrayToHex
 import java.nio.charset.Charset
 import java.security.MessageDigest
@@ -56,7 +56,7 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
         // The property's value is probably sensitive, so make sure not to use the value in the error message
         logWithCaller(
             "Hashing.hashString()",
-            "${t.javaClass.name.simplifyClassName()} occurred when hashing with digestMethod $digestMethod; exception: [${t.asString()}]"
+            "${t.javaClass.name.simplifyClassName()} occurred when hashing with digestMethod $digestMethod; exception: [${t.throwableAsString()}]"
         )
         null
     }

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 import java.util.Stack
 import java.util.UUID
 
-class AsStringAdditionalFunctionTest {
+class AsStringObjectCategoryFunctionsTest {
 
     @BeforeEach
     @AfterEach
@@ -224,7 +224,13 @@ class AsStringAdditionalFunctionTest {
         assertThat(System.out.syntheticClassObjectAsString() )
             .isEqualTo(System.out.asStringFallBack())
 
-        val unit: Unit = println()
+        class Dummy {
+            var dummy: Int = 0
+            fun setTheDummy(x: Int) {
+                this.dummy = x
+            }
+        }
+        val unit: Unit = Dummy().setTheDummy(1)
         assertThat(unit.syntheticClassObjectAsString())
             .isEqualTo(unit.asStringFallBack())
     }

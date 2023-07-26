@@ -2,7 +2,7 @@
 
 package nl.kute.log
 
-import nl.kute.util.asString
+import nl.kute.util.throwableAsString
 import java.util.function.Consumer
 
 /** Logs message [msg] to [loggerWithCaller], prefixed by the receiver's class name  */
@@ -53,7 +53,7 @@ public var logger: (String?) -> Unit = stdOutLogger
             field.invoke(
                 """Tried to set logger, but logger caused exception ${e::class}.
                 | logger will not be changed!
-                | ${e.asString()}
+                | ${e.throwableAsString()}
                 | """.trimMargin()
             )
         }

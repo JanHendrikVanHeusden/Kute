@@ -1,14 +1,16 @@
 package nl.kute.core
 
+import nl.kute.config.stringJoinMaxCount
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.property.lambdaSignatureString
 import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.simplifyClassName
-import nl.kute.util.asString
+import nl.kute.util.throwableAsString
 import nl.kute.util.identityHashHex
 import java.time.temporal.Temporal
+import java.util.Calendar
 import java.util.Date
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -24,8 +26,8 @@ import kotlin.reflect.jvm.javaType
 internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null, val guardStack: Boolean = false) {
 // TODO: tests
     /**
-     * Internal stuff like [Number], [String], [Date], [Temporal], [Char],
-     * these have sensible [toString] implementations that we shouldn't override
+     * Base stuff like [Number], [String], [Date], [Temporal], [Char], these have
+     * sensible [toString] implementations that we need not (and should not) override
      */
     BASE( { it.toString() }),
 
@@ -35,22 +37,20 @@ internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null,
     /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
     ARRAY( { (it as Array<*>).arrayAsString() }, true),
 
+    /** Override: arrays of primitives (e.g. [IntArray], [BooleanArray], [CharArray] lack proper [toString] implementation */
+    PRIMITIVE_ARRAY( { it.primitiveArrayAsString() }),
+
     /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
     MAP( { (it as Map<*, *>).mapAsString() }, true),
 
-    /** Override: [Throwable.toString] is way too verbose */
-    THROWABLE( { (it as Throwable).asString() }),
+    /** Override: default [Throwable.toString] is way too verbose */
+    THROWABLE( { (it as Throwable).throwableAsString() }),
 
-    /** Override: [Annotation.toString] strip package name */
+    /** Override: [Annotation.toString] strips package name off */
     ANNOTATION( { (it as Annotation).annotationAsString() }),
 
-    /**
-     * Override: *Java* lambda's cause `kotlin.reflect.jvm.internal.KotlinReflectionInternalError`
-     * if not handled specifically
-     * > *Kotlin* lambdas are not viably recognisable by reflection or other means...
-     * > so this category is for Java lambdas only.
-     */
-    JAVA_LAMBDA( { it.javaSyntheticClassObjectAsString() }),
+    /** Override: String representation needs some tidying by [lambdaPropertyAsString] */
+    LAMBDA_PROPERTY( { it.lambdaPropertyAsString() }),
 
     /**
      * Override for Java & Kotlin internals: provide sensible alternative for classes
@@ -68,25 +68,53 @@ internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null,
         @JvmSynthetic // avoid access from external Java code
         internal fun resolveObjectCategory(obj: Any): AsStringObjectCategory {
             return when {
-                (obj is Number || obj is CharSequence || obj is Char || obj is Temporal) -> BASE
+                obj.isBaseType() -> BASE
                 obj is Array<*> -> ARRAY
                 obj is Collection<*> -> COLLECTION
+                obj.isPrimitiveArray() -> PRIMITIVE_ARRAY
                 obj is Map<*, *> -> MAP
-                obj.isJavaDate() -> BASE
                 obj is Annotation -> ANNOTATION
                 obj is Throwable -> THROWABLE
-                // not really best check ever... but seems the best we have...
-                // NB: Kotlin lambdas are not viably recognisable by reflection or other means...
-                //     so this category is for Java lambdas only.
-                obj::class.java.let {
-                    it.isSynthetic && it.toString().contains("\$\$Lambda\$")
-                } -> JAVA_LAMBDA
+                obj.isLambdaProperty() -> LAMBDA_PROPERTY
                 obj::class.isSystemClass() -> SYSTEM
                 else -> CUSTOM
             }
         }
     }
 }
+
+private fun Any.isBaseType() =
+    this is Boolean
+            || this is Number
+            || this is CharSequence
+            || this is Char
+            || this is Temporal
+            || this is Date
+            || this is Calendar
+
+
+private fun Any.isPrimitiveArray() =
+    this is BooleanArray
+            || this is ByteArray
+            || this is CharArray
+            || this is ShortArray
+            || this is IntArray
+            || this is LongArray
+            || this is FloatArray
+            || this is DoubleArray
+
+private fun Any.primitiveArrayIterator(): Iterator<*> =
+    when (this) {
+        is BooleanArray -> this.iterator()
+        is ByteArray -> this.iterator()
+        is CharArray -> this.iterator()
+        is ShortArray -> this.iterator()
+        is IntArray -> this.iterator()
+        is LongArray -> this.iterator()
+        is FloatArray -> this.iterator()
+        is DoubleArray -> this.iterator()
+        else -> throw IllegalArgumentException("Should be called with arrays of primitives only")
+    }
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.objectIdentity() = this.objectIdentity(getAsStringClassOption())
@@ -121,19 +149,44 @@ internal fun Annotation.annotationAsString(): String = toString().simplifyClassN
 @JvmSynthetic // avoid access from external Java code
 internal fun Collection<*>.collectionAsString(): String {
     val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
-    return joinToString(prefix = "${collectionIdentity(includeIdentity)}[", separator = ", ", postfix = "]") { it.asString() }
+    return joinToString(
+        prefix = "${collectionIdentity(includeIdentity)}[",
+        separator = ", ",
+        postfix = "]",
+        limit = stringJoinMaxCount
+    ) { it.asString() }
+}
+
+internal fun Any.primitiveArrayAsString(): String {
+    val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
+    return this.primitiveArrayIterator().asSequence()
+        .joinToString(
+            prefix = "${collectionIdentity(includeIdentity)}[",
+            separator = ", ",
+            postfix = "]",
+            limit = stringJoinMaxCount
+        )
 }
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Map<*, *>.mapAsString(): String {
     val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
-    return this.entries.joinToString(prefix = "${collectionIdentity(includeIdentity)}{", separator = ", ", postfix = "}") { it.asString() }
+    return this.entries.joinToString(
+        prefix = "${collectionIdentity(includeIdentity)}{",
+        separator = ", ",
+        postfix = "}",
+        limit = stringJoinMaxCount
+    ) { it.asString() }
 }
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Array<*>.arrayAsString(): String {
     val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
-    return joinToString(prefix = "${collectionIdentity(includeIdentity)}[", separator = ", ", postfix = "]") { it.asString() }
+    return joinToString(
+        prefix = "${collectionIdentity(includeIdentity)}[",
+        separator = ", ",
+        postfix = "]",
+        limit = stringJoinMaxCount) { it.asString() }
 }
 
 private val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
@@ -149,22 +202,38 @@ internal fun Any.syntheticClassObjectAsString(): String {
     }
 }
 
-private val javaLambdaRegex = Regex("/[0-pa-fx]+@")
+private fun Any.isLambdaProperty(): Boolean =
+    // Check for lambda is not really the best check ever... but seems the best we have...
+    // It only finds lambda that is declared as an *instance property*.
+    //
+    // Lambda declared as a *local variable* (e.g., in a method) can not be detected this way,
+    // they cause downstream SyntheticClassException which then needs to be handled
+    this::class.java.let {
+        it.isSynthetic && it.toString().contains("\$\$Lambda\$")
+    }
+
+// the replacement removes a not very useful lengthy octal number, so
+private val javaLambdaOctalRegex = Regex("/0x[0-9a-f]+@.+$")
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Any?.javaSyntheticClassObjectAsString(): String =
-// the replacement removes a not very useful lengthy octal number, so
-//    `JavaClassWithLambda$$Lambda$366/0x0000000800291440@27a0a5a2`
-    // -> `JavaClassWithLambda$$Lambda$366@27a0a5a2`
-    this.toString().simplifyClassName().replace(javaLambdaRegex, "@")
+internal fun Any.lambdaPropertyAsString(): String {
+    // Lambda properties implicitly (or sometimes explicitly) implement a single functional interface.
+    // This provides us some more useful information, so let's add it to the output.
+    // NB: Using java reflection; we can't use Kotlin reflection here, that will cause KotlinReflectionInternalError
+    val typeSuffix = this::class.java.interfaces.firstOrNull()?.let {
+        "=${it.toGenericString().simplifyClassName()}()" } ?: ""
+
+    // the replacement removes a non-informative lengthy octal number, so
+    //    `JavaClassWithLambda$$Lambda$366/0x0000000800291440@27a0a5a2`
+    // -> `JavaClassWithLambda$$Lambda$366
+    // (also removed identityHash, this is added again at the end)
+    return this.toString().simplifyClassName()
+        .replace(javaLambdaOctalRegex, "") + "$typeSuffix @${this.identityHashHex}"
+}
 
 private val systemClassPackageNames = listOf("kotlin", "java.")
 private fun KClass<*>.isSystemClass() =
     systemClassPackageNames.any { this.java.packageName.startsWith(it) }
-
-private val datePackageNames = listOf("java.util", "java.sql")
-private fun Any.isJavaDate() =
-    (this is Date) && datePackageNames.any { this::class.java.packageName.startsWith(it) }
 
 internal fun KProperty<*>.isLambdaProperty(stringValue: String?): Boolean {
     return stringValue != null

@@ -18,5 +18,5 @@ internal fun Throwable.stackTraceLinesAsString(maxStackTraceLines: Int = 5): Str
  * @return A compact String representation of the [Throwable] including the topmost [maxStackTraceLines] stack trace entries
  */
 @JvmSynthetic // avoid access from external Java code
-internal fun Throwable.asString(maxStackTraceLines: Int = 5): String =
+internal fun Throwable.throwableAsString(maxStackTraceLines: Int = 5): String =
     "${this::class.simplifyClassName()}: message=$message$lineEnd\t cause=${cause?.javaClass?.name?.simplifyClassName()}$lineEnd ${this.stackTraceLinesAsString(maxStackTraceLines)}"

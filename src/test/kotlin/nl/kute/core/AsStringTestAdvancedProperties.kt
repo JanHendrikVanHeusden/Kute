@@ -312,15 +312,17 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         val withLambda = JavaClassWithLambda()
         val theClassName = withLambda::class.simplifyClassName()
         val intSupplierIdHash = withLambda.intSupplier.identityHashHex
+        val intSupplierLambdaTypeName = withLambda.intSupplier.getLambdaTypeName()
         val intsToStringIdHash = withLambda.intsToString.identityHashHex
+        val intsToStringLambdaTypeName = withLambda.intsToString.getLambdaTypeName()
         // Something like
-        // `JavaClassWithLambda(intSupplier=JavaClassWithLambda$$Lambda$366@73d6d0c,
-        //  intsToString=JavaClassWithLambda$$Lambda$367@238ad8c)`
-        // Not really meaningful, but at least it shouldn't throw exceptions
+        // `JavaClassWithLambda(intSupplier=JavaClassWithLambda$$Lambda$396=Supplier<T>() @1adb7478,
+        //  intsToString=JavaClassWithLambda$$Lambda$397=BiFunction<T,U,R>() @3ae66c85)`
+        // Not super meaningful, but at least it shouldn't throw exceptions
         assertThat(withLambda.asString())
             .matches("""$theClassName\(.+""")
-            .matches(""".+intSupplier=$theClassName$dollar${dollar}Lambda$dollar\d+@$intSupplierIdHash.+""")
-            .matches(""".+intsToString=$theClassName$dollar${dollar}Lambda$dollar\d+@$intsToStringIdHash.+""")
+            .matches(""".+intSupplier=$theClassName$dollar${dollar}Lambda$dollar\d+=\Q$intSupplierLambdaTypeName()\E @$intSupplierIdHash.+""")
+            .matches(""".+intsToString=$theClassName$dollar${dollar}Lambda$dollar\d+=\Q$intsToStringLambdaTypeName()\E @$intsToStringIdHash.+""")
 
         // Class itself should be cached, but lambdas not (might explode the caches)
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
@@ -366,18 +368,19 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         val testObj = JavaClassWithAnonymousClass()
         val prop1IdHash = testObj.propWithAnonymousInnerClass.identityHashHex
         val prop2IdHash = testObj.propWithLambda.identityHashHex
+        val lambdaTypeName = testObj.propWithLambda.getLambdaTypeName()
         val className = testObj::class.simplifyClassName()
 
         // act
         val asStringResult = testObj.asString()
 
         // assert
-        // something like JavaClassWithAnonymousClass(propWithAnonymousInnerClass=JavaClassWithAnonymousClass$1@14dd7b39,
-        //  propWithLambda=JavaClassWithAnonymousClass$$Lambda$365@5fd9b663)
+        // something like JavaClassWithAnonymousClass(propWithAnonymousInnerClass=JavaClassWithAnonymousClass$1@7d3e8655,
+        //  propWithLambda=JavaClassWithAnonymousClass$$Lambda$367=AFunctionalInterface() @626abbd0)
         assertThat(asStringResult)
             .matches("""^$className\(.+$""")
             .matches("""^.+?propWithAnonymousInnerClass=$className$dollar\d+@$prop1IdHash.+?$""")
-            .matches("""^.+?propWithLambda=$className$dollar${dollar}Lambda$dollar\d+@$prop2IdHash.+?$""")
+            .matches("""^.+?propWithLambda=$className$dollar${dollar}Lambda$dollar\d+=\Q$lambdaTypeName()\E @$prop2IdHash.+?$""")
 
         // Only the class should be cached, not the properties (might explode the cache)
         assertThat(propertyAnnotationCacheSize).isEqualTo(1)
@@ -430,6 +433,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         repeat(5) {
             val testObj = KotlinClassWithAnonymousClass()
             val propWithLambdaIdHash = testObj.propWithLambda.identityHashHex
+            val lambdaTypeName = testObj.propWithLambda.getLambdaTypeName()
             val asStringResult = testObj.asString()
             val className = testObj::class.simplifyClassName()
             // something like
@@ -438,7 +442,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             assertThat(asStringResult)
                 .matches(
                     """$className\(propWithAnonymousInnerClass=$className${dollar}propWithAnonymousInnerClass${dollar}\d+\(\),"""
-                            + """ propWithLambda=$className$dollar${dollar}Lambda$dollar\d+@$propWithLambdaIdHash\)"""
+                            + """ propWithLambda=$className$dollar${dollar}Lambda$dollar\d+=\Q$lambdaTypeName()\E @$propWithLambdaIdHash\)"""
                 )
         }
         // Only the classes should be cached, not the properties (might explode the cache)
@@ -451,7 +455,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `Kotlin class with anonymous inner class factory should cause exceptions and not blow up the cache`() {
+    fun `Kotlin class with anonymous inner class factory should not cause exceptions and not blow up the cache`() {
         // arrange
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
@@ -603,6 +607,9 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             .`as`("No exception should be logged")
             .isEmpty()
     }
+
+    private fun Any.getLambdaTypeName(): String =
+        this::class.java.interfaces.firstOrNull()?.toGenericString()?.simplifyClassName() ?: ""
 
     // ------------------------------------
     // Classes etc. to be used in the tests

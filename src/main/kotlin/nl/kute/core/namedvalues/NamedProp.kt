@@ -6,7 +6,7 @@ import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.log.log
 import nl.kute.reflection.declaringClass
 import nl.kute.reflection.simplifyClassName
-import nl.kute.util.asString
+import nl.kute.util.throwableAsString
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
@@ -99,7 +99,7 @@ public final class NamedProp<T : Any?, V : Any?>(obj: T?, override val property:
                 )
             ) {
                 // just log it; not throwing it
-                log(this.asString(3))
+                log(this.throwableAsString(3))
             }
         }
         return isCoherent

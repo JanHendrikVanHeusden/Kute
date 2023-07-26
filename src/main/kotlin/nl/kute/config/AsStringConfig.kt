@@ -81,6 +81,10 @@ public class AsStringConfig {
 
 }
 
+/** Limit to the number of elements to be joined together */
+@JvmSynthetic // avoid access from external Java code
+internal const val stringJoinMaxCount: Int = 200
+
 /** Initial default value for how to represent `null` in the [nl.kute.core.asString] */
 public const val initialNullString: String = "null"
 
@@ -91,12 +95,12 @@ public const val initialMaxStringValueLength: Int = 500
 public const val initialIncludeIdentityHash: Boolean = false
 
 /** Initial default options for the output of [nl.kute.core.asString] */
-@JvmSynthetic
+@JvmSynthetic // avoid access from external Java code
 internal val initialAsStringOption: AsStringOption =
     AsStringOption(initialNullString, initialMaxStringValueLength)
 
 /** Initial default options for the output of [nl.kute.core.asString] */
-@JvmSynthetic
+@JvmSynthetic // avoid access from external Java code
 internal val initialAsStringClassOption: AsStringClassOption =
     AsStringClassOption(initialIncludeIdentityHash)
 

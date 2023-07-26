@@ -38,7 +38,7 @@ import nl.kute.testobjects.java.protectedvisibility.SubClassOfJavaClassWithProte
 import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubSubClassOfClassWithProtectedProperty
-import nl.kute.util.asString
+import nl.kute.util.throwableAsString
 import nl.kute.util.identityHashHex
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -550,7 +550,7 @@ class AsStringTest: ObjectsStackVerifier {
         }
         class SubClass: TestClass() {
             val prop5: Exception = object: IllegalArgumentException("that's wrong") {
-                override fun toString(): String = asString()
+                override fun toString(): String = throwableAsString()
             }
             override fun toString(): String = asString()
         }
@@ -562,7 +562,7 @@ class AsStringTest: ObjectsStackVerifier {
                 "prop1=*rop1",
                 "prop2=${testObj.prop2}",
                 "prop4=${testObj.prop4}",
-                "prop5=${testObj.prop5.asString().lines().first()}"
+                "prop5=${testObj.prop5.throwableAsString().lines().first()}"
             ).doesNotContain("prop3=")
     }
 

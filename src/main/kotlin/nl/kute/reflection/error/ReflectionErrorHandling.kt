@@ -4,7 +4,7 @@ import nl.kute.log.log
 import nl.kute.log.logger
 import nl.kute.reflection.declaringClass
 import nl.kute.reflection.simplifyClassName
-import nl.kute.util.asString
+import nl.kute.util.throwableAsString
 import java.lang.reflect.InaccessibleObjectException
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KProperty
@@ -34,7 +34,7 @@ private val inaccessibleObjectInfo: String =
 internal fun KProperty<*>?.handlePropValException(exception: Exception) {
     val baseErrMsg: String =
         try {
-            "${exception::class.simplifyClassName()} occurred when retrieving value of property [${this?.declaringClass()?.simplifyClassName()}.${this?.name}]; exception: ${exception.asString()}"
+            "${exception::class.simplifyClassName()} occurred when retrieving value of property [${this?.declaringClass()?.simplifyClassName()}.${this?.name}]; exception: ${exception.throwableAsString()}"
         } catch (t: Throwable) {
             "${exception::class} occurred when retrieving value of property [${this?.name}]; exception message: ${exception.message}; cause: ${exception.cause?.javaClass}"
         }

@@ -4,6 +4,7 @@
 package nl.kute.core
 
 import nl.kute.config.defaultNullString
+import nl.kute.config.stringJoinMaxCount
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringClassOption
@@ -16,7 +17,7 @@ import nl.kute.log.log
 import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.asHexString
-import nl.kute.util.asString
+import nl.kute.util.throwableAsString
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
 import nl.kute.util.lineEnd
@@ -95,7 +96,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                 objectsStackGuard.get().addIfNotPresent(obj).also { notPresent ->
                     if (!notPresent) {
                         // avoid endless loop
-                        return "recursive: ${obj::class.simplifyClassName()}(...)"
+                        return "recursive: ${obj::class.simplifyClassName()}$propertyListPrefix...$propertyListSuffix"
                     }
                 }
                 if (objectCategory.hasHandler() && objectCategory.guardStack) {
@@ -119,12 +120,18 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                     return annotationsByProperty
                         .entries.joinToString(
                             separator = valueSeparator,
-                            prefix = "${obj.objectIdentity()}("
+                            prefix = "${obj.objectIdentity()}$propertyListPrefix",
+                            limit = stringJoinMaxCount
                         ) { entry ->
                             val prop = entry.key
                             val annotationSet = entry.value
                             "${prop.name}=${getPropValueString(prop, annotationSet)}"
-                        } + named.joinToString(prefix = nameValueSeparator, separator = ", ", postfix = ")") {
+                        } + named.joinToString(
+                            prefix = nameValueSeparator,
+                            separator = valueSeparator,
+                            postfix = propertyListSuffix,
+                            limit = stringJoinMaxCount
+                        ) {
                         "${it.name}=${it.valueString ?: defaultNullString}"
                     }
                 } catch (e: SyntheticClassException) {
@@ -134,13 +141,13 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                 } catch (e: Exception) {
                     log(
                         "ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
-                                " for object of class ${this.javaClass};$lineEnd${e.asString(50)}"
+                                " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}"
                     )
                     return obj.asStringFallBack()
                 } catch (t: Throwable) {
                     log(
                         "FATAL ERROR: Throwable ${t.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
-                                " for object of class ${this.javaClass};$lineEnd${t.asString(50)}"
+                                " for object of class ${this.javaClass};$lineEnd${t.throwableAsString(50)}"
                     )
                     return obj.asStringFallBack()
                 }
@@ -158,18 +165,22 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
 
 private val emptyStringList: List<String> = listOf()
 
+private const val propertyListPrefix = "("
 private const val valueSeparator: String = ", "
+private const val propertyListSuffix = ")"
 
 private val classPrefix = Regex("^class ")
 
 /** To be used as fallback return value in case of exception within [asString] */
-@Suppress("UNNECESSARY_SAFE_CALL")
 @JvmSynthetic // avoid access from external Java code
-internal fun Any?.asStringFallBack(): String =
+internal fun Any?.asStringFallBack(): String {
     // mimics the Java toString() output when toString() would not be overridden
-    if (this == null) defaultNullString else {
-        "${this?.let { it::class.simplifyClassName() }}@${this?.identityHashHex}".replace(classPrefix, "")
+    // this!!::class.java.interfaces.firstOrNull()?.toGenericString().simplifyClassName()
+    return if (this == null) defaultNullString else {
+        "${this::class.simplifyClassName()}@${this.identityHashHex}"
+            .replace(classPrefix, "")
     }
+}
 
 /**
  * Helper class to keep track of objects being processed in [asString].

@@ -3,7 +3,7 @@ package nl.kute.core.namedvalues
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.log.log
 import nl.kute.reflection.simplifyClassName
-import nl.kute.util.asString
+import nl.kute.util.throwableAsString
 
 //TODO: kdoc
 public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): NameValue<V?> {
@@ -15,7 +15,7 @@ public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplie
             return try {
                 (supplierReference.get())?.invoke()?.toString()
             } catch (e: Exception) {
-                log("Exception ${e::class.simplifyClassName()} while evaluation supplier of ${this::class.simplifyClassName()}: ${e.asString()} ")
+                log("Exception ${e::class.simplifyClassName()} while evaluating supplier of ${this::class.simplifyClassName()}: ${e.throwableAsString()} ")
                 return null
             }
         }

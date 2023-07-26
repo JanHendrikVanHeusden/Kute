@@ -190,7 +190,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
             .asString())
             .doesNotContain("nullable=")
             .isObjectAsString(
-                "SubClassWithPrintMask(",
+                "SubClassWithPrintMask",
                 "replaced=xx is replaced",
                 "hashProperty=#9813ac95#",
                 withLastPropertyString = "name of named value=the value"
@@ -220,7 +220,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
         assertThat(asString)
             .doesNotContain("nullable=")
             .isObjectAsString(
-                "SubClassWithPrintMask(",
+                "SubClassWithPrintMask",
                 "replaced=xx is replaced",
                 "hashProperty=#$hashCode#"
             )
