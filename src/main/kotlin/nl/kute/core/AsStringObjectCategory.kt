@@ -7,8 +7,8 @@ import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.property.lambdaSignatureString
 import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.simplifyClassName
-import nl.kute.util.throwableAsString
 import nl.kute.util.identityHashHex
+import nl.kute.util.throwableAsString
 import java.time.temporal.Temporal
 import java.util.Calendar
 import java.util.Date
@@ -23,40 +23,39 @@ import kotlin.reflect.jvm.javaType
  *  * When a [handler] is provided, it should be invoked by the caller
  *  * When no [handler] is provided, the caller itself should provide the implementation
  */
-internal enum class AsStringObjectCategory(val handler: AsStringHandler? = null, val guardStack: Boolean = false) {
-// TODO: tests
+internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler: AsStringHandler? = null) {
     /**
-     * Base stuff like [Number], [String], [Date], [Temporal], [Char], these have
+     * Base stuff like [Boolean], [Number], [String], [Date], [Temporal], [Char], these have
      * sensible [toString] implementations that we need not (and should not) override
      */
-    BASE( { it.toString() }),
+    BASE(false, { it.toString() }),
 
     /** Override: collections [toString] is vulnerable for stack overflow (in case of recursive data) */
-    COLLECTION( { (it as Collection<*>).collectionAsString() }, true),
+    COLLECTION(true, { (it as Collection<*>).collectionAsString() }),
 
     /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
-    ARRAY( { (it as Array<*>).arrayAsString() }, true),
+    ARRAY(true, { (it as Array<*>).arrayAsString() }),
 
     /** Override: arrays of primitives (e.g. [IntArray], [BooleanArray], [CharArray] lack proper [toString] implementation */
-    PRIMITIVE_ARRAY( { it.primitiveArrayAsString() }),
+    PRIMITIVE_ARRAY(false, { it.primitiveArrayAsString() }),
 
     /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
-    MAP( { (it as Map<*, *>).mapAsString() }, true),
+    MAP(true, { (it as Map<*, *>).mapAsString() }),
 
     /** Override: default [Throwable.toString] is way too verbose */
-    THROWABLE( { (it as Throwable).throwableAsString() }),
+    THROWABLE(true, { (it as Throwable).throwableAsString() }),
 
     /** Override: [Annotation.toString] strips package name off */
-    ANNOTATION( { (it as Annotation).annotationAsString() }),
+    ANNOTATION(true, { (it as Annotation).annotationAsString() }),
 
     /** Override: String representation needs some tidying by [lambdaPropertyAsString] */
-    LAMBDA_PROPERTY( { it.lambdaPropertyAsString() }),
+    LAMBDA_PROPERTY(false, { it.lambdaPropertyAsString() }),
 
     /**
      * Override for Java & Kotlin internals: provide sensible alternative for classes
      * without [toString] implementation; add identity if required
      */
-    SYSTEM( { it.systemClassObjAsString() }),
+    SYSTEM(false, { it.systemClassObjAsString() }),
 
     /** Custom handling */
     CUSTOM(guardStack = true);
@@ -91,23 +90,30 @@ private fun Any.isBaseType() =
             || this is Temporal
             || this is Date
             || this is Calendar
+            || this is UByte
+            || this is UShort
+            || this is UInt
+            || this is ULong
 
-
-private fun Any.isPrimitiveArray() =
-    this is BooleanArray
-            || this is ByteArray
-            || this is CharArray
-            || this is ShortArray
-            || this is IntArray
-            || this is LongArray
-            || this is FloatArray
-            || this is DoubleArray
+private fun Any.isPrimitiveArray(): Boolean
+// It's a pity the kotlin designers didn't create an interface or superclass for these arrays of primitives...
+// We must simply list them all... NB:
+//  * Java types boolean[], byte[] etc. map to kotlin's BooleanArray, ByteArray, etc.
+//  * UByteArray, UShortArray, UIntArray, ULongArray are collections, these need no special handling
+        = this is BooleanArray
+        || this is ByteArray
+        || this is CharArray
+        || this is ShortArray
+        || this is IntArray
+        || this is LongArray
+        || this is FloatArray
+        || this is DoubleArray
 
 private fun Any.primitiveArrayIterator(): Iterator<*> =
     when (this) {
         is BooleanArray -> this.iterator()
-        is ByteArray -> this.iterator()
         is CharArray -> this.iterator()
+        is ByteArray -> this.iterator()
         is ShortArray -> this.iterator()
         is IntArray -> this.iterator()
         is LongArray -> this.iterator()
@@ -140,11 +146,23 @@ internal fun Any.systemClassIdentity(includeIdentity: Boolean = AsStringClassOpt
  */
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.systemClassObjAsString(): String =
-    if (this::class.java.isPrimitive) this.toString()
-    else if (this::class.hasImplementedToString()) this.toString() else "${systemClassIdentity()}()"
+    if (this::class.java.isPrimitive)
+        this.toString()
+    else if (this::class.hasImplementedToString())
+        this.toString()
+    else
+        systemClassIdentity()
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Annotation.annotationAsString(): String = toString().simplifyClassName()
+internal fun Annotation.annotationAsString(): String {
+    // default toString() of annotations start with @ + package name; let's strip that off
+    return toString().let {
+        // We can't check if the annotation's toString() is actually overridden
+        // (calling toStringImplementingMethod() here might throw UnsupportedOperationException)
+        if (it.startsWith("@") && it.contains('.')) it.drop(1).simplifyClassName()
+        else it
+    }
+}
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Collection<*>.collectionAsString(): String {
@@ -186,7 +204,8 @@ internal fun Array<*>.arrayAsString(): String {
         prefix = "${collectionIdentity(includeIdentity)}[",
         separator = ", ",
         postfix = "]",
-        limit = stringJoinMaxCount) { it.asString() }
+        limit = stringJoinMaxCount
+    ) { it.asString() }
 }
 
 private val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
@@ -231,9 +250,11 @@ internal fun Any.lambdaPropertyAsString(): String {
         .replace(javaLambdaOctalRegex, "") + "$typeSuffix @${this.identityHashHex}"
 }
 
-private val systemClassPackageNames = listOf("kotlin", "java.")
+private val systemClassPackagePrefixes = listOf("java.", "kotlin.")
+
 private fun KClass<*>.isSystemClass() =
-    systemClassPackageNames.any { this.java.packageName.startsWith(it) }
+    this.java.packageName == "kotlin"
+            || systemClassPackagePrefixes.any { this.java.packageName.startsWith(it) }
 
 internal fun KProperty<*>.isLambdaProperty(stringValue: String?): Boolean {
     return stringValue != null

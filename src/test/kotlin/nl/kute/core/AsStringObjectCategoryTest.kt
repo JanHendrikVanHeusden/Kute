@@ -3,7 +3,9 @@ package nl.kute.core
 import nl.kute.core.AsStringObjectCategory.CategoryResolver.resolveObjectCategory
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.simplifyClassName
+import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithComposites
 import nl.kute.testobjects.java.JavaClassWithPrimitives
 import nl.kute.testobjects.java.advanced.JavaClassWithAnonymousClass
@@ -19,7 +21,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.nio.CharBuffer
+import java.nio.FloatBuffer
+import java.text.AttributedCharacterIterator
+import java.text.AttributedString
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -32,8 +38,10 @@ import java.util.Calendar
 import java.util.Date
 import java.util.EnumSet
 import java.util.GregorianCalendar
+import java.util.Locale
 import java.util.PriorityQueue
 import java.util.TreeMap
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.atomic.AtomicLong
@@ -126,7 +134,8 @@ internal class AsStringObjectCategoryTest {
         listOf(
             JavaClassWithPrimitives.BOOL,
             true,
-            false
+            false,
+            UByte.MIN_VALUE,
         ).forEach {
             it.assertBaseObject()
         }
@@ -155,6 +164,7 @@ internal class AsStringObjectCategoryTest {
         }
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     @Test
     fun `AsStringObjectCategory should handle collection as COLLECTION`() {
         listOf<Collection<*>>(
@@ -163,6 +173,10 @@ internal class AsStringObjectCategoryTest {
             AttributeList(listOf(Attribute("name1", "value1"), Attribute("name2", Any()))),
             PriorityQueue(listOf("first", "second", "third")),
             EnumSet.allOf(AsStringObjectCategory::class.java),
+            ubyteArrayOf(89u, 123u, 254u),
+            ushortArrayOf(12354u, 8314u, 24654u),
+            uintArrayOf(3145456u, 144564u, 3468568u, 56545u),
+            ulongArrayOf(3456456454245u, 3563523u, 76708896u),
         ).forEach {
             it.assertCollection()
         }
@@ -184,17 +198,29 @@ internal class AsStringObjectCategoryTest {
     fun `AsStringObjectCategory should handle array of primitives as PRIMITIVE_ARRAY`() {
         listOf(
             booleanArrayOf(true, false),
-            byteArrayOf(-89, 123, 0),
             charArrayOf('a', 'b', 'c'),
+            byteArrayOf(-89, 123, 0),
             shortArrayOf(12354, 8314, -24654),
             intArrayOf(3145456, -144564, 3468568, 56545),
             longArrayOf(3456456454245, -3563523, 76708896),
             floatArrayOf(545f, -456456.44f),
             doubleArrayOf(3545454235.24525, -7.897875784156874E8),
             JavaClassWithComposites.ARRAY_OF_CHAR_PRIMITIVES,
-            JavaClassWithComposites.ARRAY_OF_BYTE_PRIMITIVES
+            JavaClassWithComposites.ARRAY_OF_BYTE_PRIMITIVES,
         ).forEach {
             it.assertPrimitiveArray()
+        }
+    }
+
+    @Test
+    fun `AsStringObjectCategory should handle throwable as THROWABLE`() {
+        listOf(
+            Throwable(),
+            IllegalStateException(),
+            AssertionError(),
+            AccessDeniedException(File(""))
+        ).forEach {
+            it.assertThrowable()
         }
     }
 
@@ -212,18 +238,6 @@ internal class AsStringObjectCategoryTest {
     }
 
     @Test
-    fun `AsStringObjectCategory should handle throwable as THROWABLE`() {
-        listOf(
-            Throwable(),
-            IllegalStateException(),
-            AssertionError(),
-            AccessDeniedException(File(""))
-        ).forEach {
-            it.assertThrowable()
-        }
-    }
-
-    @Test
     fun `AsStringObjectCategory should handle lambda property as LAMBDA_PROPERTY`() {
         listOf<Any>(
             CallableFactoryWithLambda().getCallable(),
@@ -232,14 +246,78 @@ internal class AsStringObjectCategoryTest {
             JavaClassWithLambda().intsToString,
             JavaClassWithLambda().intSupplier,
             KotlinClassWithAnonymousClassFactory().createLambda(),
-            KotlinClassWithAnonymousClass().propWithLambda
+            KotlinClassWithAnonymousClass().propWithLambda,
+            Comparator<String> { _, _ -> 0 }
         ).forEach {
             it.assertLambdaProperty()
         }
     }
 
+    @Test
+    fun `java and kotlin stuff without overridden toString should be handled as SYSTEM and yield their identity`() {
+        // arbitrary choice of java and kotlin classes without toString() implementation
+        listOf(
+            Any(),
+            Object(),
+            FloatBuffer.wrap(floatArrayOf(2.3f, 5.8f)),
+            repeat(1) {},
+            lazy {  },
+            AttributedString("a string"),
+            AsStringObjectCategoryTest::class,
+            AsStringObjectCategoryTest::class.java
+        ).forEach {
+            it.assertSystemObject()
+        }
+    }
+
+    @Test
+    fun `java and kotlin stuff having toString implemented should be handled as SYSTEM and yield their toString`() {
+        // arbitrary choice of java and kotlin classes that have a toString() implementation
+        listOf<Any>(
+            AttributedCharacterIterator.Attribute.LANGUAGE,
+            UUID.randomUUID(),
+            RoundingMode.CEILING,
+            Locale.getDefault(),
+        ).forEach {
+            it.assertSystemObject()
+        }
+    }
+
+    private open class MyClass
+    private class MySubClass: MyClass()
+    @Suppress("unused")
+    private val myClassObject = object : MyClass() {
+        fun someExtraFun() = 1
+    }
+
+    @Suppress("unused")
+    @Test
+    fun `AsStringObjectCategory should handle custom classes as CUSTOM`() {
+        open class MyNestedClass
+        class MyNestedSubClass: MyNestedClass()
+        val myNestedClassObject = object : MyNestedClass() {
+            fun someExtraFun() = 1
+        }
+        listOf(
+            MyClass(),
+            MySubClass(),
+            myClassObject,
+            MyNestedClass(),
+            MyNestedSubClass(),
+            myNestedClassObject,
+            JavaClassToTest("a", 1)
+        ).forEach {
+            it.assertCustomObject()
+        }
+    }
+
+    //////////////////////
+    // Helper methods etc.
+    //////////////////////
+
     private fun Any.assertBaseObject() {
         val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isFalse
 
         this.assertObjectCategory(AsStringObjectCategory.BASE)
         assertThat(category.handler!!.invoke(this))
@@ -248,6 +326,7 @@ internal class AsStringObjectCategoryTest {
 
     private fun Array<*>.assertArray() {
         val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isTrue
 
         this.assertObjectCategory(AsStringObjectCategory.ARRAY)
         assertThat(category.handler!!.invoke(this))
@@ -257,6 +336,7 @@ internal class AsStringObjectCategoryTest {
 
     private fun Collection<*>.assertCollection() {
         val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isTrue
 
         this.assertObjectCategory(AsStringObjectCategory.COLLECTION)
         assertThat(category.handler!!.invoke(this))
@@ -266,6 +346,7 @@ internal class AsStringObjectCategoryTest {
 
     private fun Map<*, *>.assertMap() {
         val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isTrue
 
         this.assertObjectCategory(AsStringObjectCategory.MAP)
         assertThat(category.handler!!.invoke(this))
@@ -275,6 +356,7 @@ internal class AsStringObjectCategoryTest {
 
     private fun Any.assertPrimitiveArray() {
         val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isFalse
 
         this.assertObjectCategory(AsStringObjectCategory.PRIMITIVE_ARRAY)
         assertThat(category.handler!!.invoke(this))
@@ -284,6 +366,7 @@ internal class AsStringObjectCategoryTest {
 
     private fun Annotation.assertAnnotation() {
         val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isTrue
 
         this.assertObjectCategory(AsStringObjectCategory.ANNOTATION)
         assertThat(category.handler!!.invoke(this))
@@ -292,6 +375,7 @@ internal class AsStringObjectCategoryTest {
 
     private fun Throwable.assertThrowable() {
         val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isTrue
 
         this.assertObjectCategory(AsStringObjectCategory.THROWABLE)
         assertThat(category.handler!!.invoke(this))
@@ -300,10 +384,34 @@ internal class AsStringObjectCategoryTest {
 
     private fun Any.assertLambdaProperty() {
         val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isFalse
 
         this.assertObjectCategory(AsStringObjectCategory.LAMBDA_PROPERTY)
         assertThat(category.handler!!.invoke(this))
             .isEqualTo(this.lambdaPropertyAsString())
+    }
+
+    private fun Any.assertSystemObject() {
+        val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isFalse
+
+        this.assertObjectCategory(AsStringObjectCategory.SYSTEM)
+        assertThat(category.handler!!.invoke(this))
+            .isEqualTo(this.systemClassObjAsString())
+
+        if (this::class.hasImplementedToString()) {
+            assertThat(this.asString()).isEqualTo(this.toString())
+        } else {
+            assertThat(this.asString()).isEqualTo(this.systemClassIdentity())
+        }
+    }
+
+    private fun Any.assertCustomObject() {
+        val category = resolveObjectCategory(this)
+        assertThat(category.guardStack).isTrue
+
+        this.assertObjectCategory(AsStringObjectCategory.CUSTOM)
+        assertThat(category.handler).isNull()
     }
 
     private fun Any.primitiveArrayToArray(): Array<*> =
@@ -319,10 +427,11 @@ internal class AsStringObjectCategoryTest {
             else -> throw IllegalArgumentException("Should be called with arrays of primitives only")
         }
 
-    private fun Any.assertObjectCategory(category: AsStringObjectCategory) {
-        assertThat(resolveObjectCategory(this))
-            .`as`("Object `${this.asString()}` of type ${this::class.simplifyClassName()} should have category ${AsStringObjectCategory.PRIMITIVE_ARRAY}")
-            .isSameAs(category)
+    private fun Any.assertObjectCategory(expected: AsStringObjectCategory) {
+        val actual = resolveObjectCategory(this)
+        assertThat(actual)
+            .`as`("Object `${this.asString()}` of type ${this::class.simplifyClassName()} should have category $expected but is $actual")
+            .isSameAs(expected)
     }
 
 }

@@ -172,7 +172,7 @@ class AsStringObjectCategoryFunctionsTest {
                     .isEqualTo(systemObj.toString())
             } else {
                 assertThat(systemObj.systemClassObjAsString())
-                    .isEqualTo("$className()")
+                    .isEqualTo("$className")
             }
 
             AsStringConfig().withIncludeIdentityHash(includeHash = true).applyAsDefault()
@@ -181,7 +181,7 @@ class AsStringObjectCategoryFunctionsTest {
                     .isEqualTo(systemObj.toString())
             } else {
                 assertThat(systemObj.systemClassObjAsString())
-                    .isEqualTo("$className@$idHash()")
+                    .isEqualTo("$className@$idHash")
             }
         }
     }

@@ -469,7 +469,7 @@ class AsStringTest: ObjectsStackVerifier {
         val testObj = Any()
         assumeThat(testObj.toString()).startsWith("java.lang.Object@")
         // act, assert
-        assertThat(testObj.asString()).isEqualTo("Any()")
+        assertThat(testObj.asString()).isEqualTo("Any")
     }
 
     @Test
@@ -479,7 +479,7 @@ class AsStringTest: ObjectsStackVerifier {
         val testObj = Any()
         val identityHashHex = testObj.identityHashHex
         // act, assert
-        assertThat(testObj.asString()).isEqualTo("Any@$identityHashHex()")
+        assertThat(testObj.asString()).isEqualTo("Any@$identityHashHex")
         // just to prove that it's the same value
         assumeThat(testObj.toString()).isEqualTo("java.lang.Object@$identityHashHex")
     }
