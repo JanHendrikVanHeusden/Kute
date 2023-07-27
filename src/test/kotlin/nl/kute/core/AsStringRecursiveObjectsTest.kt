@@ -202,6 +202,16 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
             )
     }
 
+    @Test
+    fun `lambdas with mutual reference should yield decent output`() {
+        assertThat(MutualReferencingLambdas().asString())
+            .isObjectAsString(
+                "MutualReferencingLambdas",
+                "lambda1=(() -> Unit) -> Unit",
+                "lambda2=(() -> Unit) -> Unit"
+            )
+    }
+
     @Suppress("unused")
     @Test
     fun `objects with mutual reference should yield decent output`() {
@@ -312,4 +322,13 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
         validateObjectsStack()
     }
 
+}
+
+private class MutualReferencingLambdas {
+    lateinit var lambda1: (() -> Unit) -> Unit
+    lateinit var lambda2: (() -> Unit) -> Unit
+    init {
+        lambda1 = {alambda -> println("${alambda.asString()}, lambda1 = ${lambda1.asString()}, lambda2 = ${lambda2.asString()}") }
+        lambda2 = {alambda -> println("${alambda.asString()}, lambda1 = ${lambda1.asString()}, lambda2 = ${lambda2.asString()}") }
+    }
 }

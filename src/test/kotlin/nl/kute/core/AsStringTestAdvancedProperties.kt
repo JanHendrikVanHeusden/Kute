@@ -18,6 +18,7 @@ import nl.kute.testobjects.java.advanced.JavaClassWithAnonymousClass
 import nl.kute.testobjects.java.advanced.JavaClassWithCallable
 import nl.kute.testobjects.java.advanced.JavaClassWithHigherOrderFunction
 import nl.kute.testobjects.java.advanced.JavaClassWithLambda
+import nl.kute.testobjects.kotlin.advanced.`Callable Factory With Lambda`
 import nl.kute.testobjects.kotlin.advanced.CallableFactory
 import nl.kute.testobjects.kotlin.advanced.CallableFactoryWithLambda
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClass
@@ -422,6 +423,15 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
+    fun `test with weird names`() {
+        `Callable Factory With Lambda`()
+        val testObj = `Callable Factory With Lambda`().getCallable()
+        val hashHex = testObj.identityHashHex
+        assertThat(testObj.asString())
+            .matches("""${`Callable Factory With Lambda`::class.simpleName}$dollar${dollar}Lambda$dollar\d+=Callable<[A-Z]>\(\) @\Q$hashHex\E""")
+    }
+
+    @Test
     fun `Kotlin class with anonymous inner class should not cause exception and not blow up the cache`() {
         // arrange
         var logMsg = ""
@@ -608,8 +618,10 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             .isEmpty()
     }
 
+    private val modifiersRegex = Regex("^.+ ")
     private fun Any.getLambdaTypeName(): String =
-        this::class.java.interfaces.firstOrNull()?.toGenericString()?.simplifyClassName() ?: ""
+        this::class.java.interfaces.firstOrNull()
+            ?.toGenericString()?.simplifyClassName()?.replace(modifiersRegex, "") ?: ""
 
     // ------------------------------------
     // Classes etc. to be used in the tests

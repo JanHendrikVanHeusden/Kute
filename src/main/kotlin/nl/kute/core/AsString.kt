@@ -175,7 +175,6 @@ private val classPrefix = Regex("^class ")
 @JvmSynthetic // avoid access from external Java code
 internal fun Any?.asStringFallBack(): String {
     // mimics the Java toString() output when toString() would not be overridden
-    // this!!::class.java.interfaces.firstOrNull()?.toGenericString().simplifyClassName()
     return if (this == null) defaultNullString else {
         "${this::class.simplifyClassName()}@${this.identityHashHex}"
             .replace(classPrefix, "")

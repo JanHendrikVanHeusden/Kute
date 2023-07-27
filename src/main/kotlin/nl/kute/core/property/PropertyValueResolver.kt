@@ -12,7 +12,7 @@ import nl.kute.core.annotation.modify.replacePattern
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.applyOption
 import nl.kute.core.asString
-import nl.kute.core.isLambdaProperty
+import nl.kute.core.lambdaToStringRegex
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
@@ -25,6 +25,7 @@ import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.reflect.jvm.javaType
 
 /** @return
  *  * for [Array]s: [Array.contentDeepToString]
@@ -71,6 +72,12 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
     strValue = asStringHash.hashString(strValue)
     strValue = asStringOption.applyOption(strValue)
     return strValue
+}
+
+internal fun KProperty<*>.isLambdaProperty(stringValue: String?): Boolean {
+    return stringValue != null
+            && returnType.javaType.toString().startsWith("kotlin.jvm.functions.Function")
+            && stringValue.matches(lambdaToStringRegex)
 }
 
 private inline fun <reified A : Annotation> Set<Annotation>.findAnnotation(): A? =

@@ -13,8 +13,6 @@ import java.time.temporal.Temporal
 import java.util.Calendar
 import java.util.Date
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
-import kotlin.reflect.jvm.javaType
 
 /**
  * Enum to provide categorization of objects.
@@ -208,7 +206,8 @@ internal fun Array<*>.arrayAsString(): String {
     ) { it.asString() }
 }
 
-private val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
+@JvmSynthetic // avoid access from external Java code
+internal val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.syntheticClassObjectAsString(): String {
@@ -231,8 +230,14 @@ private fun Any.isLambdaProperty(): Boolean =
         it.isSynthetic && it.toString().contains("\$\$Lambda\$")
     }
 
-// the replacement removes a not very useful lengthy octal number, so
-private val javaLambdaOctalRegex = Regex("/0x[0-9a-f]+@.+$")
+// aimed to remove a not very useful lengthy number preceded by `/0x`
+private val javaLambdaNumberRegex = Regex("/0x[0-9a-f]+@.+$")
+
+/** Removes modifiers from `toGenericString()` output; so `public abstract interface Callable<V>()` => `Callable<V>()` */
+private fun String.removeModifiers(typeName: String): String =
+    this.indexOf(typeName).let {
+        if (it <= 0) this else this.drop(this.length - typeName.length)
+}
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.lambdaPropertyAsString(): String {
@@ -240,14 +245,14 @@ internal fun Any.lambdaPropertyAsString(): String {
     // This provides us some more useful information, so let's add it to the output.
     // NB: Using java reflection; we can't use Kotlin reflection here, that will cause KotlinReflectionInternalError
     val typeSuffix = this::class.java.interfaces.firstOrNull()?.let {
-        "=${it.toGenericString().simplifyClassName()}()" } ?: ""
+        "=${it.toGenericString().removeModifiers(it.typeName).simplifyClassName()}()" } ?: ""
 
     // the replacement removes a non-informative lengthy octal number, so
     //    `JavaClassWithLambda$$Lambda$366/0x0000000800291440@27a0a5a2`
     // -> `JavaClassWithLambda$$Lambda$366
     // (also removed identityHash, this is added again at the end)
     return this.toString().simplifyClassName()
-        .replace(javaLambdaOctalRegex, "") + "$typeSuffix @${this.identityHashHex}"
+        .replace(javaLambdaNumberRegex, "") + "$typeSuffix @${this.identityHashHex}"
 }
 
 private val systemClassPackagePrefixes = listOf("java.", "kotlin.")
@@ -255,9 +260,3 @@ private val systemClassPackagePrefixes = listOf("java.", "kotlin.")
 private fun KClass<*>.isSystemClass() =
     this.java.packageName == "kotlin"
             || systemClassPackagePrefixes.any { this.java.packageName.startsWith(it) }
-
-internal fun KProperty<*>.isLambdaProperty(stringValue: String?): Boolean {
-    return stringValue != null
-            && returnType.javaType.toString().startsWith("kotlin.jvm.functions.Function")
-            && stringValue.matches(lambdaToStringRegex)
-}
