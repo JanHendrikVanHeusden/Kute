@@ -32,7 +32,6 @@ class AsStringConfigTest {
             .isEqualTo(initialMaxPropStrLength)
         assertThat(initialNullStr)
             .isEqualTo("null")
-            .isEqualTo(initialNullStr)
 
         val testObj = TestClass()
         assertThat(testObj.str600).hasSize(600)

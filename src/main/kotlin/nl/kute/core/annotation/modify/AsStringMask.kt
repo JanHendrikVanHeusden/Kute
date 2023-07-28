@@ -1,5 +1,6 @@
 package nl.kute.core.annotation.modify
 
+import nl.kute.config.defaultNullString
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.math.max
@@ -22,7 +23,6 @@ import kotlin.math.min
 @Retention(RUNTIME)
 @Inherited
 @MustBeDocumented
-//TODO: kdoc
 public annotation class AsStringMask(
     /** At which character index (inclusive) masking should start? */
     val startMaskAt: Int = 0,
@@ -53,7 +53,7 @@ internal fun AsStringMask?.mask(strVal: String?): String? {
         return strVal
     } else {
         var retVal = strVal ?: if (maskNulls) {
-            "null"
+            defaultNullString
         } else {
             return null
         }

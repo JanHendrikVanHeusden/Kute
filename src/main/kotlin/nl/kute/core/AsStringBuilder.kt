@@ -149,11 +149,10 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         return objectReference.get().objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
     }
 
-    override fun toString(): String {
-        return "${this::class.simplifyClassName()} -> ${objJavaClass?.name?.simplifyClassName() ?: "null"}" +
+    override fun toString(): String =
+        "${this::class.simplifyClassName()} -> ${objJavaClass?.name?.simplifyClassName() ?: "null"}" +
                 " (built = $isBuilt; excluded = $propertyNamesToExclude; properties = ${classPropertyNames - propertyNamesToExclude};" +
                 " alsoNamed = ${alsoNamed.map { it.name }})"
-    }
 
     /** Static method [asStringBuilder] to create an [AsStringBuilder] object */
     public companion object {

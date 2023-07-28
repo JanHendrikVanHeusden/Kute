@@ -1,5 +1,6 @@
 package nl.kute.core.namedvalues
 
+import nl.kute.config.defaultNullString
 import nl.kute.core.property.collectPropertyAnnotations
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.weakreference.ObjectWeakReference
@@ -78,7 +79,7 @@ public final class NamedProp<T : Any?, V : Any?>(obj: T?, public override val pr
 
     override val objectReference: ObjectWeakReference<T?> = ObjectWeakReference(obj)
 
-    public override val name: String = if (propertyCoherentWithObject) property.name else "null"
+    public override val name: String = if (propertyCoherentWithObject) property.name else defaultNullString
 
     override val asStringAffectingAnnotations: Set<Annotation> by lazy {
         if (!propertyCoherentWithObject) emptySet() else {

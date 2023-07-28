@@ -25,7 +25,6 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @Retention(RUNTIME)
 @Inherited
 @MustBeDocumented
-//TODO: kdoc
 public annotation class AsStringHash(val digestMethod: DigestMethod = DigestMethod.CRC32C)
 
 @JvmSynthetic // avoid access from external Java code
