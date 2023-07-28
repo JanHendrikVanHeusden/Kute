@@ -2,6 +2,7 @@ package nl.kute.util
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.Date
 
 import kotlin.random.Random
 
@@ -20,7 +21,7 @@ class HexUtilTest {
         assertThat(Int.MIN_VALUE.asHexString).isEqualTo("80000000")
 
         repeat(100) {
-            val input = Random.nextInt()
+            val input = Random(Date().time.toInt()).nextInt()
             val actual: String = input.asHexString
             val checkValue: Int = Integer.parseUnsignedInt(actual, 16)
             assertThat(checkValue)
@@ -42,7 +43,7 @@ class HexUtilTest {
         assertThat(Long.MIN_VALUE.asHexString).isEqualTo("8000000000000000")
 
         repeat(100) {
-            val input = Random.nextLong()
+            val input = Random(Date().time.toInt()).nextLong()
             val actual: String = input.asHexString
             val checkValue: Long = java.lang.Long.parseUnsignedLong(actual, 16)
             assertThat(checkValue)

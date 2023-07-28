@@ -35,7 +35,7 @@ internal val loggerWithCaller: (String, Any?) -> Unit = { caller, msg: Any? -> l
  * > To be used from within Kotlin.
  * > For use from Java code: see [setLogConsumer]
  *
- * Typical usage (Kotlin) would be:
+ * Typical usage for Kotlin with an SLF4J compatible logger might be:
  * ```
  * private val kuteLogger = Logger.getLogger("nl.kute")
  * nl.kute.log.logger = { msg -> kuteLogger.error(msg) }
@@ -68,7 +68,7 @@ public var logger: (String?) -> Unit = stdOutLogger
  * > For use from Kotlin code: see [logger]
  *
  * More convenient in Java than hassling with [Unit] (as you would with [logger])
- * > Typical usage (Java) would be:
+ * > Typical usage for Java with an SLF4J compatible logger would be:
  * ```
  * Logger myLogger = Logger.getLogger("nl.kute")
  * Consumer<String> kuteErrorlogger = msg -> myLogger.error(msg);

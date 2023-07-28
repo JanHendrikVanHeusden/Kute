@@ -9,6 +9,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
+private typealias Supplier<T> = () -> T?
+
 class NamedSupplierTest: GarbageCollectionWaiter {
 
     @BeforeEach
@@ -27,7 +29,7 @@ class NamedSupplierTest: GarbageCollectionWaiter {
         val namedSupplier: NamedSupplier<String> = NamedSupplier(name, supplier)
         // assert
         assertThat(namedSupplier.name).isSameAs(name)
-        assertThat(namedSupplier.valueString).isSameAs(suppliedValue)
+        assertThat(namedSupplier.value).isSameAs(suppliedValue)
     }
 
     @Test
@@ -47,9 +49,9 @@ class NamedSupplierTest: GarbageCollectionWaiter {
             .isZero
 
         repeat(10) {
-            assertThat(namedSupplier.valueString)
+            assertThat(namedSupplier.value)
                 .`as`("Subsequent call #$it should re-evaluate the expression")
-                .isEqualTo("${it + 1}")
+                .isEqualTo(it + 1)
         }
     }
 
@@ -68,7 +70,7 @@ class NamedSupplierTest: GarbageCollectionWaiter {
 
         // act: no exception
         val thrower = supplier.namedSupplier("thrower")
-        val okResult = thrower.valueString
+        val okResult = thrower.value
         // assert
         assertThat(okResult).isEqualTo(okValue)
         assertThat(logMsg).isEmpty()
@@ -76,14 +78,14 @@ class NamedSupplierTest: GarbageCollectionWaiter {
         // arrange: throw it!
         throwIt = true
         // act
-        val errResult = thrower.valueString
+        val errResult = thrower.value
         assertThat(errResult).isNull()
         assertThat(logMsg).contains(errMsg)
 
         // arrange: no exception anymore
         throwIt = false
         logMsg = ""
-        assertThat(thrower.valueString).isEqualTo(okValue)
+        assertThat(thrower.value).isEqualTo(okValue)
         assertThat(logMsg).isEmpty()
     }
 
@@ -97,7 +99,7 @@ class NamedSupplierTest: GarbageCollectionWaiter {
         val namedSupplier = supplier.namedSupplier(name) as NamedSupplier<String>
         // assert
         assertThat(namedSupplier.name).isSameAs(name)
-        assertThat(namedSupplier.valueString).isSameAs(suppliedValue)
+        assertThat(namedSupplier.value).isSameAs(suppliedValue)
     }
 
     @Test
@@ -113,10 +115,10 @@ class NamedSupplierTest: GarbageCollectionWaiter {
         var supplier: Supplier<ToBeGarbageCollected?>? = { toBeGarbageCollected }
         val namedSupplier: NamedSupplier<ToBeGarbageCollected> =
             supplier!!.namedSupplier("to be garbage collected") as NamedSupplier
-        
-        val checkGarbageCollected = {namedSupplier.valueString == null}
+
+        val checkGarbageCollected = { namedSupplier.value == null }
         assertThat(checkGarbageCollected.invoke()).isFalse
-        assertThat(namedSupplier.valueString).contains("myString=my String")
+        assertThat(namedSupplier.value.asString()).contains("myString=my String")
 
         // act
         // nullify the object, should then be eligible for garbage collection

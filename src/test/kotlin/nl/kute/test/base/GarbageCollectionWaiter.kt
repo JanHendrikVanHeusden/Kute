@@ -1,15 +1,16 @@
 package nl.kute.test.base
 
-import nl.kute.core.namedvalues.Supplier
 import nl.kute.log.log
 import org.assertj.core.api.Assumptions.assumeThat
 import org.awaitility.Awaitility
 import org.awaitility.core.ConditionTimeoutException
 import java.util.concurrent.TimeUnit
 
+private typealias BooleanSupplier = () -> Boolean
+
 interface GarbageCollectionWaiter {
 
-    fun assertGarbageCollected(condition: Supplier<Boolean>, failOnTimeout: Boolean = false, maxWaitSeconds: Int = 2) {
+    fun assertGarbageCollected(condition: BooleanSupplier, failOnTimeout: Boolean = false, maxWaitSeconds: Int = 2) {
         // If the tests do not succeed on your machine / JVM, you may be able to run this test successfully
         // by also using an external tool that enforces garbage collections, like VisualVM, JMeter or other monitoring tools.
         // (you may want to increase the waiting time)

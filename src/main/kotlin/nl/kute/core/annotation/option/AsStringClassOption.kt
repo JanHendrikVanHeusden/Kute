@@ -77,13 +77,13 @@ private var asStringClassOptionCache: MutableMap<KClass<*>, AsStringClassOption>
  */
 internal fun resetAsStringClassOptionCache() {
     // create a new map instead of clearing the old one, to avoid intermediate situations
-    // while concurrently reading from / writing to the map, as these operations may not be atomic
+    // while concurrently reading from / writing to the map, as these operations are not atomic typically
     asStringClassOptionCache = ConcurrentHashMap()
 }
 
 @Suppress("unused")
 private val configChangeCallback = { resetAsStringClassOptionCache() }
-    .also { AsStringClassOption::class.subscribeConfigChange(it) }
+    .also { callback -> AsStringClassOption::class.subscribeConfigChange(callback) }
 
 // Mainly for testing purposes
 internal val asStringClassOptionCacheSize

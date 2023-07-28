@@ -17,6 +17,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.Date
 import kotlin.random.Random
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
@@ -48,23 +49,23 @@ class NamedPropTest: GarbageCollectionWaiter {
         val testObj = ClassWithConstructorInjectedDelegate()
 
         // act
-        val namedPropWithInjectedRef = testObj.namedProp(testObj::myProp) as NamedProp<ClassWithConstructorInjectedDelegate, String>
+        val namedPropWithInjectedRef = testObj.namedProp(testObj::myProp)
         // assert
-        assertThat(namedPropWithInjectedRef.valueString)
+        assertThat(namedPropWithInjectedRef.value)
             .`as`("It should retrieve the delegate property value by object (testObj)")
             .isEqualTo(thePropValue)
 
         // act
-        val namedPropWithClassRef = testObj.namedProp(ClassWithConstructorInjectedDelegate::myProp) as NamedProp<ClassWithConstructorInjectedDelegate, String>
+        val namedPropWithClassRef = testObj.namedProp(ClassWithConstructorInjectedDelegate::myProp)
         // assert
-        assertThat(namedPropWithClassRef.valueString)
+        assertThat(namedPropWithClassRef.value)
             .`as`("It should retrieve the delegate property value by object class (ClassWithConstructorInjectedDelegate)")
             .isEqualTo(thePropValue)
 
         // act
-        val namedPropWithObject = classWithObjectDelegate.namedProp(classWithObjectDelegate::myProp) as NamedProp<ClassWithDelegateObject, String>
+        val namedPropWithObject = classWithObjectDelegate.namedProp(classWithObjectDelegate::myProp)
         // assert
-        assertThat(namedPropWithObject.valueString)
+        assertThat(namedPropWithObject.value)
             .`as`("It should retrieve the delegate property value by object class (ClassWithDelegateObject)")
             .isEqualTo(withPropObject.myProp)
     }
@@ -85,7 +86,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         // call property of TestClass1 with object of TestClass2: unrelated, incompatible
         val namedProp0 = testObj2.namedProp(testClass1Property0)
         // assert
-        assertThat(namedProp0.valueString)
+        assertThat(namedProp0.value)
             .`as`("Somehow with KProperty0 (object reference testObj1) this succeeds, even with incompatible object (testObj2)")
             .isEqualTo(testObj1.myTestProperty)
         assertThat(logMsg).isEmpty()
@@ -95,7 +96,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         val testClass1Property1: KProperty1<TestClass1, String> = TestClass1::myTestProperty
         val namedProp1 = testObj2.namedProp(testClass1Property1)
         // assert
-        assertThat(namedProp1.valueString)
+        assertThat(namedProp1.value)
             .`as`("With KProperty1 (class reference TestClass1) it will fail; is handled & returns `null`")
             .isNull()
         assertThat(logMsg)
@@ -108,7 +109,7 @@ class NamedPropTest: GarbageCollectionWaiter {
             .contains(TestClass2::class.simpleName)
             .contains(namedProp1.name)
         logMsg = ""
-        namedProp1.valueString
+        namedProp1.value
         assertThat(logMsg)
             .`as`("subsequent attempts should not log anymore")
             .isEmpty()
@@ -131,12 +132,12 @@ class NamedPropTest: GarbageCollectionWaiter {
         val namedProp = NamedProp(withProp, withProp::prop)
         // assert
         assertThat(namedProp.name).isEqualTo("prop")
-        assertThat(namedProp.valueString).isEqualTo(propValue)
+        assertThat(namedProp.value).isEqualTo(propValue)
 
         // arrange
         propValue = "prop value 2"
         // act
-        assertThat(namedProp.valueString).isEqualTo(propValue)
+        assertThat(namedProp.value).isEqualTo(propValue)
     }
 
     @Test
@@ -145,23 +146,23 @@ class NamedPropTest: GarbageCollectionWaiter {
         val testObj = WithPropertyAnnotations()
 
         // act, assert
-        assertThat(NamedProp(testObj, testObj::unchanged).valueString)
+        assertThat(NamedProp(testObj, testObj::unchanged).value)
             .isEqualTo(testObj.unchanged)
 
-        assertThat(NamedProp(testObj, testObj::omitted).valueString)
+        assertThat(NamedProp(testObj, testObj::omitted).value)
             .isEmpty()
 
-        assertThat(NamedProp(testObj, testObj::hashed).valueString)
+        assertThat(NamedProp(testObj, testObj::hashed).value)
             .isNotEqualTo(testObj.hashed)
             .isEqualTo(AsStringHash().hashString(testObj.hashed))
             .matches("#[a-z0-9]{8}#")
 
-        assertThat(NamedProp(testObj, testObj::masked).valueString)
+        assertThat(NamedProp(testObj, testObj::masked).value)
             .isNotEqualTo(testObj.masked)
             .isEqualTo(AsStringMask().mask(testObj.masked))
             .isEqualTo("*".repeat(testObj.masked.length))
 
-        assertThat(NamedProp(testObj, testObj::replaced).valueString)
+        assertThat(NamedProp(testObj, testObj::replaced).value)
             .isNotEqualTo(testObj.replaced)
             .isEqualTo(AsStringReplace(" ", "_").replacePattern(testObj.replaced))
             .isEqualTo(testObj.replaced.replace(" ", "_"))
@@ -174,15 +175,15 @@ class NamedPropTest: GarbageCollectionWaiter {
         val testObj = Sub1OfClassWithPropertyAnnotations()
 
         // act, assert
-        assertThat(NamedProp(testObj, testObj::unchanged).valueString)
+        assertThat(NamedProp(testObj, testObj::unchanged).value)
             .isEqualTo(testObj.unchanged)
             .isEqualTo(testObjSuper.unchanged)
 
-        assertThat(NamedProp(testObj, testObj::omitted).valueString)
+        assertThat(NamedProp(testObj, testObj::omitted).value)
             .`as`("should be omitted due to super-property @AsStringOmit annotation")
             .isEmpty()
 
-        assertThat(NamedProp(testObj, testObj::hashed).valueString)
+        assertThat(NamedProp(testObj, testObj::hashed).value)
             .isNotEqualTo(testObj.hashed)
             .`as`("Should honour the super-property CRC32C method")
             .isEqualTo(AsStringHash(DigestMethod.CRC32C).hashString(testObj.hashed))
@@ -190,7 +191,7 @@ class NamedPropTest: GarbageCollectionWaiter {
             .`as`("Should not honour the subclass SHA method")
             .doesNotContain(AsStringHash(DigestMethod.SHA1).hashString(testObj.hashed))
 
-        assertThat(NamedProp(testObj, testObj::masked).valueString)
+        assertThat(NamedProp(testObj, testObj::masked).value)
             .isNotEqualTo(testObj.masked)
             .`as`("Should honour the super-property mask")
             .isEqualTo(AsStringMask().mask(testObj.masked))
@@ -198,7 +199,7 @@ class NamedPropTest: GarbageCollectionWaiter {
             .`as`("Should not honour the subclass mask")
             .isNotEqualTo(AsStringMask(startMaskAt = 2, endMaskAt = -2).mask(testObj.masked))
 
-        assertThat(NamedProp(testObj, testObj::replaced).valueString)
+        assertThat(NamedProp(testObj, testObj::replaced).value)
             .isNotEqualTo(testObj.replaced)
             .`as`("Should honour the super-property pattern")
             .isEqualTo(AsStringReplace(" ", "_").replacePattern(testObj.replaced))
@@ -213,7 +214,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         val testObj = Sub2aOfClassWithPropertyAnnotations()
 
         // act, assert
-        assertThat(NamedProp(testObj, testObj::unchanged).valueString)
+        assertThat(NamedProp(testObj, testObj::unchanged).value)
             .`as`("AsStringOption of sub-property should override AsStringOption of super properties")
             .isEqualTo(testObj.unchanged.take(5))
     }
@@ -224,15 +225,15 @@ class NamedPropTest: GarbageCollectionWaiter {
         val testObj = Sub2bOfClassWithPropertyAnnotations()
 
         // act, assert
-        assertThat(NamedProp(testObj, testObj::omitted).valueString!!.length)
+        assertThat(NamedProp(testObj, testObj::omitted).value!!.length)
             .isZero
 
-        assertThat(NamedProp(testObj, testObj::unchanged).valueString!!.length)
+        assertThat(NamedProp(testObj, testObj::unchanged).value!!.length)
             .`as`("Should not honour class level AsStringOption, it has a property-level AsStringOption in the class hierarchy`)")
             .isEqualTo(testObj.unchanged.length)
 
         listOf(testObj::hashed, testObj::masked, testObj::replaced).forEach {
-            assertThat(NamedProp(testObj, it).valueString!!.length)
+            assertThat(NamedProp(testObj, it).value!!.length)
                 .`as`("Should honour class level AsStringOption with max length (property: `${it.name}`)")
                 .isEqualTo(7)
         }
@@ -244,19 +245,19 @@ class NamedPropTest: GarbageCollectionWaiter {
         val testObj = Sub2cOfClassWithPropertyAnnotations()
 
         // act, assert
-        assertThat(NamedProp(testObj, testObj::omitted).valueString!!.length)
+        assertThat(NamedProp(testObj, testObj::omitted).value!!.length)
             .isZero
 
-        assertThat(NamedProp(testObj, testObj::unchanged).valueString!!.length)
+        assertThat(NamedProp(testObj, testObj::unchanged).value!!.length)
             .`as`("Should not honour class level AsStringOption, it has a property-level AsStringOption in the class hierarchy`)")
             .isEqualTo(testObj.unchanged.length)
 
-        assertThat(NamedProp(testObj, testObj::hashed).valueString!!.length)
+        assertThat(NamedProp(testObj, testObj::hashed).value!!.length)
             .`as`("Has length 10, which is less than AsStringOption's max prop value length")
             .isEqualTo(10)
 
         listOf(testObj::masked, testObj::replaced).forEach {
-            assertThat(NamedProp(testObj, it).valueString!!.length)
+            assertThat(NamedProp(testObj, it).value!!.length)
                 .`as`("Should honour class level AsStringOption with max length (property: `${it.name}`)")
                 .isEqualTo(11)
         }
@@ -266,14 +267,14 @@ class NamedPropTest: GarbageCollectionWaiter {
     fun `test namedProp`() {
         // arrange
         class MyTestClass {
-            val testProp: Int = Random.nextInt()
+            val testProp: Int = Random(Date().time.toInt()).nextInt()
         }
         val myTestObj = MyTestClass()
         // act
-        val namedProp = myTestObj.namedProp(myTestObj::testProp) as NamedProp<MyTestClass, Int>
+        val namedProp = myTestObj.namedProp(myTestObj::testProp)
         // assert
         assertThat(namedProp.name).isEqualTo(MyTestClass::testProp.name)
-        assertThat(namedProp.valueString).isEqualTo("${myTestObj.testProp}")
+        assertThat(namedProp.value).isEqualTo("${myTestObj.testProp}")
     }
 
     @Test
@@ -288,9 +289,9 @@ class NamedPropTest: GarbageCollectionWaiter {
         val namedProp: NamedProp<ToBeGarbageCollected, String?> =
             toBeGarbageCollected.namedProp(ToBeGarbageCollected::myString) as NamedProp<ToBeGarbageCollected, String?>
         
-        val checkGarbageCollected = {namedProp.valueString == null}
+        val checkGarbageCollected = {namedProp.value == null}
         assertThat(checkGarbageCollected.invoke()).isFalse
-        assertThat(namedProp.valueString).isEqualTo("my String")
+        assertThat(namedProp.value).isEqualTo("my String")
 
         // act
         // nullify the object, should then be eligible for garbage collection

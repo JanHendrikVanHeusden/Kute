@@ -1,11 +1,15 @@
 package nl.kute.core.namedvalues
 
-import nl.kute.core.weakreference.ObjectWeakReference
 import kotlin.reflect.KProperty
 
-internal interface PropertyValue<T: Any?, V: Any?> {
-    val objectReference: ObjectWeakReference<T?>
+/**
+ * Interface for classes that aim to resolve a [property]'s value
+ * with respect to it's associated [asStringAffectingAnnotations]
+ * @param V The [property]'s return type
+ */
+internal interface PropertyValue<V: Any?> {
+    /** The property to resolve the value of */
     val property: KProperty<V>
-    val printModifyingAnnotations: Set<Annotation>
-    val valueString: String?
+    /** The annotations that may affect the [property]'s String representation */
+    val asStringAffectingAnnotations: Set<Annotation>
 }

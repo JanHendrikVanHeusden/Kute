@@ -9,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.nio.charset.Charset
 import java.time.LocalDateTime
+import java.util.Date
 import kotlin.random.Random
 
 class HashingTest {
@@ -131,7 +132,12 @@ class HashingTest {
 
     @Test
     fun `object hashing with javaHashCode should yield same result as java hashCode`() {
-        listOf(Any(), LocalDateTime.now(), Random.nextInt(), Random.nextBytes(200)).forEach {
+        listOf(
+            Any(),
+            LocalDateTime.now(),
+            Random(Date().time.toInt()).nextInt(),
+            Random(Date().time.toInt()).nextBytes(200)
+        ).forEach {
             // HexFormat is introduced in Java 17; and we want to be able to run on Java 11+
             // assertThat(javaHashString(it)).isEqualTo(hexFormat.toHexDigits(it.hashCode()))
             assertThat(it.hexHashCode()).isEqualTo(it.hashCode().asHexString)

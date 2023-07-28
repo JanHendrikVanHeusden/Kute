@@ -107,7 +107,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
                 "ClassWithHashProperty",
                 "nullable=$showNullAs",
                 "hashProperty=#$hashCode#",
-                "privateProp=${namedVal.valueString}",
+                "privateProp=${namedVal.value}",
             )
 
         // act

@@ -17,7 +17,7 @@ class NamedValueTest: GarbageCollectionWaiter {
         val namedValue: NamedValue<StringBuffer> = NamedValue(name, theValue)
         // assert
         assertThat(namedValue.name).isSameAs(name)
-        assertThat(namedValue.valueString).isEqualTo(theValue.toString())
+        assertThat(namedValue.value.asString()).isEqualTo(theValue.toString())
     }
 
     @Test
@@ -37,7 +37,7 @@ class NamedValueTest: GarbageCollectionWaiter {
             .isZero
 
         repeat(10) {
-            assertThat(namedValue.valueString)
+            assertThat(namedValue.value.toString())
                 .`as`("Subsequent call #$it should re-evaluate the expression")
                 .isEqualTo("${it + 1}")
         }
@@ -52,7 +52,7 @@ class NamedValueTest: GarbageCollectionWaiter {
         val namedValue = valueStr.namedValue(name) as NamedValue<String>
         // assert
         assertThat(namedValue.name).isSameAs(name)
-        assertThat(namedValue.valueString).isEqualTo(valueStr)
+        assertThat(namedValue.value).isEqualTo(valueStr)
     }
 
     @Test
@@ -64,12 +64,11 @@ class NamedValueTest: GarbageCollectionWaiter {
             override fun toString(): String = asString()
         }
         var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
-        val namedValue: NamedValue<ToBeGarbageCollected> =
-            toBeGarbageCollected.namedValue("to be garbage collected") as NamedValue
+        val namedValue = toBeGarbageCollected.namedValue("to be garbage collected")
 
-        val checkGarbageCollected = {namedValue.valueString == "null"}
+        val checkGarbageCollected = {namedValue.value.asString() == "null"}
         assertThat(checkGarbageCollected.invoke()).isFalse
-        assertThat(namedValue.valueString).contains("myString=my String")
+        assertThat(namedValue.value.asString()).contains("myString=my String")
 
         // act
         // nullify the object, should then be eligible for garbage collection

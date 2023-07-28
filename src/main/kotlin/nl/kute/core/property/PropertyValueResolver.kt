@@ -87,7 +87,7 @@ private inline fun <reified A : Annotation> Set<Annotation>.findAnnotations(): S
     this.filterIsInstance<A>().toSet()
 
 @JvmSynthetic // avoid access from external Java code
-internal fun <T : Any> KClass<T>.propertiesWithPrintModifyingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
+internal fun <T : Any> KClass<T>.propertiesWithAsStringAffectingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
     val theCache = propsWithAnnotationsCacheByClass
     return theCache[this].ifNull {
         // map each property to an (empty yet) mutable set of annotations
@@ -110,13 +110,13 @@ private var propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KPropert
 @JvmSynthetic // avoid access from external Java code
 internal fun resetPropertyAnnotationCache() {
     // create a new map instead of clearing the old one, to avoid intermediate situations
-    // while concurrently reading from / writing to the map, as these operations may not be atomic
+    // while concurrently reading from / writing to the map, as these operations are not atomic typically
     propsWithAnnotationsCacheByClass = ConcurrentHashMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> ()
 }
 
 @Suppress("unused")
 private val configChangeCallback = { resetPropertyAnnotationCache() }
-    .also { AsStringOption::class.subscribeConfigChange(it) }
+    .also { callback -> AsStringOption::class.subscribeConfigChange(callback) }
 
 // Mainly for testing purposes
 internal val propertyAnnotationCacheSize

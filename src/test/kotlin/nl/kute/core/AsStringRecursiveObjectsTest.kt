@@ -1,9 +1,12 @@
 package nl.kute.core
 
+import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
+import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.test.base.validateObjectsStack
 import nl.kute.reflection.simplifyClassName
+import nl.kute.testobjects.kotlin.ClassWithToStringCallingAsString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.LinkedList
@@ -209,6 +212,23 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
                 "MutualReferencingLambdas",
                 "lambda1=(() -> Unit) -> Unit",
                 "lambda2=(() -> Unit) -> Unit"
+            )
+    }
+
+    @Test
+    fun `Supplier that supplies an object whose toString calls asString`() {
+        val testObj = ClassWithToStringCallingAsString()
+        val namedSupplier = NamedSupplier("asStringCaller") { testObj }
+
+        val asStringBuilder = testObj.asStringBuilder()
+            .withAlsoNamed(namedSupplier)
+            .build()
+
+        assertThat(asStringBuilder.asString())
+            .isObjectAsString(
+                "ClassWithToStringCallingAsString",
+                "prop1=I am prop1",
+                withLastPropertyString = "asStringCaller=recursive: ClassWithToStringCallingAsString(...)"
             )
     }
 

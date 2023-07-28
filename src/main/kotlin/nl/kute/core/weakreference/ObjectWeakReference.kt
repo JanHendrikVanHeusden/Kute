@@ -1,23 +1,18 @@
 package nl.kute.core.weakreference
 
-import nl.kute.config.defaultNullString
+import nl.kute.reflection.simplifyClassName
 import java.lang.ref.WeakReference
 
-//TODO: kdoc
+/**
+ * [WeakReference] implementation with [toString] overridden
+ * @param obj The referenced object. `null`-safe.
+ */
 public class ObjectWeakReference<T: Any?>(obj: T?): WeakReference<T?>(obj) {
-    override fun toString(): String = this.get()?.toString() ?: defaultNullString
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ObjectWeakReference<*>
-
-        return this.get() == other.get()
+    /** @return String representation containing the referenced object's [toString] */
+    override fun toString(): String {
+        val className = this.get()?.let { it::class.simplifyClassName() }
+        return "$objectWeakRefClassName of $className(${this.get().toString()})"
     }
-
-    override fun hashCode(): Int {
-        return this.get()?.hashCode() ?: 0
-    }
-
 }
+
+private val objectWeakRefClassName = ObjectWeakReference::class.simplifyClassName()

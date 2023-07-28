@@ -12,8 +12,6 @@ import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.asStringClassOptionCacheSize
 import nl.kute.core.annotation.option.resetAsStringClassOptionCache
-import nl.kute.core.namedvalues.NameValue
-import nl.kute.core.namedvalues.NamedProp
 import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
 import nl.kute.core.namedvalues.namedProp
@@ -204,16 +202,16 @@ class AsStringTest: ObjectsStackVerifier {
     fun `each call of asString with NamedXxx should evaluate the mutable value`(namedValueType: String) {
         // arrange
         val valueName = "classLevelCounter"
-        val namedProp = this.namedProp(::classLevelCounter) as NamedProp<*, Int>
+        val namedProp = this.namedProp(this::classLevelCounter)
 
-        val mapOfNamedValues: Map<String, () -> NameValue<Int?>> = mapOf(
+        val mapOfNamedValues = mapOf(
             // We can simply use the same NamedProp every time, it will evaluate the property value at runtime
             "prop" to { namedProp },
             // A new NamedValue needs to be constructed on every call, because it simply stores the value at time of construction.
             // If you don't like that, use `NamedProp` or `NamedSupplier` instead
             "value" to { classLevelCounter.namedValue(valueName) as NamedValue<Int> }
         )
-        val namedXxx: () -> NameValue<Int?> = mapOfNamedValues[namedValueType]!!
+        val namedXxx = mapOfNamedValues[namedValueType]!!
 
         class TestClass {
             override fun toString(): String = asStringBuilder().withAlsoNamed(namedXxx()).asString()

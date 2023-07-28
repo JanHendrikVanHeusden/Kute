@@ -63,7 +63,7 @@ internal fun KClass<*>.hasImplementedToString(): Boolean =
             || classToStringMethodCache[this]?.second ?: (this.toStringImplementingMethod() != null)
 
 
-// The 2nd part of the Pair indicates whether the toString() method was overridden
+/** The 2nd part of the [Pair] indicates whether the [toString] method was overridden for the [KClass] */
 private val classToStringMethodCache = ConcurrentHashMap<KClass<*>, Pair<KFunction<*>?, Boolean>>()
 
 @Suppress("UNNECESSARY_SAFE_CALL") // nullability may occur in tests due to mocks that force contrived exceptions

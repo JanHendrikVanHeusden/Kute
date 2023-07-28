@@ -1,22 +1,13 @@
 package nl.kute.core.namedvalues
 
-import nl.kute.core.weakreference.ObjectWeakReference
-
-internal typealias Supplier<T> = () -> T?
-
 /**
- * Interface for wrapper classes to provide name / value combinations from various sources.
- * For usage, see: [nl.kute.core.AsStringBuilder]
+ * Interface for classes to provide name / value combinations from various sources.
+ * > For usage, see: [nl.kute.core.AsStringBuilder]
  */
 public interface NameValue<V: Any?> {
-    //TODO: kdoc
+    /** The name to identify this [NameValue] */
     public val name: String
-    //TODO: kdoc
-    public val valueString: String?
+    /** The value of this [NameValue] */
+    public val value: Any?
 }
 
-//TODO: kdoc
-public interface TypedNameValue<T: Any?, V: Any?>: NameValue<V> {
-    //TODO: kdoc
-    public val objectReference: ObjectWeakReference<T?>
-}

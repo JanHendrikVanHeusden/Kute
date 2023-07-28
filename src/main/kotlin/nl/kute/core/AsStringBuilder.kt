@@ -4,7 +4,7 @@ package nl.kute.core
 
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.namedProp
-import nl.kute.core.property.propertiesWithPrintModifyingAnnotations
+import nl.kute.core.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.reflection.declaringClass
 import nl.kute.reflection.simplifyClassName
@@ -40,7 +40,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         if (obj == null) {
             emptySet()
         } else {
-            obj!!::class.propertiesWithPrintModifyingAnnotations().keys
+            obj!!::class.propertiesWithAsStringAffectingAnnotations().keys
         }
     }
 
