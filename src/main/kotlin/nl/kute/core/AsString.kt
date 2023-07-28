@@ -5,6 +5,7 @@ package nl.kute.core
 
 import nl.kute.config.defaultNullString
 import nl.kute.config.stringJoinMaxCount
+import nl.kute.config.subscribeConfigChange
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringClassOption
@@ -19,11 +20,13 @@ import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.asHexString
-import nl.kute.util.throwableAsString
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
 import nl.kute.util.lineEnd
+import nl.kute.util.throwableAsString
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -112,33 +115,35 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                     return objectCategory.handler!!(obj)
                 }
                 val objClass = obj::class
-                // TODO: refactor to separate method
-                if (!forceAsString
-                    && !objClass.java.isSynthetic
-                    && objClass.simpleName != null // null with a category of classes that kotlin's reflection does not support
-                    && objClass.hasImplementedToString()
-                    && obj.toStringPreference() == PREFER_TOSTRING
-                ) {
-                    val toString = obj.toString()
-                    // if a toString() method is something like this:
-                    //       `override fun toString() = asString()`
-                    //   AND the class annotation or default specifies
-                    //       that toStringPreference() == PREFER_TOSTRING
-                    // we will run into recursion (that could have been avoided by the caller!).
-                    // Anyway, let's detect if this is the case, and if so, we should ignore the PREFER_TOSTRING setting,
-                    // and simply use asString()
-                    toString.let {
-                        // Can we find a better way?
-                        // TODO: cache the check result, to avoid subsequent unnecessary recursion
-                        if (it.startsWith(recursivePrefxix)
-                            && it.endsWith(recursivePostfix)
-                            && it == obj.asStringRecursive()
-                        ) {
+                val useToString = !forceAsString
+                        && !objClass.java.isSynthetic
+                        && objClass.simpleName != null // null with a category of classes that kotlin's reflection does not support
+                        && !forceClassAsStringCache.contains(objClass)
+                        && objClass.hasImplementedToString()
+                        && obj.toStringPreference() == PREFER_TOSTRING
+
+                if (useToString) {
+                    fun isToStringCallingAsString(string: String): Boolean {
+                        // if we are here AND a toString() method is something like this:
+                        //       `override fun toString() = asString()`
+                        // we ran into recursion because toString() calls asString()
+                        return string.startsWith(recursivePrefxix) && string == obj.asStringRecursive()
+                    }
+
+                    return obj.toString().let {
+                        // Calling `asString()` from `toString()` is fine on itself, but not in case of PREFER_TOSTRING.
+                        // That results in an remark on recursion only.
+                        // We want to return something more meaningful; so call asString() instead
+                        if (isToStringCallingAsString(it)) {
+                            // cache it, so we won't run into useless recursion next time
+                            forceClassAsStringCache.add(objClass)
+                            // remove the entry in the stack, we are going to making a fresh start here
                             objectsStackGuard.get().remove(obj)
-                            return obj.asString(emptyStringList, forceAsString = true)
+                            obj.asString(emptyStringList, forceAsString = true)
+                        } else {
+                            it
                         }
                     }
-                    return toString
                 }
                 // no handler, so custom object, let's process it, with all params provided
                 try {
@@ -327,3 +332,23 @@ private val objectsStackGuard: ThreadLocal<ObjectsStackGuard> =
  */
 @JvmSynthetic // avoid access from external Java code
 internal fun getObjectsStackSize() = max(objectsStackGuard.get().size, 0)
+
+/** Cache for classes that have [asString] forced (due to recursion issues with [toString]) */
+private val forceClassAsStringCache = ConcurrentHashMap.newKeySet<KClass<*>>()
+
+/**
+ * Resets the cache for classes that have [asString] forced (due to recursion issues with [toString])
+ * > This is typically needed when the [AsStringClassOption.defaultOption] is changed,
+ *   to avoid inconsistent intermediate results.
+ */
+@JvmSynthetic // avoid access from external Java code
+internal fun clearForceClassAsStringCache() = forceClassAsStringCache.clear()
+
+@Suppress("unused")
+private val configChangeCallback = { clearForceClassAsStringCache() }
+    .also { callback -> AsStringClassOption::class.subscribeConfigChange(callback) }
+
+// Mainly for testing purposes
+internal val forceClassAsStringCacheSize
+    @JvmSynthetic // avoid access from external Java code
+    get() = forceClassAsStringCache.size
