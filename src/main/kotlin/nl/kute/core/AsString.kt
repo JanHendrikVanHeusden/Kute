@@ -9,12 +9,14 @@ import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.log.log
 import nl.kute.reflection.error.SyntheticClassException
+import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.asHexString
 import nl.kute.util.throwableAsString
@@ -88,7 +90,9 @@ public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
  * for these annotations, e.g. @[AsStringOption] and other (other annotations, see package `nl.kute.core.annotation.modify`)
  * @see [AsStringBuilder]
  */
-private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
+private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>, forceAsString: Boolean = false): String {
+    fun Any.asStringRecursive() = "$recursivePrefxix${this::class.simplifyClassName()}$recursivePostfix"
+
     try {
         val obj = this ?: return defaultNullString
         val objectCategory = AsStringObjectCategory.resolveObjectCategory(obj)
@@ -98,18 +102,45 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
         } else {
             try {
                 // Check if we were already busy processing this object
-                objectsStackGuard.get().addIfNotPresent(obj).also { notPresent ->
-                    if (!notPresent) {
-                        // avoid endless loop
-                        return "recursive: ${obj::class.simplifyClassName()}$propertyListPrefix...$propertyListSuffix"
-                    }
+                val isRecursiveCall = !objectsStackGuard.get().addIfNotPresent(obj)
+                if (isRecursiveCall) {
+                    // avoid endless loop
+                    return obj.asStringRecursive()
                 }
                 if (objectCategory.hasHandler() && objectCategory.guardStack) {
                     // stack guarding performed, handle it
                     return objectCategory.handler!!(obj)
                 }
-                // no handler, so custom object, let's process it, with all params provided
                 val objClass = obj::class
+                // TODO: refactor to separate method
+                if (!forceAsString
+                    && !objClass.java.isSynthetic
+                    && objClass.simpleName != null // null with a category of classes that kotlin's reflection does not support
+                    && objClass.hasImplementedToString()
+                    && obj.toStringPreference() == PREFER_TOSTRING
+                ) {
+                    val toString = obj.toString()
+                    // if a toString() method is something like this:
+                    //       `override fun toString() = asString()`
+                    //   AND the class annotation or default specifies
+                    //       that toStringPreference() == PREFER_TOSTRING
+                    // we will run into recursion (that could have been avoided by the caller!).
+                    // Anyway, let's detect if this is the case, and if so, we should ignore the PREFER_TOSTRING setting,
+                    // and simply use asString()
+                    toString.let {
+                        // Can we find a better way?
+                        // TODO: cache the check result, to avoid subsequent unnecessary recursion
+                        if (it.startsWith(recursivePrefxix)
+                            && it.endsWith(recursivePostfix)
+                            && it == obj.asStringRecursive()
+                        ) {
+                            objectsStackGuard.get().remove(obj)
+                            return obj.asString(emptyStringList, forceAsString = true)
+                        }
+                    }
+                    return toString
+                }
+                // no handler, so custom object, let's process it, with all params provided
                 try {
                     val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
                         objClass.propertiesWithAsStringAffectingAnnotations()
@@ -157,7 +188,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                     return obj.asStringFallBack()
                 }
             } finally {
-                objectsStackGuard.get().remove(this)
+                objectsStackGuard.get().remove(obj)
             }
         }
     } catch (e: Exception) {
@@ -173,6 +204,9 @@ private val emptyStringList: List<String> = listOf()
 private const val propertyListPrefix = "("
 private const val valueSeparator: String = ", "
 private const val propertyListSuffix = ")"
+
+private const val recursivePrefxix =  "recursive: "
+private const val recursivePostfix = "$propertyListPrefix...$propertyListSuffix"
 
 private val classPrefix = Regex("^class ")
 
@@ -250,7 +284,7 @@ private class ObjectsStackGuard {
             if (it?.obj === obj) it else null
         }
 
-    /** @return `true` if [obj] is newly added; `false` if it was present already (like [Set]`.add` behaviour */
+    /** @return `true` if [obj] is newly added; `false` if it was present already (like [Set]`.add` behaviour) */
     fun <T : Any> addIfNotPresent(obj: T): Boolean =
         get(obj).let { objectCounter ->
             objectCounter?.incrementAndGet() ?: ObjectCounter(obj, 1)

@@ -4,6 +4,7 @@ import nl.kute.config.initialAsStringClassOption
 import nl.kute.config.initialIncludeIdentityHash
 import nl.kute.config.notifyConfigChange
 import nl.kute.config.subscribeConfigChange
+import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.identityHashHex
@@ -23,12 +24,17 @@ import kotlin.reflect.KClass
  * @param includeIdentityHash Should the identity hash be included?
  * If included, the identity hash is `@` followed by the hex representation as of [System.identityHashCode]
  * (up to 8 hex characters), identical to the hex string seen in non-overridden [toString] output.
+ * @param preferToString If a [toString] method is implemented
  */
-@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.CLASS)
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
-public annotation class AsStringClassOption(val includeIdentityHash: Boolean = initialIncludeIdentityHash) {
+public annotation class AsStringClassOption(
+    val includeIdentityHash: Boolean = initialIncludeIdentityHash,
+    // TODO: tests
+    val preferToString: ToStringPreference = USE_ASSTRING
+) {
 
     /** Static holder for [defaultOption] */
     public companion object DefaultOption {

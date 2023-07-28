@@ -124,6 +124,9 @@ private fun Any.primitiveArrayIterator(): Iterator<*> =
 internal fun Any.objectIdentity() = this.objectIdentity(getAsStringClassOption())
 
 @JvmSynthetic // avoid access from external Java code
+internal fun Any.toStringPreference() = getAsStringClassOption().preferToString
+
+@JvmSynthetic // avoid access from external Java code
 internal fun Any.collectionIdentity(includeIdentity: Boolean = AsStringClassOption.defaultOption.includeIdentityHash) =
     if (includeIdentity) "${this::class.simplifyClassName()}@${this.identityHashHex}"
     else ""

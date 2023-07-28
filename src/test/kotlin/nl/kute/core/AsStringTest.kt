@@ -9,7 +9,9 @@ import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringReplace
+import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.asStringClassOptionCacheSize
 import nl.kute.core.annotation.option.resetAsStringClassOptionCache
 import nl.kute.core.namedvalues.NamedSupplier
@@ -677,6 +679,19 @@ class AsStringTest: ObjectsStackVerifier {
             .isEqualTo(testObj.asString())
     }
 
+    @Test
+    fun `asString on a class where toString calls asString should be handled correctly`() {
+        assertThat(PersonWithToStringCallingAsString().toString())
+            .isObjectAsString(
+                "PersonWithToStringCallingAsString",
+                "iban=NL99 BANK *****0 7906",
+                "password=**********",
+                "phoneNumber=06123***789",
+                "socialSecurityNumber=#f1f94451ae5a9b30b187ee18f790fdf5ea9c9b06#"
+            )
+        // TODO: check cache!
+    }
+
     // ------------------------------------
     // Classes etc. to be used in the tests
     // ------------------------------------
@@ -782,6 +797,9 @@ class AsStringTest: ObjectsStackVerifier {
         override val phoneNumber: String = super.phoneNumber
         override fun toString(): String = asString()
     }
+
+    @AsStringClassOption(preferToString = ToStringPreference.PREFER_TOSTRING)
+    private class PersonWithToStringCallingAsString: Person()
 
     private open class RepeatedAnnotations {
         @AsStringReplace("^I", "It")
