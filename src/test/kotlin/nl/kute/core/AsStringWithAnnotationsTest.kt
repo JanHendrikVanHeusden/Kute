@@ -493,7 +493,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
         override fun toString() = asString()
     }
 
-    private class Banky : Printable {
+    private class Banky {
         @AsStringReplace(pattern = """^(..\d\d)....\d{5}(.+)""", replacement = "$1<bank>*****$2")
         val bankNumberPatternReplace = "NL37DUMM5273748739"
 

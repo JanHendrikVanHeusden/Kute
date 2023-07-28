@@ -1,11 +1,12 @@
 package nl.kute.testobjects.java;
 
-import nl.kute.core.Printable;
 import org.jetbrains.annotations.NotNull;
+
+import static nl.kute.core.AsString.asString;
 
 /** For use by [PrintableTest] */
 @SuppressWarnings("unused")
-public class JavaClassToTest implements Printable {
+public class JavaClassToTest {
 
     private String str;
     private int num;
@@ -21,11 +22,11 @@ public class JavaClassToTest implements Printable {
     @Override
     @NotNull
     public String toString() {
-        return asString();
+        return asString(this);
     }
 
     public String testIt() {
-        return asString();
+        return asString(this);
     }
 
     public String getStr() {

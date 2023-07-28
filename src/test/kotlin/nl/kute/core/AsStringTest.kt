@@ -19,10 +19,10 @@ import nl.kute.core.namedvalues.namedSupplier
 import nl.kute.core.namedvalues.namedValue
 import nl.kute.core.property.propertyAnnotationCacheSize
 import nl.kute.core.property.resetPropertyAnnotationCache
-import nl.kute.hashing.DigestMethod
-import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.core.test.helper.equalSignCount
 import nl.kute.core.test.helper.isObjectAsString
+import nl.kute.hashing.DigestMethod
+import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty
@@ -36,8 +36,8 @@ import nl.kute.testobjects.java.protectedvisibility.SubClassOfJavaClassWithProte
 import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubSubClassOfClassWithProtectedProperty
-import nl.kute.util.throwableAsString
 import nl.kute.util.identityHashHex
+import nl.kute.util.throwableAsString
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
@@ -688,8 +688,13 @@ class AsStringTest: ObjectsStackVerifier {
         override fun toString(): String = "this is another printable"
     }
 
+    private interface Printable {
+        var num: Int
+        fun asString(): String
+    }
+
     @Suppress("unused", "SameReturnValue")
-    private open class ClassToPrint(val str: String, open var num: Int, private val privateToPrint: Any?) : Printable {
+    private open class ClassToPrint(val str: String, override var num: Int, private val privateToPrint: Any?): Printable {
         // getter should be called, not the internal value. Private should be included, but not for subclasses
         @Suppress("SuspiciousVarProperty")
         private var greet: String? = "hi"
@@ -700,6 +705,8 @@ class AsStringTest: ObjectsStackVerifier {
 
         // method return values should not be included
         fun getUuidNotToPrint(): UUID = UUID.fromString("97f52d73-2da2-4c0d-af23-9eb2156eea96")
+
+        override fun asString(): String = this.asStringBuilder().asString()
 
         override fun toString(): String = asString() // default
     }
@@ -723,7 +730,7 @@ class AsStringTest: ObjectsStackVerifier {
         override fun toString() = asString()
     }
 
-    private interface PersonallyIdentifiableData : Printable {
+    private interface PersonallyIdentifiableData {
         @AsStringMask(startMaskAt = 5, endMaskAt = -3)
         val phoneNumber: String
 
