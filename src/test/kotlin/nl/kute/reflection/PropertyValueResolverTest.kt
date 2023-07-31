@@ -1,8 +1,7 @@
 package nl.kute.reflection
 
 import nl.kute.core.asString
-import nl.kute.core.property.propertyAnnotationCacheSize
-import nl.kute.core.property.resetPropertyAnnotationCache
+import nl.kute.core.property.propsWithAnnotationsCacheByClass
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
@@ -64,33 +63,33 @@ class PropertyValueResolverTest {
     @Test
     fun `clear property cache should clear the cache`() {
         // arrange
-        resetPropertyAnnotationCache()
-        assertThat(propertyAnnotationCacheSize).isZero
+        propsWithAnnotationsCacheByClass.reset()
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
         // act, assert
         var t1AsString = T1(1, "x", LocalDateTime.MIN).asString()
         assertThat(t1AsString).startsWith("T1(")
         var t3AsString = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX).asString()
         assertThat(t3AsString).startsWith("T3")
-        assertThat(propertyAnnotationCacheSize).isEqualTo(2)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(2)
 
         // arrange
-        resetPropertyAnnotationCache()
+        propsWithAnnotationsCacheByClass.reset()
         // act, assert
-        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
         t1AsString = T1(1, "x", LocalDateTime.MIN).asString()
         assertThat(t1AsString).startsWith("T1(")
         t3AsString = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX).asString()
         assertThat(t3AsString).startsWith("T3")
-        assertThat(propertyAnnotationCacheSize).isEqualTo(2)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(2)
     }
 
     @Test
     fun `repeated calls of asString on same class should be cached only once`() {
-        resetPropertyAnnotationCache()
+        propsWithAnnotationsCacheByClass.reset()
         class MyTestClass
         repeat(5) {
             MyTestClass().asString()
-            assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+            assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
         }
     }
 

@@ -21,8 +21,8 @@ import nl.kute.reflection.annotationfinder.annotationSetOfPropertySuperSubHierar
 import nl.kute.reflection.getPropValue
 import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.propertiesFromSubSuperHierarchy
+import nl.kute.util.MapCache
 import nl.kute.util.ifNull
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaType
@@ -100,28 +100,12 @@ internal fun <T : Any> KClass<T>.propertiesWithAsStringAffectingAnnotations(): M
     }
 }
 
-private var propsWithAnnotationsCacheByClass: MutableMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> = ConcurrentHashMap()
-
-/**
- * Resets the property cache.
- * > This is typically needed when the [AsStringOption.defaultOption] is changed,
- *   to avoid inconsistent intermediate results.
- */
 @JvmSynthetic // avoid access from external Java code
-internal fun resetPropertyAnnotationCache() {
-    // create a new map instead of clearing the old one, to avoid intermediate situations
-    // while concurrently reading from / writing to the map, as these operations are not atomic typically
-    propsWithAnnotationsCacheByClass = ConcurrentHashMap<KClass<*>, Map<KProperty<*>, Set<Annotation>>> ()
-}
+internal var propsWithAnnotationsCacheByClass = MapCache<KClass<*>, Map<KProperty<*>, Set<Annotation>>>()
 
 @Suppress("unused")
-private val configChangeCallback = { resetPropertyAnnotationCache() }
+private val configChangeCallback = { propsWithAnnotationsCacheByClass.reset() }
     .also { callback -> AsStringOption::class.subscribeConfigChange(callback) }
-
-// Mainly for testing purposes
-internal val propertyAnnotationCacheSize
-    @JvmSynthetic // avoid access from external Java code
-    get() = propsWithAnnotationsCacheByClass.size
 
 @JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {

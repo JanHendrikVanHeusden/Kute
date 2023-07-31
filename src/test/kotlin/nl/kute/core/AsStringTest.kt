@@ -12,15 +12,13 @@ import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.ToStringPreference
-import nl.kute.core.annotation.option.asStringClassOptionCacheSize
-import nl.kute.core.annotation.option.resetAsStringClassOptionCache
+import nl.kute.core.annotation.option.asStringClassOptionCache
 import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
 import nl.kute.core.namedvalues.namedProp
 import nl.kute.core.namedvalues.namedSupplier
 import nl.kute.core.namedvalues.namedValue
-import nl.kute.core.property.propertyAnnotationCacheSize
-import nl.kute.core.property.resetPropertyAnnotationCache
+import nl.kute.core.property.propsWithAnnotationsCacheByClass
 import nl.kute.core.test.helper.equalSignCount
 import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.hashing.DigestMethod
@@ -71,8 +69,8 @@ class AsStringTest: ObjectsStackVerifier {
     @AfterEach
     fun setUpAndTearDown() {
         restoreInitialAsStringClassOption()
-        resetPropertyAnnotationCache()
-        resetAsStringClassOptionCache()
+        propsWithAnnotationsCacheByClass.reset()
+        asStringClassOptionCache.reset()
     }
 
     @Test
@@ -441,8 +439,8 @@ class AsStringTest: ObjectsStackVerifier {
     @Test
     fun `Java and Kotlin types should adhere to their original toString`() {
         // arrange
-        resetAsStringClassOptionCache()
-        resetPropertyAnnotationCache()
+        asStringClassOptionCache.reset()
+        propsWithAnnotationsCacheByClass.reset()
         listOf(
             123,
             "123",
@@ -459,8 +457,8 @@ class AsStringTest: ObjectsStackVerifier {
             assertThat(it.asString()).isEqualTo(it.toString())
         }
         // should not be cached
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
     }
 
     @Test

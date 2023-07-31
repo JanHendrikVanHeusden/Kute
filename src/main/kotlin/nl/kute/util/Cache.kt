@@ -13,13 +13,13 @@ internal interface Cache<K : Any, V : Any, C : Any> {
     val size: Int
 
     /** @return Get the cached content if present */
-    fun get(key: K): V?
+    operator fun get(key: K): V?
 
     /** Resets the cache by completely clearing or replacing it */
     fun reset()
 
     /** @return `true` if the [key] is present in the cache; `false` if not */
-    fun contains(key: K): Boolean = get(key) != null
+    operator fun contains(key: K): Boolean = get(key) != null
 }
 
 /** General cache */
@@ -37,13 +37,15 @@ internal class SetCache<T : Any>(initialCapacity: Int? = null) :
     override var cache: MutableSet<T> = ConcurrentHashMap.newKeySet(initialCapacity ?: defaultInitialCapacity)
 
     /** @return 'true' if the [key] is present in the [cache]; `false` otherwise */
-    override fun get(key: T): Boolean = cache.contains(key)
+    override operator fun get(key: T): Boolean = cache.contains(key)
 
     override val size: Int
         get() = cache.size
 
     /** Resets the [cache] by fully replacing it by a new [ConcurrentHashMap.newKeySet] */
     override fun reset() {
+        // create a new set instead of clearing the old one, to avoid intermediate situations
+        // while concurrently reading from / writing to the set, as these operations may not be atomic
         cache = ConcurrentHashMap.newKeySet(newCapacity)
     }
 
@@ -60,23 +62,21 @@ internal open class MapCache<K : Any, V : Any>(initialCapacity: Int? = null) :
     override var cache: MutableMap<K, V> = ConcurrentHashMap(initialCapacity ?: defaultInitialCapacity)
 
     /** @return The value corresponding to the given [key]; or `null` if such a key is not present in the [cache]. */
-    override fun get(key: K): V? = cache[key]
+    override operator fun get(key: K): V? = cache[key]
 
     override val size: Int
         get() = cache.size
 
     /** Resets the [cache] by fully replacing it by a new [ConcurrentHashMap] */
     override fun reset() {
+        // create a new map instead of clearing the old one, to avoid intermediate situations
+        // while concurrently reading from / writing to the map, as these operations are not atomic typically
         cache = ConcurrentHashMap(newCapacity)
     }
 
     /** Adds a key-value pair to the [cache] */
-    fun add(key: K, value: V) {
+    operator fun set(key: K, value: V) {
         cache[key] = value
     }
 
-    /** Adds a key-value pair to the [cache] */
-    fun add(entry: Map.Entry<K, V>) {
-        cache[entry.key] = entry.value
-    }
 }

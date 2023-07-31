@@ -19,12 +19,12 @@ import nl.kute.log.log
 import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.simplifyClassName
+import nl.kute.util.SetCache
 import nl.kute.util.asHexString
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
 import nl.kute.util.lineEnd
 import nl.kute.util.throwableAsString
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -118,7 +118,7 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                 val useToString = !forceAsString
                         && !objClass.java.isSynthetic
                         && objClass.simpleName != null // null with a category of classes that kotlin's reflection does not support
-                        && !forceClassAsStringCache.contains(objClass)
+                        && objClass !in forceClassAsStringCache
                         && objClass.hasImplementedToString()
                         && obj.toStringPreference() == PREFER_TOSTRING
 
@@ -334,21 +334,8 @@ private val objectsStackGuard: ThreadLocal<ObjectsStackGuard> =
 internal fun getObjectsStackSize() = max(objectsStackGuard.get().size, 0)
 
 /** Cache for classes that have [asString] forced (due to recursion issues with [toString]) */
-private val forceClassAsStringCache = ConcurrentHashMap.newKeySet<KClass<*>>()
-
-/**
- * Resets the cache for classes that have [asString] forced (due to recursion issues with [toString])
- * > This is typically needed when the [AsStringClassOption.defaultOption] is changed,
- *   to avoid inconsistent intermediate results.
- */
-@JvmSynthetic // avoid access from external Java code
-internal fun clearForceClassAsStringCache() = forceClassAsStringCache.clear()
+private val forceClassAsStringCache = SetCache<KClass<*>>()
 
 @Suppress("unused")
-private val configChangeCallback = { clearForceClassAsStringCache() }
+private val configChangeCallback = { forceClassAsStringCache.reset() }
     .also { callback -> AsStringClassOption::class.subscribeConfigChange(callback) }
-
-// Mainly for testing purposes
-internal val forceClassAsStringCacheSize
-    @JvmSynthetic // avoid access from external Java code
-    get() = forceClassAsStringCache.size

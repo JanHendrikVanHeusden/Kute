@@ -4,8 +4,7 @@ import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.annotation.option.AsStringClassOption
-import nl.kute.core.annotation.option.asStringClassOptionCacheSize
-import nl.kute.core.annotation.option.resetAsStringClassOptionCache
+import nl.kute.core.annotation.option.asStringClassOptionCache
 import nl.kute.core.asString
 import nl.kute.util.asHexString
 import nl.kute.util.identityHashHex
@@ -82,8 +81,8 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
     @Test
     fun `change of default AsStringClassOption should be applied, and clear the cache when needed`() {
         // arrange
-        resetAsStringClassOptionCache()
-        assertThat(asStringClassOptionCacheSize).isZero
+        asStringClassOptionCache.reset()
+        assertThat(asStringClassOptionCache.size).isZero
         assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
 
         open class MyTestClass
@@ -91,7 +90,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
         val identityHash = myTestObj.identityHashHex
 
         assertThat(myTestObj.asString()).isEqualTo("MyTestClass()")
-        assertThat(asStringClassOptionCacheSize)
+        assertThat(asStringClassOptionCache.size)
             .`as`("applying asString() should add the class to the cache")
             .isEqualTo(1)
 
@@ -100,20 +99,20 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
 
         // assert
         assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isTrue
-        assertThat(asStringClassOptionCacheSize)
+        assertThat(asStringClassOptionCache.size)
             .`as`("Change of defaultAsStringClassOption should clear the cache")
             .isEqualTo(0)
         assertThat(myTestObj.asString()).isEqualTo("MyTestClass@$identityHash()")
-        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
 
         // act
         restoreInitialAsStringClassOption()
-        assertThat(asStringClassOptionCacheSize)
+        assertThat(asStringClassOptionCache.size)
             .`as`("Change of defaultAsStringClassOption should clear the cache")
             .isEqualTo(0)
         assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         assertThat(myTestObj.asString()).isEqualTo("MyTestClass()")
-        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
 
         // arrange
         val myTestObj2 = object : MyTestClass() {
@@ -122,16 +121,16 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
         // act
         myTestObj2.asString()
         // assert
-        assertThat(asStringClassOptionCacheSize).isEqualTo(2)
+        assertThat(asStringClassOptionCache.size).isEqualTo(2)
     }
 
     @Test
     fun `repeated calls of asString on same class should be cached only once`() {
-        resetAsStringClassOptionCache()
+        asStringClassOptionCache.reset()
         class MyTestClass
         repeat(5) {
             MyTestClass().asString()
-            assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+            assertThat(asStringClassOptionCache.size).isEqualTo(1)
         }
     }
 
@@ -140,12 +139,12 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
         // arrange
         assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         class MyTestClass
         val testStr = MyTestClass().asString()
         assertThat(testStr).isNotNull
-        assertThat(asStringClassOptionCacheSize)
+        assertThat(asStringClassOptionCache.size)
             .`as`("MyTestClass should be present in cache now")
             .isEqualTo(1)
 
@@ -153,7 +152,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
         @Suppress("KotlinConstantConditions")
         AsStringConfig().withIncludeIdentityHash("aa" == "aa").applyAsDefault()
         // assert
-        assertThat(asStringClassOptionCacheSize)
+        assertThat(asStringClassOptionCache.size)
             .`as`("MyTestClass should still be present in cache")
             .isEqualTo(1)
     }

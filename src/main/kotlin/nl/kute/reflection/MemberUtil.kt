@@ -4,9 +4,9 @@ package nl.kute.reflection
 
 import nl.kute.log.log
 import nl.kute.log.logWithCaller
-import nl.kute.util.throwableAsString
+import nl.kute.util.MapCache
 import nl.kute.util.ifNull
-import java.util.concurrent.ConcurrentHashMap
+import nl.kute.util.throwableAsString
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -62,9 +62,8 @@ internal fun KClass<*>.hasImplementedToString(): Boolean =
     this.java.isPrimitive
             || classToStringMethodCache[this]?.second ?: (this.toStringImplementingMethod() != null)
 
-
 /** The 2nd part of the [Pair] indicates whether the [toString] method was overridden for the [KClass] */
-private val classToStringMethodCache = ConcurrentHashMap<KClass<*>, Pair<KFunction<*>?, Boolean>>()
+private val classToStringMethodCache = MapCache<KClass<*>, Pair<KFunction<*>?, Boolean>>()
 
 @Suppress("UNNECESSARY_SAFE_CALL") // nullability may occur in tests due to mocks that force contrived exceptions
 @JvmSynthetic // avoid access from external Java code

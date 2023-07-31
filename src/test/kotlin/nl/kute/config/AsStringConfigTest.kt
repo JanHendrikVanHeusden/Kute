@@ -2,8 +2,7 @@ package nl.kute.config
 
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.asString
-import nl.kute.core.property.propertyAnnotationCacheSize
-import nl.kute.core.property.resetPropertyAnnotationCache
+import nl.kute.core.property.propsWithAnnotationsCacheByClass
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -36,45 +35,45 @@ class AsStringConfigTest {
         val testObj = TestClass()
         assertThat(testObj.str600).hasSize(600)
 
-        resetPropertyAnnotationCache()
-        assertThat(propertyAnnotationCacheSize).isZero
+        propsWithAnnotationsCacheByClass.reset()
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
 
         // act, assert - defaults
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(500)}\b.+$""")
             .contains("aNullValue=null")
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
 
         // act, assert - max length
         AsStringConfig().withMaxPropertyStringLength(20).applyAsDefault()
-        assertThat(propertyAnnotationCacheSize).isEqualTo(0)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(0)
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(20)}\b.+$""")
             .contains("aNullValue=null")
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
 
         // act, assert - null str
         AsStringConfig().withShowNullAs("--!").applyAsDefault()
-        assertThat(propertyAnnotationCacheSize).isEqualTo(0)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(0)
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(20)}\b.+$""")
             .contains("aNullValue=--!")
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
 
         // act, assert - reset defaults
         restoreInitialAsStringOption()
-        assertThat(propertyAnnotationCacheSize).isEqualTo(0)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(0)
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(500)}\b.+$""")
             .contains("aNullValue=null")
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
 
         val testClassSub: TestClass = object: TestClass() {
             override val aNullValue: String? = null
         }
         @Suppress("UNUSED_VARIABLE")
         val theStringValue = testClassSub.asString()
-        assertThat(propertyAnnotationCacheSize).isEqualTo(2)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(2)
     }
 
     @Test
@@ -115,12 +114,12 @@ class AsStringConfigTest {
             .withShowNullAs("---")
             .withMaxPropertyStringLength(12)
             .applyAsDefault()
-        assertThat(propertyAnnotationCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
 
         class MyTestClass
         val testStr = MyTestClass().asString()
         assertThat(testStr).isNotNull
-        assertThat(propertyAnnotationCacheSize)
+        assertThat(propsWithAnnotationsCacheByClass.size)
             .`as`("MyTestClass should be present in cache now")
             .isEqualTo(1)
 
@@ -130,7 +129,7 @@ class AsStringConfigTest {
             .withMaxPropertyStringLength(9+3)
             .applyAsDefault()
         // assert
-        assertThat(propertyAnnotationCacheSize)
+        assertThat(propsWithAnnotationsCacheByClass.size)
             .`as`("MyTestClass should still be present in cache")
             .isEqualTo(1)
     }

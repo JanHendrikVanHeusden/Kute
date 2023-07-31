@@ -7,10 +7,10 @@ import nl.kute.config.subscribeConfigChange
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.simplifyClassName
+import nl.kute.util.MapCache
 import nl.kute.util.identityHashHex
 import nl.kute.util.ifNull
 import java.lang.annotation.Inherited
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.reflect.KClass
 
@@ -74,25 +74,9 @@ internal fun Any.getAsStringClassOption(): AsStringClassOption =
         }
     }
 
-private var asStringClassOptionCache: MutableMap<KClass<*>, AsStringClassOption> = ConcurrentHashMap()
-
-/**
- * Resets the class level cache for [AsStringClassOption].
- * > This is typically needed when the [AsStringClassOption.defaultOption] is changed,
- *   to avoid inconsistent intermediate results.
- */
-internal fun resetAsStringClassOptionCache() {
-    // create a new map instead of clearing the old one, to avoid intermediate situations
-    // while concurrently reading from / writing to the map, as these operations are not atomic typically
-    asStringClassOptionCache = ConcurrentHashMap()
-}
+@JvmSynthetic // avoid access from external Java code
+internal var asStringClassOptionCache = MapCache<KClass<*>, AsStringClassOption>()
 
 @Suppress("unused")
-private val configChangeCallback = { resetAsStringClassOptionCache() }
+private val configChangeCallback = { asStringClassOptionCache.reset() }
     .also { callback -> AsStringClassOption::class.subscribeConfigChange(callback) }
-
-// Mainly for testing purposes
-internal val asStringClassOptionCacheSize
-    @JvmSynthetic // avoid access from external Java code
-    get() = asStringClassOptionCache.size
-

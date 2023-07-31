@@ -4,10 +4,8 @@ package nl.kute.core
 
 import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
-import nl.kute.core.annotation.option.asStringClassOptionCacheSize
-import nl.kute.core.annotation.option.resetAsStringClassOptionCache
-import nl.kute.core.property.propertyAnnotationCacheSize
-import nl.kute.core.property.resetPropertyAnnotationCache
+import nl.kute.core.annotation.option.asStringClassOptionCache
+import nl.kute.core.property.propsWithAnnotationsCacheByClass
 import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
@@ -59,8 +57,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     fun setUpAndTearDown() {
         restoreInitialAsStringClassOption()
 
-        resetPropertyAnnotationCache()
-        resetAsStringClassOptionCache()
+        propsWithAnnotationsCacheByClass.reset()
+        asStringClassOptionCache.reset()
 
         resetStdOutLogger()
     }
@@ -213,8 +211,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
         val property: KProperty0<Any> = this::aPrintableDate
 
         // act, assert
@@ -223,8 +221,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             .isEqualTo("${property::class.simplifyClassName()}@${property.identityHashHex}")
 
         // Lambdas should not be cached (might explode the caches)
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -241,8 +239,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
         //      () -> String
         val supplier: () -> String = { "a String supplier" }
         //      (Int, Int) -> Int
@@ -266,8 +264,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         }
 
         // Lambdas should not be cached (might explode the caches)
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -307,8 +305,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         val withLambda = JavaClassWithLambda()
         val theClassName = withLambda::class.simplifyClassName()
@@ -326,8 +324,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             .matches(""".+intsToString=$theClassName$dollar${dollar}Lambda$dollar\d+=\Q$intsToStringLambdaTypeName()\E @$intsToStringIdHash.+""")
 
         // Class itself should be cached, but lambdas not (might explode the caches)
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
-        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -363,8 +361,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         val testObj = JavaClassWithAnonymousClass()
         val prop1IdHash = testObj.propWithAnonymousInnerClass.identityHashHex
@@ -384,8 +382,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             .matches("""^.+?propWithLambda=$className$dollar${dollar}Lambda$dollar\d+=\Q$lambdaTypeName()\E @$prop2IdHash.+?$""")
 
         // Only the class should be cached, not the properties (might explode the cache)
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
-        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -398,8 +396,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         val testObj = JavaClassWithCallable()
         val propIdHash = testObj.myCallable.identityHashHex
@@ -414,8 +412,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             .matches("""$className\(myCallable=$className$dollar\d+@$propIdHash\)""")
 
         // Only the class should be cached, not the properties (might explode the cache)
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
-        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -437,8 +435,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         repeat(5) {
             val testObj = KotlinClassWithAnonymousClass()
@@ -456,8 +454,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
                 )
         }
         // Only the classes should be cached, not the properties (might explode the cache)
-        assertThat(propertyAnnotationCacheSize).isEqualTo(2)
-        assertThat(asStringClassOptionCacheSize).isEqualTo(2)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(2)
+        assertThat(asStringClassOptionCache.size).isEqualTo(2)
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -470,8 +468,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
         val testObj = KotlinClassWithAnonymousClassFactory()
         assertThat(testObj.asString()).isNotBlank
 
@@ -480,8 +478,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             assertThat(testObj.createAnonymousInnerClass().asString()).isNotBlank
         }
         // Only the classes should be cached, not the properties (might explode the cache)
-        assertThat(propertyAnnotationCacheSize).isEqualTo(2)
-        assertThat(asStringClassOptionCacheSize).isEqualTo(2)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(2)
+        assertThat(asStringClassOptionCache.size).isEqualTo(2)
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -515,8 +513,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         repeat(10) {
             val callableFactory = CallableFactoryWithLambda()
@@ -524,8 +522,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             callableFactory.getCallable().asString()
         }
         // The callables should not be cached (might explode the cache)
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -538,16 +536,16 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         val callableFactory = CallableFactory()
         repeat(10) {
             callableFactory.createCallable().asString()
         }
         // Only the class should be cached, not the properties (might explode the cache)
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
-        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -560,8 +558,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         val withHigherOrder = JavaClassWithHigherOrderFunction()
         repeat(10) {
@@ -570,8 +568,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             assertThat(withHigherOrder.higherOrderFunction.apply(withHigherOrder.toUpper).asString()).isNotNull
         }
         // The higher order functions should not be cached (might explode the cache)
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
-        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
 
         assertThat(logMsg)
             .`as`("No exception should be logged")
@@ -584,8 +582,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
-        assertThat(propertyAnnotationCacheSize).isZero
-        assertThat(asStringClassOptionCacheSize).isZero
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
 
         val withHigherOrder =
             KotlinClassWithHigherOrderFunction()
@@ -603,8 +601,8 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             assertThat(withHigherOrder.higherOrderLambda (withHigherOrder.toUpper).asString()).isNotNull
         }
         // The higher order functions should not be cached (might explode the cache)
-        assertThat(propertyAnnotationCacheSize).isEqualTo(1)
-        assertThat(asStringClassOptionCacheSize).isEqualTo(1)
+        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
 
         class KotlinClassWithHigherOrderLambda(aDouble: Double, anotherDouble: Double) {
             val higherOrderLambda: ((Double, Double) -> () -> Int) -> () -> Int =

@@ -6,8 +6,6 @@ import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
-private typealias ConfigChangeCallback = () -> Unit
-
 /**
  * Builder-like class, to prepare and apply newly set values as defaults
  * for [AsStringOption] / [AsStringClassOption]
@@ -138,11 +136,11 @@ internal fun KClass<*>.notifyConfigChange() {
 }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun KClass<*>.subscribeConfigChange(callback: ConfigChangeCallback) {
+internal fun KClass<*>.subscribeConfigChange(callback: () -> Unit) {
     configChangeSubscriptions[this].ifNull {
-        mutableListOf<ConfigChangeCallback>().also { configChangeSubscriptions[this] = it }
+        mutableListOf<() -> Unit>().also { configChangeSubscriptions[this] = it }
     }.add(callback)
 }
 
 private val configChangeSubscriptions:
-        MutableMap<KClass<*>, MutableList<ConfigChangeCallback>> = ConcurrentHashMap()
+        MutableMap<KClass<*>, MutableList<() -> Unit>> = ConcurrentHashMap()
