@@ -125,6 +125,7 @@ class AnnotationFinderTest {
 
 // region ================ Test classes, objects etc. ==================
 
+    @AsStringOption(propMaxStringValueLength = 200)
     private open class With3AsStringOptions(@AsStringOption(propMaxStringValueLength = 100) open val someVal: String) {
         @AsStringOption(propMaxStringValueLength = 250, showNullAs = "<null>")
         override fun toString(): String = asString()
