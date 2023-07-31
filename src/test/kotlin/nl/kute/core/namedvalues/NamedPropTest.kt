@@ -30,9 +30,6 @@ class NamedPropTest: GarbageCollectionWaiter {
         resetStdOutLogger()
     }
 
-    interface WithProp {
-        val myProp: String
-    }
 
     @Test
     fun `property from delegate class should be retrieved`() {
@@ -302,9 +299,11 @@ class NamedPropTest: GarbageCollectionWaiter {
         assertGarbageCollected(checkGarbageCollected)
     }
 
-    ///////////////
-    // Test classes
-    ///////////////
+// region ================ Test classes, objects etc. ==================
+
+    interface WithProp {
+        val myProp: String
+    }
 
     private open class WithPropertyAnnotations {
         @AsStringOption(propMaxStringValueLength = 300)
@@ -350,4 +349,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         @AsStringOption(propMaxStringValueLength = 11)
         override fun toString() = "dummy"
     }
+
+// endregion
+
 }

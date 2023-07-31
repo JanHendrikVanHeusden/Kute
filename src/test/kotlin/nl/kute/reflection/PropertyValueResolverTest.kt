@@ -94,9 +94,8 @@ class PropertyValueResolverTest {
         }
     }
 
-    /////////////////////////////
-    // Test classes, objects etc.
-    /////////////////////////////
+// region ================ Test classes, objects etc. ==================
+
     private interface I0 {
         val i: Int?
         val j: String
@@ -138,5 +137,7 @@ class PropertyValueResolverTest {
         val `a value with spaces`: Any = ""
         var aValueWithUpperCase: Any? = null
     }
+
+// endregion
 
 }

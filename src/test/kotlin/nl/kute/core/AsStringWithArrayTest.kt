@@ -31,9 +31,7 @@ class AsStringWithArrayTest: ObjectsStackVerifier {
         assertThat(classWithArrayString.length).isEqualTo(500 + ClassWithArray::class.simpleName!!.length + "(array=)".length)
     }
 
-    /////////////////////////
-    // Test classes / objects
-    /////////////////////////
+// region ================ Test classes / objects ========================================
 
     @Suppress("unused")
     private class ClassWithArray(val array: Array<String>) {
@@ -43,3 +41,5 @@ class AsStringWithArrayTest: ObjectsStackVerifier {
     @Suppress("ArrayInDataClass") // suppress warning that equals and hashCode should be overridden
     private data class DataClassWithArray(private val array: Array<String>)
 }
+
+// endregion

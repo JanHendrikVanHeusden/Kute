@@ -395,9 +395,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
         assertThat(Words().asString()).isEqualTo("Words(fiveWords=String contains three)")
     }
 
-    /////////////////////////
-    // Test classes / objects
-    /////////////////////////
+// region ================ Test classes, objects etc. ==================
 
     @AsStringOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
     private open class ClassWithNonDefaultAsStringOptions {
@@ -501,4 +499,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
         val countryCode = "NL"
         override fun toString(): String = asString()
     }
+
+// endregion
+
 }

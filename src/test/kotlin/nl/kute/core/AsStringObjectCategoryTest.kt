@@ -311,9 +311,7 @@ internal class AsStringObjectCategoryTest {
         }
     }
 
-    //////////////////////
-    // Helper methods etc.
-    //////////////////////
+// region ================ Test helper methods ==================
 
     private fun Any.assertBaseObject() {
         val category = resolveObjectCategory(this)
@@ -433,5 +431,7 @@ internal class AsStringObjectCategoryTest {
             .`as`("Object `${this.asString()}` of type ${this::class.simplifyClassName()} should have category $expected but is $actual")
             .isSameAs(expected)
     }
+
+// endregion
 
 }

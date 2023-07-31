@@ -267,9 +267,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
         assertGarbageCollected(checkGarbageCollected)
     }
 
-    /////////////////////////////
-    // Test classes, objects etc.
-    /////////////////////////////
+// region ================ Test classes, objects etc. ==================
     
     private class ToBeGarbageCollected {
         override fun toString(): String = "not garbage collected yet!"
@@ -297,4 +295,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
         @AsStringOption(showNullAs = showNullAs2)
         override val nullable: Any? = super.nullable
     }
+
+// endregion
+
 }
