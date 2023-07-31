@@ -12,7 +12,7 @@ internal interface Cache<K : Any, V : Any, C : Any> {
     /** The size of the cache */
     val size: Int
 
-    /** @return The cached content if present; `null` if not present */
+    /** @return Get the cached content if present */
     fun get(key: K): V?
 
     /** Resets the cache by completely clearing or replacing it */
@@ -36,6 +36,7 @@ internal class SetCache<T : Any>(initialCapacity: Int? = null) :
     /** The thread safe [MutableSet] cache (a [ConcurrentHashMap.newKeySet])  */
     override var cache: MutableSet<T> = ConcurrentHashMap.newKeySet(initialCapacity ?: defaultInitialCapacity)
 
+    /** @return 'true' if the [key] is present in the [cache]; `false` otherwise */
     override fun get(key: T): Boolean = cache.contains(key)
 
     override val size: Int
@@ -58,7 +59,8 @@ internal open class MapCache<K : Any, V : Any>(initialCapacity: Int? = null) :
     /** The thread safe [MutableMap] cache (a [ConcurrentHashMap])  */
     override var cache: MutableMap<K, V> = ConcurrentHashMap(initialCapacity ?: defaultInitialCapacity)
 
-    override fun get(key: K): V? = cache.get(key)
+    /** @return The value corresponding to the given [key]; or `null` if such a key is not present in the [cache]. */
+    override fun get(key: K): V? = cache[key]
 
     override val size: Int
         get() = cache.size
