@@ -126,13 +126,13 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
                     fun isToStringCallingAsString(string: String): Boolean {
                         // if we are here AND a toString() method is something like this:
                         //       `override fun toString() = asString()`
-                        // we ran into recursion because toString() calls asString()
-                        return string.startsWith(recursivePrefxix) && string == obj.asStringRecursive()
+                        // we ran into recursion because toString() calls asString(), which calls toString() etc.
+                        return string.contains(obj.asStringRecursive())
                     }
 
                     return obj.toString().let {
-                        // Calling `asString()` from `toString()` is fine on itself, but not in case of PREFER_TOSTRING.
-                        // That results in an remark on recursion only.
+                        // Calling `asString()` from `toString()` is fine on itself, but not in case of PREFER_TOSTRING:
+                        // that would only result in a remark on recursion.
                         // We want to return something more meaningful; so call asString() instead
                         if (isToStringCallingAsString(it)) {
                             // cache it, so we won't run into useless recursion next time

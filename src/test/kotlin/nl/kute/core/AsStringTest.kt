@@ -22,6 +22,7 @@ import nl.kute.core.property.propsWithAnnotationsCacheByClass
 import nl.kute.core.test.helper.equalSignCount
 import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.hashing.DigestMethod
+import nl.kute.reflection.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
@@ -678,7 +679,7 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `asString on a class where toString calls asString should be handled correctly`() {
+    fun `asString on a class where toString calls asString and with PREFER_TOSTRING should be handled correctly`() {
         assertThat(PersonWithToStringCallingAsString().toString())
             .isObjectAsString(
                 "PersonWithToStringCallingAsString",
@@ -688,6 +689,22 @@ class AsStringTest: ObjectsStackVerifier {
                 "socialSecurityNumber=#f1f94451ae5a9b30b187ee18f790fdf5ea9c9b06#"
             )
         // TODO: check cache!
+    }
+
+    @Test
+    fun `asString on a class with toString implementation and with PREFER_TOSTRING should honour toString`() {
+        assertThat(PersonWithToStringImplementation().asString())
+            .isEqualTo(
+                "PersonWithToStringImplementation(phone='06123456789', iban='NL29 ABNA 6708 40 7906', mail='someone@example.com', BSN='617247018')"
+            )
+    }
+
+    @Test
+    fun `asString on a subclass of a class with toString implementation and with PREFER_TOSTRING should honour toString`() {
+        assertThat(SubClassOfPersonWithToStringImplementation().asString())
+            .isEqualTo(
+                "SubClassOfPersonWithToStringImplementation(phone='06123456789', iban='NL29 ABNA 6708 40 7906', mail='someone@example.com', BSN='617247018')"
+            )
     }
 
     // ------------------------------------
@@ -798,6 +815,16 @@ class AsStringTest: ObjectsStackVerifier {
 
     @AsStringClassOption(preferToString = ToStringPreference.PREFER_TOSTRING)
     private class PersonWithToStringCallingAsString: Person()
+
+    @AsStringClassOption(preferToString = ToStringPreference.PREFER_TOSTRING)
+    private open class PersonWithToStringImplementation : Person() {
+        override fun toString(): String {
+            return "${this::class.simplifyClassName()}(phone='$phoneNumber', iban='$iban', mail='$mailAddress', BSN='$socialSecurityNumber')"
+        }
+    }
+
+    // Should inherit ToStringPreference.PREFER_TOSTRING from superclass
+    private class SubClassOfPersonWithToStringImplementation : PersonWithToStringImplementation()
 
     private open class RepeatedAnnotations {
         @AsStringReplace("^I", "It")
