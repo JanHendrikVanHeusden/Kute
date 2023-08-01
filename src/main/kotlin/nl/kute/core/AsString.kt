@@ -1,5 +1,5 @@
 @file:JvmName("AsString")
-@file:Suppress("SameParameterValue", "SameParameterValue")
+@file:Suppress("SameParameterValue")
 
 package nl.kute.core
 
@@ -19,10 +19,11 @@ import nl.kute.log.log
 import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.simplifyClassName
-import nl.kute.util.SetCache
+import nl.kute.util.MapCache
 import nl.kute.util.asHexString
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
+import nl.kute.util.ifNull
 import nl.kute.util.lineEnd
 import nl.kute.util.throwableAsString
 import kotlin.math.max
@@ -30,10 +31,11 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
-internal typealias AsStringHandler = (Any) -> String
+// region ~ AsStringProducer
 
 /** Abstract base class for implementing classes that want to expose an [asString] method */
 public abstract class AsStringProducer {
+// Must be in same file as fun objectAsString() (private)
 
     /**
      * Facade method allowing subclasses to access the (private) [nl.kute.core.asString] method with additional parameters
@@ -50,6 +52,10 @@ public abstract class AsStringProducer {
     abstract override fun toString(): String
 
 }
+
+// endregion
+
+// region ~ asString
 
 /**
  * Mimics the format of Kotlin data class's [toString] method.
@@ -93,9 +99,7 @@ public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
  * for these annotations, e.g. @[AsStringOption] and other (other annotations, see package `nl.kute.core.annotation.modify`)
  * @see [AsStringBuilder]
  */
-private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>, forceAsString: Boolean = false): String {
-    fun Any.asStringRecursive() = "$recursivePrefxix${this::class.simplifyClassName()}$recursivePostfix"
-
+private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
     try {
         val obj = this ?: return defaultNullString
         val objectCategory = AsStringObjectCategory.resolveObjectCategory(obj)
@@ -104,48 +108,39 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
             return objectCategory.handler!!(obj)
         } else {
             try {
-                // Check if we were already busy processing this object
+                @Suppress("UNCHECKED_CAST")
+                val objClass: KClass<T> = obj::class as KClass<T>
+                // Check recursion: are we were already busy processing this object?
                 val isRecursiveCall = !objectsStackGuard.get().addIfNotPresent(obj)
                 if (isRecursiveCall) {
+                    useToStringByClass[objClass] = false
                     // avoid endless loop
-                    return obj.asStringRecursive()
+                    return "$recursivePrefxix${objClass.simplifyClassName()}$recursivePostfix"
                 }
+                // If handler, call that
                 if (objectCategory.hasHandler() && objectCategory.guardStack) {
-                    // stack guarding performed, handle it
+                    // stack guard does not complain; handle it
                     return objectCategory.handler!!(obj)
                 }
-                val objClass = obj::class
-                val useToString = !forceAsString
-                        && !objClass.java.isSynthetic
-                        && objClass.simpleName != null // null with a category of classes that kotlin's reflection does not support
-                        && objClass !in forceClassAsStringCache
-                        && objClass.hasImplementedToString()
-                        && obj.toStringPreference() == PREFER_TOSTRING
 
-                if (useToString) {
-                    fun isToStringCallingAsString(string: String): Boolean {
-                        // if we are here AND a toString() method is something like this:
-                        //       `override fun toString() = asString()`
-                        // we ran into recursion because toString() calls asString(), which calls toString() etc.
-                        return string.contains(obj.asStringRecursive())
-                    }
-
-                    return obj.toString().let {
-                        // Calling `asString()` from `toString()` is fine on itself, but not in case of PREFER_TOSTRING:
-                        // that would only result in a remark on recursion.
-                        // We want to return something more meaningful; so call asString() instead
-                        if (isToStringCallingAsString(it)) {
-                            // cache it, so we won't run into useless recursion next time
-                            forceClassAsStringCache.add(objClass)
-                            // remove the entry in the stack, we are going to making a fresh start here
-                            objectsStackGuard.get().remove(obj)
-                            obj.asString(emptyStringList, forceAsString = true)
-                        } else {
-                            it
+                val hasAdditionalParameters = propertyNamesToExclude.isNotEmpty() || nameValues.isNotEmpty()
+                // use toString() ?
+                if (!hasAdditionalParameters) {
+                    useToStringByClass[objClass].let { shouldUseToString ->
+                        val firstTime = (shouldUseToString == null)
+                        val useToString = shouldUseToString.ifNull {
+                            objClass.hasToStringPreference()
+                                // remember for next times
+                                .also { useToStringByClass[objClass] = it }
+                        }
+                        if (useToString) {
+                            obj.tryToString(firstTime)?.let { return it }
                         }
                     }
                 }
-                // no handler, so custom object, let's process it, with all params provided
+
+                // not preferring toString() & no handler, so custom object to dynamically resolve
+                // let's process it, with all params provided
                 try {
                     val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
                         objClass.propertiesWithAsStringAffectingAnnotations()
@@ -204,6 +199,61 @@ private fun <T : Any?> T?.asString(propertyNamesToExclude: Collection<String>, v
     }
 }
 
+// endregion
+
+// region ~ toString preference
+
+/** @return Is this class feasible for reflection, and if so, does it have toString() implemented? */
+private fun KClass<*>.feasibleForToString() =
+    // simpleName is null for a bunch of classes not supported by kotlin's reflection
+    // These never have toString() overridden
+    !this.java.isSynthetic && this.simpleName != null && this.hasImplementedToString()
+
+/** @return Does this class prefer toString() over asString()? (so, does PREFER_TOSTRING apply)? */
+private fun KClass<*>.hasToStringPreference() =
+    this.feasibleForToString() && this.toStringPreference() == PREFER_TOSTRING
+
+/**
+ * @return
+ * * If not [firstTime], simply returns [toString] of the receiver
+ * * If [firstTime]:
+ */
+private fun <T : Any> T.tryToString(firstTime: Boolean): String? {
+    // Did we see this class before and did toString() complete without recursion? If so, go ahead
+    if (!firstTime) return this.toString()
+
+    // Calling `asString()` from `toString()` is fine on itself, but not in case of PREFER_TOSTRING:
+    // that would only result in a remark on recursion.
+    // We want to return something more meaningful; so call asString() instead in case of recursion.
+    this.toString().let { toStringResult ->
+        // If we are here, value from `useToStringByClass` should normally be true.
+        // It may have been set to false though, due to recursion. So check again, to avoid endless loops
+        val useToString = useToStringByClass[this::class]!!
+        return if (useToString) {
+            toStringResult
+        } else {
+            // Recursion detected, this will not end successfully.
+            // Remove the entry from the stack, we are going to making a fresh start here, now with asString()
+            objectsStackGuard.get().remove(this)
+            return null
+        }
+    }
+}
+
+/**
+ * Registry for preference whether [asString] should call [toString] for the given class
+ * * If `true`, the class may be processed with [toString]
+ * * If `false`, the class should be processed by dynamically resolving properties and values
+ */
+private val useToStringByClass = MapCache<KClass<*>, Boolean>()
+
+@Suppress("unused") // property not actively used, but needed implicitly for callback
+private val configChangeCallback = { useToStringByClass.reset() }
+    .also { callback -> AsStringClassOption::class.subscribeConfigChange(callback) }
+
+// endregion
+
+// region ~ Constants, helper methods etc.
 private val emptyStringList: List<String> = listOf()
 
 private const val propertyListPrefix = "("
@@ -225,6 +275,10 @@ internal fun Any?.asStringFallBack(): String {
     }
 }
 
+// endregion
+
+// region ~ Objects stack guard
+
 /**
  * Helper class to keep track of objects being processed in [asString].
  * > **NB:** Technically it is not a stack (by no means), but functionally you may think of it like a stack
@@ -237,6 +291,7 @@ internal fun Any?.asStringFallBack(): String {
  * > or may even cause stack overflow.
  */
 private class ObjectsStackGuard {
+// Must be in same file as fun asString(), we really don't want to expose ObjectsStackGuard
 
     /**
      * Keeps track of the number of objects being processed in a single call to [asString].
@@ -333,9 +388,4 @@ private val objectsStackGuard: ThreadLocal<ObjectsStackGuard> =
 @JvmSynthetic // avoid access from external Java code
 internal fun getObjectsStackSize() = max(objectsStackGuard.get().size, 0)
 
-/** Cache for classes that have [asString] forced (due to recursion issues with [toString]) */
-private val forceClassAsStringCache = SetCache<KClass<*>>()
-
-@Suppress("unused")
-private val configChangeCallback = { forceClassAsStringCache.reset() }
-    .also { callback -> AsStringClassOption::class.subscribeConfigChange(callback) }
+// endregion

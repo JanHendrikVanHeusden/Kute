@@ -621,9 +621,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
         this::class.java.interfaces.firstOrNull()
             ?.toGenericString()?.simplifyClassName()?.replace(modifiersRegex, "") ?: ""
 
-    // ------------------------------------
-    // Classes etc. to be used in the tests
-    // ------------------------------------
+// region ~ Classes, objects etc. to be used for testing
 
     private class ClassWithLateInitVars {
         lateinit var myUninitializedLateInitVar: String
@@ -740,3 +738,5 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
 private val String.extensionPropAtPackage: String
     get() = "$this; I am a package extension property"
+
+// endregion

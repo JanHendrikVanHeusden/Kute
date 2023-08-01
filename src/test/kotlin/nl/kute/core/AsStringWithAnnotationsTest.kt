@@ -1,6 +1,5 @@
 package nl.kute.core
 
-import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.config.defaultMaxStringValueLength
 import nl.kute.config.defaultNullString
 import nl.kute.core.annotation.modify.AsStringHash
@@ -11,6 +10,7 @@ import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
+import nl.kute.test.base.ObjectsStackVerifier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -395,7 +395,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
         assertThat(Words().asString()).isEqualTo("Words(fiveWords=String contains three)")
     }
 
-// region ================ Test classes, objects etc. ==================
+// region ~ Classes, objects etc. to be used for testing
 
     @AsStringOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
     private open class ClassWithNonDefaultAsStringOptions {

@@ -31,7 +31,7 @@ class AsStringWithArrayTest: ObjectsStackVerifier {
         assertThat(classWithArrayString.length).isEqualTo(500 + ClassWithArray::class.simpleName!!.length + "(array=)".length)
     }
 
-// region ================ Test classes / objects ========================================
+// region ~ Classes, objects etc. to be used for testing
 
     @Suppress("unused")
     private class ClassWithArray(val array: Array<String>) {

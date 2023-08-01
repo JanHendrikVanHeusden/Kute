@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
  *  * When a [handler] is provided, it should be invoked by the caller
  *  * When no [handler] is provided, the caller itself should provide the implementation
  */
-internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler: AsStringHandler? = null) {
+internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler: ((Any) -> String)? = null) {
     /**
      * Base stuff like [Boolean], [Number], [String], [Date], [Temporal], [Char], these have
      * sensible [toString] implementations that we need not (and should not) override
@@ -121,10 +121,11 @@ private fun Any.primitiveArrayIterator(): Iterator<*> =
     }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Any.objectIdentity() = this.objectIdentity(getAsStringClassOption())
+internal fun Any.objectIdentity() =
+    this.objectIdentity(this::class.getAsStringClassOption())
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Any.toStringPreference() = getAsStringClassOption().preferToString
+internal fun KClass<*>.toStringPreference() = this.getAsStringClassOption().toStringPreference
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.collectionIdentity(includeIdentity: Boolean = AsStringClassOption.defaultOption.includeIdentityHash) =

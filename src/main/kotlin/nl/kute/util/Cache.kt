@@ -1,6 +1,8 @@
 package nl.kute.util
 
 import nl.kute.core.annotation.modify.AsStringOmit
+import nl.kute.core.annotation.option.AsStringClassOption
+import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.asString
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
@@ -9,6 +11,7 @@ import kotlin.math.roundToInt
 private const val defaultInitialCapacity: Int = 200
 
 /** General cache */
+@AsStringClassOption(toStringPreference = USE_ASSTRING)
 internal interface Cache<K : Any, V : Any, C : Any> {
 
     /** The size of the cache */
@@ -40,6 +43,7 @@ internal abstract class AbstractCache<K : Any, V : Any, C : Any>(private val ini
     override fun toString(): String = asString()
 }
 
+@Suppress("unused") // has been in use, but not anymore. Maybe remove?
 internal open class SetCache<T : Any>(initialCapacity: Int? = null) :
     AbstractCache<T, Boolean, MutableSet<T>>(initialCapacity) {
 

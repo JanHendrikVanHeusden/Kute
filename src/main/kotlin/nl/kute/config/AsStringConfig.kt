@@ -2,6 +2,8 @@ package nl.kute.config
 
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.ToStringPreference
+import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
@@ -13,18 +15,29 @@ import kotlin.reflect.KClass
  */
 public class AsStringConfig {
 
-    private var newAsStringOption: AsStringOption = AsStringOption.defaultOption
-    private var newDefaultClassOption: AsStringClassOption = AsStringClassOption.defaultOption
+    private var newDefaultAsStringOption: AsStringOption = AsStringOption.defaultOption
+    private var newDefaultAsStringClassOption: AsStringClassOption = AsStringClassOption.defaultOption
 
-    private fun setNewDefaultOption(newAsStringOption: AsStringOption) {
-        this.newAsStringOption = newAsStringOption
+    private fun setNewDefaultAsStringOption(newAsStringOption: AsStringOption) {
+        this.newDefaultAsStringOption = newAsStringOption
     }
 
-    private fun setNewDefaultOption(
-        showNullAs: String = AsStringOption.defaultOption.showNullAs,
-        propMaxLength: Int = AsStringOption.defaultOption.propMaxStringValueLength) {
+    private fun setNewDefaultAsStringOption(
+        showNullAs: String = newDefaultAsStringOption.showNullAs,
+        propMaxLength: Int = newDefaultAsStringOption.propMaxStringValueLength) {
 
-        setNewDefaultOption(AsStringOption(showNullAs, propMaxLength))
+        setNewDefaultAsStringOption(AsStringOption(showNullAs, propMaxLength))
+    }
+
+    private fun setNewDefaultAsStringClassOption(newAsStringClassOption: AsStringClassOption) {
+        this.newDefaultAsStringClassOption = newAsStringClassOption
+    }
+
+    private fun setNewDefaultAsStringClassOption(
+        includeIdentityHash: Boolean = newDefaultAsStringClassOption.includeIdentityHash,
+        toStringPreference: ToStringPreference = newDefaultAsStringClassOption.toStringPreference
+        ) {
+        setNewDefaultAsStringClassOption(AsStringClassOption(includeIdentityHash, toStringPreference))
     }
 
     /**
@@ -36,7 +49,7 @@ public class AsStringConfig {
      * @see [applyAsDefault]
      */
     public fun withShowNullAs(showNullAs: String): AsStringConfig {
-        setNewDefaultOption(showNullAs = showNullAs)
+        setNewDefaultAsStringOption(showNullAs = showNullAs)
         return this
     }
 
@@ -49,7 +62,7 @@ public class AsStringConfig {
      * @see [applyAsDefault]
      */
     public fun withMaxPropertyStringLength(propMaxLength: Int): AsStringConfig {
-        setNewDefaultOption(propMaxLength = propMaxLength)
+        setNewDefaultAsStringOption(propMaxLength = propMaxLength)
         return this
     }
 
@@ -62,7 +75,20 @@ public class AsStringConfig {
      * @see [applyAsDefault]
      */
     public fun withIncludeIdentityHash(includeHash: Boolean): AsStringConfig {
-        newDefaultClassOption = AsStringClassOption(includeHash)
+        setNewDefaultAsStringClassOption(includeIdentityHash = includeHash)
+        return this
+    }
+
+    /**
+     * Sets the new default value for [AsStringClassOption.includeIdentityHash].
+     *
+     * After being applied, this value is used as an application-wide default
+     * when no [AsStringClassOption] annotation is present.
+     * @return the config builder (`this`)
+     * @see [applyAsDefault]
+     */
+    public fun withToStringPreference(toStringPreference: ToStringPreference): AsStringConfig {
+        setNewDefaultAsStringClassOption(toStringPreference = toStringPreference)
         return this
     }
 
@@ -73,8 +99,8 @@ public class AsStringConfig {
      * @return the newly applied default [AsStringOption]
      */
     public fun applyAsDefault() {
-        AsStringOption.defaultOption = newAsStringOption
-        AsStringClassOption.defaultOption = newDefaultClassOption
+        AsStringOption.defaultOption = newDefaultAsStringOption
+        AsStringClassOption.defaultOption = newDefaultAsStringClassOption
     }
 
 }
@@ -92,6 +118,9 @@ public const val initialMaxStringValueLength: Int = 500
 /** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.core.asString] output */
 public const val initialIncludeIdentityHash: Boolean = false
 
+/** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.core.asString] output */
+public val initialToStringPreference: ToStringPreference = USE_ASSTRING
+
 /** Initial default options for the output of [nl.kute.core.asString] */
 @JvmSynthetic // avoid access from external Java code
 internal val initialAsStringOption: AsStringOption =
@@ -100,7 +129,7 @@ internal val initialAsStringOption: AsStringOption =
 /** Initial default options for the output of [nl.kute.core.asString] */
 @JvmSynthetic // avoid access from external Java code
 internal val initialAsStringClassOption: AsStringClassOption =
-    AsStringClassOption(initialIncludeIdentityHash)
+    AsStringClassOption(initialIncludeIdentityHash, initialToStringPreference)
 
 /** Convenience method to retrieve [AsStringOption.defaultOption]'s [AsStringOption.showNullAs] */
 internal val defaultNullString: String

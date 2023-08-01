@@ -103,7 +103,7 @@ internal fun <T : Any> KClass<T>.propertiesWithAsStringAffectingAnnotations(): M
 @JvmSynthetic // avoid access from external Java code
 internal var propsWithAnnotationsCacheByClass = MapCache<KClass<*>, Map<KProperty<*>, Set<Annotation>>>()
 
-@Suppress("unused")
+@Suppress("unused") // property not actively used, but needed implicitly for callback
 private val configChangeCallback = { propsWithAnnotationsCacheByClass.reset() }
     .also { callback -> AsStringOption::class.subscribeConfigChange(callback) }
 

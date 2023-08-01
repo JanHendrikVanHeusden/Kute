@@ -47,7 +47,7 @@ class PropertyResolverTest {
         assertThat(propertiesAnon.firstOrNull { it.name == "p" }).isNull()
     }
 
-// region ================ Test classes / objects ========================================
+// region ~ Classes, objects etc. to be used for testing
 
     private interface I0 {
         val i: Int?

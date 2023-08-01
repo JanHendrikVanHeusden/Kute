@@ -4,8 +4,6 @@ import nl.kute.reflection.simplifyClassName
 import nl.kute.test.base.GarbageCollectionWaiter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 import java.util.Date
 import kotlin.random.Random
 

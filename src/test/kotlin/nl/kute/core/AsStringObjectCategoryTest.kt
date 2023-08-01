@@ -311,7 +311,7 @@ internal class AsStringObjectCategoryTest {
         }
     }
 
-// region ================ Test helper methods ==================
+// region ~ Test helper methods
 
     private fun Any.assertBaseObject() {
         val category = resolveObjectCategory(this)

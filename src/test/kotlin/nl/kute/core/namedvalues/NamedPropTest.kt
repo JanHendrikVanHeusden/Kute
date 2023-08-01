@@ -1,6 +1,5 @@
 package nl.kute.core.namedvalues
 
-import nl.kute.test.base.GarbageCollectionWaiter
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
@@ -13,6 +12,7 @@ import nl.kute.core.asString
 import nl.kute.hashing.DigestMethod
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
+import nl.kute.test.base.GarbageCollectionWaiter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -299,7 +299,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         assertGarbageCollected(checkGarbageCollected)
     }
 
-// region ================ Test classes, objects etc. ==================
+// region ~ Classes, objects etc. to be used for testing
 
     interface WithProp {
         val myProp: String

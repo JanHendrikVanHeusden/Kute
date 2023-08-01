@@ -10,10 +10,13 @@ import org.junit.jupiter.api.Test
 
 class AsStringConfigTest {
 
+    // TODO: tests for AsStringClassOption
+
     @BeforeEach
     @AfterEach
     fun setUpAndTearDown() {
         restoreInitialAsStringOption()
+        restoreInitialAsStringClassOption()
     }
 
     @Test
@@ -23,6 +26,7 @@ class AsStringConfigTest {
             val str600 = "x".repeat(600)
             open val aNullValue: Any? = null
         }
+
         val initialMaxPropStrLength = AsStringOption.defaultOption.propMaxStringValueLength
         val initialNullStr = AsStringOption.defaultOption.showNullAs
 

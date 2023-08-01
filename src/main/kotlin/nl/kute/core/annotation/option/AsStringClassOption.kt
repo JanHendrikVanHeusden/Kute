@@ -24,7 +24,14 @@ import kotlin.reflect.KClass
  * @param includeIdentityHash Should the identity hash be included?
  * If included, the identity hash is `@` followed by the hex representation as of [System.identityHashCode]
  * (up to 8 hex characters), identical to the hex string seen in non-overridden [toString] output.
- * @param preferToString If a [toString] method is implemented
+ * @param toStringPreference
+ * * If [ToStringPreference.USE_ASSTRING] applies (either as default or by annotation), [nl.kute.core.asString] should
+ *   dynamically resolve properties and values for custom classes, even if [toString] is implemented.
+ * * If [ToStringPreference.PREFER_TOSTRING] applies (either as default or by annotation), and a [toString] method is
+ *   implemented, [nl.kute.core.asString] should honour the class's [toString], rather than dynamically resolving
+ *   properties and values.
+ *   > If [ToStringPreference.PREFER_TOSTRING] applies and recursion is detected in the [toString] implementation,
+ *   > [nl.kute.core.asString] will fall back to dynamically resolving properties and values for that class.
  */
 @Target(AnnotationTarget.CLASS)
 @MustBeDocumented
@@ -32,8 +39,7 @@ import kotlin.reflect.KClass
 @Retention(RUNTIME)
 public annotation class AsStringClassOption(
     val includeIdentityHash: Boolean = initialIncludeIdentityHash,
-    // TODO: tests
-    val preferToString: ToStringPreference = USE_ASSTRING
+    val toStringPreference: ToStringPreference = USE_ASSTRING
 ) {
 
     /** Static holder for [defaultOption] */
@@ -65,11 +71,11 @@ internal fun Any.objectIdentity(asStringClassOption: AsStringClassOption): Strin
 }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Any.getAsStringClassOption(): AsStringClassOption =
-    this::class.let { kClass ->
+internal fun KClass<*>.getAsStringClassOption(): AsStringClassOption =
+    this.let { kClass ->
         val cache = asStringClassOptionCache
         cache[kClass].ifNull {
-            (this::class.annotationOfSubSuperHierarchy() ?: AsStringClassOption.defaultOption)
+            (this.annotationOfSubSuperHierarchy() ?: AsStringClassOption.defaultOption)
                 .also { cache[kClass] = it }
         }
     }

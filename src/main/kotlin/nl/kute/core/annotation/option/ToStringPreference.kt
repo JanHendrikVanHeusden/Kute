@@ -1,13 +1,27 @@
 package nl.kute.core.annotation.option
 
+/**
+ * Preference for whether to use [toString] (insofar implemented) or [nl.kute.core.asString] (with dynamic property &
+ * value resolution) for custom classes.
+ * [toString] implementation
+ */
 public enum class ToStringPreference {
+
     /**
-     * Always use [nl.kute.core.asString], even if the class or any of its superclasses has [toString] overridden.
+     * **Recommended** unless:
+     *  * specific requirements apply to [toString] methods
+     *  * [toString] methods have been created with additional value, e.g. additional values
+     *    for tracing objects in logs, etc.
+     *    * NB: Such values can also be added to
+     *  [nl.kute.core.asString]; see [nl.kute.core.AsStringBuilder]
+     *
+     * When [USE_ASSTRING] applies, [nl.kute.core.asString] will dynamically resolve properties and values for custom
+     * classes, even if the class or any of its superclasses has [toString] overridden.
      * Characteristics:
-     * * Maintenance-friendly: new or renamed properties are automatically reflected in the [nl.kute.core.asString] output
-     * * Full protection against errors due to recursion
-     *   (e.g. [StackOverflowError]s in case of self-referencing or mutually referencing object graphs)
-     * * Bypasses existing [toString] implementations of your classes
+     * * Maintenance-friendly: new or renamed properties of your custom classes are automatically reflected in
+     *   the [nl.kute.core.asString] output
+     * * Full protection against errors due to recursion / self reference / mutual references ([StackOverflowError]s)
+     * * Bypasses existing [toString] implementations of your custom classes
      * * Fully honours annotations like [nl.kute.core.annotation.modify.AsStringMask] etc.
      * * Improved String representation of lambda's, primitive arrays (like Java's `int[]`), [Throwable]s etc.
      * @see [PREFER_TOSTRING]
@@ -15,17 +29,19 @@ public enum class ToStringPreference {
     USE_ASSTRING,
 
     /**
-     * If the class is a [Collection], [Map], [Array], etc. or if it does not have [toString] overridden,
-     * use [nl.kute.core.asString]; otherwise (so [toString] implemented and not a collection etc.), use [toString]
-     * * Less maintenance-friendly: new or renamed properties in your classes will not be automatically reflected
+     * When [PREFER_TOSTRING] applies, [nl.kute.core.asString] will call the object's [toString] method on
+     * custom classes, provided that the class or any of its superclasses has overridden [toString].
+     * * Less maintenance-friendly: new or renamed properties of your custom classes will not be automatically reflected
      *   for classes with a home-made [toString] implementation
-     * * Protection against errors due to recursion, on objects without overridden [toString], and on collections etc.
-     *   (e.g. [StackOverflowError]s in case of self-referencing or mutually referencing object graphs);
-     *   but no protection against recursion errors in your custom class's [toString] methods
-     * * Honours existing [toString] implementations of your classes
-     * * Honours annotations like [nl.kute.core.annotation.modify.AsStringMask] etc. only when no home made [toString]
+     *     * If no
+     *   [toString] implemented, [nl.kute.core.asString] will be used
+     * * Limited protection against errors due to recursion / self reference / mutual references (only when no home-made
+     *   [toString] implementation)
+     * * Honours existing [toString] implementations of your custom classes
+     * * Does not honour annotations like [nl.kute.core.annotation.modify.AsStringMask] etc. when a home made [toString]
      *   implementation is present
-     * * Improved String representation of lambda's, primitive arrays (like Java's `int[]`), [Throwable]s etc.
+     * * Improved String representation of lambda's, primitive arrays (like Java's `int[]`), [Throwable]s etc. only
+     *   when no home-made [toString] implementation
      * @see [USE_ASSTRING]
      */
     PREFER_TOSTRING,

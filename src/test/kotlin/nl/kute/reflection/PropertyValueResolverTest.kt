@@ -93,7 +93,7 @@ class PropertyValueResolverTest {
         }
     }
 
-// region ================ Test classes, objects etc. ==================
+// region ~ Classes, objects etc. to be used for testing
 
     private interface I0 {
         val i: Int?

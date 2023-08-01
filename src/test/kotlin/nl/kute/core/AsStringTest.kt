@@ -9,9 +9,7 @@ import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringReplace
-import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
-import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.asStringClassOptionCache
 import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
@@ -22,7 +20,6 @@ import nl.kute.core.property.propsWithAnnotationsCacheByClass
 import nl.kute.core.test.helper.equalSignCount
 import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.hashing.DigestMethod
-import nl.kute.reflection.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
@@ -678,38 +675,7 @@ class AsStringTest: ObjectsStackVerifier {
             .isEqualTo(testObj.asString())
     }
 
-    @Test
-    fun `asString on a class where toString calls asString and with PREFER_TOSTRING should be handled correctly`() {
-        assertThat(PersonWithToStringCallingAsString().toString())
-            .isObjectAsString(
-                "PersonWithToStringCallingAsString",
-                "iban=NL99 BANK *****0 7906",
-                "password=**********",
-                "phoneNumber=06123***789",
-                "socialSecurityNumber=#f1f94451ae5a9b30b187ee18f790fdf5ea9c9b06#"
-            )
-        // TODO: check cache!
-    }
-
-    @Test
-    fun `asString on a class with toString implementation and with PREFER_TOSTRING should honour toString`() {
-        assertThat(PersonWithToStringImplementation().asString())
-            .isEqualTo(
-                "PersonWithToStringImplementation(phone='06123456789', iban='NL29 ABNA 6708 40 7906', mail='someone@example.com', BSN='617247018')"
-            )
-    }
-
-    @Test
-    fun `asString on a subclass of a class with toString implementation and with PREFER_TOSTRING should honour toString`() {
-        assertThat(SubClassOfPersonWithToStringImplementation().asString())
-            .isEqualTo(
-                "SubClassOfPersonWithToStringImplementation(phone='06123456789', iban='NL29 ABNA 6708 40 7906', mail='someone@example.com', BSN='617247018')"
-            )
-    }
-
-    // ------------------------------------
-    // Classes etc. to be used in the tests
-    // ------------------------------------
+// region ~ Classes etc. to be used for testing
 
     private val aPrintableDate = object {
         override fun toString(): String = LocalDate.of(2022, 1, 27).toString()
@@ -813,19 +779,6 @@ class AsStringTest: ObjectsStackVerifier {
         override fun toString(): String = asString()
     }
 
-    @AsStringClassOption(preferToString = ToStringPreference.PREFER_TOSTRING)
-    private class PersonWithToStringCallingAsString: Person()
-
-    @AsStringClassOption(preferToString = ToStringPreference.PREFER_TOSTRING)
-    private open class PersonWithToStringImplementation : Person() {
-        override fun toString(): String {
-            return "${this::class.simplifyClassName()}(phone='$phoneNumber', iban='$iban', mail='$mailAddress', BSN='$socialSecurityNumber')"
-        }
-    }
-
-    // Should inherit ToStringPreference.PREFER_TOSTRING from superclass
-    private class SubClassOfPersonWithToStringImplementation : PersonWithToStringImplementation()
-
     private open class RepeatedAnnotations {
         @AsStringReplace("^I", "It")
         @AsStringReplace("triple ", "")
@@ -856,5 +809,7 @@ class AsStringTest: ObjectsStackVerifier {
             var companionProp = "companion prop"
     }
 }
+
+// endregion
 
 }

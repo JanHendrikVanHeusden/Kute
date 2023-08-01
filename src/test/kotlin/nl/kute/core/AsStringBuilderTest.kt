@@ -7,11 +7,11 @@ import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.namedvalues.namedProp
 import nl.kute.core.namedvalues.namedValue
+import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
 import nl.kute.test.base.GarbageCollectionWaiter
 import nl.kute.test.base.ObjectsStackVerifier
-import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.util.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -267,7 +267,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
         assertGarbageCollected(checkGarbageCollected)
     }
 
-// region ================ Test classes, objects etc. ==================
+// region ~ Classes, objects etc. to be used for testing
     
     private class ToBeGarbageCollected {
         override fun toString(): String = "not garbage collected yet!"

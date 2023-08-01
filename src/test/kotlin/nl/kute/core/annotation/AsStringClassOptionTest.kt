@@ -1,11 +1,11 @@
 package nl.kute.core.annotation
 
-import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.asStringClassOptionCache
 import nl.kute.core.asString
+import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.util.asHexString
 import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat
@@ -125,7 +125,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `repeated calls of asString on same class should be cached only once`() {
+    fun `repeated calls of asString on same class should cache AsStringClassOption only once`() {
         asStringClassOptionCache.reset()
         class MyTestClass
         repeat(5) {

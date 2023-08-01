@@ -74,7 +74,7 @@ private fun containsExhaustiveInAnyOrderCondition(
             if (remainingString.isNotEmpty()) {
                 val ignoreCharMsg = if (ignoreChars.isEmpty()) "" else ", and with characters of `$ignoreChars` ignored"
                 errorMessage =
-                    "a String containing exactly\n${strings.contentDeepToString()}" +
+                    "a String containing exact properties: \n${strings.contentDeepToString()}" +
                             "\n(with prefix and suffix, if specified$ignoreCharMsg).\nBut it also contains " +
                             if (remainingString.isBlank()) "${remainingString.length} whitespace characters"
                             else "the characters of `$remainingString`"

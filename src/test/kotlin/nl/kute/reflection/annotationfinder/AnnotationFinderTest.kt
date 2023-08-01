@@ -123,7 +123,7 @@ class AnnotationFinderTest {
         assertThat(printOptOfToStringByInheritance).isSameAs(printOptOfToString)
     }
 
-// region ================ Test classes, objects etc. ==================
+// region ~ Classes, objects etc. to be used for testing
 
     @AsStringOption(propMaxStringValueLength = 200)
     private open class With3AsStringOptions(@AsStringOption(propMaxStringValueLength = 100) open val someVal: String) {
