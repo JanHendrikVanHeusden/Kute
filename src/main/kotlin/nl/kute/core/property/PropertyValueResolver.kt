@@ -9,6 +9,7 @@ import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.modify.hashString
 import nl.kute.core.annotation.modify.mask
 import nl.kute.core.annotation.modify.replacePattern
+import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.applyOption
 import nl.kute.core.asString
@@ -103,9 +104,12 @@ internal fun <T : Any> KClass<T>.propertiesWithAsStringAffectingAnnotations(): M
 @JvmSynthetic // avoid access from external Java code
 internal var propsWithAnnotationsCacheByClass = MapCache<KClass<*>, Map<KProperty<*>, Set<Annotation>>>()
 
-@Suppress("unused") // property not actively used, but needed implicitly for callback
-private val configChangeCallback = { propsWithAnnotationsCacheByClass.reset() }
-    .also { callback -> AsStringOption::class.subscribeConfigChange(callback) }
+@Suppress("unused", "UNCHECKED_CAST") // property not actively used, but needed implicitly for callback
+private val propsWithAnnotationsCacheResetterCallback = { propsWithAnnotationsCacheByClass.reset() }
+    .also { callback ->
+        (AsStringOption::class as KClass<Annotation>).subscribeConfigChange(callback)
+        (AsStringClassOption::class as KClass<Annotation>).subscribeConfigChange(callback)
+    }
 
 @JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, annotations: MutableSet<Annotation>) {

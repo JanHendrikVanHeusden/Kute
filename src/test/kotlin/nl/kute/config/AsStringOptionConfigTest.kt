@@ -7,10 +7,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
 
-class AsStringConfigTest {
-
-    // TODO: tests for AsStringClassOption
+class AsStringOptionConfigTest {
 
     @BeforeEach
     @AfterEach
@@ -20,7 +19,7 @@ class AsStringConfigTest {
     }
 
     @Test
-    fun `change of AsStringOption defaults should be applied & also empty the cache`() {
+    fun `change of AsStringOption defaults should be applied & also empty the properties & annotations cache`() {
         // arrange
         open class TestClass {
             val str600 = "x".repeat(600)
@@ -28,13 +27,14 @@ class AsStringConfigTest {
         }
 
         val initialMaxPropStrLength = AsStringOption.defaultOption.propMaxStringValueLength
-        val initialNullStr = AsStringOption.defaultOption.showNullAs
-
         assertThat(initialMaxPropStrLength)
             .isEqualTo(500)
-            .isEqualTo(initialMaxPropStrLength)
+            .isEqualTo(initialMaxStringValueLength)
+
+        val initialNullStr = AsStringOption.defaultOption.showNullAs
         assertThat(initialNullStr)
             .isEqualTo("null")
+            .isEqualTo(initialNullString)
 
         val testObj = TestClass()
         assertThat(testObj.str600).hasSize(600)
@@ -50,7 +50,7 @@ class AsStringConfigTest {
 
         // act, assert - max length
         AsStringConfig().withMaxPropertyStringLength(20).applyAsDefault()
-        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(0)
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(20)}\b.+$""")
             .contains("aNullValue=null")
@@ -58,7 +58,7 @@ class AsStringConfigTest {
 
         // act, assert - null str
         AsStringConfig().withShowNullAs("--!").applyAsDefault()
-        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(0)
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(20)}\b.+$""")
             .contains("aNullValue=--!")
@@ -66,7 +66,7 @@ class AsStringConfigTest {
 
         // act, assert - reset defaults
         restoreInitialAsStringOption()
-        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(0)
+        assertThat(propsWithAnnotationsCacheByClass.size).isZero
         assertThat(testObj.asString())
             .matches("""^.+\bstr600=${testObj.str600.take(500)}\b.+$""")
             .contains("aNullValue=null")
@@ -112,7 +112,7 @@ class AsStringConfigTest {
     }
 
     @Test
-    fun `re-applying same values should not empty the cache`() {
+    fun `re-applying same values should not empty the properties & annotations cache`() {
         // arrange
         AsStringConfig()
             .withShowNullAs("---")
@@ -138,4 +138,19 @@ class AsStringConfigTest {
             .isEqualTo(1)
     }
 
+    @Test
+    fun `change of AsStringOption default should notify subscriber`() {
+        // arrange
+        @Suppress("UNCHECKED_CAST")
+        val asStringOptionClass: KClass<Annotation> = AsStringOption::class as KClass<Annotation>
+        var notified = false
+        val callback = {
+            notified = true
+        }
+        asStringOptionClass.subscribeConfigChange(callback)
+        // act
+        AsStringConfig().withShowNullAs("<empty>").applyAsDefault()
+        // assert
+        assertThat(notified).isTrue
+    }
 }

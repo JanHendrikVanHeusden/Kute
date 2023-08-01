@@ -83,6 +83,6 @@ internal fun KClass<*>.getAsStringClassOption(): AsStringClassOption =
 @JvmSynthetic // avoid access from external Java code
 internal var asStringClassOptionCache = MapCache<KClass<*>, AsStringClassOption>()
 
-@Suppress("unused")
-private val configChangeCallback = { asStringClassOptionCache.reset() }
-    .also { callback -> AsStringClassOption::class.subscribeConfigChange(callback) }
+@Suppress("unused", "UNCHECKED_CAST")
+private val asStringClassOptionCacheResetterCallback = { asStringClassOptionCache.reset() }
+    .also { callback -> (AsStringClassOption::class as KClass<Annotation>).subscribeConfigChange(callback) }

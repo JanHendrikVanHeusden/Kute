@@ -161,11 +161,13 @@ internal fun restoreInitialAsStringClassOption(): AsStringClassOption =
 
 @JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.notifyConfigChange() {
-    configChangeSubscriptions[this]?.forEach { callback -> callback.invoke() }
+    configChangeSubscriptions[this]?.forEach {
+            callback -> callback.invoke()
+    }
 }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun KClass<*>.subscribeConfigChange(callback: () -> Unit) {
+internal fun KClass<Annotation>.subscribeConfigChange(callback: () -> Unit) {
     configChangeSubscriptions[this].ifNull {
         mutableListOf<() -> Unit>().also { configChangeSubscriptions[this] = it }
     }.add(callback)

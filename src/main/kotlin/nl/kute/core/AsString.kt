@@ -232,7 +232,7 @@ private fun <T : Any> T.tryToString(firstTime: Boolean): String? {
         return if (useToString) {
             toStringResult
         } else {
-            // Recursion detected, this will not end successfully.
+            // Probably recursion detected - this will not end successfully when happening inside toString()
             // Remove the entry from the stack, we are going to making a fresh start here, now with asString()
             objectsStackGuard.get().remove(this)
             return null
@@ -245,11 +245,13 @@ private fun <T : Any> T.tryToString(firstTime: Boolean): String? {
  * * If `true`, the class may be processed with [toString]
  * * If `false`, the class should be processed by dynamically resolving properties and values
  */
-private val useToStringByClass = MapCache<KClass<*>, Boolean>()
+@JvmSynthetic // avoid access from external Java code
+internal val useToStringByClass = MapCache<KClass<*>, Boolean>()
 
-@Suppress("unused") // property not actively used, but needed implicitly for callback
-private val configChangeCallback = { useToStringByClass.reset() }
-    .also { callback -> AsStringClassOption::class.subscribeConfigChange(callback) }
+@Suppress("unused", "UNCHECKED_CAST") // property not actively used, but needed implicitly for callback
+private val useToStringCacheResetterCallback = {
+    useToStringByClass.reset()
+}.also { callback -> (AsStringClassOption::class as KClass<Annotation>).subscribeConfigChange(callback) }
 
 // endregion
 
