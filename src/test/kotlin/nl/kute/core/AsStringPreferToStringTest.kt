@@ -17,7 +17,9 @@ import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.hashing.DigestMethod
 import nl.kute.reflection.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
+import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -186,6 +188,122 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
                 "password=**********",
                 "phoneNumber=06123***789"
                 , "socialSecurityNumber=#f1f94451ae5a9b30b187ee18f790fdf5ea9c9b06#"
+            )
+    }
+
+    @Test
+    fun `Usage of toString should be cached`() {
+        // arrange
+        useToStringByClass.reset()
+        assertThat(useToStringByClass.cache).isEmpty()
+        val randomStringSupplier = { RandomStringUtils.randomAlphanumeric(20) }
+
+        open class TestClass(var something: String = randomStringSupplier())
+        // act
+        repeat(3) { TestClass(randomStringSupplier()).asString() }
+        // assert
+        assertThat(useToStringByClass.cache)
+            .hasSize(1)
+            // false, it has default, so USE_ASSTRING
+            .contains(entry(TestClass::class, false))
+
+        // arrange
+        @AsStringClassOption(toStringPreference = PREFER_TOSTRING)
+        open class SubTestClass(something: String): TestClass(something)
+        // act
+        repeat(3) { SubTestClass(randomStringSupplier()).asString() }
+        // assert
+        assertThat(useToStringByClass.cache)
+            .hasSize(2)
+            .contains(
+                // false, it has default, so USE_ASSTRING
+                entry(TestClass::class, false),
+                // false, it has PREFER_TOSTRING, but no toString() method
+                entry(SubTestClass::class, false)
+            )
+
+        // arrange
+        open class SubSubTestClass(something: String): SubTestClass(something) {
+            override fun toString(): String = "I am the sub-sub-Class with a toString"
+        }
+        // act
+        repeat(3) { SubSubTestClass(randomStringSupplier()).asString() }
+
+        // assert
+        assertThat(useToStringByClass.cache)
+            .hasSize(3)
+            .contains(
+                // false, it has default, so USE_ASSTRING
+                entry(TestClass::class, false),
+                // false, it has PREFER_TOSTRING, but no toString() method
+                entry(SubTestClass::class, false),
+                // true, it inherits PREFER_TOSTRING, and has a toString() method
+                entry(SubSubTestClass::class, true)
+            )
+
+        // arrange
+        val testObjectWithToString = object : TestClass() {
+            override fun toString(): String = "this object's toString()"
+        }
+        // act
+        repeat(3) { testObjectWithToString.asString() }
+        // assert
+        assertThat(useToStringByClass.cache)
+            .hasSize(4)
+            // false because not annotated, so using default: USE_ASSTRING
+            .contains(entry(testObjectWithToString::class, false))
+
+        // arrange
+        setDefaultToStringPref(PREFER_TOSTRING)
+        assertThat(useToStringByClass.cache).isEmpty()
+        // act
+        repeat(3) { testObjectWithToString.asString() }
+        // assert
+        assertThat(useToStringByClass.cache)
+            .hasSize(1)
+            // false, it has a toString() method, and default is PREFER_TOSTRING, but it's class's simpleName is null,
+            // this kind of classes is excluded because it may not be supported by Kotlin's reflection
+            .contains(entry(testObjectWithToString::class, false))
+
+        // arrange
+        class TestClassWithToString: TestClass() {
+            override fun toString(): String = "this ${this::class.simpleName}'s toString()"
+        }
+        // act
+        repeat(3) { TestClassWithToString().asString() }
+        // assert
+        assertThat(TestClassWithToString().asString())
+            .isEqualTo("this ${TestClassWithToString::class.simpleName}'s toString()")
+
+        assertThat(useToStringByClass.cache)
+            .hasSize(2)
+            .contains(
+                entry(testObjectWithToString::class, false),
+                // class feasible for reflection, it has a toString(), and default is PREFER_TOSTRING,
+                // so finally a true!
+                entry(TestClassWithToString::class, true)
+            )
+
+        // arrange
+        class TestClassWithAsString: TestClass() {
+            override fun toString(): String = asString()
+        }
+        // act
+        repeat(3) { TestClassWithAsString().asString() }
+        val testClassWithAsString = TestClassWithAsString()
+        // assert
+        assertThat(testClassWithAsString.asString())
+            .isObjectAsString(
+                TestClassWithAsString::class.simplifyClassName(),
+                "something=${testClassWithAsString.something}"
+            )
+
+        assertThat(useToStringByClass.cache)
+            .hasSize(3)
+            .contains(
+                // false, it calls asString(), so recursion will be detected,
+                // it will be set to false, so using asString() on subesequent calls
+                entry(TestClassWithAsString::class, false)
             )
     }
 

@@ -9,6 +9,7 @@ import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.util.asHexString
 import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -127,11 +128,26 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
     @Test
     fun `repeated calls of asString on same class should cache AsStringClassOption only once`() {
         asStringClassOptionCache.reset()
-        class MyTestClass
+        open class MyTestClass
         repeat(5) {
             MyTestClass().asString()
-            assertThat(asStringClassOptionCache.size).isEqualTo(1)
         }
+        assertThat(asStringClassOptionCache.cache)
+            .hasSize(1)
+            .contains(entry(MyTestClass::class, AsStringClassOption.defaultOption))
+
+        @AsStringClassOption(includeIdentityHash = true)
+        class MyTestSubClass: MyTestClass()
+        repeat(3) {
+            MyTestSubClass().asString()
+        }
+        assertThat(asStringClassOptionCache.cache)
+            .hasSize(2)
+            .contains(
+                entry(MyTestClass::class, AsStringClassOption.defaultOption),
+                entry(MyTestSubClass::class, AsStringClassOption(includeIdentityHash = true))
+                )
+
     }
 
     @Test
