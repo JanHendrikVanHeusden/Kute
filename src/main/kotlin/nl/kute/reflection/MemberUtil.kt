@@ -5,7 +5,6 @@ package nl.kute.reflection
 import nl.kute.log.log
 import nl.kute.log.logWithCaller
 import nl.kute.util.MapCache
-import nl.kute.util.ifNull
 import nl.kute.util.throwableAsString
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -29,25 +28,21 @@ private const val fqn: String = "nl.kute.reflection.MemberUtil"
 internal fun KClass<*>.toStringImplementingMethod(): KFunction<String>? {
     try {
         val toStringInfo = classToStringMethodCache[this]
-        if (toStringInfo != null && toStringInfo.second) {
-            return toStringInfo.first as KFunction<String>
+        toStringInfo?.let {
+            return if (it.second) it.first as KFunction<String> else null
         }
-        var isOverridden = false
-        return toStringInfo?.first.ifNull {
-            with(this.java) {
-                this.methods.firstOrNull {
-                    it.name == "toString" && it.returnType == String::class.java && it.parameters.isEmpty()
-                }.also {
-                    isOverridden = it != null && it.declaringClass != Any::class.java && it.declaringClass != Object::class.java
-                }?.kotlinFunction
-            }.also {
-                if (it != null) {
-                    // add it to cache
-                    classToStringMethodCache[this] = it to isOverridden
-                    return if (isOverridden) it as KFunction<String>? else null
-                }
-            }
-        } as KFunction<String>?
+        val javaToStringMethod = this.java.methods.firstOrNull {
+            it.name == "toString" && it.returnType == String::class.java && it.parameters.isEmpty()
+        }
+        val isOverridden = javaToStringMethod != null
+                    && javaToStringMethod.declaringClass != Any::class.java
+                    && javaToStringMethod.declaringClass != Object::class.java
+        val kotlinToStringMethod: KFunction<String>? =
+            javaToStringMethod?.kotlinFunction as KFunction<String>?
+        classToStringMethodCache[this] = kotlinToStringMethod to isOverridden
+
+        return if (isOverridden) kotlinToStringMethod else null
+
     } catch (e: UnsupportedOperationException) {
         // Might happen when called with synthetic class.
         // Functionally, this methods should never be called with such classes though.
@@ -63,7 +58,8 @@ internal fun KClass<*>.hasImplementedToString(): Boolean =
             || classToStringMethodCache[this]?.second ?: (this.toStringImplementingMethod() != null)
 
 /** The 2nd part of the [Pair] indicates whether the [toString] method was overridden for the [KClass] */
-private val classToStringMethodCache = MapCache<KClass<*>, Pair<KFunction<*>?, Boolean>>()
+@JvmSynthetic // avoid access from external Java code
+internal val classToStringMethodCache = MapCache<KClass<*>, Pair<KFunction<*>?, Boolean>>()
 
 @Suppress("UNNECESSARY_SAFE_CALL") // nullability may occur in tests due to mocks that force contrived exceptions
 @JvmSynthetic // avoid access from external Java code

@@ -1,8 +1,15 @@
 package nl.kute.util
 
+import nl.kute.core.asString
+import nl.kute.reflection.classToStringMethodCache
 import nl.kute.reflection.hasImplementedToString
+import nl.kute.reflection.simplifyClassName
+import nl.kute.reflection.toStringImplementingMethod
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KFunction
+import kotlin.reflect.jvm.kotlinFunction
 
 class MemberUtilTest {
 
@@ -45,5 +52,50 @@ class MemberUtilTest {
         assertThat(Any::class.hasImplementedToString()).isFalse
     }
 
+    @Test
+    fun `results of toString-method resolution should be cached`() {
+        // arrange
+        classToStringMethodCache.reset()
+        assertThat(classToStringMethodCache.size).isZero
+
+        class ClassWithoutToString
+
+        open class ClassWithToString {
+            override fun toString() = "I am ${this::class.simplifyClassName()}"
+        }
+
+        class SubClassOfClassWithToString: ClassWithToString()
+
+        // act
+        repeat(3) {
+            ClassWithoutToString().asString()
+            ClassWithToString().asString()
+            SubClassOfClassWithToString().asString()
+        }
+        assertThat(classToStringMethodCache.cache).hasSize(3)
+
+        assertThat(ClassWithoutToString::class.toStringImplementingMethod())
+            .isNull()
+        // not overridden, so Any's toString() method
+        @Suppress("UNCHECKED_CAST") val toStringMethod: KFunction<String> = (ClassWithoutToString::class.java.methods
+            .first { it.name == "toString" && it.returnType == String::class.java && it.parameters.isEmpty() })
+            .kotlinFunction as KFunction<String>
+
+
+        assertThat(ClassWithToString::class.toStringImplementingMethod()).isNotNull
+        assertThat(ClassWithToString::class.toStringImplementingMethod().asString())
+            .doesNotContain("Any.toString()")
+
+        assertThat(SubClassOfClassWithToString::class.toStringImplementingMethod()).isNotNull
+        assertThat(SubClassOfClassWithToString::class.toStringImplementingMethod().asString())
+            .doesNotContain("Any.toString()")
+
+        assertThat(classToStringMethodCache.cache)
+            .contains(
+                entry(ClassWithoutToString::class, Pair(toStringMethod, false)),
+                entry(ClassWithToString::class, Pair(ClassWithToString::class.toStringImplementingMethod(), true)),
+                entry(SubClassOfClassWithToString::class, Pair(SubClassOfClassWithToString::class.toStringImplementingMethod(), true)),
+            )
+    }
 
 }
