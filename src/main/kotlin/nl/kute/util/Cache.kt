@@ -1,6 +1,5 @@
 package nl.kute.util
 
-import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.asString
@@ -8,7 +7,8 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
 /** Initial capacity for caches */
-private const val defaultInitialCapacity: Int = 200
+@JvmSynthetic // avoid access from external Java code
+internal const val defaultInitialCapacity: Int = 200
 
 /** General cache */
 @AsStringClassOption(toStringPreference = USE_ASSTRING)
@@ -28,7 +28,7 @@ internal interface Cache<K : Any, V : Any, C : Any> {
 }
 
 /** General cache */
-internal abstract class AbstractCache<K : Any, V : Any, C : Any>(private val initialCapacity: Int? = null) :
+internal abstract class AbstractCache<K : Any, V : Any, C : Any>(private val initialCapacity: Int = defaultInitialCapacity) :
     Cache<K, V, C> {
 
     /**
@@ -39,10 +39,9 @@ internal abstract class AbstractCache<K : Any, V : Any, C : Any>(private val ini
     abstract val cache: C
 
     /** When resetting (replacing) the cache, use this as the new initial capacity */
-    @AsStringOmit
-    protected val newCapacity: Int
-        get() = maxOf(
-            initialCapacity ?: defaultInitialCapacity, minOf((size * 1.5).roundToInt(), size + defaultInitialCapacity)
+    protected open fun newCapacity(): Int =
+        maxOf(
+            initialCapacity, defaultInitialCapacity, minOf((size * 1.5).roundToInt(), size + defaultInitialCapacity)
         )
 
     override fun toString(): String = asString()
@@ -72,7 +71,7 @@ internal open class SetCache<T : Any>(initialCapacity: Int = defaultInitialCapac
     override fun reset() {
         // create a new set instead of clearing the old one, to avoid intermediate situations
         // while concurrently reading from / writing to the set, as these operations may not be atomic
-        cache = ConcurrentHashMap.newKeySet(newCapacity)
+        cache = ConcurrentHashMap.newKeySet(newCapacity())
     }
 
     override operator fun contains(key: T): Boolean = cache.contains(key)
@@ -105,7 +104,7 @@ internal open class MapCache<K : Any, V : Any>(initialCapacity: Int = defaultIni
     override fun reset() {
         // create a new map instead of clearing the old one, to avoid intermediate situations
         // while concurrently reading from / writing to the map, as these operations are not atomic typically
-        cache = ConcurrentHashMap(newCapacity)
+        cache = ConcurrentHashMap(newCapacity())
     }
 
     override operator fun contains(key: K): Boolean = cache.keys.contains(key)
