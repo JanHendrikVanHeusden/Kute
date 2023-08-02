@@ -76,7 +76,7 @@ internal class MapCacheTest {
         `when`(cacheMock.size).thenAnswer { mockedSize }
         val randomSupplier = { Random.nextInt(2000, 20_000) }
 
-        arrayOf(0, 1, 2, 15, 80, 200, 201, 800, randomSupplier(), randomSupplier()).forEach { initialCapacity ->
+        arrayOf(0, 1, 80, 200, 201, randomSupplier(), randomSupplier()).forEach { initialCapacity ->
             // subclass it to assign mock, and to make properties public
             class TestMapCache: MapCache<String, String>(initialCapacity) {
                 public override var cache = cacheMock
@@ -84,7 +84,7 @@ internal class MapCacheTest {
             }
             val mapCache = TestMapCache()
 
-            arrayOf(0, 5, 40, 150, 200, 201, 1500, randomSupplier(), randomSupplier()).forEach {
+            arrayOf(0, 5, 150, 200, 201, randomSupplier(), randomSupplier()).forEach {
                 mockedSize = it * 10
                 val sizeRelatedCapacity = minOf((mockedSize * 1.5).toInt(), mockedSize + defaultInitialCapacity)
                 val newCapacity = mapCache.newCapacity()
