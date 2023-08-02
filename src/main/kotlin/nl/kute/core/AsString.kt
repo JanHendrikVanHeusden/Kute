@@ -128,17 +128,16 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                 if (!hasAdditionalParameters) {
                     // referring to inner cache (so useToStringByClass.cache)
                     // because of possible race conditions when resetting the cache
-                    useToStringByClass.cache.let { theCache ->
-                        theCache[objClass].let { shouldUseToString ->
-                            val firstTime = (shouldUseToString == null)
-                            val useToString = shouldUseToString.ifNull {
-                                objClass.hasToStringPreference()
-                                    // remember for next times
-                                    .also { theCache[objClass] = it }
-                            }
-                            if (useToString) {
-                                obj.tryToString(firstTime)?.let { return it }
-                            }
+                    val theCache = useToStringByClass.cache
+                    theCache[objClass].let { shouldUseToString ->
+                        val firstTime = (shouldUseToString == null)
+                        val useToString = shouldUseToString.ifNull {
+                            objClass.hasToStringPreference()
+                                // remember for next times
+                                .also { theCache[objClass] = it }
+                        }
+                        if (useToString) {
+                            obj.tryToString(firstTime)?.let { return it }
                         }
                     }
                 }
