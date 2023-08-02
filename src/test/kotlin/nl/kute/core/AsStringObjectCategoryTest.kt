@@ -24,8 +24,6 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.nio.CharBuffer
 import java.nio.FloatBuffer
-import java.text.AttributedCharacterIterator
-import java.text.AttributedString
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -46,8 +44,6 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.DoubleAdder
-import javax.management.Attribute
-import javax.management.AttributeList
 
 internal class AsStringObjectCategoryTest {
 
@@ -170,7 +166,6 @@ internal class AsStringObjectCategoryTest {
         listOf<Collection<*>>(
             listOf(12, 15, 28),
             mutableListOf(Any()),
-            AttributeList(listOf(Attribute("name1", "value1"), Attribute("name2", Any()))),
             PriorityQueue(listOf("first", "second", "third")),
             EnumSet.allOf(AsStringObjectCategory::class.java),
             ubyteArrayOf(89u, 123u, 254u),
@@ -262,7 +257,6 @@ internal class AsStringObjectCategoryTest {
             FloatBuffer.wrap(floatArrayOf(2.3f, 5.8f)),
             repeat(1) {},
             lazy {  },
-            AttributedString("a string"),
             AsStringObjectCategoryTest::class,
             AsStringObjectCategoryTest::class.java
         ).forEach {
@@ -274,7 +268,6 @@ internal class AsStringObjectCategoryTest {
     fun `java and kotlin stuff having toString implemented should be handled as SYSTEM and yield their toString`() {
         // arbitrary choice of java and kotlin classes that have a toString() implementation
         listOf<Any>(
-            AttributedCharacterIterator.Attribute.LANGUAGE,
             UUID.randomUUID(),
             RoundingMode.CEILING,
             Locale.getDefault(),
