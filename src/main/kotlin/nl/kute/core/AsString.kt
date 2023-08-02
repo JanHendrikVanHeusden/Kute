@@ -115,7 +115,7 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                 if (isRecursiveCall) {
                     useToStringByClass[objClass] = false
                     // avoid endless loop
-                    return "$recursivePrefxix${objClass.simplifyClassName()}$recursivePostfix"
+                    return "$recursivePrefix${objClass.simplifyClassName()}$recursivePostfix"
                 }
                 // If handler, call that
                 if (objectCategory.hasHandler() && objectCategory.guardStack) {
@@ -266,7 +266,7 @@ private const val propertyListPrefix = "("
 private const val valueSeparator: String = ", "
 private const val propertyListSuffix = ")"
 
-private const val recursivePrefxix =  "recursive: "
+private const val recursivePrefix =  "recursive: "
 private const val recursivePostfix = "$propertyListPrefix...$propertyListSuffix"
 
 private val classPrefix = Regex("^class ")
