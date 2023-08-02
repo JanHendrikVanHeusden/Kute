@@ -126,15 +126,19 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                 val hasAdditionalParameters = propertyNamesToExclude.isNotEmpty() || nameValues.isNotEmpty()
                 // use toString() ?
                 if (!hasAdditionalParameters) {
-                    useToStringByClass[objClass].let { shouldUseToString ->
-                        val firstTime = (shouldUseToString == null)
-                        val useToString = shouldUseToString.ifNull {
-                            objClass.hasToStringPreference()
-                                // remember for next times
-                                .also { useToStringByClass[objClass] = it }
-                        }
-                        if (useToString) {
-                            obj.tryToString(firstTime)?.let { return it }
+                    // referring to inner cache (so useToStringByClass.cache)
+                    // because of possible race conditions when resetting the cache
+                    useToStringByClass.cache.let { theCache ->
+                        theCache[objClass].let { shouldUseToString ->
+                            val firstTime = (shouldUseToString == null)
+                            val useToString = shouldUseToString.ifNull {
+                                objClass.hasToStringPreference()
+                                    // remember for next times
+                                    .also { theCache[objClass] = it }
+                            }
+                            if (useToString) {
+                                obj.tryToString(firstTime)?.let { return it }
+                            }
                         }
                     }
                 }
@@ -244,18 +248,19 @@ private fun <T : Any> T.tryToString(firstTime: Boolean): String? {
  * Registry for preference whether [asString] should call [toString] for the given class
  * * If `true`, the class may be processed with [toString]
  * * If `false`, the class should be processed by dynamically resolving properties and values
+ * > This registry will be reset (cleared) when [AsStringClassOption.defaultOption] is changed.
  */
 @JvmSynthetic // avoid access from external Java code
 internal val useToStringByClass = MapCache<KClass<*>, Boolean>()
-
-@Suppress("unused", "UNCHECKED_CAST") // property not actively used, but needed implicitly for callback
-private val useToStringCacheResetterCallback = {
-    useToStringByClass.reset()
-}.also { callback -> (AsStringClassOption::class as KClass<Annotation>).subscribeConfigChange(callback) }
+    .also {
+        @Suppress("UNCHECKED_CAST")
+        (AsStringClassOption::class as KClass<Annotation>).subscribeConfigChange { it.reset() }
+    }
 
 // endregion
 
 // region ~ Constants, helper methods etc.
+
 private val emptyStringList: List<String> = listOf()
 
 private const val propertyListPrefix = "("

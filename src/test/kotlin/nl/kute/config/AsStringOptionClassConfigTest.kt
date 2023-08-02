@@ -4,6 +4,7 @@ import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
+import nl.kute.core.annotation.option.asStringClassOptionCache
 import nl.kute.core.asString
 import nl.kute.core.property.propsWithAnnotationsCacheByClass
 import nl.kute.core.useToStringByClass
@@ -65,34 +66,32 @@ class AsStringOptionClassConfigTest {
 
         // act, assert - include hash
         AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
-        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
         assertThat(useToStringByClass.size).isZero
         assertThat(testObj.asString())
             .doesNotContain(testObj.toStringPrefix) // asString() not calling toString()
             .contains(testObjHash)
-        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
         assertThat(useToStringByClass.size).isEqualTo(1)
 
         // act, assert - use toString()
         AsStringConfig().withToStringPreference(PREFER_TOSTRING).applyAsDefault()
-        assertThat(propsWithAnnotationsCacheByClass.size).isZero
+        assertThat(asStringClassOptionCache.size).isZero
         assertThat(useToStringByClass.size).isZero
         assertThat(testObj.asString())
             .contains(testObj.toStringPrefix) // asString() calling toString()
             .doesNotContain(testObjHash) // not part of toString()
-        assertThat(propsWithAnnotationsCacheByClass.size)
-            .`as`("No dynamic resolution of properties, so nothing should be cached")
-            .isEqualTo(0)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
         assertThat(useToStringByClass.size).isEqualTo(1)
 
         // act, assert - reset defaults
         restoreInitialAsStringClassOption()
 
-        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(0)
+        assertThat(asStringClassOptionCache.size).isZero
         assertThat(testObj.asString())
             .doesNotContain(testObjHash)
             .doesNotContain(testObj.toStringPrefix)
-        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
+        assertThat(asStringClassOptionCache.size).isEqualTo(1)
         assertThat(useToStringByClass.size).isEqualTo(1)
 
         val testClassSub: TestClass = object: TestClass() {
@@ -100,7 +99,7 @@ class AsStringOptionClassConfigTest {
         }
         @Suppress("UNUSED_VARIABLE")
         val theStringValue = testClassSub.asString()
-        assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(2)
+        assertThat(asStringClassOptionCache.size).isEqualTo(2)
         assertThat(useToStringByClass.size).isEqualTo(2)
     }
 

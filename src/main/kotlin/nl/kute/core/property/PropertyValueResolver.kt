@@ -9,7 +9,6 @@ import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.modify.hashString
 import nl.kute.core.annotation.modify.mask
 import nl.kute.core.annotation.modify.replacePattern
-import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.applyOption
 import nl.kute.core.asString
@@ -89,26 +88,30 @@ private inline fun <reified A : Annotation> Set<Annotation>.findAnnotations(): S
 
 @JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.propertiesWithAsStringAffectingAnnotations(): Map<KProperty<*>, Set<Annotation>> {
-    val theCache = propsWithAnnotationsCacheByClass
-    return theCache[this].ifNull {
-        // map each property to an (empty yet) mutable set of annotations
-        propertiesFromSubSuperHierarchy().associateWith { mutableSetOf<Annotation>() }
-            // populate the set of annotations per property
-            .onEach { (prop, annotations) -> collectPropertyAnnotations(prop, annotations) }
-            .filter { entry -> entry.value.none { it is AsStringOmit } }
-            // add to cache
-            .also { theCache[this] = it }
+    // referring to inner cache (so propsWithAnnotationsCacheByClass.cache)
+    // because of possible race conditions when resetting the cache
+    propsWithAnnotationsCacheByClass.cache.let { theCache ->
+        return theCache[this].ifNull {
+            // map each property to an (empty yet) mutable set of annotations
+            propertiesFromSubSuperHierarchy().associateWith { mutableSetOf<Annotation>() }
+                // populate the set of annotations per property
+                .onEach { (prop, annotations) -> collectPropertyAnnotations(prop, annotations) }
+                .filter { entry -> entry.value.none { it is AsStringOmit } }
+                // add to cache
+                .also { theCache[this] = it }
+        }
     }
 }
 
+/**
+ * Cache for classes with their properties, and their annotations that may modify the properties' String representation by [asString].
+ * > This cache will be reset (cleared) when [AsStringOption.defaultOption] is changed.
+ */
 @JvmSynthetic // avoid access from external Java code
 internal var propsWithAnnotationsCacheByClass = MapCache<KClass<*>, Map<KProperty<*>, Set<Annotation>>>()
-
-@Suppress("unused", "UNCHECKED_CAST") // property not actively used, but needed implicitly for callback
-private val propsWithAnnotationsCacheResetterCallback = { propsWithAnnotationsCacheByClass.reset() }
-    .also { callback ->
-        (AsStringOption::class as KClass<Annotation>).subscribeConfigChange(callback)
-        (AsStringClassOption::class as KClass<Annotation>).subscribeConfigChange(callback)
+    .also {
+        @Suppress("UNCHECKED_CAST")
+        (AsStringOption::class as KClass<Annotation>).subscribeConfigChange { it.reset() }
     }
 
 @JvmSynthetic // avoid access from external Java code
@@ -127,8 +130,8 @@ internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, 
     (prop.annotationSetOfPropertySuperSubHierarchy<AsStringReplace>()).let { annotationSet ->
         annotations.addAll(annotationSet)
     }
-    // AsStringOption from the lowest subclass in hierarchy with this annotation
-    val asStringOptionClassAnnotation =
+    // AsStringOption from the lowest subclass in hierarchy with this annotation; or defaultOption if not annotated
+    val asStringOptionClassAnnotation: AsStringOption =
         annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: AsStringOption.defaultOption
     (prop.annotationOfPropertySubSuperHierarchy() ?: asStringOptionClassAnnotation).let { annotation ->
         annotations.add(annotation)

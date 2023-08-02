@@ -31,9 +31,14 @@ internal interface Cache<K : Any, V : Any, C : Any> {
 internal abstract class AbstractCache<K : Any, V : Any, C : Any>(private val initialCapacity: Int? = null) :
     Cache<K, V, C> {
 
-    /** The caching memory structure; typically a [MutableMap] or [MutableSet] */
-    protected abstract val cache: C
+    /**
+     * The caching memory structure; typically a [MutableMap] or [MutableSet].
+     * > For *non-atomic* operations (e.g. check if present, then set) refer directly to the [cache]
+     * > rather than using convenience methods [get], [contains] etc. (to avoid bugs due to race-conditions)!
+     */
+    abstract val cache: C
 
+    /** When resetting (replacing) the cache, use this as the new initial capacity */
     @AsStringOmit
     protected val newCapacity: Int
         get() = maxOf(
@@ -44,11 +49,18 @@ internal abstract class AbstractCache<K : Any, V : Any, C : Any>(private val ini
 }
 
 @Suppress("unused") // has been in use, but not anymore. Maybe remove?
-internal open class SetCache<T : Any>(initialCapacity: Int? = null) :
+internal open class SetCache<T : Any>(initialCapacity: Int = defaultInitialCapacity) :
     AbstractCache<T, Boolean, MutableSet<T>>(initialCapacity) {
 
-    /** The thread safe [MutableSet] cache (a [ConcurrentHashMap.newKeySet])  */
-    override var cache: MutableSet<T> = ConcurrentHashMap.newKeySet(initialCapacity ?: defaultInitialCapacity)
+    /**
+     * The thread safe [MutableSet] cache (a [ConcurrentHashMap.newKeySet])
+     * > For *non-atomic* operations (e.g. check if present, then set) refer directly to the [cache]
+     * > rather than using convenience methods [SetCache.get], [SetCache.contains], [SetCache.add]
+     * > (to avoid bugs due to race-conditions)!
+     */
+    override var cache: ConcurrentHashMap.KeySetView<T, Boolean> =
+        ConcurrentHashMap.newKeySet(initialCapacity)
+        protected set
 
     /** @return 'true' if the [key] is present in the [cache]; `false` otherwise */
     override operator fun get(key: T): Boolean = cache.contains(key)
@@ -71,11 +83,17 @@ internal open class SetCache<T : Any>(initialCapacity: Int? = null) :
     }
 }
 
-internal open class MapCache<K : Any, V : Any>(initialCapacity: Int? = null) :
+internal open class MapCache<K : Any, V : Any>(initialCapacity: Int = defaultInitialCapacity) :
     AbstractCache<K, V, MutableMap<K, V>>(initialCapacity) {
 
-    /** The thread safe [MutableMap] cache (a [ConcurrentHashMap])  */
-    override var cache: MutableMap<K, V> = ConcurrentHashMap(initialCapacity ?: defaultInitialCapacity)
+    /**
+     * The thread safe [MutableMap] cache (a [ConcurrentHashMap]).
+     * > For *non-atomic* operations (e.g. check if present, then set) refer directly to the [cache]
+     * > rather than using convenience methods [MapCache.get], [MapCache.contains], [MapCache.set]
+     * > (to avoid bugs due to race-conditions)!
+     */
+    override var cache: ConcurrentHashMap<K, V> = ConcurrentHashMap(initialCapacity)
+        protected set
 
     /** @return The value corresponding to the given [key]; or `null` if such a key is not present in the [cache]. */
     override operator fun get(key: K): V? = cache[key]

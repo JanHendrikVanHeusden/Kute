@@ -73,16 +73,24 @@ internal fun Any.objectIdentity(asStringClassOption: AsStringClassOption): Strin
 @JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.getAsStringClassOption(): AsStringClassOption =
     this.let { kClass ->
-        val cache = asStringClassOptionCache
-        cache[kClass].ifNull {
-            (this.annotationOfSubSuperHierarchy() ?: AsStringClassOption.defaultOption)
-                .also { cache[kClass] = it }
+        // referring to inner cache (so asStringClassOptionCache.cache)
+        // because of possible race conditions when resetting the cache
+        asStringClassOptionCache.cache.let { theCache ->
+            theCache[kClass].ifNull {
+                (this.annotationOfSubSuperHierarchy() ?: AsStringClassOption.defaultOption)
+                    .also { theCache[kClass] = it }
+            }
         }
     }
 
+/**
+ * Cache for the [AsStringClassOption] setting that applies to the given class, either by class annotation
+ * or, if not annotated with [AsStringClassOption], by [AsStringClassOption.defaultOption].
+ * > This cache will be reset (cleared) when [AsStringClassOption.defaultOption] is changed.
+ */
 @JvmSynthetic // avoid access from external Java code
 internal var asStringClassOptionCache = MapCache<KClass<*>, AsStringClassOption>()
-
-@Suppress("unused", "UNCHECKED_CAST")
-private val asStringClassOptionCacheResetterCallback = { asStringClassOptionCache.reset() }
-    .also { callback -> (AsStringClassOption::class as KClass<Annotation>).subscribeConfigChange(callback) }
+    .also {
+        @Suppress("UNCHECKED_CAST")
+        (AsStringClassOption::class as KClass<Annotation>).subscribeConfigChange { it.reset() }
+    }

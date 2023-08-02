@@ -101,7 +101,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
         assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isTrue
         assertThat(asStringClassOptionCache.size)
             .`as`("Change of defaultAsStringClassOption should clear the cache")
-            .isEqualTo(0)
+            .isZero
         assertThat(myTestObj.asString()).isEqualTo("MyTestClass@$identityHash()")
         assertThat(asStringClassOptionCache.size).isEqualTo(1)
 
@@ -109,7 +109,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
         restoreInitialAsStringClassOption()
         assertThat(asStringClassOptionCache.size)
             .`as`("Change of defaultAsStringClassOption should clear the cache")
-            .isEqualTo(0)
+            .isZero
         assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         assertThat(myTestObj.asString()).isEqualTo("MyTestClass()")
         assertThat(asStringClassOptionCache.size).isEqualTo(1)
