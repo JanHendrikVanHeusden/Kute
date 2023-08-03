@@ -2,9 +2,9 @@ package nl.kute.core.annotation
 
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.mask
-import org.apache.commons.lang3.RandomUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
 
 class AsStringMaskTest {
 
@@ -84,11 +84,10 @@ class AsStringMaskTest {
             assertThat(this.takeLast(5).take(1)).isNotEqualTo("*")
             assertThat(this.takeLast(6).take(1)).isEqualTo("*")
             repeat(10) {
-                val index = RandomUtils.nextInt(3, longString.length - 6)
+                val index = Random.nextInt(3, longString.length - 6)
                 assertThat(this[index]).isEqualTo('*')
             }
         }
-
     }
 
     @Test
