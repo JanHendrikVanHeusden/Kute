@@ -156,6 +156,11 @@ tasks.withType<Test> {
     )
 }
 
+jacoco {
+    val jacocoVersion by System.getProperties()
+    toolVersion = "$jacocoVersion"
+}
+
 pitest {
     // pitest (and jacoco) output not quite satisfactory (maybe because it's Kotlin, not Java?)
     // On several classes pitest and jacoco report zero test coverage (0.0);
