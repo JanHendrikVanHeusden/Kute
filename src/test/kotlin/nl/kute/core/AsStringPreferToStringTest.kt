@@ -204,8 +204,8 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
         // assert
         assertThat(useToStringByClass.cache)
             .hasSize(1)
-            // false, it has default, so USE_ASSTRING
-            .contains(entry(TestClass::class, false))
+            // it has default, so USE_ASSTRING
+            .contains(entry(TestClass::class, USE_ASSTRING))
 
         // arrange
         @AsStringClassOption(toStringPreference = PREFER_TOSTRING)
@@ -216,10 +216,10 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
         assertThat(useToStringByClass.cache)
             .hasSize(2)
             .contains(
-                // false, it has default, so USE_ASSTRING
-                entry(TestClass::class, false),
-                // false, it has PREFER_TOSTRING, but no toString() method
-                entry(SubTestClass::class, false)
+                // it has default, so USE_ASSTRING
+                entry(TestClass::class, USE_ASSTRING),
+                // it has PREFER_TOSTRING annotation, but no toString() method
+                entry(SubTestClass::class, USE_ASSTRING)
             )
 
         // arrange
@@ -233,12 +233,12 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
         assertThat(useToStringByClass.cache)
             .hasSize(3)
             .contains(
-                // false, it has default, so USE_ASSTRING
-                entry(TestClass::class, false),
-                // false, it has PREFER_TOSTRING, but no toString() method
-                entry(SubTestClass::class, false),
-                // true, it inherits PREFER_TOSTRING, and has a toString() method
-                entry(SubSubTestClass::class, true)
+                // it has default, so USE_ASSTRING
+                entry(TestClass::class, USE_ASSTRING),
+                // it has PREFER_TOSTRING, but no toString() method
+                entry(SubTestClass::class, USE_ASSTRING),
+                // it inherits PREFER_TOSTRING, and has a toString() method
+                entry(SubSubTestClass::class, PREFER_TOSTRING)
             )
 
         // arrange
@@ -250,8 +250,8 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
         // assert
         assertThat(useToStringByClass.cache)
             .hasSize(4)
-            // false because not annotated, so using default: USE_ASSTRING
-            .contains(entry(testObjectWithToString::class, false))
+            // not annotated, so using default: USE_ASSTRING
+            .contains(entry(testObjectWithToString::class, USE_ASSTRING))
 
         // arrange
         setDefaultToStringPref(PREFER_TOSTRING)
@@ -261,9 +261,9 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
         // assert
         assertThat(useToStringByClass.cache)
             .hasSize(1)
-            // false, it has a toString() method, and default is PREFER_TOSTRING, but it's class's simpleName is null,
+            // it has a toString() method, and default is PREFER_TOSTRING, but it's class's simpleName is null,
             // this kind of classes is excluded because it may not be supported by Kotlin's reflection
-            .contains(entry(testObjectWithToString::class, false))
+            .contains(entry(testObjectWithToString::class, USE_ASSTRING))
 
         // arrange
         class TestClassWithToString: TestClass() {
@@ -278,10 +278,9 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
         assertThat(useToStringByClass.cache)
             .hasSize(2)
             .contains(
-                entry(testObjectWithToString::class, false),
+                entry(testObjectWithToString::class, USE_ASSTRING),
                 // class feasible for reflection, it has a toString(), and default is PREFER_TOSTRING,
-                // so finally a true!
-                entry(TestClassWithToString::class, true)
+                entry(TestClassWithToString::class, PREFER_TOSTRING)
             )
 
         // arrange
@@ -301,9 +300,9 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
         assertThat(useToStringByClass.cache)
             .hasSize(3)
             .contains(
-                // false, it calls asString(), so recursion will be detected,
-                // it will be set to false, so using asString() on subesequent calls
-                entry(TestClassWithAsString::class, false)
+                // it's toString() calls asString(), so recursion will be detected,
+                // so it will be set to USE_ASSTRING
+                entry(TestClassWithAsString::class, USE_ASSTRING)
             )
     }
 

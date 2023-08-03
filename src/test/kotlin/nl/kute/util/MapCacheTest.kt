@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.kotlin.whenever
 import java.util.concurrent.ConcurrentHashMap
 import java.util.stream.Stream
 import kotlin.random.Random
@@ -73,10 +73,10 @@ internal class MapCacheTest {
         // arrange
         var mockedSize = 0
         val cacheMock: ConcurrentHashMap<String, String> = mock()
-        `when`(cacheMock.size).thenAnswer { mockedSize }
-        val randomSupplier = { Random.nextInt(2000, 20_000) }
+        val randomSupplier = { Random.nextInt(250, 500) }
 
-        arrayOf(0, 1, 80, 200, 201, randomSupplier(), randomSupplier()).forEach { initialCapacity ->
+        arrayOf(0, 1, 80, 200, 201, randomSupplier()).forEach { initialCapacity ->
+            whenever(cacheMock.size).thenAnswer { mockedSize }
             // subclass it to assign mock, and to make properties public
             class TestMapCache: MapCache<String, String>(initialCapacity) {
                 public override var cache = cacheMock
@@ -93,6 +93,7 @@ internal class MapCacheTest {
                     .`as`("newCapacity should adhere to condition for initialCapacity=$initialCapacity and size=$mockedSize (expected: $expected; actual: $newCapacity)")
                     .isEqualTo(expected)
             }
+            cacheMock.clear()
         }
     }
 

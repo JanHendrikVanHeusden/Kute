@@ -10,7 +10,9 @@ import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
+import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.property.getPropValueString
@@ -23,7 +25,6 @@ import nl.kute.util.MapCache
 import nl.kute.util.asHexString
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
-import nl.kute.util.ifNull
 import nl.kute.util.lineEnd
 import nl.kute.util.throwableAsString
 import kotlin.math.max
@@ -113,7 +114,8 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                 // Check recursion: are we were already busy processing this object?
                 val isRecursiveCall = !objectsStackGuard.get().addIfNotPresent(obj)
                 if (isRecursiveCall) {
-                    useToStringByClass[objClass] = false
+                    // if recursive (and maybe PREFER_TOSTRING), reset it to USE_ASSTRING
+                    useToStringByClass[objClass] = USE_ASSTRING
                     // avoid endless loop
                     return "$recursivePrefix${objClass.simplifyClassName()}$recursivePostfix"
                 }
@@ -124,21 +126,10 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                 }
 
                 val hasAdditionalParameters = propertyNamesToExclude.isNotEmpty() || nameValues.isNotEmpty()
-                // use toString() ?
                 if (!hasAdditionalParameters) {
-                    // referring to inner cache (so useToStringByClass.cache)
-                    // because of possible race conditions when resetting the cache
-                    val theCache = useToStringByClass.cache
-                    theCache[objClass].let { shouldUseToString ->
-                        val firstTime = (shouldUseToString == null)
-                        val useToString = shouldUseToString.ifNull {
-                            objClass.hasToStringPreference()
-                                // remember for next times
-                                .also { theCache[objClass] = it }
-                        }
-                        if (useToString) {
-                            obj.tryToString(firstTime)?.let { return it }
-                        }
+                    val (toStringPref, firstTime) = objClass.toStringHandling()
+                    if (toStringPref == PREFER_TOSTRING) {
+                        obj.tryToString(firstTime)?.let { return it }
                     }
                 }
 
@@ -206,15 +197,35 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
 
 // region ~ toString preference
 
-/** @return Is this class feasible for reflection, and if so, does it have toString() implemented? */
+/** @return Is this class feasible for reflection, and if so, does it have [toString] implemented? */
 private fun KClass<*>.feasibleForToString() =
     // simpleName is null for a bunch of classes not supported by kotlin's reflection
-    // These never have toString() overridden
+    // (many of these do not override toString anyway)
     !this.java.isSynthetic && this.simpleName != null && this.hasImplementedToString()
 
-/** @return Does this class prefer toString() over asString()? (so, does PREFER_TOSTRING apply)? */
-private fun KClass<*>.hasToStringPreference() =
-    this.feasibleForToString() && this.toStringPreference() == PREFER_TOSTRING
+/**
+ * Is this class feasible for using [toString] from [asString], and if so, does it prefer [toString]?
+ * @return
+ *  * If feasible for [toString], the class's [ToStringPreference]
+ *  * Or [USE_ASSTRING] if not feasible for [toString]
+ */
+private fun KClass<*>.toStringFeasibility() =
+    if (!this.feasibleForToString()) USE_ASSTRING else this.toStringPreference()
+
+/**
+ * Determines the [ToStringPreference] and whether it is the first time we handle this class.
+ * > Also adds the found [ToStringPreference] to the cache, if absent
+ */
+private fun KClass<*>.toStringHandling(): Pair<ToStringPreference, Boolean> {
+    // referring to inner cache (so useToStringByClass.cache)
+    // because of possible race conditions when resetting the cache
+    val theCache = useToStringByClass.cache
+    theCache[this].let { cachedPref ->
+        val firstTime = cachedPref == null
+        return if (firstTime) Pair(toStringFeasibility(), firstTime).also { theCache[this] = it.first }
+        else Pair(cachedPref!!, firstTime)
+    }
+}
 
 /**
  * @return
@@ -230,9 +241,9 @@ private fun <T : Any> T.tryToString(firstTime: Boolean): String? {
     // We want to return something more meaningful; so call asString() instead in case of recursion.
     this.toString().let { toStringResult ->
         // If we are here, value from `useToStringByClass` should normally be true.
-        // It may have been set to false though, due to recursion. So check again, to avoid endless loops
+        // It may have been set to USE_ASSTRING though, due to recursion. So check again, to avoid endless loops
         val useToString = useToStringByClass[this::class]!!
-        return if (useToString) {
+        return if (useToString == PREFER_TOSTRING) {
             toStringResult
         } else {
             // Probably recursion detected - this will not end successfully when happening inside toString()
@@ -250,7 +261,7 @@ private fun <T : Any> T.tryToString(firstTime: Boolean): String? {
  * > This registry will be reset (cleared) when [AsStringClassOption.defaultOption] is changed.
  */
 @JvmSynthetic // avoid access from external Java code
-internal val useToStringByClass = MapCache<KClass<*>, Boolean>()
+internal val useToStringByClass = MapCache<KClass<*>, ToStringPreference>()
     .also {
         @Suppress("UNCHECKED_CAST")
         (AsStringClassOption::class as KClass<Annotation>).subscribeConfigChange { it.reset() }
