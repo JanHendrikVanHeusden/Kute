@@ -13,6 +13,13 @@ internal const val defaultInitialCapacity: Int = 200
 @AsStringClassOption(toStringPreference = USE_ASSTRING)
 internal interface Cache<K : Any, V : Any, C : Any> {
 
+    /**
+     * The caching memory structure; typically a [MutableMap] or [MutableSet].
+     * > For *non-atomic* operations (e.g. check if present, then set) refer directly to the [cache]
+     * > rather than using convenience methods [get], [contains] etc. (to avoid bugs due to race-conditions)!
+     */
+    val cache: C
+
     /** The size of the cache */
     val size: Int
 
@@ -31,13 +38,6 @@ internal abstract class AbstractCache<K : Any, V : Any, C : Any>(private val ini
     Cache<K, V, C> {
 
     /**
-     * The caching memory structure; typically a [MutableMap] or [MutableSet].
-     * > For *non-atomic* operations (e.g. check if present, then set) refer directly to the [cache]
-     * > rather than using convenience methods [get], [contains] etc. (to avoid bugs due to race-conditions)!
-     */
-    abstract val cache: C
-
-    /**
      * When resetting (replacing) the cache, use this as the new initial capacity,
      * taking into account the actual [size] of the current [cache]
      */
@@ -47,7 +47,6 @@ internal abstract class AbstractCache<K : Any, V : Any, C : Any>(private val ini
     override fun toString(): String = asString()
 }
 
-@Suppress("unused") // has been in use, but not anymore. Maybe remove?
 internal open class SetCache<T : Any>(initialCapacity: Int = defaultInitialCapacity) :
     AbstractCache<T, Boolean, MutableSet<T>>(initialCapacity) {
 

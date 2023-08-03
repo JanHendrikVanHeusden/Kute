@@ -36,7 +36,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *  * If `true` (default), the [pattern] will be considered a [Regex] pattern
  *  * If `false`, the [pattern] and [replacement] will be treated as a literals.
  */
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @Repeatable
 @Retention(RUNTIME)
 @Inherited

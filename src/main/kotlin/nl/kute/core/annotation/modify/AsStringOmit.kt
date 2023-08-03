@@ -13,7 +13,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *   in the subclass hierarchy; regardless whether or not the property is overridden, and whether or not
  *   it has its own [AsStringOmit] annotation.
  */
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @Retention(RUNTIME)
 @Inherited
 @MustBeDocumented

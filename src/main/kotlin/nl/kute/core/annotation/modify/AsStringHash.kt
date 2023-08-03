@@ -21,7 +21,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *      [DigestMethod.CRC32C]
  * @param digestMethod The digest algorithm to use; see [DigestMethod]
  */
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @Retention(RUNTIME)
 @Inherited
 @MustBeDocumented

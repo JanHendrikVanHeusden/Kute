@@ -49,7 +49,7 @@ class AsStringObjectCategoryFunctionsTest {
 
     @Test
     fun `objectIdentity should honour AsStringClassOption`() {
-        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse()
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         @AsStringClassOption(includeIdentityHash = true)
         class WithAnnotation
         var testObj: Any = WithAnnotation()
@@ -67,7 +67,7 @@ class AsStringObjectCategoryFunctionsTest {
 
     @Test
     fun `collectionIdentity should honour default AsStringClassOption`() {
-        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse()
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         val collections = listOf(arrayOf(12.0), listOf<Any>(), mapOf(1 to "one", 2 to "two"), Stack<String>())
         collections.forEach {
             restoreInitialAsStringClassOption()
@@ -90,7 +90,7 @@ class AsStringObjectCategoryFunctionsTest {
 
     @Test
     fun `collectionAsString should honour default AsStringClassOption`() {
-        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse()
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         val collection: Collection<String> = Stack<String>().also { it.addAll(listOf("one", "two")) }
         val className = collection::class.simpleName
         val idHash = collection.identityHashHex
@@ -105,7 +105,7 @@ class AsStringObjectCategoryFunctionsTest {
 
     @Test
     fun `arrayAsString should honour default AsStringClassOption`() {
-        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse()
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         val array: Array<String> = arrayOf("one", "two")
         val className = array::class.simpleName
         val idHash = array.identityHashHex
@@ -120,7 +120,7 @@ class AsStringObjectCategoryFunctionsTest {
 
     @Test
     fun `mapAsString should honour default AsStringClassOption`() {
-        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse()
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         val map = mapOf(1 to "one", 2 to "two")
         val className = map::class.simpleName
         val idHash = map.identityHashHex
@@ -135,7 +135,7 @@ class AsStringObjectCategoryFunctionsTest {
 
     @Test
     fun `systemClassIdentity should honour default AsStringClassOption`() {
-        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse()
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         // arbitrary list of some Java and Kotlin built-in stuff
         val systemStuff = listOf(System.out, UUID.randomUUID(), '0', arrayListOf('1'), StringBuffer("x"))
         systemStuff.forEach {
@@ -158,7 +158,7 @@ class AsStringObjectCategoryFunctionsTest {
 
     @Test
     fun `systemClassObjAsString should honour default AsStringClassOption`() {
-        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse()
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
         // arbitrary list of some Java and Kotlin built-in stuff
         val systemStuff = listOf(System.out, UUID.randomUUID(), arrayListOf('1'), StringBuffer("x"))
         systemStuff.forEach {
@@ -199,7 +199,7 @@ class AsStringObjectCategoryFunctionsTest {
 
     @Test
     fun `syntheticClassObjectAsString should return the lambda type and honour default AsStringClassOption`() {
-        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse()
+        assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
 
         val stringSupplier = { "this is the lambda return value" }
         val intFunction: (Int, Int) -> Int = { i, j -> i + j }

@@ -1,3 +1,5 @@
+@file:JvmName("TestHelper")
+
 package nl.kute.test.helper
 
 import org.assertj.core.api.AbstractStringAssert
@@ -44,7 +46,7 @@ fun AbstractStringAssert<*>.containsExhaustiveInAnyOrder(
         withSuffix = withSuffix)
     )
 
-private fun containsExhaustiveInAnyOrderCondition(
+fun containsExhaustiveInAnyOrderCondition(
     vararg strings: String,
     ignoreChars: String = "",
     withPrefix: String = "",

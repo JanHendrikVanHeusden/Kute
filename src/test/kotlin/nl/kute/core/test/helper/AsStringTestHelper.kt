@@ -1,3 +1,5 @@
+@file:JvmName("AsStringTestHelper")
+
 package nl.kute.core.test.helper
 
 import nl.kute.test.helper.containsExactCharCount

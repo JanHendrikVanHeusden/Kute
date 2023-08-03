@@ -1,3 +1,5 @@
+@file:JvmName("Hashing")
+
 package nl.kute.hashing
 
 import nl.kute.hashing.DigestMethod.CRC32C

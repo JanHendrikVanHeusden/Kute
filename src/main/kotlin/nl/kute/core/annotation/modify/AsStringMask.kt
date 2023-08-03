@@ -18,7 +18,7 @@ import kotlin.math.min
  * * If the position of [startMaskAt] is after that of [endMaskAt], the full [String] will be masked.
  * * If [minLength]` >  `[maxLength], [minLength] is used
  */
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @Repeatable
 @Retention(RUNTIME)
 @Inherited

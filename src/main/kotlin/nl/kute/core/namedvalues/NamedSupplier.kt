@@ -4,6 +4,7 @@ import nl.kute.core.weakreference.ObjectWeakReference
 import nl.kute.log.log
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.throwableAsString
+import java.util.concurrent.Callable
 
 private typealias Supplier<T> = () -> T?
 
@@ -35,7 +36,17 @@ private typealias Supplier<T> = () -> T?
  * @param supplier The lambda to supply the [value] on request
  */
 public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): NameValue<V?> {
+
+    /**
+     * Secondary constructor, mainly for usage from Java.
+     * > In Java, `() -> myValue` is translated to a [Callable] when introduced as a local variable
+     * @param name The name to identify this [NamedSupplier]'s value
+     * @param callable The [Callable] to supply the [value] on request
+     */
+    public constructor(name: String, callable: Callable<V?>) : this(name, {callable.call()})
+
     private val supplierReference: ObjectWeakReference<Supplier<V>> = ObjectWeakReference(supplier)
+
     override val value: V?
         // Using `get()` so it's evaluated when required only, not at construction time of the NamedSupplier
         // NB: not using `lazy`, it should honour changes in the underlying object

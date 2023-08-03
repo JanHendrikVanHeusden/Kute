@@ -71,7 +71,7 @@ public var logger: (String?) -> Unit = stdOutLogger
  * > Typical usage for Java with an SLF4J compatible logger would be:
  * ```
  * Logger myLogger = Logger.getLogger("nl.kute")
- * Consumer<String> kuteErrorlogger = msg -> myLogger.error(msg);
+ * Consumer<String> kuteErrorLogger = msg -> myLogger.error(msg);
  * nl.kute.log.setLogConsumer(kuteErrorLogger);
  * ```
  */

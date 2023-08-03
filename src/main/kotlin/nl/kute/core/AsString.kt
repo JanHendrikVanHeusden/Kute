@@ -51,7 +51,6 @@ public abstract class AsStringProducer {
     public abstract fun asString(): String
 
     abstract override fun toString(): String
-
 }
 
 // endregion
@@ -323,7 +322,6 @@ private class ObjectsStackGuard {
         // Make sure not to include the obj itself in the toString(), that may cause stack overflow!!
         override fun toString(): String = "recursive depth: $count (identity: ${obj.identityHashHex} class: ${obj::class.simplifyClassName()})"
 
-        @Suppress("unused")
         fun asString(): String = this.toString()
     }
 

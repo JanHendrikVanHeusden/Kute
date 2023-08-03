@@ -4,11 +4,13 @@ package nl.kute.hashing
  * Hash algorithms; typical usage within Kute is to avoid exposing sensitive or personally identifiable data
  * in logging etc.
  * * **Note that hashing data like this is *NOT* meant to be a security mechanism.**
- *     It is just a way to avoid that plain text data is exposed in logging etc.,
+ *     It is merely a way to avoid that plain text data is exposed in logging etc.,
  *     and should only be used like that.
  *     > Securing data would require much more hardening than this library is intended for.
  * * Given that, the hashing algorithms of this enum are selected for practicality: compact output (at most 40)
  *   and performance; not in the first place for security.
+ * @param instanceProvider A lambda to supply the message digester
+ * (e.g., an instance of [java.security.MessageDigest] or of [java.util.zip.CRC32C])
  */
 public enum class DigestMethod(public val instanceProvider: (() -> Any)? = null) {
     /**

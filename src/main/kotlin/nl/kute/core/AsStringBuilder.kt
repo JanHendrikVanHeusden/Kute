@@ -26,6 +26,7 @@ import kotlin.reflect.KProperty
  *   This avoids the cost of building it over and over (like when it is part of a log-statement or of a
  *   `toString()` method).
  * * An [AsStringBuilder] does not prevent garbage collection of the object it applies to (it uses weak reference).
+ * @param [obj] The object to create the [AsStringBuilder] for (and to ultimately produce the [obj].[asString]`()` for)
  */
 public class AsStringBuilder private constructor(private var obj: Any?) : AsStringProducer() {
 
@@ -92,7 +93,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
     /**
      * Restricts the output to only the object's properties listed in [props].
      * > *NB:* [NameValue]s added by [withAlsoNamed] and [withAlsoProperties] are not filtered out.
-     * @param props The restrictive list of properties to be included in the output of [toString].
+     * @param props The restrictive list of properties to be included in the output of [asString].
      */
     public fun withOnlyProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
@@ -101,7 +102,12 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         }
         return this
     }
-    //TODO: kdoc
+
+    /**
+     * Restricts the output to only the object's property names listed in [names].
+     * > *NB:* [NameValue]s added by [withAlsoNamed] and [withAlsoProperties] are not filtered out.
+     * @param names The restrictive list of property names to be included in the output of [asString].
+     */
     public fun withOnlyPropertyNames(vararg names: String): AsStringBuilder {
         if (!isBuilt) {
             this.onlyPropertyNames.addAll(names)
@@ -109,14 +115,24 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         }
         return this
     }
-    //TODO: kdoc
+
+    /**
+     * Restricts the output by excluding the object's properties listed in [props].
+     * > *NB:* [NameValue]s added by [withAlsoNamed] and [withAlsoProperties] are not excluded.
+     * @param props The list of properties to be excluded in the output of [asString].
+     */
     public fun exceptProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
             this.exceptProperties.addAll(props)
         }
         return this
     }
-    //TODO: kdoc
+
+    /**
+     * Restricts the output by excluding the object's property names listed in [names].
+     * > *NB:* [NameValue]s added by [withAlsoNamed] and [withAlsoProperties] are not excluded.
+     * @param names The list of property names to be excluded in the output of [asString].
+     */
     public fun exceptPropertyNames(vararg names: String): AsStringBuilder {
         if (!isBuilt) {
             this.exceptPropertyNames.addAll(names)
@@ -124,24 +140,31 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         return this
     }
 
-    //TODO: kdoc
-    public fun build(): AsStringProducer {
-        if (isBuilt) {
-            return this
-        }
+    private fun buildIt(): AsStringProducer {
         val propNamesToInclude: Set<String> =
             (if (isOnlyPropertiesSet) (onlyProperties.map { it.name }) else classPropertyNames)
                 .filter { !isOnlyPropertyNamesSet || onlyPropertyNames.contains(it) }
-                .filterNot { exceptProperties.map { it.name }.contains(it) }
+                .filterNot { exceptProperties.map { prop -> prop.name }.contains(it) }
                 .filterNot { exceptPropertyNames.contains(it) }
                 .toSet()
         propertyNamesToExclude.addAll(classPropertyNames - propNamesToInclude)
         isBuilt = true
-        // Nullify to make it eligible for garbage collection
-        // NB: It must not be nullified before build() is called, that might cause unexpected behaviour
-        //     (could be garbage collected before or during the lazy initialization of collections)
+        // Nullify obj to make it eligible for garbage collection
+        // NB: It must not be nullified prematurely (i.e., before being built), that might cause unexpected
+        //     behaviour (could be garbage collected before or during the lazy initialization of collections)
         obj = null
         return this
+    }
+
+    /**
+     * Build this [AsStringBuilder].
+     * When built:
+     *  * the internal state of the [AsStringBuilder] is initialized
+     *  * the [AsStringBuilder] is effectively immutable
+     *  * the [obj] will be eligible for garbage collection
+     */
+    public fun build(): AsStringProducer {
+        return if (isBuilt) this else buildIt()
     }
 
     override fun asString(): String {
@@ -157,7 +180,10 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
     /** Static method [asStringBuilder] to create an [AsStringBuilder] object */
     public companion object {
         @JvmStatic
-        //TODO: kdoc
+        /**
+         * Static method to construct an [AsStringBuilder] for the receiver object
+         * @receiver The object to construct the [AsStringBuilder] for
+         */
         public fun Any?.asStringBuilder(): AsStringBuilder = AsStringBuilder(this)
     }
 
