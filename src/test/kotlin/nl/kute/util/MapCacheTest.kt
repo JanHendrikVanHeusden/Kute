@@ -86,9 +86,8 @@ internal class MapCacheTest {
 
             arrayOf(0, 5, 150, 200, 201, randomSupplier(), randomSupplier()).forEach {
                 mockedSize = it * 10
-                val sizeRelatedCapacity = minOf((mockedSize * 1.5).toInt(), mockedSize + defaultInitialCapacity)
                 val newCapacity = mapCache.newCapacity()
-                val expected = maxOf(defaultInitialCapacity, initialCapacity, sizeRelatedCapacity)
+                val expected = maxOf(initialCapacity, mockedSize + defaultInitialCapacity)
                 assertThat(newCapacity)
                     .`as`("newCapacity should adhere to condition for initialCapacity=$initialCapacity and size=$mockedSize (expected: $expected; actual: $newCapacity)")
                     .isEqualTo(expected)

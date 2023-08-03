@@ -4,7 +4,6 @@ import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.asString
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.roundToInt
 
 /** Initial capacity for caches */
 @JvmSynthetic // avoid access from external Java code
@@ -38,11 +37,12 @@ internal abstract class AbstractCache<K : Any, V : Any, C : Any>(private val ini
      */
     abstract val cache: C
 
-    /** When resetting (replacing) the cache, use this as the new initial capacity */
+    /**
+     * When resetting (replacing) the cache, use this as the new initial capacity,
+     * taking into account the actual [size] of the current [cache]
+     */
     protected open fun newCapacity(): Int =
-        maxOf(
-            initialCapacity, defaultInitialCapacity, minOf((size * 1.5).roundToInt(), size + defaultInitialCapacity)
-        )
+        maxOf(initialCapacity, size + defaultInitialCapacity)
 
     override fun toString(): String = asString()
 }
