@@ -2,6 +2,7 @@ package nl.kute.core
 
 import nl.kute.config.stringJoinMaxCount
 import nl.kute.core.annotation.option.AsStringClassOption
+import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.property.lambdaSignatureString
@@ -12,7 +13,6 @@ import nl.kute.util.identityHashHex
 import nl.kute.util.ifNull
 import nl.kute.util.throwableAsString
 import java.time.temporal.Temporal
-import java.util.Calendar
 import java.util.Date
 import kotlin.reflect.KClass
 
@@ -23,6 +23,7 @@ import kotlin.reflect.KClass
  *  * When a [handler] is provided, it should be invoked by the caller
  *  * When no [handler] is provided, the caller itself should provide the implementation
  */
+@AsStringClassOption(toStringPreference = ToStringPreference.PREFER_TOSTRING)
 internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler: ((Any) -> String)? = null) {
     /**
      * Base stuff like [Boolean], [Number], [String], [Date], [Temporal], [Char], these have
@@ -87,14 +88,14 @@ internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler:
 @JvmSynthetic // avoid access from external Java code
 internal val objectCategoryCache = MapCache<KClass<*>, AsStringObjectCategory>()
 
-private fun Any.isBaseType() =
+// todo: kdoc
+public fun Any.isBaseType(): Boolean =
     this is Boolean
             || this is Number
             || this is CharSequence
             || this is Char
             || this is Temporal
             || this is Date
-            || this is Calendar
             || this is UByte
             || this is UShort
             || this is UInt

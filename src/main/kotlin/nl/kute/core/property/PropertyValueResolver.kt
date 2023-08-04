@@ -33,45 +33,53 @@ import kotlin.reflect.jvm.javaType
  *  @[AsStringReplace], @[AsStringMask], @[AsStringHash]
  */
 @JvmSynthetic // avoid access from external Java code
-internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): String? {
-    if (this == null) {
-        return null
-    }
-    val value: Any? = this.getPropValue(prop)
+internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): Pair<String?, PropertyValueInfo?> {
+    var value: Any? = null
+    val stringVal = let {
+        if (this == null) {
+            return@let null
+        }
+        value = this.getPropValue(prop)
 
-    val hasHandler: Boolean = value?.let { AsStringObjectCategory.resolveObjectCategory(value) }?.hasHandler() == true
-    var strValue: String? = if (hasHandler)
-        value.asString()
-    else if (value == null) {
-        null
-    }
-    else if (value::class.hasImplementedToString()) {
-        value.toString()
-    } else {
-        value.asString()
-    }
-    if (prop.isLambdaProperty(strValue)) {
-        strValue = strValue!!.lambdaSignatureString()
-    }
-    if (annotations.any { it is AsStringOmit }) {
-        return ""
-    }
-    val asStringReplaceSet: Set<AsStringReplace> = annotations.findAnnotations()
-    val asStringMaskSet: Set<AsStringMask> = annotations.findAnnotations()
-    // non-repeating
-    val asStringHash: AsStringHash? = annotations.findAnnotation()
-    // non-repeating
-    val asStringOption: AsStringOption = annotations.findAnnotation()!! // always present
+        val hasHandler: Boolean =
+            value?.let { AsStringObjectCategory.resolveObjectCategory(value!!) }?.hasHandler() == true
+        var strValue: String? = if (hasHandler)
+            value.asString()
+        else if (value == null) {
+            null
+        } else if (value!!::class.hasImplementedToString()) {
+            value.toString()
+        } else {
+            value.asString()
+        }
+        if (prop.isLambdaProperty(strValue)) {
+            strValue = strValue!!.lambdaSignatureString()
+        }
+        if (annotations.any { it is AsStringOmit }) {
+            return@let ""
+        }
+        val asStringReplaceSet: Set<AsStringReplace> = annotations.findAnnotations()
+        val asStringMaskSet: Set<AsStringMask> = annotations.findAnnotations()
+        // non-repeating
+        val asStringHash: AsStringHash? = annotations.findAnnotation()
+        // non-repeating
+        val asStringOption: AsStringOption = annotations.findAnnotation()!! // always present
 
-    asStringReplaceSet.forEach {
-        strValue = it.replacePattern(strValue)
+        asStringReplaceSet.forEach {
+            strValue = it.replacePattern(strValue)
+        }
+        asStringMaskSet.forEach {
+            strValue = it.mask(strValue)
+        }
+        strValue = asStringHash.hashString(strValue)
+        strValue = asStringOption.applyOption(strValue)
+        return@let strValue
     }
-    asStringMaskSet.forEach {
-        strValue = it.mask(strValue)
-    }
-    strValue = asStringHash.hashString(strValue)
-    strValue = asStringOption.applyOption(strValue)
-    return strValue
+    val objClass = if (this == null) null else this@getPropValueString::class
+    // TODO: only if required (sorting enabled)
+    // TODO: caching?
+    val propertyValueInfo = PropertyValueInfo(objClass, prop, value, stringVal?.length)
+    return (stringVal to propertyValueInfo)
 }
 
 internal fun KProperty<*>.isLambdaProperty(stringValue: String?): Boolean {

@@ -139,16 +139,6 @@ internal class AsStringObjectCategoryTest {
     }
 
     @Test
-    fun `AsStringObjectCategory should handle Calendar as BASE`() {
-        listOf<Calendar>(
-            Calendar.getInstance(),
-            GregorianCalendar()
-        ).forEach {
-            it.assertBaseObject()
-        }
-    }
-
-    @Test
     fun `AsStringObjectCategory should handle array as ARRAY`() {
         listOf<Array<*>>(
             arrayOf(12, 15, 28),
@@ -272,6 +262,8 @@ internal class AsStringObjectCategoryTest {
             UUID.randomUUID(),
             RoundingMode.CEILING,
             Locale.getDefault(),
+            Calendar.getInstance(),
+            GregorianCalendar()
         ).forEach {
             it.assertSystemObject()
         }

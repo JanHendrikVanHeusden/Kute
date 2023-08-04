@@ -154,7 +154,7 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                         ) { entry ->
                             val prop = entry.key
                             val annotationSet = entry.value
-                            "${prop.name}=${getPropValueString(prop, annotationSet)}"
+                            "${prop.name}=${getPropValueString(prop, annotationSet).first}"
                         } + named.joinToString(
                             prefix = nameValueSeparator,
                             separator = valueSeparator,

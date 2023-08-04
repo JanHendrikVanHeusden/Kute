@@ -98,7 +98,7 @@ public final class NamedProp<T : Any?, V : Any?>(obj: T?, public override val pr
         // Using `get` so it's evaluated when required only, not at construction time of the NamedProp
         // NB: don't use `lazy`, it should honour changes in the underlying object
         get() = if (!propertyCoherentWithObject) null
-        else objectReference.get()?.getPropValueString(property, asStringAffectingAnnotations)
+        else objectReference.get()?.getPropValueString(property, asStringAffectingAnnotations)?.first
 
     private fun isPropertyCoherent(propertyClass: Class<out Any>?, objClassJava: Class<out T & Any>?): Boolean {
         val isCoherent = ((propertyClass == null || objClass == null
