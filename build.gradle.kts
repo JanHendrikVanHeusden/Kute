@@ -70,6 +70,7 @@ plugins {
     val dependencyCheckVersion: String by System.getProperties()
     val dokkaVersion: String by System.getProperties()
     val pitestPluginVersion: String by System.getProperties()
+    val koverVersion: String by System.getProperties()
 
     kotlin("jvm") version kotlinVersion
 
@@ -80,9 +81,8 @@ plugins {
     id("org.owasp.dependencycheck") version owaspDependencyCheckVersion
     id("com.github.ben-manes.versions") version dependencyCheckVersion
 
-    id("jacoco")
     id("info.solidsoft.pitest") version pitestPluginVersion
-
+    id("org.jetbrains.kotlinx.kover") version koverVersion
     id("org.jetbrains.dokka") version dokkaVersion
 }
 
@@ -156,15 +156,10 @@ tasks.withType<Test> {
     )
 }
 
-jacoco {
-    val jacocoVersion by System.getProperties()
-    toolVersion = "$jacocoVersion"
-}
-
 pitest {
-    // pitest (and jacoco) output not quite satisfactory (maybe because it's Kotlin, not Java?)
-    // On several classes pitest and jacoco report zero test coverage (0.0);
-    // while IntelliJ shows 100% for that class
+    // pitest output is not quite satisfactory (probably because it's Kotlin, not Java)
+    // On several classes pitest report zero test coverage (0.0);
+    // while IntelliJ and kover show 100% for that class
 
     val pitestJUnit5PluginVersion: String by System.getProperties()
 
