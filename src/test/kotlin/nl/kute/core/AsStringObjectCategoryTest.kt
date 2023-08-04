@@ -18,6 +18,7 @@ import nl.kute.util.throwableAsString
 import org.apache.commons.lang3.math.Fraction
 import org.apache.commons.lang3.mutable.MutableByte
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.math.BigDecimal
@@ -276,13 +277,6 @@ internal class AsStringObjectCategoryTest {
         }
     }
 
-    private open class MyClass
-    private class MySubClass: MyClass()
-    @Suppress("unused")
-    private val myClassObject = object : MyClass() {
-        fun someExtraFun() = 1
-    }
-
     @Suppress("unused")
     @Test
     fun `AsStringObjectCategory should handle custom classes as CUSTOM`() {
@@ -303,6 +297,41 @@ internal class AsStringObjectCategoryTest {
             it.assertCustomObject()
         }
     }
+
+    @Test
+    fun `AsStringObjectCategory should be cached`() {
+        // arrange
+        objectCategoryCache.reset()
+        assertThat(objectCategoryCache.cache).hasSize(0)
+
+        // act
+        AsStringObjectCategory.resolveObjectCategory(MyClass())
+        MyClass().asString()
+        // assert
+        assertThat(objectCategoryCache.cache)
+            .containsExactly(entry(MyClass::class, AsStringObjectCategory.CUSTOM))
+
+        // act
+        2.asString()
+        // assert
+        assertThat(objectCategoryCache.cache)
+            .hasSize(2)
+            .contains(
+                entry(MyClass::class, AsStringObjectCategory.CUSTOM),
+                entry(Int::class, AsStringObjectCategory.BASE)
+            )
+    }
+
+// region ~ Test classes etc.
+
+    private open class MyClass
+    private class MySubClass: MyClass()
+    @Suppress("unused")
+    private val myClassObject = object : MyClass() {
+        fun someExtraFun() = 1
+    }
+
+// endregion
 
 // region ~ Test helper methods
 

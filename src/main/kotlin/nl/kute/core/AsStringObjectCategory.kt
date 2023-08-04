@@ -7,7 +7,9 @@ import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.property.lambdaSignatureString
 import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.simplifyClassName
+import nl.kute.util.MapCache
 import nl.kute.util.identityHashHex
+import nl.kute.util.ifNull
 import nl.kute.util.throwableAsString
 import java.time.temporal.Temporal
 import java.util.Calendar
@@ -64,21 +66,26 @@ internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler:
     companion object CategoryResolver {
         @JvmSynthetic // avoid access from external Java code
         internal fun resolveObjectCategory(obj: Any): AsStringObjectCategory {
-            return when {
-                obj.isBaseType() -> BASE
-                obj is Array<*> -> ARRAY
-                obj is Collection<*> -> COLLECTION
-                obj.isPrimitiveArray() -> PRIMITIVE_ARRAY
-                obj is Map<*, *> -> MAP
-                obj is Annotation -> ANNOTATION
-                obj is Throwable -> THROWABLE
-                obj.isLambdaProperty() -> LAMBDA_PROPERTY
-                obj::class.isSystemClass() -> SYSTEM
-                else -> CUSTOM
+            return objectCategoryCache[obj::class].ifNull {
+                when {
+                    obj.isBaseType() -> BASE
+                    obj is Array<*> -> ARRAY
+                    obj is Collection<*> -> COLLECTION
+                    obj.isPrimitiveArray() -> PRIMITIVE_ARRAY
+                    obj is Map<*, *> -> MAP
+                    obj is Annotation -> ANNOTATION
+                    obj is Throwable -> THROWABLE
+                    obj.isLambdaProperty() -> LAMBDA_PROPERTY
+                    obj::class.isSystemClass() -> SYSTEM
+                    else -> CUSTOM
+                }.also { objectCategoryCache[obj::class] = it }
             }
         }
     }
 }
+
+@JvmSynthetic // avoid access from external Java code
+internal val objectCategoryCache = MapCache<KClass<*>, AsStringObjectCategory>()
 
 private fun Any.isBaseType() =
     this is Boolean
