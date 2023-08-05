@@ -92,7 +92,7 @@ class AsStringTest: ObjectsStackVerifier {
                 "ClassToPrint",
                 "greet=hallo",
                 "num=10",
-                "privateToPrint=$aPrintableDate",
+                "privateToPrint=AsStringTest\$aPrintableDate$1()",
                 "str=test",
                 "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
             )
@@ -105,7 +105,7 @@ class AsStringTest: ObjectsStackVerifier {
             .isObjectAsString(
                 "ClassToPrint",
                 "greet=hallo",
-                "privateToPrint=$aPrintableDate",
+                "privateToPrint=AsStringTest\$aPrintableDate$1()",
                 "str=test",
                 "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
             )
@@ -133,7 +133,7 @@ class AsStringTest: ObjectsStackVerifier {
                 "ClassToPrint",
                 "greet=hallo",
                 "num=20",
-                "privateToPrint=2022-01-27",
+                "privateToPrint=AsStringTest\$aPrintableDate$1()",
                 "str=test",
                 "uuidToPrint=c27ab2db-3f72-4603-9e46-57892049b027",
             )
@@ -142,7 +142,7 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `test that asString with Mockito mock does not break`() {
-        val testMock: ClassToPrint = mock(arrayOf(Printable::class)) {
+        val testMock: ClassToPrint = mock(arrayOf(WithNum::class)) {
             on { num } doReturn 35
             on { asString() } doReturn "mock as String"
         }
@@ -716,13 +716,13 @@ class AsStringTest: ObjectsStackVerifier {
         override fun toString() = "This should not show up when asString() is called on me; ${testClass.asString()}"
     }
 
-    private interface Printable {
+    private interface WithNum {
         var num: Int
         fun asString(): String
     }
 
     @Suppress("unused", "SameReturnValue")
-    private open class ClassToPrint(val str: String, override var num: Int, private val privateToPrint: Any?): Printable {
+    private open class ClassToPrint(val str: String, override var num: Int, private val privateToPrint: Any?): WithNum {
         // getter should be called, not the internal value. Private should be included, but not for subclasses
         @Suppress("SuspiciousVarProperty")
         private var greet: String? = "hi"

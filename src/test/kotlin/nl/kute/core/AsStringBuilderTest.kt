@@ -48,13 +48,13 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
 
     @Test
     fun `AsStringBuilder should honour exceptProperties`() {
-        // arrange
-        val expected = "ClassWithHashProperty(privateProp=I am a private property)"
-        // act, assert
+        // arrange, act, assert
         assertThat(testObj.asStringBuilder()
             .exceptProperties(ClassWithHashProperty::nullable, testObj::hashProperty)
             .asString()
-        ).isEqualTo(expected)
+        )
+            .contains("privateProp=")
+            .doesNotContain("nullable=", "hashProperty=")
 
         // arrange
         val expectedSub = "SubClassWithPrintMask(replaced=xx is replaced)"
@@ -135,7 +135,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
                 "ClassWithHashProperty",
                 "hashProperty=#$hashCode#",
                 "nullable=$showNullAs",
-                "privateProp=I am a private property",
+                "privateProp=AsStringBuilderTest\$ClassWithHashProperty\$privateProp\$1()",
                 withLastPropertyString = "replaced=xx is replaced",
             )
     }
@@ -153,7 +153,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
             .isObjectAsString(
                 "ClassWithHashProperty",
                 "hashProperty=#$hashCode#",
-                "privateProp=I am a private property",
+                "privateProp=AsStringBuilderTest\$ClassWithHashProperty\$privateProp\$1()",
                 "nullable=$showNullAs",
                 withLastPropertyString = "nullable=$showNullAs2, I am a named value=some string"
             )

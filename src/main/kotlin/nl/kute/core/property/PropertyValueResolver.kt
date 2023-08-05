@@ -19,7 +19,6 @@ import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationSetOfPropertySuperSubHierarchy
 import nl.kute.reflection.getPropValue
-import nl.kute.reflection.hasImplementedToString
 import nl.kute.reflection.propertiesFromSubSuperHierarchy
 import nl.kute.util.MapCache
 import nl.kute.util.ifNull
@@ -47,9 +46,6 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
             value.asString()
         else if (value == null) {
             null
-        } else if (value!!::class.simpleName == null && value!!::class.hasImplementedToString()) {
-            // simpleName is null for a bunch of classes not supported by kotlin's reflection
-            value.toString()
         } else {
             value.asString()
         }
