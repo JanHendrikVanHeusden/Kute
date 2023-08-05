@@ -12,12 +12,10 @@ import nl.kute.reflection.simplifyClassName
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
-import kotlin.reflect.jvm.jvmName
 
 // TODO: kdoc
-public interface PropertyInformation {
+public interface PropertyValueInformation {
     public val objectClassName: String?
-    public val jvmClassName: String?
     public val propertyName: String
     public val returnType: KType
     public val isNull: Boolean
@@ -40,10 +38,9 @@ public class PropertyValueInfo(
     @JvmSynthetic // avoid access from external Java code
     internal val property: KProperty<*>,
     propertyValue: Any?,
-    override val stringValueLength: Int?): PropertyInformation {
+    override val stringValueLength: Int?): PropertyValueInformation {
 
     override val objectClassName: String? by lazy { objectClass?.simplifyClassName() }
-    override val jvmClassName: String? = objectClass?.jvmName
     override val propertyName: String = property.name
     override val returnType: KType = property.returnType
     override val isCharSequence: Boolean = propertyValue is CharSequence
