@@ -47,7 +47,7 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
             value.asString()
         else if (value == null) {
             null
-        } else if ((value!!::class.java.isSynthetic ||  value!!::class.simpleName == null) && value!!::class.hasImplementedToString()) {
+        } else if (value!!::class.simpleName == null && value!!::class.hasImplementedToString()) {
             // simpleName is null for a bunch of classes not supported by kotlin's reflection
             value.toString()
         } else {
