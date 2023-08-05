@@ -10,6 +10,7 @@ import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.annotation.option.asStringClassOptionCache
 import nl.kute.core.namedvalues.NamedSupplier
 import nl.kute.core.namedvalues.NamedValue
@@ -20,6 +21,7 @@ import nl.kute.core.property.propsWithAnnotationsCacheByClass
 import nl.kute.core.test.helper.equalSignCount
 import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.hashing.DigestMethod
+import nl.kute.reflection.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
@@ -675,6 +677,25 @@ class AsStringTest: ObjectsStackVerifier {
             .isEqualTo(testObj.asString())
     }
 
+    @Test
+    fun `class with property of other class should use asString for both`() {
+        assertThat(ClassWithTestClassProperty().asString())
+            .isObjectAsString(
+                "ClassWithTestClassProperty",
+                "aProp=I am a property of ClassWithTestClassProperty",
+                "testClass=TestClass(someProp=I am a property of TestClass)"
+            )
+    }
+
+    @Test
+    fun `class with property of other class should use toString for both when PREFER_TOSTRING`() {
+        AsStringConfig().withToStringPreference(PREFER_TOSTRING).applyAsDefault()
+        val testObj = ClassWithTestClassProperty()
+        assertThat(testObj.asString())
+            .isEqualTo("This should not show up when asString() is called on me")
+            .isEqualTo(testObj.toString())
+    }
+
 // region ~ Classes etc. to be used for testing
 
     private val aPrintableDate = object {
@@ -682,6 +703,17 @@ class AsStringTest: ObjectsStackVerifier {
     }
     private val anotherPrintable = object {
         override fun toString(): String = "this is another printable"
+    }
+
+    private class TestClass {
+        val someProp = "I am a property of ${this::class.simplifyClassName()}"
+        override fun toString() = "This should not show up when asString() is called on me"
+    }
+
+    private class ClassWithTestClassProperty {
+        val aProp = "I am a property of ${this::class.simplifyClassName()}"
+        val testClass = TestClass()
+        override fun toString() = "This should not show up when asString() is called on me"
     }
 
     private interface Printable {
