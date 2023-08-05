@@ -692,7 +692,7 @@ class AsStringTest: ObjectsStackVerifier {
         AsStringConfig().withToStringPreference(PREFER_TOSTRING).applyAsDefault()
         val testObj = ClassWithTestClassProperty()
         assertThat(testObj.asString())
-            .isEqualTo("This should not show up when asString() is called on me")
+            .isEqualTo("This should not show up when asString() is called on me; This should not show up when asString() is called on me")
             .isEqualTo(testObj.toString())
     }
 
@@ -713,7 +713,7 @@ class AsStringTest: ObjectsStackVerifier {
     private class ClassWithTestClassProperty {
         val aProp = "I am a property of ${this::class.simplifyClassName()}"
         val testClass = TestClass()
-        override fun toString() = "This should not show up when asString() is called on me"
+        override fun toString() = "This should not show up when asString() is called on me; ${testClass.asString()}"
     }
 
     private interface Printable {
