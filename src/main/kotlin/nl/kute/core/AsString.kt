@@ -15,6 +15,8 @@ import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
+import nl.kute.core.ordering.NoOpPropertyRanking
+import nl.kute.core.ordering.PropertyRanking
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.log.log
@@ -146,16 +148,14 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                         }
                     val nameValueSeparator =
                         if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
-                    return annotationsByProperty
-                        .entries.joinToString(
+                    return annotationsByProperty.joinToStringWithOrderRank(
+                            obj = obj,
+                            // todo: ranking
+                            // rankProviders = arrayOf(PropertyRankingByTypeAndLength.instance),
                             separator = valueSeparator,
                             prefix = "${obj.objectIdentity()}$propertyListPrefix",
                             limit = stringJoinMaxCount
-                        ) { entry ->
-                            val prop = entry.key
-                            val annotationSet = entry.value
-                            "${prop.name}=${getPropValueString(prop, annotationSet).first}"
-                        } + named.joinToString(
+                        ) + named.joinToString(
                             prefix = nameValueSeparator,
                             separator = valueSeparator,
                             postfix = propertyListSuffix,
@@ -189,6 +189,46 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
         // It's probably a secondary exception somewhere. Not much more we can do here
         e.printStackTrace()
         return ""
+    }
+}
+
+private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
+    obj: Any,
+    vararg rankProviders: PropertyRanking = emptyArray(),
+    separator: CharSequence = ", ",
+    prefix: CharSequence = "",
+    limit: Int
+): String {
+    return if (rankProviders.isEmpty() || rankProviders.all { it == NoOpPropertyRanking.instance }) {
+        this.entries.joinToString(
+            separator = separator,
+            prefix = prefix,
+            limit = limit
+        ) { entry ->
+            val prop = entry.key
+            val annotationSet = entry.value
+            "${prop.name}=${obj.getPropValueString(prop, annotationSet).first}"
+        }
+    } else {
+        val propertyRankings: Set<PropertyRanking> = rankProviders.toSet()
+        this.entries.asSequence()
+            .map { entry ->
+                val prop = entry.key
+                val annotationSet = entry.value
+                obj.getPropValueString(prop, annotationSet)
+            }.sortedBy {
+                it.second?.let { propValInfo -> propertyRankings
+                    .fold(initial = 0) { acc, rank ->
+                        acc + Short.MAX_VALUE + rank.getRank(propValInfo)
+                    }
+                }
+            }
+            .map { "${it.second!!.propertyName}=${it.first}" }
+            .joinToString(
+                separator = separator,
+                prefix = prefix,
+                limit = limit
+            )
     }
 }
 
