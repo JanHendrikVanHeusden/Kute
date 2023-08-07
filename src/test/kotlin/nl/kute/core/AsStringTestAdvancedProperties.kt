@@ -591,7 +591,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             .isObjectAsString(
                 "KotlinClassWithHigherOrderFunction(",
                 "higherOrderLambda=((String) -> String) -> String",
-                " reverseIt=(String) -> String",
+                "reverseIt=(String) -> String",
                 "toUpper=(String) -> String"
             )
 
