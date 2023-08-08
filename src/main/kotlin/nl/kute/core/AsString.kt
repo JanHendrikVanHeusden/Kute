@@ -13,10 +13,12 @@ import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
+import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.ordering.NoOpPropertyRanking
 import nl.kute.core.ordering.PropertyRanking
+import nl.kute.core.ordering.propertyRankingRegistryByClass
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.log.log
@@ -146,12 +148,15 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                             nameValue is PropertyValue<*>
                                     && nameValue.asStringAffectingAnnotations.any { it is AsStringOmit }
                         }
+                    val rankProviders = objClass.getAsStringClassOption().propertySorters
+                        .mapNotNull { propertyRankingRegistryByClass[it] }
+                        .toTypedArray()
                     val nameValueSeparator =
                         if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
                     return annotationsByProperty.joinToStringWithOrderRank(
                             obj = obj,
                             // todo: ranking
-                            // rankProviders = arrayOf(PropertyRankingByTypeAndLength.instance),
+                            rankProviders = rankProviders,
                             separator = valueSeparator,
                             prefix = "${obj.objectIdentity()}$propertyListPrefix",
                             limit = stringJoinMaxCount

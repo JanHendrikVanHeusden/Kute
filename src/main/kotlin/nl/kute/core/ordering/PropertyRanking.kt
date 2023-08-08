@@ -4,6 +4,14 @@ import nl.kute.core.ordering.ValueLengthRanking.L
 import nl.kute.core.ordering.ValueLengthRanking.M
 import nl.kute.core.ordering.ValueLengthRanking.XL
 import nl.kute.core.property.PropertyValueInformation
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.KClass
+
+internal val propertyRankingRegistryByClass: MutableMap<KClass<out PropertyRanking>, PropertyRanking> = ConcurrentHashMap()
+
+public fun registerPropertyRankingClass(classInstancePair: Pair<KClass<out PropertyRanking>, PropertyRanking>) {
+    propertyRankingRegistryByClass[classInstancePair.first] = classInstancePair.second
+}
 
 // TODO: kdoc
 public interface PropertyRanking {
@@ -16,10 +24,16 @@ public interface PropertyRanking {
 
 // TODO: kdoc
 public abstract class AbstractPropertyRanking : PropertyRanking {
+    init {
+        @Suppress("LeakingThis")
+        registerPropertyRankingClass(this::class to this)
+    }
     override fun equals(other: Any?): Boolean =
         this === other || (other != null && this::class == other::class)
     override fun hashCode(): Int = 0
 }
+
+// region ~ Concrete implementations of PropertyRanking
 
 // TODO: kdoc
 public class PropertyRankingByLength private constructor(): AbstractPropertyRanking() {
@@ -33,6 +47,8 @@ public class PropertyRankingByLength private constructor(): AbstractPropertyRank
         public val instance: PropertyRankingByLength = PropertyRankingByLength()
     }
 }
+@Suppress("unused") // construct instance to have it registered
+private val propertyRankingByLength = PropertyRankingByLength.instance
 
 // TODO: kdoc
 public class PropertyRankingByType private constructor(): AbstractPropertyRanking() {
@@ -48,6 +64,8 @@ public class PropertyRankingByType private constructor(): AbstractPropertyRankin
         public val instance: PropertyRankingByType = PropertyRankingByType()
     }
 }
+@Suppress("unused") // construct instance to have it registered
+private val propertyRankingByType = PropertyRankingByType.instance
 
 // TODO: kdoc
 public class PropertyRankingByTypeAndLength private constructor(): AbstractPropertyRanking() {
@@ -63,6 +81,8 @@ public class PropertyRankingByTypeAndLength private constructor(): AbstractPrope
         public val instance: PropertyRankingByTypeAndLength = PropertyRankingByTypeAndLength()
     }
 }
+@Suppress("unused") // construct instance to have it registered
+private val propertyRankingByTypeAndLength = PropertyRankingByTypeAndLength.instance
 
 private val propNamesCategorizing = arrayOf("code", "type", "category", "order", "kind")
 private val propNamesNumberSuffix = arrayOf("num", "no", "nr", "number", "numer", "numero")
@@ -107,6 +127,9 @@ public class PropertyRankingByCommonNames private constructor(): AbstractPropert
     }
 }
 
+@Suppress("unused") // construct instance to have it registered
+private val propertyRankingByCommonNames = PropertyRankingByCommonNames.instance
+
 // TODO: kdoc
 public class NoOpPropertyRanking private constructor() : AbstractPropertyRanking() {
     override fun getRank(propertyValueInfo: PropertyValueInformation): Short = 0
@@ -118,3 +141,5 @@ public class NoOpPropertyRanking private constructor() : AbstractPropertyRanking
         public val instance: NoOpPropertyRanking = NoOpPropertyRanking()
     }
 }
+
+// endregion

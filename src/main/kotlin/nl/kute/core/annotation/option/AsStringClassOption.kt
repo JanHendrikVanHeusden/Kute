@@ -5,6 +5,7 @@ import nl.kute.config.initialIncludeIdentityHash
 import nl.kute.config.notifyConfigChange
 import nl.kute.config.subscribeConfigChange
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
+import nl.kute.core.ordering.PropertyRanking
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.MapCache
@@ -39,7 +40,9 @@ import kotlin.reflect.KClass
 @Retention(RUNTIME)
 public annotation class AsStringClassOption(
     val includeIdentityHash: Boolean = initialIncludeIdentityHash,
-    val toStringPreference: ToStringPreference = USE_ASSTRING
+    val toStringPreference: ToStringPreference = USE_ASSTRING,
+    // TODO: kdoc
+    val propertySorters: Array<KClass<PropertyRanking>> = []
 ) {
 
     /** Static holder for [defaultOption] */
