@@ -42,7 +42,7 @@ public annotation class AsStringClassOption(
     val includeIdentityHash: Boolean = initialIncludeIdentityHash,
     val toStringPreference: ToStringPreference = USE_ASSTRING,
     // TODO: kdoc
-    val propertySorters: Array<KClass<PropertyRanking>> = []
+    val propertySorters: Array<KClass<out PropertyRanking>> = []
 ) {
 
     /** Static holder for [defaultOption] */
