@@ -118,6 +118,9 @@ public const val initialMaxStringValueLength: Int = 500
 /** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.core.asString] output */
 public const val initialIncludeIdentityHash: Boolean = false
 
+/** Initial default value for the choice whether the properties should be pre-sorted alphabetically in  [nl.kute.core.asString] output */
+public const val initialSortNamesAlphabetic: Boolean = false
+
 /** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.core.asString] output */
 public val initialToStringPreference: ToStringPreference = USE_ASSTRING
 

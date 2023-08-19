@@ -7,40 +7,51 @@ import nl.kute.core.property.PropertyValueInformation
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
-internal val propertyRankingRegistryByClass: MutableMap<KClass<out PropertyRanking>, PropertyRanking> = ConcurrentHashMap()
+@JvmSynthetic // avoid access from external Java code
+internal val propertyRankingRegistryByClass: MutableMap<KClass<out PropertyRankable<*>>, PropertyRankable<*>> = ConcurrentHashMap()
 
-public fun registerPropertyRankingClass(classInstancePair: Pair<KClass<out PropertyRanking>, PropertyRanking>) {
+@JvmSynthetic // avoid access from external Java code
+internal fun <T: PropertyRankable<T>> registerPropertyRankingClass(classInstancePair: Pair<KClass<out T>, T>) {
     propertyRankingRegistryByClass[classInstancePair.first] = classInstancePair.second
 }
 
 // TODO: kdoc
-public interface PropertyRanking {
+public interface PropertyRankable<out T: PropertyRankable<T>> {
     // TODO: kdoc
     public fun getRank(propertyValueInfo: PropertyValueInformation): Short
 
     // TODO: kdoc
-    public fun instance() : PropertyRanking
+    public fun instance(): T
+
+    // TODO: kdoc
+    public fun register() {
+        registerPropertyRankingClass(this::class to this)
+    }
 }
 
 // TODO: kdoc
-public abstract class AbstractPropertyRanking : PropertyRanking {
+public abstract class PropertyRanking : PropertyRankable<PropertyRanking> {
     init {
-        @Suppress("LeakingThis")
-        registerPropertyRankingClass(this::class to this)
+        register()
     }
+
     override fun equals(other: Any?): Boolean =
         this === other || (other != null && this::class == other::class)
     override fun hashCode(): Int = 0
+
+    override final fun register() {
+        super.register()
+    }
 }
 
 // region ~ Concrete implementations of PropertyRanking
 
 // TODO: kdoc
-public class PropertyRankingByLength private constructor(): AbstractPropertyRanking() {
+public class PropertyRankingByLength private constructor(): PropertyRanking() {
     override fun getRank(propertyValueInfo: PropertyValueInformation): Short =
         ValueLengthRanking.getRank(propertyValueInfo.stringValueLength).rank
 
-    override fun instance(): PropertyRanking = instance
+    override fun instance(): PropertyRankingByLength = instance
 
     public companion object {
         // TODO: kdoc
@@ -51,13 +62,13 @@ public class PropertyRankingByLength private constructor(): AbstractPropertyRank
 private val propertyRankingByLength = PropertyRankingByLength.instance
 
 // TODO: kdoc
-public class PropertyRankingByType private constructor(): AbstractPropertyRanking() {
+public class PropertyRankingByType private constructor(): PropertyRanking() {
     public override fun getRank(propertyValueInfo: PropertyValueInformation): Short {
         return if (propertyValueInfo.isBaseType && !propertyValueInfo.isCharSequence) 0
         else ValueLengthRanking.maxRank
     }
 
-    override fun instance(): PropertyRanking = instance
+    override fun instance(): PropertyRankingByType = instance
 
     public companion object {
         // TODO: kdoc
@@ -68,13 +79,13 @@ public class PropertyRankingByType private constructor(): AbstractPropertyRankin
 private val propertyRankingByType = PropertyRankingByType.instance
 
 // TODO: kdoc
-public class PropertyRankingByTypeAndLength private constructor(): AbstractPropertyRanking() {
+public class PropertyRankingByTypeAndLength private constructor(): PropertyRanking() {
     public override fun getRank(propertyValueInfo: PropertyValueInformation): Short {
         val typeRank: Short = PropertyRankingByType.instance.getRank(propertyValueInfo)
         return (typeRank + PropertyRankingByLength.instance.getRank(propertyValueInfo)).toShort()
     }
 
-    override fun instance(): PropertyRanking = instance
+    override fun instance(): PropertyRankingByTypeAndLength = instance
 
     public companion object {
         // TODO: kdoc
@@ -92,7 +103,7 @@ private val propNamesDocument = arrayOf("file", "report", "doc", "content")
 private val propNamesContentFormat = arrayOf("xml", "csv", "yaml", "yml", "axon", "html", "htm", "protobuf")
 
 // TODO: kdoc
-public class PropertyRankingByCommonNames private constructor(): AbstractPropertyRanking() {
+public class PropertyRankingByCommonNames private constructor(): PropertyRanking() {
     public override fun getRank(propertyValueInfo: PropertyValueInformation): Short {
         val propName = propertyValueInfo.propertyName
         val propNameLower = propertyValueInfo.propertyName.lowercase()
@@ -119,7 +130,7 @@ public class PropertyRankingByCommonNames private constructor(): AbstractPropert
         }
     }
 
-    override fun instance(): PropertyRanking = instance
+    override fun instance(): PropertyRankingByCommonNames = instance
 
     public companion object {
         // TODO: kdoc
@@ -131,10 +142,10 @@ public class PropertyRankingByCommonNames private constructor(): AbstractPropert
 private val propertyRankingByCommonNames = PropertyRankingByCommonNames.instance
 
 // TODO: kdoc
-public class NoOpPropertyRanking private constructor() : AbstractPropertyRanking() {
+public class NoOpPropertyRanking private constructor() : PropertyRanking() {
     override fun getRank(propertyValueInfo: PropertyValueInformation): Short = 0
 
-    override fun instance(): PropertyRanking = instance
+    override fun instance(): NoOpPropertyRanking = instance
 
     public companion object {
         // TODO: kdoc

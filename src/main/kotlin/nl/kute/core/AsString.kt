@@ -17,7 +17,7 @@ import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.ordering.NoOpPropertyRanking
-import nl.kute.core.ordering.PropertyRanking
+import nl.kute.core.ordering.PropertyRankable
 import nl.kute.core.ordering.propertyRankingRegistryByClass
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithAsStringAffectingAnnotations
@@ -143,11 +143,14 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                         objClass.propertiesWithAsStringAffectingAnnotations()
                             .filterNot { propertyNamesToExclude.contains(it.key.name) }
                             .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
-                    val named = nameValues
+                    var named: List<NameValue<*>> = nameValues
                         .filterNot { nameValue ->
                             nameValue is PropertyValue<*>
                                     && nameValue.asStringAffectingAnnotations.any { it is AsStringOmit }
                         }
+                    if (named.size > 1 && objClass.getAsStringClassOption().sortNamesAlphabetic) {
+                        named = named.sortedBy { it.name }
+                    }
                     val rankProviders = objClass.getAsStringClassOption().propertySorters
                         .mapNotNull { propertyRankingRegistryByClass[it] }
                         .toTypedArray()
@@ -155,7 +158,6 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                         if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
                     return annotationsByProperty.joinToStringWithOrderRank(
                             obj = obj,
-                            // todo: ranking
                             rankProviders = rankProviders,
                             separator = valueSeparator,
                             prefix = "${obj.objectIdentity()}$propertyListPrefix",
@@ -199,13 +201,16 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
 
 private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
     obj: Any,
-    vararg rankProviders: PropertyRanking = emptyArray(),
+    vararg rankProviders: PropertyRankable<*> = emptyArray(),
     separator: CharSequence = ", ",
     prefix: CharSequence = "",
     limit: Int
 ): String {
+    val sortNamesAlphabetic = this.size > 1 && obj::class.getAsStringClassOption().sortNamesAlphabetic
+    val props = if (sortNamesAlphabetic) this.entries.sortedBy { it.key.name }.associate { it.key to it.value }
+        else this
     return if (rankProviders.isEmpty() || rankProviders.all { it == NoOpPropertyRanking.instance }) {
-        this.entries.joinToString(
+        props.entries.joinToString(
             separator = separator,
             prefix = prefix,
             limit = limit
@@ -215,8 +220,8 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
             "${prop.name}=${obj.getPropValueString(prop, annotationSet).first}"
         }
     } else {
-        val propertyRankings: Set<PropertyRanking> = rankProviders.toSet()
-        this.entries.asSequence()
+        val propertyRankings: Set<PropertyRankable<*>> = rankProviders.toSet()
+        props.entries.asSequence()
             .map { entry ->
                 val prop = entry.key
                 val annotationSet = entry.value
@@ -239,7 +244,7 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
 
 // endregion
 
-// region ~ toString preference
+// region ~ toString vs AsString preference
 
 /** @return Is this class feasible for reflection, and if so, does it have [toString] implemented? */
 private fun KClass<*>.feasibleForToString() =

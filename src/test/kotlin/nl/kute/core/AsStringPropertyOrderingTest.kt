@@ -1,9 +1,7 @@
 package nl.kute.core
 
 import nl.kute.core.annotation.option.AsStringClassOption
-import nl.kute.core.ordering.AbstractPropertyRanking
 import nl.kute.core.ordering.PropertyRanking
-import nl.kute.core.ordering.registerPropertyRankingClass
 import nl.kute.core.property.PropertyValueInformation
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -15,7 +13,7 @@ class AsStringPropertyOrderingTest {
         @JvmStatic
         @BeforeAll
         fun setUpClass() {
-            registerPropertyRankingClass(ReverseAlphabeticPropertyRanking::class to ReverseAlphabeticPropertyRanking.instance)
+            ReverseAlphabeticPropertyRanking.instance.register()
         }
     }
 
@@ -44,11 +42,12 @@ class AsStringPropertyOrderingTest {
 
 }
 
-private class ReverseAlphabeticPropertyRanking: AbstractPropertyRanking() {
+/** Property sorting by 1st letter only! */
+private class ReverseAlphabeticPropertyRanking: PropertyRanking() {
     override fun getRank(propertyValueInfo: PropertyValueInformation): Short =
         (-propertyValueInfo.propertyName[0].code).toShort()
 
-    override fun instance(): PropertyRanking = instance
+    override fun instance(): ReverseAlphabeticPropertyRanking = instance
 
     companion object {
         val instance = ReverseAlphabeticPropertyRanking()
