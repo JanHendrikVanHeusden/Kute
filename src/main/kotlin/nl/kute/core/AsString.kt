@@ -16,10 +16,10 @@ import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
-import nl.kute.core.ordering.NoOpPropertyRanking
-import nl.kute.core.ordering.PropertyRankable
-import nl.kute.core.property.PropertyValueInfoComparator
-import nl.kute.core.ordering.propertyRankingRegistryByClass
+import nl.kute.core.property.ranking.NoOpPropertyRanking
+import nl.kute.core.property.ranking.PropertyRankable
+import nl.kute.core.property.ranking.PropertyValueInfoComparator
+import nl.kute.core.property.ranking.propertyRankingRegistryByClass
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.log.log

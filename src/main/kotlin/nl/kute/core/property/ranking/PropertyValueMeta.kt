@@ -1,4 +1,4 @@
-package nl.kute.core.property
+package nl.kute.core.property.ranking
 
 import nl.kute.core.AsStringObjectCategory
 import nl.kute.core.AsStringObjectCategory.ARRAY

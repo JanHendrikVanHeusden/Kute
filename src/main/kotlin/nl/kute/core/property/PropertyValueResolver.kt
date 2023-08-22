@@ -15,6 +15,8 @@ import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.asString
 import nl.kute.core.hasEffectiveRankProvider
 import nl.kute.core.lambdaToStringRegex
+import nl.kute.core.property.ranking.PropertyValueMeta
+import nl.kute.core.property.ranking.PropertyValueMetaData
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy

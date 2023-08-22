@@ -1,10 +1,10 @@
-package nl.kute.core.ordering
+package nl.kute.core.property.ranking
 
-import nl.kute.core.ordering.ValueLengthRanking.L
-import nl.kute.core.ordering.ValueLengthRanking.M
-import nl.kute.core.ordering.ValueLengthRanking.S
-import nl.kute.core.ordering.ValueLengthRanking.XL
-import nl.kute.core.ordering.ValueLengthRanking.XXL
+import nl.kute.core.property.ranking.ValueLengthRanking.L
+import nl.kute.core.property.ranking.ValueLengthRanking.M
+import nl.kute.core.property.ranking.ValueLengthRanking.S
+import nl.kute.core.property.ranking.ValueLengthRanking.XL
+import nl.kute.core.property.ranking.ValueLengthRanking.XXL
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.random.Random

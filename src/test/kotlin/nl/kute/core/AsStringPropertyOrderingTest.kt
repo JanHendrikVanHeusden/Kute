@@ -1,14 +1,14 @@
 package nl.kute.core
 
 import nl.kute.core.annotation.option.AsStringClassOption
-import nl.kute.core.ordering.PropertyRanking
-import nl.kute.core.ordering.PropertyRankingByLength
-import nl.kute.core.ordering.ValueLengthRanking
-import nl.kute.core.ordering.ValueLengthRanking.Companion.getRank
-import nl.kute.core.ordering.ValueLengthRanking.L
-import nl.kute.core.ordering.ValueLengthRanking.M
-import nl.kute.core.ordering.ValueLengthRanking.XL
-import nl.kute.core.property.PropertyValueMetaData
+import nl.kute.core.property.ranking.PropertyRanking
+import nl.kute.core.property.ranking.PropertyRankingByLength
+import nl.kute.core.property.ranking.ValueLengthRanking
+import nl.kute.core.property.ranking.ValueLengthRanking.Companion.getRank
+import nl.kute.core.property.ranking.ValueLengthRanking.L
+import nl.kute.core.property.ranking.ValueLengthRanking.M
+import nl.kute.core.property.ranking.ValueLengthRanking.XL
+import nl.kute.core.property.ranking.PropertyValueMetaData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test

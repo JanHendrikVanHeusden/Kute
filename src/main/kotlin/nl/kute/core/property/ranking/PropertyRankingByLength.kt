@@ -1,12 +1,34 @@
-package nl.kute.core.ordering
+package nl.kute.core.property.ranking
 
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.namedvalues.namedProp
-import nl.kute.core.ordering.ValueLengthRanking.S
-import nl.kute.core.ordering.ValueLengthRanking.XXL
 import java.util.EnumSet
+
+/**
+ * Provides ranking for ordering properties in [nl.kute.core.asString] output,
+ * based on T-shirt sizing by means of [ValueLengthRanking]
+ * > The ranking is not based on exact lengths, that would give a really unstable ordering;
+ * > so it's using length categories by some more or less arbitrary common sense length categories
+ * @see [ValueLengthRanking]
+ */
+public open class PropertyRankingByLength private constructor(): PropertyRanking() {
+    /** @return A numeric rank based on [PropertyValueMetaData.stringValueLength] and T-shirt sizes as of [ValueLengthRanking] */
+    override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int =
+        ValueLengthRanking.getRank(propertyValueMetaData.stringValueLength).rank
+
+    override fun instance(): PropertyRankingByLength = instance
+
+    public companion object {
+        /** Singleton instance of [PropertyRankingByLength] */
+        public val instance: PropertyRankingByLength = PropertyRankingByLength()
+    }
+}
+
+@Suppress("unused") // construct instance to have it registered
+private val propertyRankingByLength = PropertyRankingByLength.instance
+    .also { it.register() }
 
 /**
  * [ValueLengthRanking] provides a somewhat arbitrary classification of value lengths, ranging from [S] to [XXL],
@@ -32,6 +54,8 @@ public enum class ValueLengthRanking(public val rank: Int, public val lengthRang
         /**
          * Get the [ValueLengthRanking] where the [length] fits into the [ValueLengthRanking.lengthRange]
          * @param [length] The length to retrieve the [ValueLengthRanking] for
+         * @return The [ValueLengthRanking] associated with the length;
+         * > when [length] has an unexpected value (`null` or negative), [S] is returned
          */
         public fun getRank(length: Int?): ValueLengthRanking =
             valueLengthRankings.firstOrNull { (length ?: 0) in it.lengthRange } ?: S

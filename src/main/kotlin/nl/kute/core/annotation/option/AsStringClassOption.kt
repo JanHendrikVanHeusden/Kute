@@ -6,7 +6,7 @@ import nl.kute.config.initialSortNamesAlphabetic
 import nl.kute.config.notifyConfigChange
 import nl.kute.config.subscribeConfigChange
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
-import nl.kute.core.ordering.PropertyRankable
+import nl.kute.core.property.ranking.PropertyRankable
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.MapCache

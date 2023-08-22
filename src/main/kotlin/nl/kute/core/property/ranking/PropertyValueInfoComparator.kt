@@ -1,6 +1,4 @@
-package nl.kute.core.property
-
-import nl.kute.core.ordering.PropertyRankable
+package nl.kute.core.property.ranking
 
 /**
  * [Comparator] for comparing or sorting [PropertyValueMetaData] objects by the given [rankables],

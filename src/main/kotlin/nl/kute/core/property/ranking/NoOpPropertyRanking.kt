@@ -1,0 +1,23 @@
+package nl.kute.core.property.ranking
+
+/**
+ * Class to explicitly specify that properties need not be ordered
+ */
+public class NoOpPropertyRanking private constructor() : PropertyRanking() {
+
+    /** @return A constant value regardless of [propertyValueMetaData] input;
+     * so effectively, it will not contribute to ordering
+     */
+    override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int = 0
+
+    override fun instance(): NoOpPropertyRanking = instance
+
+    public companion object {
+        /** Singleton instance of [NoOpPropertyRanking] */
+        public val instance: NoOpPropertyRanking = NoOpPropertyRanking()
+    }
+}
+
+@Suppress("unused") // construct instance to have it registered
+private val noOpPropertyRanking = NoOpPropertyRanking.instance
+    .also { it.register() }
