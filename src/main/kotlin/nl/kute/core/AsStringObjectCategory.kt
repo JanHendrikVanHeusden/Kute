@@ -15,6 +15,7 @@ import nl.kute.util.throwableAsString
 import java.time.temporal.Temporal
 import java.util.Date
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * Enum to provide categorization of objects.
@@ -28,10 +29,11 @@ internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler:
     /**
      * Base stuff like [Boolean], [Number], [String], [Date], [Temporal], [Char], these have
      * sensible [toString] implementations that we need not (and should not) override
+     * @see [isBaseType]
      */
     BASE(false, { it.toString() }),
 
-    /** Override: collections [toString] is vulnerable for stack overflow (in case of recursive data) */
+    /** Override: [Collection.toString] methods are vulnerable for stack overflow (in case of recursive data) */
     COLLECTION(true, { (it as Collection<*>).collectionAsString() }),
 
     /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
@@ -40,13 +42,13 @@ internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler:
     /** Override: arrays of primitives (e.g. [IntArray], [BooleanArray], [CharArray] lack proper [toString] implementation */
     PRIMITIVE_ARRAY(false, { it.primitiveArrayAsString() }),
 
-    /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
+    /** Override: [Map.toString] methods are vulnerable for stack overflow (in case of recursive data) */
     MAP(true, { (it as Map<*, *>).mapAsString() }),
 
     /** Override: default [Throwable.toString] is way too verbose */
     THROWABLE(true, { (it as Throwable).throwableAsString() }),
 
-    /** Override: [Annotation.toString] strips package name off */
+    /** Override: [Annotation.toString] is too verbose (due to inclusion of package name) */
     ANNOTATION(true, { (it as Annotation).annotationAsString() }),
 
     /** Override: String representation needs some tidying by [lambdaPropertyAsString] */
@@ -54,7 +56,7 @@ internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler:
 
     /**
      * Override for Java & Kotlin internals: provide sensible alternative for classes
-     * without [toString] implementation; add identity if required
+     * without [toString] implementation; also, adds identity if required
      */
     SYSTEM(false, { it.systemClassObjAsString() }),
 
@@ -88,7 +90,15 @@ internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler:
 @JvmSynthetic // avoid access from external Java code
 internal val objectCategoryCache = MapCache<KClass<*>, AsStringObjectCategory>()
 
-// todo: kdoc
+/**
+ * Is the object's type considered a base type?
+ *
+ * Currently, the following types are considered base types:
+ * * Primitives / primitive wrappers
+ * * Elementary Java types like [String], [Char], [CharSequence], [Number],
+ * [java.util.Date], [java.time.temporal.Temporal] and their subclasses
+ * * The Kotlin unsigned types ([UByte], [UShort], [UInt], [ULong])
+ */
 public fun Any.isBaseType(): Boolean =
     this is Boolean
             || this is Number
@@ -100,6 +110,23 @@ public fun Any.isBaseType(): Boolean =
             || this is UShort
             || this is UInt
             || this is ULong
+
+private val baseTypes = arrayOf(
+    Number::class.java,
+    CharSequence::class.java,
+    Char::class.java,
+    Temporal::class.java,
+    Date::class.java,
+    UByte::class.java,
+    UShort::class.java,
+    UInt::class.java,
+    ULong::class.java
+)
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KType.isBaseType(): Boolean {
+    return this is KClass<*> && baseTypes.any {it.isAssignableFrom(this.java)}
+}
 
 private fun Any.isPrimitiveArray(): Boolean
 // It's a pity the kotlin designers didn't create an interface or superclass for these arrays of primitives...
@@ -127,6 +154,29 @@ private fun Any.primitiveArrayIterator(): Iterator<*> =
         is DoubleArray -> this.iterator()
         else -> throw IllegalArgumentException("Should be called with arrays of primitives only")
     }
+
+private val collectionTypes = arrayOf(
+    Collection::class.java,
+    Array::class.java,
+    Map::class.java,
+    BooleanArray::class.java,
+    CharArray::class.java,
+    ByteArray::class.java,
+    ShortArray::class.java,
+    IntArray::class.java,
+    LongArray::class.java,
+    FloatArray::class.java,
+    DoubleArray::class.java
+)
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KType.isCollectionType(): Boolean {
+    return this is KClass<*> && collectionTypes.any {it.isAssignableFrom(this.java)}
+}
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KType.isCharSequenceType(): Boolean =
+    this is KClass<*> && CharSequence::class.java.isAssignableFrom(this.java)
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.objectIdentity() =
@@ -185,6 +235,7 @@ internal fun Collection<*>.collectionAsString(): String {
     ) { it.asString() }
 }
 
+@JvmSynthetic // avoid access from external Java code
 internal fun Any.primitiveArrayAsString(): String {
     val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
     return this.primitiveArrayIterator().asSequence()

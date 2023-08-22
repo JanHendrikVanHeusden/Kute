@@ -11,7 +11,9 @@ import nl.kute.core.annotation.modify.mask
 import nl.kute.core.annotation.modify.replacePattern
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.applyOption
+import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.asString
+import nl.kute.core.hasEffectiveRankProvider
 import nl.kute.core.lambdaToStringRegex
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
@@ -32,7 +34,7 @@ import kotlin.reflect.jvm.javaType
  *  @[AsStringReplace], @[AsStringMask], @[AsStringHash]
  */
 @JvmSynthetic // avoid access from external Java code
-internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): Pair<String?, PropertyValueInfo?> {
+internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): Pair<String?, PropertyValueMetaData?> {
     var value: Any? = null
     val stringVal = let {
         if (this == null) {
@@ -73,10 +75,11 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         return@let strValue
     }
     val objClass = if (this == null) null else this@getPropValueString::class
-    // TODO: only if required (sorting enabled)
-    // TODO: caching?
-    val propertyValueInfo = PropertyValueInfo(objClass, prop, value, stringVal?.length)
-    return (stringVal to propertyValueInfo)
+    val propertyValueMeta =
+        if (objClass != null && objClass.getAsStringClassOption().propertySorters.hasEffectiveRankProvider()) PropertyValueMeta(value, objClass, prop, stringVal?.length)
+        // no property sorting required
+        else null
+    return (stringVal to propertyValueMeta)
 }
 
 internal fun KProperty<*>.isLambdaProperty(stringValue: String?): Boolean {

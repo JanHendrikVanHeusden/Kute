@@ -17,7 +17,7 @@ import java.util.EnumSet
  */
 @Suppress("KDocMissingDocumentation") // names [S] to [XXL] should be descriptive enough
 @AsStringClassOption(toStringPreference = ToStringPreference.USE_ASSTRING, includeIdentityHash = false)
-public enum class ValueLengthRanking(public val rank: Short, public val lengthRange: IntRange) {
+public enum class ValueLengthRanking(public val rank: Int, public val lengthRange: IntRange) {
     S(10, 0..25),
     M(20, S.lengthRange.last + 1..50),
     L(30, M.lengthRange.last + 1..100),
@@ -35,10 +35,14 @@ public enum class ValueLengthRanking(public val rank: Short, public val lengthRa
          */
         public fun getRank(length: Int?): ValueLengthRanking =
             valueLengthRankings.firstOrNull { (length ?: 0) in it.lengthRange } ?: S
-        // todo: kdoc
-        public val minRank: Short = valueLengthRankings.minOf { it.rank }
-        // todo: kdoc
-        public val maxRank: Short = valueLengthRankings.maxOf { it.rank }
+
+        /** The [ValueLengthRanking] with the lowest [rank] */
+        public val minRank: Int = valueLengthRankings.minOf { it.rank }
+        /** The [ValueLengthRanking] with the highest [rank] */
+        public val maxRank: Int = valueLengthRankings.maxOf { it.rank }
+
+        @JvmSynthetic // avoid access from external Java code
+        internal fun String.getRank(): ValueLengthRanking = getRank(this.length)
     }
 
     private val asStringBuilder = asStringBuilder()

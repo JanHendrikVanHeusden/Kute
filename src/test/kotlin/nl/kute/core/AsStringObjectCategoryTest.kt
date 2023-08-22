@@ -132,7 +132,6 @@ internal class AsStringObjectCategoryTest {
             JavaClassWithPrimitives.BOOL,
             true,
             false,
-            UByte.MIN_VALUE,
         ).forEach {
             it.assertBaseObject()
         }

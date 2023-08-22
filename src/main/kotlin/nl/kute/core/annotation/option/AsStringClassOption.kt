@@ -6,7 +6,7 @@ import nl.kute.config.initialSortNamesAlphabetic
 import nl.kute.config.notifyConfigChange
 import nl.kute.config.subscribeConfigChange
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
-import nl.kute.core.ordering.PropertyRanking
+import nl.kute.core.ordering.PropertyRankable
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.MapCache
@@ -34,6 +34,13 @@ import kotlin.reflect.KClass
  *   properties and values.
  *   > If [ToStringPreference.PREFER_TOSTRING] applies and recursion is detected in the [toString] implementation,
  *   > [nl.kute.core.asString] will fall back to dynamically resolving properties and values for that class.
+ * @param sortNamesAlphabetic Should output of [nl.kute.core.asString] be sorted alphabetically by property name?
+ * > **NB:** This is a pre-sorting. If additional [propertySorters] are given, these will be applied after the alphabetic sort.
+ * @param propertySorters One or more [PropertyRankable] implementing classes can be specified.
+ * These will be applied in order, like SQL multi-column sorting.
+ * > So if the 1st sorter yields an equal result for a pair of properties, the 2nd will be applied, and so on until a non-zero
+ * > result is obtained, of until the [propertySorters] are exhausted.
+ * * **NB:** Usage of [propertySorters] has a considerable effect on CPU- and memory-footprint of [nl.kute.core.asString].
  */
 @Target(AnnotationTarget.CLASS)
 @MustBeDocumented
@@ -42,10 +49,8 @@ import kotlin.reflect.KClass
 public annotation class AsStringClassOption(
     val includeIdentityHash: Boolean = initialIncludeIdentityHash,
     val toStringPreference: ToStringPreference = USE_ASSTRING,
-    // TODO: kdoc
     val sortNamesAlphabetic: Boolean = initialSortNamesAlphabetic,
-    // TODO: kdoc
-    val propertySorters: Array<KClass<out PropertyRanking>> = []
+    val propertySorters: Array<KClass<out PropertyRankable<*>>> = []
 ) {
 
     /** Static holder for [defaultOption] */

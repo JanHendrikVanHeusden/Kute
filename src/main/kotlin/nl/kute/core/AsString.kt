@@ -18,6 +18,7 @@ import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.ordering.NoOpPropertyRanking
 import nl.kute.core.ordering.PropertyRankable
+import nl.kute.core.property.PropertyValueInfoComparator
 import nl.kute.core.ordering.propertyRankingRegistryByClass
 import nl.kute.core.property.getPropValueString
 import nl.kute.core.property.propertiesWithAsStringAffectingAnnotations
@@ -207,9 +208,10 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
     limit: Int
 ): String {
     val sortNamesAlphabetic = this.size > 1 && obj::class.getAsStringClassOption().sortNamesAlphabetic
-    val props = if (sortNamesAlphabetic) this.entries.sortedBy { it.key.name }.associate { it.key to it.value }
+    val props: Map<KProperty<*>, Set<Annotation>> =
+        if (sortNamesAlphabetic) this.entries.sortedBy { it.key.name }.associate { it.key to it.value }
         else this
-    return if (rankProviders.isEmpty() || rankProviders.all { it == NoOpPropertyRanking.instance }) {
+    return if (this.size <= 1 || !rankProviders.hasEffectiveRankProvider()) {
         props.entries.joinToString(
             separator = separator,
             prefix = prefix,
@@ -220,20 +222,11 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
             "${prop.name}=${obj.getPropValueString(prop, annotationSet).first}"
         }
     } else {
-        val propertyRankings: Set<PropertyRankable<*>> = rankProviders.toSet()
-        props.entries.asSequence()
-            .map { entry ->
-                val prop = entry.key
-                val annotationSet = entry.value
-                obj.getPropValueString(prop, annotationSet)
-            }.sortedBy {
-                it.second?.let { propValInfo -> propertyRankings
-                    .fold(initial = 0) { acc, rank ->
-                        acc + Short.MAX_VALUE + rank.getRank(propValInfo)
-                    }
-                }
-            }
-            .map { "${it.second!!.propertyName}=${it.first}" }
+        props.entries
+            .map { obj.getPropValueString(it.key, it.value) }
+            .associate { it.second to it.first }
+            .toSortedMap(PropertyValueInfoComparator(*rankProviders))
+            .map { "${it.key?.propertyName}=${it.value}" }
             .joinToString(
                 separator = separator,
                 prefix = prefix,
@@ -241,6 +234,12 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
             )
     }
 }
+
+internal fun Array<out PropertyRankable<*>>.hasEffectiveRankProvider() =
+    this.isNotEmpty() && !this.all { it == NoOpPropertyRanking.instance }
+
+internal fun (Array<KClass<out PropertyRankable<*>>>)?.hasEffectiveRankProvider(): Boolean =
+    !this.isNullOrEmpty() && !this.all { it::class == NoOpPropertyRanking::class }
 
 // endregion
 
