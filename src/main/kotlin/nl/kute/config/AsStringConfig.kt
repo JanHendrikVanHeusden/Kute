@@ -4,6 +4,7 @@ import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
+import nl.kute.core.property.ranking.PropertyRankable
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
@@ -35,9 +36,11 @@ public class AsStringConfig {
 
     private fun setNewDefaultAsStringClassOption(
         includeIdentityHash: Boolean = newDefaultAsStringClassOption.includeIdentityHash,
-        toStringPreference: ToStringPreference = newDefaultAsStringClassOption.toStringPreference
+        toStringPreference: ToStringPreference = newDefaultAsStringClassOption.toStringPreference,
+        sortNamesAlphabetic: Boolean = newDefaultAsStringClassOption.sortNamesAlphabetic,
+        vararg propertySorters: KClass<out PropertyRankable<*>> = newDefaultAsStringClassOption.propertySorters
         ) {
-        setNewDefaultAsStringClassOption(AsStringClassOption(includeIdentityHash, toStringPreference))
+        setNewDefaultAsStringClassOption(AsStringClassOption(includeIdentityHash, toStringPreference, sortNamesAlphabetic, *propertySorters))
     }
 
     /**
@@ -93,6 +96,32 @@ public class AsStringConfig {
     }
 
     /**
+     * Sets the new default value for [AsStringClassOption.sortNamesAlphabetic]
+     * > **NB:** This is a pre-sorting. If additional [AsStringClassOption.propertySorters] are given, these will be applied after the alphabetic sort.
+     *
+     * After being applied, this value is used as an application-wide default
+     * when no [AsStringClassOption] annotation is present.
+     * @see [withPropertySorters]
+     */
+    public fun withPropertiesAlphabetic(sortNamesAlphabetic: Boolean): AsStringConfig {
+        setNewDefaultAsStringClassOption(sortNamesAlphabetic = sortNamesAlphabetic)
+        return this
+    }
+
+    /**
+     * Sets the new default value for [AsStringClassOption.propertySorters]
+     * > **NB:** This sorting is applied after alphabetic sorting is applied.
+     * The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic sorting is preserved.
+     *
+     * After being applied, this value is used as an application-wide default
+     * when no [AsStringClassOption] annotation is present.
+     * @see [withPropertiesAlphabetic]
+     */    public fun withPropertySorters(vararg propertySorters: KClass<out PropertyRankable<*>>): AsStringConfig {
+        setNewDefaultAsStringClassOption(propertySorters = propertySorters)
+        return this
+    }
+
+    /**
      * Assigns the [AsStringOption] that is built to [AsStringOption.defaultOption],
      * as the new application default.
      *  > This operation will reset (clear) the property cache, if necessary
@@ -106,6 +135,7 @@ public class AsStringConfig {
 }
 
 /** Limit to the number of elements to be joined together */
+// todo: make configurable by annotation AsStringOption
 @JvmSynthetic // avoid access from external Java code
 internal const val stringJoinMaxCount: Int = 200
 
@@ -132,7 +162,8 @@ internal val initialAsStringOption: AsStringOption =
 /** Initial default options for the output of [nl.kute.core.asString] */
 @JvmSynthetic // avoid access from external Java code
 internal val initialAsStringClassOption: AsStringClassOption =
-    AsStringClassOption(initialIncludeIdentityHash, initialToStringPreference)
+    // todo: initial value variable for emptyArray
+    AsStringClassOption(initialIncludeIdentityHash, initialToStringPreference, initialSortNamesAlphabetic, *emptyArray())
 
 /** Convenience method to retrieve [AsStringOption.defaultOption]'s [AsStringOption.showNullAs] */
 internal val defaultNullString: String

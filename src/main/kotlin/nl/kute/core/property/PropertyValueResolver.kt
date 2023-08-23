@@ -77,8 +77,9 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         return@let strValue
     }
     val objClass = if (this == null) null else this@getPropValueString::class
+    val hasEffectiveRankProvider = objClass?.getAsStringClassOption()?.propertySorters.hasEffectiveRankProvider()
     val propertyValueMeta =
-        if (objClass != null && objClass.getAsStringClassOption().propertySorters.hasEffectiveRankProvider()) PropertyValueMeta(value, objClass, prop, stringVal?.length)
+        if (objClass != null && hasEffectiveRankProvider) PropertyValueMeta(value, objClass, prop, stringVal?.length)
         // no property sorting required
         else null
     return (stringVal to propertyValueMeta)

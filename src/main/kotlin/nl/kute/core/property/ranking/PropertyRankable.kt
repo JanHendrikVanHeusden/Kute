@@ -44,6 +44,7 @@ public abstract class PropertyRanking : PropertyRankable<PropertyRanking> {
         this === other || (other != null && this::class == other::class)
     override fun hashCode(): Int = this::class.hashCode()
 
+    // TODO: make registration automatic on application startup?
     final override fun register() {
         super.register()
     }

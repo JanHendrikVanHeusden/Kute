@@ -16,12 +16,12 @@ import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.annotation.option.getAsStringClassOption
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
+import nl.kute.core.property.getPropValueString
+import nl.kute.core.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.core.property.ranking.NoOpPropertyRanking
 import nl.kute.core.property.ranking.PropertyRankable
 import nl.kute.core.property.ranking.PropertyValueInfoComparator
 import nl.kute.core.property.ranking.propertyRankingRegistryByClass
-import nl.kute.core.property.getPropValueString
-import nl.kute.core.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.log.log
 import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.reflection.hasImplementedToString
@@ -149,10 +149,11 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                             nameValue is PropertyValue<*>
                                     && nameValue.asStringAffectingAnnotations.any { it is AsStringOmit }
                         }
-                    if (named.size > 1 && objClass.getAsStringClassOption().sortNamesAlphabetic) {
+                    val asStringClassOption = objClass.getAsStringClassOption()
+                    if (named.size > 1 && asStringClassOption.sortNamesAlphabetic) {
                         named = named.sortedBy { it.name }
                     }
-                    val rankProviders = objClass.getAsStringClassOption().propertySorters
+                    val rankProviders = asStringClassOption.propertySorters
                         .mapNotNull { propertyRankingRegistryByClass[it] }
                         .toTypedArray()
                     val nameValueSeparator =
@@ -238,7 +239,7 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
 internal fun Array<out PropertyRankable<*>>.hasEffectiveRankProvider() =
     this.isNotEmpty() && !this.all { it == NoOpPropertyRanking.instance }
 
-internal fun (Array<KClass<out PropertyRankable<*>>>)?.hasEffectiveRankProvider(): Boolean =
+internal fun (Array<out KClass<out PropertyRankable<*>>>)?.hasEffectiveRankProvider(): Boolean =
     !this.isNullOrEmpty() && !this.all { it::class == NoOpPropertyRanking::class }
 
 // endregion

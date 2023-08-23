@@ -41,6 +41,10 @@ import kotlin.reflect.KClass
  * > So if the 1st sorter yields an equal result for a pair of properties, the 2nd will be applied, and so on until a non-zero
  * > result is obtained, of until the [propertySorters] are exhausted.
  * * **NB:** Usage of [propertySorters] has a considerable effect on CPU- and memory-footprint of [nl.kute.core.asString].
+ *
+ * > **NB:** This sorting is applied after alphabetic sorting is applied.
+ * The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic sorting is preserved.
+ *
  */
 @Target(AnnotationTarget.CLASS)
 @MustBeDocumented
@@ -50,7 +54,7 @@ public annotation class AsStringClassOption(
     val includeIdentityHash: Boolean = initialIncludeIdentityHash,
     val toStringPreference: ToStringPreference = USE_ASSTRING,
     val sortNamesAlphabetic: Boolean = initialSortNamesAlphabetic,
-    val propertySorters: Array<KClass<out PropertyRankable<*>>> = []
+    vararg val propertySorters: KClass<out PropertyRankable<*>> = []
 ) {
 
     /** Static holder for [defaultOption] */
