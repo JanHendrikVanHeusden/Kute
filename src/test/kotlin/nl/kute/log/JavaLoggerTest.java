@@ -21,7 +21,7 @@ public class JavaLoggerTest {
     }
 
     @Test
-    void testLog() {
+    void log_shouldRenderCallerAndMessage() {
         // Arrange
         KuteLog.setLogConsumer(createStringLogger());
         String msg = "msg from testLog()";
@@ -32,7 +32,7 @@ public class JavaLoggerTest {
     }
 
     @Test
-    void logShouldAcceptNull() {
+    void log_shouldAcceptNull() {
         // Arrange
         KuteLog.setLogConsumer(createStringLogger());
         String msg = null;
@@ -43,7 +43,7 @@ public class JavaLoggerTest {
     }
 
     @Test
-    void testLogWithCaller() {
+    void logWithCaller_shouldRenderCallerAndMessage() {
         // Arrange
         KuteLog.setLogConsumer(createStringLogger());
         String msg = "msg from testLog()";

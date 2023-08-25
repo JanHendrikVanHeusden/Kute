@@ -13,7 +13,7 @@ class AsStringMaskTest {
         .also { list -> repeat(5000) { list.add(list[0]) } }.joinToString()
 
     @Test
-    fun `test masking start and end positions`() {
+    fun `masking should honour start and end positions`() {
         val maskDefault = AsStringMask()
         assertThat(maskDefault.mask("12345")).isEqualTo("*****")
 
@@ -91,7 +91,7 @@ class AsStringMaskTest {
     }
 
     @Test
-    fun `test masking nulls`() {
+    fun `nulls should be masked as requested`() {
         val maskDefault = AsStringMask()
         assertThat(maskDefault.mask(null)).isEqualTo("****")
 
@@ -106,7 +106,7 @@ class AsStringMaskTest {
     }
 
     @Test
-    fun `test masking with min max length`() {
+    fun `masking should honour min and max length`() {
         val maskMax5 = AsStringMask(maxLength = 5)
         assertThat(maskMax5.mask(longString)).isEqualTo("*****")
 
@@ -120,7 +120,7 @@ class AsStringMaskTest {
     }
 
     @Test
-    fun `test masking with min max length and start, end`() {
+    fun `masking should honour min, max length, and start, end`() {
         var theMask = AsStringMask(maxLength = 12, startMaskAt = 5, endMaskAt = 9)
         assertThat(theMask.mask("12345678901234567890")).isEqualTo("12345****012")
 
@@ -136,7 +136,7 @@ class AsStringMaskTest {
     }
 
     @Test
-    fun `test different masking chars`() {
+    fun `masking chars should be hooured, including multi-byte chars`() {
         // includes some multi-byte chars
         val someForeignChars = listOf('⒂', '¥', '¬')
         val someChars = (0..32).map { (it * it * it).toChar() }.toList()

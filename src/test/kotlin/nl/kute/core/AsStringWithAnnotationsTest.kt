@@ -19,7 +19,7 @@ import kotlin.reflect.full.findAnnotation
 class AsStringWithAnnotationsTest: ObjectsStackVerifier {
 
     @Test
-    fun `test Printable with AsStringOptions`() {
+    fun `non-default AsStringOption parameters should be honoured`() {
         // arrange
         val theObjectToPrint = ClassWithNonDefaultAsStringOptions()
 
@@ -70,7 +70,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test subclass with AsStringOptions using annotation on toString`() {
+    fun `AsSringOptions annotation on toString in subclass should be honoured`() {
         // arrange
         val theObjectToPrint = SubClassWithAsStringOptionsToString()
 
@@ -124,7 +124,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test subclass with AsStringOptions using annotation on class`() {
+    fun `AsStringOptions annotation on class should be honoured in subclass`() {
         // arrange
         val theObjectToPrint = SubClassWithAsStringOptionsOnClass()
 
@@ -175,7 +175,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
 
 
     @Test
-    fun `test sub-subclass of AsStringOptions on toString, with non-effective overriding AsStringOption on class`() {
+    fun `AsStringOption on class should not override those on toString`() {
         // arrange
         val theObjectToPrint = SubSubClassOfAsStringOptionsToStringWithAsStringOptionsOnClass()
 
@@ -229,7 +229,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test sub-subclass of AsStringOptions on toString, with effective overriding AsStringOption on toString`() {
+    fun `overriding AsStringOption on toString should be honoured`() {
         // arrange
         val theObjectToPrint = SubSubClassOfAsStringOptionsToStringWithAsStringOptionsOnToString()
 
@@ -279,7 +279,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test AsStringOption on property`() {
+    fun `AsStringOption on property should be honoured`() {
         // arrange
         val maxStringLenght = 10
         val theObjectToPrint = ClassWithAsStringOptionOnProperty()
@@ -301,7 +301,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test AsStringOption on property and toString`() {
+    fun `AsStringOption on property should override AsStringOption on toString`() {
         // arrange
         val maxStringLenght = 10
         val theObjectToPrint = ClassWithAsStringOptionsOnPropertyAndToString()

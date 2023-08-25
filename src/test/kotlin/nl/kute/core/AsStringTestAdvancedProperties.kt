@@ -82,7 +82,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
     /** Demonstrates that the (implicit) lazy initialization is performed only once */
     @Test
-    fun `test with lazy property`() {
+    fun `lazy property should be initialized lazily implicitly once, on rendering by asString`() {
         val testObj = ClassWithLazyProp()
         assertThat(ClassWithLazyProp.initializationCounter).isZero
 
@@ -96,7 +96,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
     /** Demonstrates that the delegated getter is called implicitly every time */
     @Test
-    fun `test with delegate property - 1`() {
+    fun `delegated property should be rendered - 1`() {
         val testObj = ClassWithDelegatedProperty()
         assertThat(testObj.delegate.getAccessCount).isZero
         assertThat(testObj.delegate.setAccessCount).isZero
@@ -113,7 +113,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
     /** Demonstrates that the delegated getter is called implicitly every time */
     @Test
-    fun `test with delegate property - 2`() {
+    fun `delegate property should be rendered - 2`() {
         val testObj = ClassWithDelegatedPropertyWithOpFuns(PropertyDelegateWithOperatorFuns())
         assertThat(testObj.delegate.getAccessCounter).isZero
         assertThat(testObj.delegate.setAccessCounter).isZero
@@ -134,7 +134,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
      *  2. the `get()` result is in the output, and not the internal value
      */
     @Test
-    fun `test with property getter`() {
+    fun `property getter return value should be rendered, not the internal fied value`() {
         // arrange
         val testObj = ClassWithPropertyGet()
         val halloInternalValue = "hallo internal value"
@@ -157,7 +157,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
 
     /** Demonstrates that companion vars are not included in the output */
     @Test
-    fun `test with companion object`() {
+    fun `companion object properties should not be included`() {
         val testObj = ClassWithCompanionObject()
 
         assertThat(testObj.asString()).isEqualTo("ClassWithCompanionObject(instanceVar=my instance var)")
@@ -169,7 +169,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test with extension properties`() {
+    fun `extension properties should be rendered as expected`() {
         // arrange
         val testObj = ClassWithExtensionProperties()
 
@@ -421,7 +421,7 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test with weird names`() {
+    fun `weird names should be honoured`() {
         `Callable Factory With Lambda`()
         val testObj = `Callable Factory With Lambda`().getCallable()
         val hashHex = testObj.identityHashHex
@@ -616,12 +616,13 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             .isEmpty()
     }
 
+// region ~ Classes, objects, helpers  etc. to be used for testing
+
     private val modifiersRegex = Regex("^.+ ")
+
     private fun Any.getLambdaTypeName(): String =
         this::class.java.interfaces.firstOrNull()
             ?.toGenericString()?.simplifyClassName()?.replace(modifiersRegex, "") ?: ""
-
-// region ~ Classes, objects etc. to be used for testing
 
     private class ClassWithLateInitVars {
         lateinit var myUninitializedLateInitVar: String

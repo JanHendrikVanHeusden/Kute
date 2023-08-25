@@ -24,7 +24,7 @@ class PropertyValueResolverTest {
     }
 
     @Test
-    fun `test getPropValue`() {
+    fun `getPropValue should return the property's value`() {
         // arrange
         val t3 = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX)
         val properties: Collection<KProperty1<T3, *>> = T3::class.memberProperties
@@ -40,7 +40,7 @@ class PropertyValueResolverTest {
     }
 
     @Test
-    fun `no exception should be raised from getPropValue`() {
+    fun `no exception should be thrown from getPropValue`() {
         // arrange
         val t3 = T3(x = 12, y = "yval", z = LocalDateTime.MIN, i = 28, j = "val of j", k = LocalDateTime.MAX)
 

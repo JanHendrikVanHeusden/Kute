@@ -8,19 +8,6 @@ import org.junit.jupiter.api.Test
 class NamedValueTest: GarbageCollectionWaiter {
 
     @Test
-    fun `test NamedValue`() {
-        // arrange
-        val str = StringBuffer("supplied value")
-        val theValue = StringBuffer(str)
-        val name = "the name"
-        // act
-        val namedValue: NamedValue<StringBuffer> = NamedValue(name, theValue)
-        // assert
-        assertThat(namedValue.name).isSameAs(name)
-        assertThat(namedValue.value.asString()).isEqualTo(theValue.toString())
-    }
-
-    @Test
     fun `Retrieving the value of the NamedValue should evaluate the value every time`() {
         // arrange
         var counter = 0
@@ -44,7 +31,7 @@ class NamedValueTest: GarbageCollectionWaiter {
     }
 
     @Test
-    fun `test namedValue`() {
+    fun `namedValue should reflect name and value`() {
         // arrange
         val valueStr = "the value"
         val name = "the name"

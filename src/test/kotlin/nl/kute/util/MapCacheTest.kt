@@ -20,7 +20,7 @@ internal class MapCacheTest {
 
     @ParameterizedTest
     @ArgumentsSource(CacheArgumentFactory::class)
-    fun `test basic cache operations`(theCache: AbstractCache<String, Boolean, Any>) {
+    fun `basic cache operations should work as expected`(theCache: AbstractCache<String, Boolean, Any>) {
         // initial: empty
         val key = "key"
         val cache = theCache.cache

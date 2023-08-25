@@ -261,7 +261,7 @@ class NamedPropTest: GarbageCollectionWaiter {
     }
 
     @Test
-    fun `test namedProp`() {
+    fun `namedProp should reflect name and value of source property`() {
         // arrange
         class MyTestClass {
             val testProp: Int = Random(Date().time.toInt()).nextInt()

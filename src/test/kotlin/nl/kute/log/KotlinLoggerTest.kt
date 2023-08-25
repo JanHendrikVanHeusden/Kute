@@ -17,7 +17,7 @@ class KotlinLoggerTest {
     }
 
     @Test
-    fun `basic test of log method`() {
+    fun `log method should log caller and log message`() {
         // arrange
         logger = { msg -> stringLog = msg }
         val msg = "msg from testLog()"
@@ -39,7 +39,7 @@ class KotlinLoggerTest {
     }
 
     @Test
-    fun `basic test of logWithCaller`() {
+    fun `logWithCaller should log, and should render caller`() {
         // arrange
         logger = { msg -> stringLog = msg }
         val msg = "msg from testLog()"
@@ -51,7 +51,7 @@ class KotlinLoggerTest {
     }
 
     @Test
-    fun `test of setting the logger`() {
+    fun `setting the logger should apply the logger`() {
         // arrange
         // Buffer to store the log message in
         val logBuffer = StringBuffer()
@@ -77,7 +77,7 @@ class KotlinLoggerTest {
     }
 
     @Test
-    fun `test that erroneous logger will be rejected`() {
+    fun `erroneous logger should be rejected`() {
         // arrange
         // Buffer to store the log message in
         val logBuffer = StringBuffer()

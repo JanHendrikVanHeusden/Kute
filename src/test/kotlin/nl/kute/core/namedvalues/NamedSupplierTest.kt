@@ -20,19 +20,6 @@ class NamedSupplierTest: GarbageCollectionWaiter {
     }
 
     @Test
-    fun `test NamedSupplier`() {
-        // arrange
-        val suppliedValue = "the value"
-        val supplier: () -> String = { suppliedValue }
-        val name = "the name"
-        // act
-        val namedSupplier: NamedSupplier<String> = NamedSupplier(name, supplier)
-        // assert
-        assertThat(namedSupplier.name).isSameAs(name)
-        assertThat(namedSupplier.value).isSameAs(suppliedValue)
-    }
-
-    @Test
     fun `Retrieving the value of the supplier should evaluate the Supplier every time`() {
         // arrange
         var counter = 0
@@ -90,7 +77,7 @@ class NamedSupplierTest: GarbageCollectionWaiter {
     }
 
     @Test
-    fun `test namedSupplier`() {
+    fun `namedSupplier should reflect given name and supplied value`() {
         // arrange
         val suppliedValue = "supplied value"
         val supplier = { suppliedValue }

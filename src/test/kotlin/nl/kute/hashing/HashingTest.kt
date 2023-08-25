@@ -78,21 +78,21 @@ class HashingTest {
     }
 
     @Test
-    fun `test MD5 hash`() {
+    fun `MD5 hash should yield correct value`() {
         // as verified by an online MD5 generator
         assertThat(hashString("This is a string to test MD5", DigestMethod.MD5, Charset.defaultCharset()))
             .isEqualTo("f38ee19be50bdd71d7a64066f60fcf24")
     }
 
     @Test
-    fun `test SHA1 hash`() {
+    fun `SHA1 hash should yield correct value`() {
         // as verified by an online SHA1 generator
         assertThat(hashString("This is a string to test SHA1", DigestMethod.SHA1, Charset.defaultCharset()))
             .isEqualTo("f8e1709fdc12217e524496eafbcb110b1a9485b9")
     }
 
     @Test
-    fun `test CRC32C hash`() {
+    fun `CRC32C hash should yield correct value`() {
         // as verified by an online CRC32C generator
         assertThat(hashString("This is a string to test CRC32C", DigestMethod.CRC32C, Charset.defaultCharset()))
             .isEqualTo("59c26997")

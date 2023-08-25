@@ -81,7 +81,7 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test with extension object`() {
+    fun `extension object should be rendered correctly`() {
         // arrange
         val classToPrint = ClassToPrint("test", 10, aPrintableDate)
         // act
@@ -141,7 +141,7 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test that asString with Mockito mock does not break`() {
+    fun `asString should not break with Mockito mock`() {
         val testMock: ClassToPrint = mock(arrayOf(WithNum::class)) {
             on { num } doReturn 35
             on { asString() } doReturn "mock as String"
@@ -150,7 +150,7 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `test with Kotlin subclass of Java class`() {
+    fun `Kotlin subclass of Java class should be rendered as expected`() {
         // num is private in the super class, so not included in the subclass asString()
         val kotlinSubClass = KotlinClassToTest("my str", 35, "this is another", people)
         assertThat(JavaClassToTest::class.java.isAssignableFrom(kotlinSubClass.javaClass))
@@ -331,7 +331,7 @@ class AsStringTest: ObjectsStackVerifier {
      * at least Kute can be used properly in conjunction with Java.
      */
     @Test
-    fun `output with Java class with package visibility property`() {
+    fun `package visiblity of variables of Java class should be honoured`() {
         // arrange
         val objToTest = JavaClassWithPackageLevelProperty()
         val subObjToTestNotAccessibleProp = SubClassOfJavaClassWithNotAccessiblePackageLevelProperty()
@@ -376,7 +376,7 @@ class AsStringTest: ObjectsStackVerifier {
      * at least Kute can be used properly in conjunction with Java.
      */
     @Test
-    fun `output with Java class with protected visibility property`() {
+    fun `protected visibility of variables of Java class should be honoured`() {
         // arrange
         val objToTest = JavaClassWithProtectedProperty()
         val subObjToTestProtectedProp = SubClassOfJavaClassWithProtectedProperty()
@@ -407,7 +407,7 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `output with Kotlin class with protected visibility property`() {
+    fun `protected visibility of property should be hounoured, so rendered with subclass`() {
         // arrange
         val objToTest = ClassWithProtectedProperty()
         val subObjToTestProtectedProp = SubClassOfClassWithProtectedProperty()
@@ -688,7 +688,7 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `class with property of other class should use toString for both when PREFER_TOSTRING`() {
+    fun `class with custom type property should use toString for both when PREFER_TOSTRING`() {
         AsStringConfig().withToStringPreference(PREFER_TOSTRING).applyAsDefault()
         val testObj = ClassWithTestClassProperty()
         assertThat(testObj.asString())

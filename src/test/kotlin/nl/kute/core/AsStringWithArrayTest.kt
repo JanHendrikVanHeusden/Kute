@@ -9,7 +9,7 @@ class AsStringWithArrayTest: ObjectsStackVerifier {
     private val names: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
 
     @Test
-    fun `test that array data is properly readable`() {
+    fun `non-recursive array data should be rendered like contentDeepToString`() {
         // arrange, act
         val classWithArrayString = ClassWithArray(names).asString()
         val dataClassWithArrayString = DataClassWithArray(names).asString()
