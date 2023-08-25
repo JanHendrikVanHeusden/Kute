@@ -14,14 +14,9 @@ public open class PropertyRankingByType private constructor(): PropertyRanking()
         else 10
     }
 
-    override fun instance(): PropertyRankingByType = instance
-
     public companion object {
         /** Singleton instance of [PropertyRankingByType] */
+        @Suppress("unused") // will be called reflectively
         public val instance: PropertyRankingByType = PropertyRankingByType()
     }
 }
-
-@Suppress("unused") // construct instance to have it registered
-private val propertyRankingByType = PropertyRankingByType.instance
-    .also { it.register() }

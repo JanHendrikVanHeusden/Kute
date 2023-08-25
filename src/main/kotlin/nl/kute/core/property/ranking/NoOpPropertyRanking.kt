@@ -10,14 +10,8 @@ public class NoOpPropertyRanking private constructor() : PropertyRanking() {
      */
     override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int = 0
 
-    override fun instance(): NoOpPropertyRanking = instance
-
     public companion object {
         /** Singleton instance of [NoOpPropertyRanking] */
         public val instance: NoOpPropertyRanking = NoOpPropertyRanking()
     }
 }
-
-@Suppress("unused") // construct instance to have it registered
-private val noOpPropertyRanking = NoOpPropertyRanking.instance
-    .also { it.register() }

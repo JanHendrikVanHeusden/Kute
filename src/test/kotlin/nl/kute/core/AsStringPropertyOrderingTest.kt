@@ -10,19 +10,9 @@ import nl.kute.core.property.ranking.ValueLengthRanking.L
 import nl.kute.core.property.ranking.ValueLengthRanking.M
 import nl.kute.core.property.ranking.ValueLengthRanking.XL
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class AsStringPropertyOrderingTest {
-
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun setUpClass() {
-            ReverseAlphabeticPropertyRanking.instance.register()
-            PropertyRankingByLength.instance.register()
-        }
-    }
 
     @Test
     fun `properties should be in expected order with single custom ranking`() {
@@ -50,13 +40,6 @@ class AsStringPropertyOrderingTest {
 private class ReverseAlphabeticPropertyRanking: PropertyRanking() {
     override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int =
         (-propertyValueMetaData.propertyName[0].code)
-
-    override fun instance(): ReverseAlphabeticPropertyRanking = instance
-
-    companion object {
-        val instance = ReverseAlphabeticPropertyRanking()
-    }
-
 }
 
 @Suppress("unused")

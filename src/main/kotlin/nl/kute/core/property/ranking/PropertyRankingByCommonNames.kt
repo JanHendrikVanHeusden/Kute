@@ -41,17 +41,12 @@ public open class PropertyRankingByCommonNames private constructor(): PropertyRa
         }
     }
 
-    override fun instance(): PropertyRankingByCommonNames = instance
-
     public companion object {
         /** Singleton instance of [PropertyRankingByCommonNames] */
+        @Suppress("unused") // will be called reflectively
         public val instance: PropertyRankingByCommonNames = PropertyRankingByCommonNames()
     }
 }
-
-@Suppress("unused") // construct instance to have it registered
-private val propertyRankingByCommonNames = PropertyRankingByCommonNames.instance
-    .also { it.register() }
 
 @Suppress("KDocMissingDocumentation")
 public val propNamesCategorizing: Array<String> = arrayOf("code", "type", "category", "order", "kind")

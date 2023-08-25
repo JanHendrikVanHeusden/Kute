@@ -18,17 +18,13 @@ public open class PropertyRankingByLength private constructor(): PropertyRanking
     override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int =
         ValueLengthRanking.getRank(propertyValueMetaData.stringValueLength).rank
 
-    override fun instance(): PropertyRankingByLength = instance
-
     public companion object {
         /** Singleton instance of [PropertyRankingByLength] */
-        public val instance: PropertyRankingByLength = PropertyRankingByLength()
+        @Suppress("unused") // will be called reflectively
+        public var instance: PropertyRankingByLength = PropertyRankingByLength()
     }
-}
 
-@Suppress("unused") // construct instance to have it registered
-private val propertyRankingByLength = PropertyRankingByLength.instance
-    .also { it.register() }
+}
 
 /**
  * [ValueLengthRanking] provides a somewhat arbitrary classification of value lengths, ranging from [S] to [XXL],
