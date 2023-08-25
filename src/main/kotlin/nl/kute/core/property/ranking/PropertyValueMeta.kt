@@ -18,7 +18,7 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
 /** Interface for metadata about a property and the property's value */
-public sealed interface PropertyValueMetaData {
+public interface PropertyValueMetaData {
     /** Class name of the class that incorporates the property */
     public val objectClassName: String?
     /** The property's name */
@@ -94,16 +94,15 @@ public class PropertyValueMeta(
 
         other as PropertyValueMeta
 
+        if (propertyName != other.propertyName) return false
+        if (returnType != other.returnType) return false
+        if (objectClass != other.objectClass) return false
         if (propertyValueCategory != other.propertyValueCategory) return false
         if (stringValueLength != other.stringValueLength) return false
         if (isCharSequence != other.isCharSequence) return false
         if (isNull != other.isNull) return false
         if (isBaseType != other.isBaseType) return false
         if (isCollectionLike != other.isCollectionLike) return false
-        if (propertyName != other.propertyName) return false
-        if (property != other.property) return false
-        if (returnType != other.returnType) return false
-        if (objectClass != other.objectClass) return false
 
         return true
     }
@@ -112,3 +111,4 @@ public class PropertyValueMeta(
         Objects.hash(stringValueLength, objectClass, property, isNull)
 
 }
+

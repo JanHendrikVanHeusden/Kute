@@ -1,11 +1,14 @@
 package nl.kute.core.property.ranking
 
+import nl.kute.core.isBaseType
+import java.util.UUID
+
 /**
  * Provides ranking for ordering properties in [nl.kute.core.asString] output, based on common property names and suffixes,
  * combined with value lengths.
  * > *Common names / suffixes include, for instance, `id`, `...Id`, `code`, `type`, `uuid`, `json`, `xml`, `text`, `desc`, etc.*
  *
- * It is intended to demonstrate usage of naming conventions (together with lengths) as a means of ranking
+ * It is intended to demonstrate usage of naming conventions (together with lengths and types) as a means of ranking
  * properties and thus their ordering.
  * * Names and suffixes usually case-insensitive
  * * For sure it won't fit **your** naming conventions. So the implementation is given "as is"!
@@ -19,11 +22,13 @@ public open class PropertyRankingByCommonNames private constructor(): PropertyRa
         val propName = propertyValueMetaData.propertyName
         val propNameLower = propertyValueMetaData.propertyName.lowercase()
         val propSizeRank = ValueLengthRanking.getRank(propertyValueMetaData.stringValueLength)
+        val returnTypeClass = propertyValueMetaData.returnType.classifier
         return when {
             propNameLower == "id" -> 0
             propName.endsWith("Id") -> 5
             propNameLower.endsWith("_id") -> 5
-            propNameLower.endsWith("uuid") -> 15
+            returnTypeClass?.isBaseType() == true && returnTypeClass != String::class  -> 15
+            returnTypeClass == UUID::class || propNameLower.endsWith("uuid") -> 15
             propSizeRank <= ValueLengthRanking.M && propNameLower.contains("ident") -> 20
             propSizeRank <= ValueLengthRanking.M && propName.endsWith("Ref") -> 20
             propSizeRank <= ValueLengthRanking.M && propNameLower.endsWith("_ref") -> 20
@@ -36,7 +41,8 @@ public open class PropertyRankingByCommonNames private constructor(): PropertyRa
             propNamesDocument.any { propNameLower.contains(it) } -> 80
             propNamesContentFormat.any { propNameLower.contains(it) } -> 80
             propNameLower.contains("xml") -> 80
-            propNamesInformative.any { propNameLower.contains(it) } -> if (propSizeRank <= ValueLengthRanking.L)  50 else 100
+            propNamesInformative.any { propNameLower.contains(it) } -> if (propSizeRank <= ValueLengthRanking.L) 50 else 100
+            propSizeRank >= ValueLengthRanking.XL -> 150
             else -> 40
         }
     }

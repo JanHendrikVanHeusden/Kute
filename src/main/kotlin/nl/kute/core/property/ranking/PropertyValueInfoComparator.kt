@@ -2,7 +2,12 @@ package nl.kute.core.property.ranking
 
 /**
  * [Comparator] for comparing or sorting [PropertyValueMetaData] objects by the given [rankables],
- * where the first [rankables] instance has the highest weight (more or less like SQL multi-column sorting)
+ * where the first [rankables] instance has the highest weight (more or less like SQL multi-column sorting).
+ *
+ * **NB:** *The comparison is **not** consistent with equality of [PropertyValueMetaData]!
+ * I.e., non-equal values can (by design) result in equal outcome of the comparison.*
+ * > *So don't use this [Comparator] for [toSortedSet] or [toSortedMap]: you may lose entries, as these skip keys when
+ * equal sort order.*
  */
 public class PropertyValueInfoComparator(private vararg val rankables: PropertyRankable<*> = emptyArray()) :
     Comparator<PropertyValueMetaData?> {
@@ -10,6 +15,9 @@ public class PropertyValueInfoComparator(private vararg val rankables: PropertyR
     /**
      * Compare the given [PropertyValueMetaData] [meta1] and [meta2] by subsequently applying each
      * [PropertyRankable.getRank] until a non-zero compare result is found, or until the [rankables] are exhausted.
+     *
+     * **NB:** *The comparison is **not** consistent with equality of [PropertyValueMetaData]!
+     * See the KDoc of this class [PropertyValueInfoComparator] for details & usage warnings.*
      * @return The compare result of the first [rankables] that yields a non-zero compare result;
      * or `0` if none of the [rankables] yields a non-zero result
      */

@@ -105,6 +105,7 @@ public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
  * @see [AsStringBuilder]
  */
 private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
+    // todo: include companion object
     try {
         val obj = this ?: return defaultNullString
         val objectCategory = AsStringObjectCategory.resolveObjectCategory(obj)
@@ -220,14 +221,17 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
         ) { entry ->
             val prop = entry.key
             val annotationSet = entry.value
-            "${prop.name}=${obj.getPropValueString(prop, annotationSet).first}"
+            "${prop.name}=${obj.getPropValueString(prop, annotationSet).second}"
         }
     } else {
-        props.entries
+        val metaDataStringMap = props.entries
             .map { obj.getPropValueString(it.key, it.value) }
-            .associate { it.second to it.first }
-            .toSortedMap(PropertyValueInfoComparator(*rankProviders))
-            .map { "${it.key?.propertyName}=${it.value}" }
+            .associate { it.first!! to it.second }
+        // We cannot use toSortedMap() here: toSortedMap() only keeps the last entry when equal outcome of the comparator, so you might lose entries.
+        // So instead, sort keys, then re-associate them with the values.
+        val sortedKeys = metaDataStringMap.keys.sortedWith(PropertyValueInfoComparator(*rankProviders))
+        sortedKeys.associateWith { metaDataStringMap[it] }
+            .map { "${it.key.propertyName}=${it.value}" }
             .joinToString(
                 separator = separator,
                 prefix = prefix,

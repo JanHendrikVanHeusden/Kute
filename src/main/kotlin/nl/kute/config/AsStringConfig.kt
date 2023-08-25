@@ -96,11 +96,14 @@ public class AsStringConfig {
     }
 
     /**
-     * Sets the new default value for [AsStringClassOption.sortNamesAlphabetic]
-     * > **NB:** This is a pre-sorting. If additional [AsStringClassOption.propertySorters] are given, these will be applied after the alphabetic sort.
+     * Sets the new default value for [AsStringClassOption.sortNamesAlphabetic].
      *
      * After being applied, this value is used as an application-wide default
      * when no [AsStringClassOption] annotation is present.
+     *
+     * > **NB:** This is a pre-sorting. If additional [AsStringClassOption.propertySorters] are given,
+     *   these will be applied after the alphabetic sort. That sorting is stable, so if sorters yield an equal value,
+     *   the alphabetic ordering is preserved.
      * @see [withPropertySorters]
      */
     public fun withPropertiesAlphabetic(sortNamesAlphabetic: Boolean): AsStringConfig {
@@ -109,12 +112,14 @@ public class AsStringConfig {
     }
 
     /**
-     * Sets the new default value for [AsStringClassOption.propertySorters]
-     * > **NB:** This sorting is applied after alphabetic sorting is applied.
-     * The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic sorting is preserved.
+     * Sets the new default value for [AsStringClassOption.propertySorters].
      *
      * After being applied, this value is used as an application-wide default
      * when no [AsStringClassOption] annotation is present.
+     *
+     * > **NB:** This sorting is applied after the alphabetic ordering (see: [withPropertiesAlphabetic]).
+     * The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic ordering is preserved.
+     *
      * @see [withPropertiesAlphabetic]
      */    public fun withPropertySorters(vararg propertySorters: KClass<out PropertyRankable<*>>): AsStringConfig {
         setNewDefaultAsStringClassOption(propertySorters = propertySorters)

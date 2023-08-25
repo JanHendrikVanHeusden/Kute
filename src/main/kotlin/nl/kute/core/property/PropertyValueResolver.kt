@@ -36,9 +36,9 @@ import kotlin.reflect.jvm.javaType
  *  @[AsStringReplace], @[AsStringMask], @[AsStringHash]
  */
 @JvmSynthetic // avoid access from external Java code
-internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): Pair<String?, PropertyValueMetaData?> {
+internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): Pair<PropertyValueMetaData?, String?> {
     var value: Any? = null
-    val stringVal = let {
+    val stringVal: String? = let {
         if (this == null) {
             return@let null
         }
@@ -82,7 +82,7 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         if (objClass != null && hasEffectiveRankProvider) PropertyValueMeta(value, objClass, prop, stringVal?.length)
         // no property sorting required
         else null
-    return (stringVal to propertyValueMeta)
+    return (propertyValueMeta to stringVal)
 }
 
 internal fun KProperty<*>.isLambdaProperty(stringValue: String?): Boolean {
