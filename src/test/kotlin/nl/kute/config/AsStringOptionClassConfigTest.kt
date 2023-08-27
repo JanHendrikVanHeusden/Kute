@@ -25,6 +25,16 @@ class AsStringOptionClassConfigTest {
     }
 
     @Test
+    fun `when no changes yet, initial defaults should apply`() {
+        with(AsStringClassOption.defaultOption) {
+            assertThat(this.includeIdentityHash).isEqualTo(initialIncludeIdentityHash)
+            assertThat(this.toStringPreference).isEqualTo(initialToStringPreference)
+            assertThat(this.sortNamesAlphabetic).isEqualTo(initialSortNamesAlphabetic)
+            assertThat(this.propertySorters).isEqualTo(initialPropertySorters)
+        }
+    }
+
+    @Test
     fun `change of AsStringClassOption defaults should be applied & also empty the caches`() {
         // arrange
         open class TestClass {

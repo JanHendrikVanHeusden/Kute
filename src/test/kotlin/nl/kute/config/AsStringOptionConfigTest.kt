@@ -19,6 +19,14 @@ class AsStringOptionConfigTest {
     }
 
     @Test
+    fun `when no changes yet, initial defaults should apply`() {
+        with(AsStringOption.defaultOption) {
+            assertThat(this.showNullAs).isEqualTo(initialNullString)
+            assertThat(this.propMaxStringValueLength).isEqualTo(initialMaxStringValueLength)
+        }
+    }
+
+    @Test
     fun `change of AsStringOption defaults should be applied & also empty the properties & annotations cache`() {
         // arrange
         open class TestClass {

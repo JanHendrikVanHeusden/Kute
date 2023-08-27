@@ -36,8 +36,8 @@ public annotation class AsStringOption(
     /** Static holder for [defaultOption] */
     public companion object DefaultOption {
         /**
-         * [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified.
-         * > When changed, the property cache will be reset (cleared).
+         * [AsStringOption] to be used as default if no explicit [AsStringOption] annotation is specified.
+         * > On change (see [nl.kute.config.AsStringConfig]), the property cache will be reset (cleared).
          */
         public var defaultOption: AsStringOption = initialAsStringOption
             @JvmSynthetic // avoid access from external Java code

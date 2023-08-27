@@ -156,6 +156,9 @@ public const val initialIncludeIdentityHash: Boolean = false
 /** Initial default value for the choice whether the properties should be pre-sorted alphabetically in  [nl.kute.core.asString] output */
 public const val initialSortNamesAlphabetic: Boolean = false
 
+/** Initial default value for [PropertyRankable] property ranking classes to be used for sorting properties in [nl.kute.core.asString] output */
+public val initialPropertySorters: Array<KClass<PropertyRankable<*>>> = arrayOf()
+
 /** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.core.asString] output */
 public val initialToStringPreference: ToStringPreference = USE_ASSTRING
 
@@ -167,8 +170,7 @@ internal val initialAsStringOption: AsStringOption =
 /** Initial default options for the output of [nl.kute.core.asString] */
 @JvmSynthetic // avoid access from external Java code
 internal val initialAsStringClassOption: AsStringClassOption =
-    // todo: initial value variable for emptyArray
-    AsStringClassOption(initialIncludeIdentityHash, initialToStringPreference, initialSortNamesAlphabetic, *emptyArray())
+    AsStringClassOption(initialIncludeIdentityHash, initialToStringPreference, initialSortNamesAlphabetic, *initialPropertySorters)
 
 /** Convenience method to retrieve [AsStringOption.defaultOption]'s [AsStringOption.showNullAs] */
 internal val defaultNullString: String

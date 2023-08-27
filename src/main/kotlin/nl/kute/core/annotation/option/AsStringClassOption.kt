@@ -23,8 +23,8 @@ import kotlin.reflect.KClass
  * when no explicit [AsStringClassOption] annotation is applied.
  *
  * It allows specifying how property values are to be parsed in the [nl.kute.core.asString] return value.
- * @param includeIdentityHash Should the identity hash be included?
- * If included, the identity hash is `@` followed by the hex representation as of [System.identityHashCode]
+ * @param includeIdentityHash Should the identity hash be included in output of [nl.kute.core.asString]?
+ * If included, the identity hash is represented as `@` followed by the hex representation as of [System.identityHashCode]
  * (up to 8 hex characters), identical to the hex string seen in non-overridden [toString] output.
  * @param toStringPreference
  * * If [ToStringPreference.USE_ASSTRING] applies (either as default or by annotation), [nl.kute.core.asString] should
@@ -34,9 +34,11 @@ import kotlin.reflect.KClass
  *   properties and values.
  *   > If [ToStringPreference.PREFER_TOSTRING] applies and recursion is detected in the [toString] implementation,
  *   > [nl.kute.core.asString] will fall back to dynamically resolving properties and values for that class.
- * @param sortNamesAlphabetic Should output of [nl.kute.core.asString] be sorted alphabetically by property name?
+ * @param sortNamesAlphabetic Should output of [nl.kute.core.asString] be sorted alphabetically by property name in output
+ * of [nl.kute.core.asString].?
  * > **NB:** This is a pre-sorting. If additional [propertySorters] are given, these will be applied after the alphabetic sort.
- * @param propertySorters One or more [PropertyRankable] implementing classes can be specified.
+ * @param propertySorters One or more [PropertyRankable] implementing classes can be specified to have properties sorted
+ * in output of [nl.kute.core.asString].
  * These will be applied in order, like SQL multi-column sorting.
  * > So if the 1st sorter yields an equal result for a pair of properties, the 2nd will be applied, and so on until a non-zero
  * > result is obtained, of until the [propertySorters] are exhausted.
@@ -60,8 +62,8 @@ public annotation class AsStringClassOption(
     /** Static holder for [defaultOption] */
     public companion object DefaultOption {
         /**
-         * [AsStringOption] to be used if no explicit [AsStringOption] annotation is specified.
-         * > When changed, the property cache will be reset (cleared).
+         * [AsStringOption] to be used as default if no explicit [AsStringOption] annotation is specified.
+         * > On change (see [nl.kute.config.AsStringConfig]), the property cache will be reset (cleared).
          */
         public var defaultOption: AsStringClassOption = initialAsStringClassOption
             @JvmSynthetic // avoid access from external Java code
