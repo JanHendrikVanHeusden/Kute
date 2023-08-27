@@ -3,22 +3,16 @@ package nl.kute.core.property.ranking
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.asString
+import nl.kute.log.log
+import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentHashMap.newKeySet
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
-
-@JvmSynthetic // avoid access from external Java code
-private val propertyRankingRegistryByClass: MutableMap<KClass<out PropertyRankable<*>>, PropertyRankable<*>> =
-    ConcurrentHashMap()
-
-@JvmSynthetic // avoid access from external Java code
-internal fun <T: PropertyRankable<T>> registerPropertyRankingClass(classInstancePair: Pair<KClass<out T>, T>) {
-    propertyRankingRegistryByClass[classInstancePair.first] = classInstancePair.second
-}
 
 /**
  * Interface to provide ranking for ordering properties in [nl.kute.core.asString] output.
@@ -76,12 +70,32 @@ public abstract class PropertyRanking : PropertyRankable<PropertyRanking> {
 }
 
 @JvmSynthetic // avoid access from external Java code
+private val propertyRankingRegistryByClass: MutableMap<KClass<out PropertyRankable<*>>, PropertyRankable<*>> =
+    ConcurrentHashMap()
+
+@JvmSynthetic // avoid access from external Java code
+private val unusablePropertyRankingClasses: MutableSet<KClass<out PropertyRankable<*>>> = newKeySet()
+
+@JvmSynthetic // avoid access from external Java code
+internal fun <T: PropertyRankable<T>> registerPropertyRankingClass(classInstancePair: Pair<KClass<out T>, T?>) {
+    if (classInstancePair.second == null) unusablePropertyRankingClasses.add(classInstancePair.first)
+    else propertyRankingRegistryByClass[classInstancePair.first] = classInstancePair.second!!
+}
+
+@JvmSynthetic // avoid access from external Java code
 internal fun <T: PropertyRankable<T>> KClass<out T>.getPropertyRankableInstance(): T? {
 
-    // TODO: log message when unable to instantiate
     @Suppress("UNCHECKED_CAST")
     return (propertyRankingRegistryByClass[this] as T?)
-        ?: this.factorPropertyRankable()?.also { it.register() }
+        ?: this.factorPropertyRankable()?.
+        also { it.register() }
+            .ifNull {
+                if (!unusablePropertyRankingClasses.contains(this)) {
+                    log("Unable to instantiate $this: can't use it for ordering properties")
+                    unusablePropertyRankingClasses.add(this)
+                }
+                null
+            }
 }
 
 private fun <T: PropertyRankable<T>> KClass<out T>.factorPropertyRankable(): T? =
