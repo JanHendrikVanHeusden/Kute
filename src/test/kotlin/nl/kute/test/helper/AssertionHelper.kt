@@ -1,4 +1,4 @@
-@file:JvmName("TestHelper")
+@file:JvmName("AssertionHelper")
 
 package nl.kute.test.helper
 
