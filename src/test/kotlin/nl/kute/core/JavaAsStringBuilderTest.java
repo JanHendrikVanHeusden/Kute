@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 
 import static nl.kute.core.AsString.asString;
-import static nl.kute.test.helper.TestHelper.containsExhaustiveInAnyOrderCondition;
+import static nl.kute.test.helper.AssertionHelper.containsExhaustiveInAnyOrderCondition;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
