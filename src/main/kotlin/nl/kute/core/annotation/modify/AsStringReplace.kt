@@ -57,8 +57,8 @@ internal fun AsStringReplace?.replacePattern(strVal: String?): String? =
         }
     }
 
-// TODO: tests
-private val cachingRegexFactory: Map<String, Regex> = object: ConcurrentHashMap<String, Regex>() {
+@JvmSynthetic // avoid access from external Java code
+internal val cachingRegexFactory: Map<String, Regex> = object: ConcurrentHashMap<String, Regex>() {
     override fun get(key: String): Regex = super.get(key).ifNull {
         Regex(key).also { this[key] = it }
     }

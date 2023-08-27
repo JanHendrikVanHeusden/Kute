@@ -1,10 +1,12 @@
 package nl.kute.core.annotation
 
 import nl.kute.core.annotation.modify.AsStringReplace
+import nl.kute.core.annotation.modify.cachingRegexFactory
 import nl.kute.core.annotation.modify.replacePattern
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -20,6 +22,7 @@ class AsStringReplaceTest {
     @AfterEach
     fun setUpAndTearDown() {
         resetStdOutLogger()
+        (cachingRegexFactory as MutableMap).clear()
     }
 
     @Test
@@ -160,5 +163,75 @@ class AsStringReplaceTest {
         assertThat(logMsg)
             .contains("Exception occurred")
             .contains("No group 1")
+    }
+
+    @Test
+    fun `regex cache should be used when replacing by Regex`() {
+        // arrange
+        assertThat(cachingRegexFactory).isEmpty()
+        var replacementSpec = AsStringReplace(pattern = "some", replacement = "a ")
+
+        // act
+        replacementSpec.replacePattern("This is a thing")
+        // assert
+        assertThat(cachingRegexFactory)
+            .hasSize(1)
+            .containsKey("some")
+        assertThat(cachingRegexFactory.values.first().pattern).isEqualTo("some")
+
+        // arrange
+        replacementSpec = AsStringReplace(pattern = "so" + "me", replacement = "another")
+        // act
+        replacementSpec.replacePattern("This is something, right?")
+        // assert
+        assertThat(cachingRegexFactory)
+            .hasSize(1)
+            .containsKey("some")
+
+        // arrange
+        replacementSpec = AsStringReplace(pattern = "wow", replacement = "Wow!")
+        // act
+        replacementSpec.replacePattern("This is great, wow")
+        // assert
+        assertThat(cachingRegexFactory)
+            .hasSize(2)
+            .containsKeys("some", "wow")
+
+        // arrange
+        replacementSpec = AsStringReplace("literal", "literate", isRegexpPattern = false)
+        // act
+        replacementSpec.replacePattern("is this literal?")
+        // assert
+        assertThat(cachingRegexFactory)
+            .`as`("Replacement by means of literal, not by Regex, should not be added to cache")
+            .hasSize(2)
+    }
+
+
+    @Test
+    fun `regex factoring cache should factor and add entry when not present`() {
+        // arrange
+        assertThat(cachingRegexFactory).isEmpty()
+        val pattern1 = "my first pattern"
+        // act
+        val regex1: Regex = cachingRegexFactory[pattern1]!!
+        // assert
+        assertThat(regex1.pattern).isEqualTo(pattern1)
+        assertThat(cachingRegexFactory)
+            .hasSize(1)
+            .contains(entry(pattern1, regex1))
+
+        // arrange
+        val pattern2 = "my second pattern"
+        // act
+        val regex2: Regex = cachingRegexFactory[pattern2]!!
+        // assert
+        assertThat(regex2.pattern).isEqualTo(pattern2)
+        assertThat(cachingRegexFactory)
+            .hasSize(2)
+            .contains(
+                entry(pattern1, regex1),
+                entry(pattern2, regex2),
+            )
     }
 }
