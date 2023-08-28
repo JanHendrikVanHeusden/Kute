@@ -592,24 +592,65 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     @Test
-    fun `asString with Kotlin companion properties does not include companion properties`() {
-        val testObj = WithCompanion()
-        // not showing static var
+    fun `asString of public class with named public companion properties includes these properties`() {
+        val testObj = NestedPublicClassWithPublicCompanion()
         assertThat(testObj.asString())
-            .`as`("does by default not contain the companion property")
-            .isEqualTo("WithCompanion(instanceProp=instance prop)")
-
-        // but they can work around it by adding it as a property
-        assertThat(testObj.toString())
-            .`as`("added companion prop by builder with additional property")
-            .isEqualTo("WithCompanion(instanceProp=instance prop, companionProp=companion prop)")
+            .isEqualTo("NestedPublicClassWithPublicCompanion(instanceProp=instance prop, companion: CompObjectName(companionProp=companion prop))")
 
         // assign a new value
-        WithCompanion.companionProp = "a new value for the companion prop"
+        NestedPublicClassWithPublicCompanion.companionProp = "a new value for the companion prop"
         // assert that the new value is reflected in the output
-        assertThat(testObj.toString())
-            .`as`("added static var by builder with named supplier")
-            .isEqualTo("WithCompanion(instanceProp=instance prop, companionProp=a new value for the companion prop)")
+        assertThat(testObj.asString())
+            .isEqualTo("NestedPublicClassWithPublicCompanion(instanceProp=instance prop, companion: CompObjectName(companionProp=a new value for the companion prop))")
+    }
+
+    @Test
+    fun `asString of public class with private companion object with properties does not include the companion object`() {
+        val testObj = NestedPublicClassWithPrivateCompanion()
+        assertThat(testObj.asString())
+            .isEqualTo("NestedPublicClassWithPrivateCompanion(instanceProp=instance prop)")
+    }
+
+    @Test
+    fun `asString of protected class with public companion object with properties includes the companion object`() {
+        val testObj = NestedProtectedClassWithPublicCompanion()
+        assertThat(testObj.asString())
+            .isEqualTo("NestedProtectedClassWithPublicCompanion(instanceProp=instance prop, companion: CompObjectName(companionProp=companion prop))")
+    }
+
+    @Test
+    fun `asString of public class with protected companion object with properties does not include the companion object`() {
+        val testObj = NestedPublicClassWithProtectedCompanion()
+        assertThat(testObj.asString())
+            .isEqualTo("NestedPublicClassWithProtectedCompanion(instanceProp=instance prop)")
+    }
+
+    @Test
+    fun `asString of private class with companion properties does not the companion object`() {
+        val testObj = PrivateClassWithCompanion()
+        assertThat(testObj.asString())
+            .`as`("Kotlin reflection cannot access companion object of private class, so it's omitted")
+            .isEqualTo("PrivateClassWithCompanion(instanceProp=instance prop)")
+
+        // you can work around it (sort of) by using AsStringBuilder
+        assertThat(testObj.asStringBuilder()
+            .withAlsoProperties(PrivateClassWithCompanion::companionProp)
+            .asString()
+        ).isEqualTo("PrivateClassWithCompanion(instanceProp=instance prop, companionProp=${NestedPrivateClassWithCompanion.companionProp})")
+    }
+
+    @Test
+    fun `asString of private nested class with companion properties does not include these properties`() {
+        val testObj = NestedPrivateClassWithCompanion()
+        assertThat(testObj.asString())
+            .`as`("Kotlin reflection cannot access companion object of private class, so it's omitted")
+            .isEqualTo("NestedPrivateClassWithCompanion(instanceProp=instance prop)")
+
+        // you can work around it (sort of) by using AsStringBuilder
+        assertThat(testObj.asStringBuilder()
+            .withAlsoProperties(NestedPrivateClassWithCompanion::companionProp)
+            .asString()
+        ).isEqualTo("NestedPrivateClassWithCompanion(instanceProp=instance prop, companionProp=${NestedPrivateClassWithCompanion.companionProp})")
     }
 
     @Test
@@ -827,21 +868,54 @@ class AsStringTest: ObjectsStackVerifier {
         override fun toString(): String = asString()
     }
 
-    private class WithCompanion {
+    class NestedPublicClassWithPublicCompanion {
         val instanceProp = "instance prop"
 
-        private val producer: AsStringProducer by lazy {
-            asStringBuilder()
-                .withAlsoProperties(WithCompanion::companionProp)
-                .build()
-        }
-
-        override fun toString(): String = producer.asString()
-        companion object {
+        companion object CompObjectName {
             var companionProp = "companion prop"
+        }
+    }
+
+    protected open class NestedProtectedClassWithPublicCompanion {
+        val instanceProp = "instance prop"
+
+        companion object CompObjectName {
+            var companionProp = "companion prop"
+        }
+    }
+
+    class NestedPublicClassWithPrivateCompanion {
+        val instanceProp = "instance prop"
+
+        private companion object CompObjectName {
+            var companionProp = "companion prop"
+        }
+    }
+
+    class NestedPublicClassWithProtectedCompanion {
+        val instanceProp = "instance prop"
+
+        protected companion object CompObjectName {
+            var companionProp = "companion prop"
+        }
+    }
+
+    private class NestedPrivateClassWithCompanion {
+        val instanceProp = "instance prop"
+
+        companion object CompObjectName {
+            var companionProp = "companion prop"
+        }
+    }
+
+}
+
+private class PrivateClassWithCompanion {
+    val instanceProp = "instance prop"
+
+    companion object {
+        var companionProp = "companion prop"
     }
 }
 
 // endregion
-
-}

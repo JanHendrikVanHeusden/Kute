@@ -11,7 +11,7 @@ import nl.kute.core.annotation.modify.mask
 import nl.kute.core.annotation.modify.replacePattern
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.applyOption
-import nl.kute.core.annotation.option.getAsStringClassOption
+import nl.kute.core.annotation.option.asStringClassOption
 import nl.kute.core.asString
 import nl.kute.core.hasEffectiveRankProvider
 import nl.kute.core.lambdaToStringRegex
@@ -77,7 +77,7 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         return@let strValue
     }
     val objClass = if (this == null) null else this@getPropValueString::class
-    val hasEffectiveRankProvider = objClass?.getAsStringClassOption()?.propertySorters.hasEffectiveRankProvider()
+    val hasEffectiveRankProvider = objClass?.asStringClassOption()?.propertySorters.hasEffectiveRankProvider()
     val propertyValueMeta =
         if (objClass != null && hasEffectiveRankProvider) PropertyValueMeta(value, objClass, prop, stringVal?.length)
         // no property sorting required

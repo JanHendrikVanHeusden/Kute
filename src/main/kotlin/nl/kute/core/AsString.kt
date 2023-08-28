@@ -13,7 +13,12 @@ import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
-import nl.kute.core.annotation.option.getAsStringClassOption
+import nl.kute.core.annotation.option.asStringClassOptionCache
+import nl.kute.core.annotation.option.asStringOptionCache
+import nl.kute.core.annotation.option.asStringClassOption
+import nl.kute.core.annotation.option.asStringOption
+import nl.kute.core.annotation.option.nullableAsStringClassOption
+import nl.kute.core.annotation.option.nullableAsStringOption
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.property.getPropValueString
@@ -30,12 +35,18 @@ import nl.kute.util.MapCache
 import nl.kute.util.asHexString
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
+import nl.kute.util.ifNull
+import nl.kute.util.joinIfNotEmpty
 import nl.kute.util.lineEnd
 import nl.kute.util.throwableAsString
+import java.lang.reflect.Modifier
 import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.companionObjectInstance
+import kotlin.reflect.full.memberProperties
 
 // region ~ AsStringProducer
 
@@ -124,9 +135,7 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                     // avoid endless loop
                     return "$recursivePrefix${objClass.simplifyClassName()}$recursivePostfix"
                 }
-                // If handler, call that
-                if (objectCategory.hasHandler() && objectCategory.guardStack) {
-                    // stack guard does not complain; handle it
+                if (objectCategory.hasHandler()) {
                     return objectCategory.handler!!(obj)
                 }
 
@@ -145,49 +154,39 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                         objClass.propertiesWithAsStringAffectingAnnotations()
                             .filterNot { propertyNamesToExclude.contains(it.key.name) }
                             .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
-                    var named: List<NameValue<*>> = nameValues
+                    val named: List<NameValue<*>> = nameValues
                         .filterNot { nameValue ->
                             nameValue is PropertyValue<*>
                                     && nameValue.asStringAffectingAnnotations.any { it is AsStringOmit }
                         }
-                    val asStringClassOption = objClass.getAsStringClassOption()
-                    if (named.size > 1 && asStringClassOption.sortNamesAlphabetic) {
-                        named = named.sortedBy { it.name }
-                    }
+                    val asStringClassOption = objClass.asStringClassOption()
                     val rankProviders = asStringClassOption.propertySorters
                         .mapNotNull { it.getPropertyRankableInstance() }
                         .toTypedArray()
-                    val nameValueSeparator =
-                        if (annotationsByProperty.isEmpty() || named.isEmpty()) "" else valueSeparator
-                    return annotationsByProperty.joinToStringWithOrderRank(
+                    return "${obj.objectIdentity()}$propertyListPrefix" +
+                    joinIfNotEmpty(
+                        separator = valueSeparator,
+                        annotationsByProperty.joinToStringWithOrderRank(
                             obj = obj,
                             rankProviders = rankProviders,
                             separator = valueSeparator,
-                            prefix = "${obj.objectIdentity()}$propertyListPrefix",
                             limit = stringJoinMaxCount
-                        ) + named.joinToString(
-                            prefix = nameValueSeparator,
+                        ),
+                        objClass.companionAsString(),
+                        named.joinToString(
                             separator = valueSeparator,
-                            postfix = propertyListSuffix,
                             limit = stringJoinMaxCount
                         ) {
-                        "${it.name}=${it.value.asString()}"
-                    }
+                            "${it.name}=${it.value.asString()}"
+                        }
+                    ) + propertyListSuffix
                 } catch (e: SyntheticClassException) {
                     // Kotlin's reflection can't handle synthetic classes, like for lambda, callable reference etc.
                     // (more details, see KDoc of SyntheticClassException)
                     return obj.syntheticClassObjectAsString()
                 } catch (e: Exception) {
-                    log(
-                        "ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
-                                " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}"
-                    )
-                    return obj.asStringFallBack()
-                } catch (t: Throwable) {
-                    log(
-                        "FATAL ERROR: Throwable ${t.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
-                                " for object of class ${this.javaClass};$lineEnd${t.throwableAsString(50)}"
-                    )
+                    log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                            " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
                     return obj.asStringFallBack()
                 }
             } finally {
@@ -209,7 +208,7 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
     prefix: CharSequence = "",
     limit: Int
 ): String {
-    val sortNamesAlphabetic = this.size > 1 && obj::class.getAsStringClassOption().sortNamesAlphabetic
+    val sortNamesAlphabetic = this.size > 1 && obj::class.asStringClassOption().sortNamesAlphabetic
     val props: Map<KProperty<*>, Set<Annotation>> =
         if (sortNamesAlphabetic) this.entries.sortedBy { it.key.name }.associate { it.key to it.value }
         else this
@@ -342,6 +341,68 @@ internal fun Any?.asStringFallBack(): String {
     return if (this == null) defaultNullString else {
         "${this::class.simplifyClassName()}@${this.identityHashHex}"
             .replace(classPrefix, "")
+    }
+}
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KClass<*>.companionAsString(): String {
+    if (this.companionObject == null || Modifier.isPrivate (this.java.modifiers)) {
+        // Kotlin's reflection does not provide a means to make a companion object of a private accessible.
+        return ""
+    }
+    try {
+        this.companionObjectInstance?.let {
+            // Do not include the companion object if it doesn't have any properties (when it is empty, or has functions only)
+            if (this.companionObject?.memberProperties?.isEmpty() == true) {
+                return ""
+            }
+            // fetch the companion object's relevant annotations to have them added to the cache
+            // asString will later on fetch the annotations from the cache
+            fetchCompanionAsStringOption()
+            fetchCompanionAsStringClassOption()
+            return "companion: " + this.companionObjectInstance.asString()
+        }
+    } catch (e: IllegalAccessException) {
+        println()
+        // Ignore. Happens when retrieving a companion object of a private class.
+        // Nothing we can do here, Kotlin's reflection does not provide a means to make such companion object accessible.
+        // There seems no way even to test if it is accessible at all
+    } catch (e: Exception) {
+        log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                " for companion object of class ${this};$lineEnd${e.throwableAsString(50)}")
+    }
+    return ""
+}
+
+/**
+ * Retrieves and caches the receiver's companion object's relevant [AsStringOption]
+ * @return
+ * 1. The receiver class's companion object's [AsStringOption], if it's annotated with [AsStringOption]
+ * 2. Otherwise, if the companion object is not annotated with [AsStringOption], the receiver class's
+ *   [AsStringOption], if it's annotated with [AsStringOption]
+ * 3. Otherwise, the [AsStringOption.defaultOption]
+ * @throws [NullPointerException] if the receiver class has no companion object
+ */
+private fun KClass<*>.fetchCompanionAsStringOption(): AsStringOption {
+    return asStringOptionCache[this.companionObject as KClass<*>].ifNull {
+        (this.companionObject!!.nullableAsStringOption().ifNull { this.asStringOption() })
+            .also { asStringOptionCache[this.companionObject as KClass<*>] = it }
+    }
+}
+
+/**
+ * Retrieves and caches the receiver's companion object's relevant [AsStringClassOption]
+ * @return
+ * 1. The receiver class's companion object's [AsStringClassOption], if it's annotated with [AsStringClassOption]
+ * 2. Otherwise, if the companion object is not annotated with [AsStringOption], the receiver class's
+ *   [AsStringClassOption], if it's annotated with [AsStringClassOption]
+ * 3. Otherwise, the [AsStringClassOption.defaultOption]
+ * @throws [NullPointerException] if the receiver class has no companion object
+ */
+private fun KClass<*>.fetchCompanionAsStringClassOption(): AsStringClassOption {
+    return asStringClassOptionCache[this.companionObject as KClass<*>].ifNull {
+        (this.companionObject!!.nullableAsStringClassOption().ifNull { this.asStringClassOption() })
+            .also { asStringClassOptionCache[this.companionObject as KClass<*>] = it }
     }
 }
 

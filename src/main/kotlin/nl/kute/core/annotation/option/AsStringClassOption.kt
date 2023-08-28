@@ -88,15 +88,22 @@ internal fun Any.objectIdentity(asStringClassOption: AsStringClassOption): Strin
 }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun KClass<*>.getAsStringClassOption(): AsStringClassOption =
-    this.let { kClass ->
-        // referring to inner cache (so asStringClassOptionCache.cache)
-        // because of possible race conditions when resetting the cache
-        asStringClassOptionCache.cache.let { theCache ->
-            theCache[kClass].ifNull {
-                (this.annotationOfSubSuperHierarchy() ?: AsStringClassOption.defaultOption)
-                    .also { theCache[kClass] = it }
-            }
+internal fun KClass<*>.asStringClassOption(): AsStringClassOption =
+    nullableAsStringClassOption().ifNull {
+        AsStringClassOption.defaultOption
+            // referring to inner cache (so asStringClassOptionCache.cache)
+            // because of possible race conditions when resetting the cache
+            .also { asStringClassOptionCache.cache[this] = it }
+    }
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KClass<*>.nullableAsStringClassOption(): AsStringClassOption? =
+    asStringClassOptionCache.cache.let { theCache ->
+        theCache[this].ifNull {
+            this.annotationOfSubSuperHierarchy<AsStringClassOption>()
+                // referring to inner cache (so asStringClassOptionCache.cache)
+                // because of possible race conditions when resetting the cache
+                ?.also { theCache[this] = it }
         }
     }
 

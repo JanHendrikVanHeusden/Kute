@@ -3,7 +3,7 @@ package nl.kute.core
 import nl.kute.config.stringJoinMaxCount
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.ToStringPreference
-import nl.kute.core.annotation.option.getAsStringClassOption
+import nl.kute.core.annotation.option.asStringClassOption
 import nl.kute.core.annotation.option.objectIdentity
 import nl.kute.core.property.lambdaSignatureString
 import nl.kute.reflection.hasImplementedToString
@@ -180,10 +180,10 @@ internal fun KType.isCharSequenceType(): Boolean =
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.objectIdentity() =
-    this.objectIdentity(this::class.getAsStringClassOption())
+    this.objectIdentity(this::class.asStringClassOption())
 
 @JvmSynthetic // avoid access from external Java code
-internal fun KClass<*>.toStringPreference() = this.getAsStringClassOption().toStringPreference
+internal fun KClass<*>.toStringPreference() = this.asStringClassOption().toStringPreference
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.collectionIdentity(includeIdentity: Boolean = AsStringClassOption.defaultOption.includeIdentityHash) =

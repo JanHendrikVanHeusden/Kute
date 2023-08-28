@@ -4,8 +4,13 @@ import nl.kute.config.initialAsStringOption
 import nl.kute.config.initialMaxStringValueLength
 import nl.kute.config.initialNullString
 import nl.kute.config.notifyConfigChange
+import nl.kute.config.subscribeConfigChange
+import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
+import nl.kute.util.MapCache
+import nl.kute.util.ifNull
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.reflect.KClass
 
 /**
  * The [AsStringOption] annotation can be placed:
@@ -54,3 +59,35 @@ public annotation class AsStringOption(
 @JvmSynthetic // avoid access from external Java code
 internal fun AsStringOption.applyOption(strVal: String?): String =
     strVal?.take(propMaxStringValueLength) ?: showNullAs
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KClass<*>.asStringOption(): AsStringOption =
+    nullableAsStringOption().ifNull {
+        AsStringOption.defaultOption
+            // referring to inner cache (so asStringOptionCache.cache)
+            // because of possible race conditions when resetting the cache
+            .also { asStringOptionCache.cache[this] = it }
+    }
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KClass<*>.nullableAsStringOption(): AsStringOption? =
+    asStringOptionCache.cache.let { theCache ->
+        theCache[this].ifNull {
+            this.annotationOfSubSuperHierarchy<AsStringOption>()
+                // referring to inner cache (so asStringOptionCache.cache)
+                // because of possible race conditions when resetting the cache
+                ?.also { theCache[this] = it }
+        }
+    }
+
+/**
+ * Cache for the [AsStringClassOption] setting that applies to the given class, either by class annotation
+ * or, if not annotated with [AsStringClassOption], by [AsStringClassOption.defaultOption].
+ * > This cache will be reset (cleared) when [AsStringClassOption.defaultOption] is changed.
+ */
+@JvmSynthetic // avoid access from external Java code
+internal var asStringOptionCache = MapCache<KClass<*>, AsStringOption>()
+    .also {
+        @Suppress("UNCHECKED_CAST")
+        (AsStringOption::class as KClass<Annotation>).subscribeConfigChange { it.reset() }
+    }

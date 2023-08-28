@@ -11,7 +11,7 @@ import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
-import nl.kute.core.annotation.option.getAsStringClassOption
+import nl.kute.core.annotation.option.asStringClassOption
 import nl.kute.core.namedvalues.namedValue
 import nl.kute.core.test.helper.isObjectAsString
 import nl.kute.hashing.DigestMethod
@@ -36,7 +36,7 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
     @Test
     fun `A class annotated with PREFER_TOSTRING but without toString implementation should use asString`() {
         val testObj = WithoutToString()
-        assertThat(testObj::class.getAsStringClassOption().toStringPreference)
+        assertThat(testObj::class.asStringClassOption().toStringPreference)
             .isSameAs(PREFER_TOSTRING)
 
         repeat(3) {
@@ -54,7 +54,7 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
 
     @Test
     fun `asString on a class where toString calls asString and with PREFER_TOSTRING should be handled correctly`() {
-        assertThat(PersonWithToStringCallingAsString::class.getAsStringClassOption().toStringPreference)
+        assertThat(PersonWithToStringCallingAsString::class.asStringClassOption().toStringPreference)
             .isSameAs(PREFER_TOSTRING)
 
         repeat(3) {
@@ -75,7 +75,7 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
     @Test
     fun `asString on a class with PREFER_TOSTRING annotation should honour toString`() {
         val testObj = PersonWithToStringImplementation()
-        assertThat(testObj::class.getAsStringClassOption().toStringPreference)
+        assertThat(testObj::class.asStringClassOption().toStringPreference)
             .isSameAs(PREFER_TOSTRING)
 
         repeat(3) {
@@ -94,7 +94,7 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
         setDefaultToStringPref(USE_ASSTRING) // should be ignored, class is annotated with PREFER_TOSTRING
 
         val testObj = SubClassOfPersonWithToStringImplementation()
-        assertThat(testObj::class.getAsStringClassOption().toStringPreference)
+        assertThat(testObj::class.asStringClassOption().toStringPreference)
             .isSameAs(PREFER_TOSTRING)
 
         repeat(3) {
@@ -119,13 +119,13 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
                     AsStringClassOption::class.simplifyClassName()
             )
             .isNull()
-        assertThat(testObj::class.getAsStringClassOption().toStringPreference)
+        assertThat(testObj::class.asStringClassOption().toStringPreference)
             .`as`("${USE_ASSTRING} should apply because it's default")
             .isSameAs(USE_ASSTRING)
 
         // act, assert
         setDefaultToStringPref(PREFER_TOSTRING)
-        assertThat(testObj::class.getAsStringClassOption().toStringPreference)
+        assertThat(testObj::class.asStringClassOption().toStringPreference)
             .`as`("now ${PREFER_TOSTRING} should apply because of changed default")
             .isSameAs(PREFER_TOSTRING)
 
