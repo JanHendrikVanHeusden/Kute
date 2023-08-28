@@ -116,7 +116,6 @@ public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
  * @see [AsStringBuilder]
  */
 private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
-    // todo: include companion object
     try {
         val obj = this ?: return defaultNullString
         val objectCategory = AsStringObjectCategory.resolveObjectCategory(obj)
