@@ -1,6 +1,9 @@
 package nl.kute.core
 
+import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.option.AsStringClassOption
+import nl.kute.core.namedvalues.namedProp
+import nl.kute.core.namedvalues.namedValue
 import nl.kute.core.property.ranking.PropertyRanking
 import nl.kute.core.property.ranking.PropertyRankingByCommonNames
 import nl.kute.core.property.ranking.PropertyRankingByLength
@@ -14,6 +17,8 @@ import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.memberProperties
 
 class AsStringPropertyOrderingTest {
@@ -80,6 +85,68 @@ class AsStringPropertyOrderingTest {
             .isEqualTo("${testObj::class.simpleName}(&=ampersand, ®=registered trademark, ๚=it's a Thai character, ⏰=alarm clock, ㆠ=Bopomofo letter bu, 𐔰=it's Caucasian, 👼=baby angel, 👾=alien monster)")
     }
 
+    @Test
+    fun `instance properties and companion properties should be sorted by same sorters if not specified at companion`() {
+        // arrange
+        val testObj = WithPropsAndCompanionProps()
+        // check annotations
+        val asStringClassOption = testObj::class.annotations.first { it is AsStringClassOption } as AsStringClassOption
+        assertThat(asStringClassOption.sortNamesAlphabetic).isTrue
+        assertThat(asStringClassOption.propertySorters).isEqualTo(arrayOf(PropertyRankingByLength::class))
+        assertThat(testObj::class.companionObject!!.annotations.isEmpty())
+        // act, assert
+        assertThat(testObj.asString())
+            .contains(testObj::class.companionObjectInstance.asString())
+            .isEqualTo("WithPropsAndCompanionProps(" +
+                    "a=a, p=p, x=x, u=502192e9-638c-41cb-ab67-e2082f07705f," +
+                    " aLongString=${testObj.aLongString}," +
+                    " companion: Companion(" +
+                    "a=ca, p=p, x=cx, u=abc71969-adc6-4538-bb3b-d5aad893185f," +
+                    " aLongString=${WithPropsAndCompanionProps.aLongString}" +
+                    "))")
+    }
+
+    @Test
+    fun `subclasses should not have the superclass's companion object rendered`() {
+        // arrange
+        val testObj = SubClassOfWithPropsAndCompanionProps()
+        // check annotations
+        val asStringClassOption = testObj::class.annotations.first { it is AsStringClassOption } as AsStringClassOption
+        assertThat(asStringClassOption.sortNamesAlphabetic).isTrue
+        assertThat(asStringClassOption.propertySorters)
+            .isEqualTo(arrayOf(ReverseAlphabeticPropertyRanking::class, ReverseAlphabeticPropertyRanking2nd::class))
+        // act, assert
+        assertThat(testObj.asString())
+            .isEqualTo("SubClassOfWithPropsAndCompanionProps" +
+                "(x=x, u=502192e9-638c-41cb-ab67-e2082f07705f, p=p, aLongString=${testObj.aLongString}, a=a)"
+            )
+    }
+
+    @Test
+    fun `named values should be rendered at the end of the asString result, in order of input`() {
+        // arrange
+        val testObj = WithPropsAndCompanionProps()
+        val asStringClassOption = testObj::class.annotations.first { it is AsStringClassOption } as AsStringClassOption
+        assertThat(asStringClassOption.sortNamesAlphabetic).isTrue
+        assertThat(asStringClassOption.propertySorters).isEqualTo(arrayOf(PropertyRankingByLength::class))
+        assertThat(testObj::class.companionObject!!.annotations.isEmpty())
+        val asStringBuilder = testObj
+            .asStringBuilder()
+            .withAlsoNamed(
+                testObj.namedProp(testObj::aLongString),
+                testObj.namedProp(testObj::p),
+                "just something".namedValue("aNamedValue")
+            )
+        // act, assert
+        assertThat(asStringBuilder.asString())
+            .contains(testObj::class.companionObjectInstance.asString())
+            .`as`("Should neither be ordered alphabetically nor sorted otherwise; should just follow input order of named values")
+            .endsWith(", ${testObj::aLongString.name}=${testObj.aLongString}" +
+                    ", ${testObj::p.name}=${testObj.p}" +
+                    ", aNamedValue=just something)"
+            )
+    }
+
 }
 
 // region ~ Classes etc. to be used for testing
@@ -88,6 +155,17 @@ class AsStringPropertyOrderingTest {
 private class ReverseAlphabeticPropertyRanking: PropertyRanking() {
     override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int =
         (-propertyValueMetaData.propertyName[0].code)
+}
+
+private class ReverseAlphabeticPropertyRanking2nd: PropertyRanking() {
+    override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int {
+        return try {
+            return (-propertyValueMetaData.propertyName[1].code)
+        } catch (e: IndexOutOfBoundsException) {
+            // It's dirty. But it's test-code ʘ‿ʘ
+            Int.MAX_VALUE
+        }
+    }
 }
 
 @Suppress("unused")
@@ -154,6 +232,29 @@ class CommonNames {
     val aJsonVal = """{"name":"Nathaly", "age":30, "car":"Maserati GranCabrio", "job":"CFO}"""
     val aNumber = 25
 }
+
+@Suppress("unused")
+@AsStringClassOption(sortNamesAlphabetic = true, propertySorters = [PropertyRankingByLength::class])
+open class WithPropsAndCompanionProps {
+    val x = "x"
+    val a = "a"
+    val aLongString = "aLongString ".repeat(20)
+    val p = "p"
+    val u = UUID.fromString("502192e9-638c-41cb-ab67-e2082f07705f")
+    companion object {
+        val x = "cx"
+        val a = "ca"
+        val aLongString = "aCompanionString ".repeat(15)
+        val p = "p"
+        val u = UUID.fromString("abc71969-adc6-4538-bb3b-d5aad893185f")
+    }
+}
+
+@AsStringClassOption(
+    sortNamesAlphabetic = true,
+    propertySorters = [ReverseAlphabeticPropertyRanking::class, ReverseAlphabeticPropertyRanking2nd::class]
+)
+class SubClassOfWithPropsAndCompanionProps: WithPropsAndCompanionProps()
 
 // endregion
 
