@@ -870,7 +870,6 @@ class AsStringTest: ObjectsStackVerifier {
 
     class NestedPublicClassWithPublicCompanion {
         val instanceProp = "instance prop"
-
         companion object CompObjectName {
             var companionProp = "companion prop"
         }
@@ -878,7 +877,6 @@ class AsStringTest: ObjectsStackVerifier {
 
     protected open class NestedProtectedClassWithPublicCompanion {
         val instanceProp = "instance prop"
-
         companion object CompObjectName {
             var companionProp = "companion prop"
         }
@@ -886,7 +884,6 @@ class AsStringTest: ObjectsStackVerifier {
 
     class NestedPublicClassWithPrivateCompanion {
         val instanceProp = "instance prop"
-
         private companion object CompObjectName {
             var companionProp = "companion prop"
         }
@@ -894,7 +891,6 @@ class AsStringTest: ObjectsStackVerifier {
 
     class NestedPublicClassWithProtectedCompanion {
         val instanceProp = "instance prop"
-
         protected companion object CompObjectName {
             var companionProp = "companion prop"
         }
@@ -902,7 +898,6 @@ class AsStringTest: ObjectsStackVerifier {
 
     private class NestedPrivateClassWithCompanion {
         val instanceProp = "instance prop"
-
         companion object CompObjectName {
             var companionProp = "companion prop"
         }
@@ -912,7 +907,6 @@ class AsStringTest: ObjectsStackVerifier {
 
 private class PrivateClassWithCompanion {
     val instanceProp = "instance prop"
-
     companion object {
         var companionProp = "companion prop"
     }
