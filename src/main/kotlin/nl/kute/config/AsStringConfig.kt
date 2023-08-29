@@ -11,7 +11,8 @@ import kotlin.reflect.KClass
 
 /**
  * Builder-like class, to prepare and apply newly set values as defaults
- * for [AsStringOption] / [AsStringClassOption]
+ * for [AsStringOption] / [AsStringClassOption].
+ * > [AsStringConfig.applyAsDefault] must be called to make the new values effective as default.
  * @see [AsStringConfig.applyAsDefault]
  */
 public class AsStringConfig {
