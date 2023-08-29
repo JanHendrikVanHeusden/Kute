@@ -1,5 +1,7 @@
 package nl.kute.core
 
+import nl.kute.config.AsStringConfig
+import nl.kute.config.restoreInitialAsStringClassOption
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.namedvalues.namedProp
@@ -15,6 +17,8 @@ import nl.kute.core.property.ranking.ValueLengthRanking.M
 import nl.kute.core.property.ranking.ValueLengthRanking.XL
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.reflect.full.companionObject
@@ -22,6 +26,12 @@ import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.memberProperties
 
 class AsStringPropertyOrderingTest {
+
+    @BeforeEach
+    @AfterEach
+    fun setUpAndTearDown() {
+        restoreInitialAsStringClassOption()
+    }
 
     @Test
     fun `properties should be in expected order with single custom ranking`() {
@@ -107,9 +117,9 @@ class AsStringPropertyOrderingTest {
     }
 
     @Test
-    fun `subclasses should not have the superclass's companion object rendered`() {
+    fun `subclasses should not have the super-class's companion object rendered`() {
         // arrange
-        val testObj = SubClassOfWithPropsAndCompanionProps()
+        val testObj = SubClassOfWithPropsAndCompanionPropsToBeReverseSorted()
         // check annotations
         val asStringClassOption = testObj::class.annotations.first { it is AsStringClassOption } as AsStringClassOption
         assertThat(asStringClassOption.sortNamesAlphabetic).isTrue
@@ -117,9 +127,42 @@ class AsStringPropertyOrderingTest {
             .isEqualTo(arrayOf(ReverseAlphabeticPropertyRanking::class, ReverseAlphabeticPropertyRanking2nd::class))
         // act, assert
         assertThat(testObj.asString())
-            .isEqualTo("SubClassOfWithPropsAndCompanionProps" +
+            .isEqualTo("SubClassOfWithPropsAndCompanionPropsToBeReverseSorted" +
                 "(x=x, u=502192e9-638c-41cb-ab67-e2082f07705f, p=p, aLongString=${testObj.aLongString}, a=a)"
             )
+    }
+
+    @Test
+    fun `property rendering should follow default sorting if class not annotated`() {
+        // arrange
+        val testObj = NoAsStringClassOption()
+        // check annotations and default
+        val asStringClassOption = testObj::class.annotations.firstOrNull { it is AsStringClassOption } as AsStringClassOption?
+        assertThat(asStringClassOption).isNull()
+
+        // Apply some weird sorting
+        AsStringConfig()
+            .withPropertySorters(PropertyRankingByOddEvenHashCodeOfPropName::class)
+            .applyAsDefault()
+        // apply the weird sorting to the props to get the expected props ordering
+        var expectedPropValueString = NoAsStringClassOption::class.memberProperties
+            .sortedBy { prop -> prop.name.hashCode().let { if (it % 2 == 0) -it else it } }
+            .joinToString(separator = ", ") { "${it.name}=${it.get(testObj)}" }
+
+        // act, assert
+        assertThat(testObj.asString()).contains(expectedPropValueString)
+
+        // arrange: alphabetic sorting
+        AsStringConfig()
+            .withPropertySorters(ReverseAlphabeticPropertyRanking::class, ReverseAlphabeticPropertyRanking2nd::class)
+            .applyAsDefault()
+        // apply alphabetic sorting to the props
+        expectedPropValueString = NoAsStringClassOption::class.memberProperties
+            .sortedByDescending { prop -> prop.name }
+            .joinToString(separator = ", ") { "${it.name}=${it.get(testObj)}" }
+
+        // act, assert
+        assertThat(testObj.asString()).contains(expectedPropValueString)
     }
 
     @Test
@@ -166,6 +209,11 @@ private class ReverseAlphabeticPropertyRanking2nd: PropertyRanking() {
             Int.MAX_VALUE
         }
     }
+}
+
+private class PropertyRankingByOddEvenHashCodeOfPropName: PropertyRanking() {
+    override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int =
+        propertyValueMetaData.propertyName.hashCode().let { if (it % 2 == 0) -it else it }
 }
 
 @Suppress("unused")
@@ -223,10 +271,10 @@ class AsciiNames {
 class CommonNames {
     val myUuid: String = "uuid in name only :-)"
     val myRef = "31464769-3 / 347689"
-    val a70String = RandomStringUtils.randomAlphabetic(70)
+    val a70String: String = RandomStringUtils.randomAlphabetic(70)
     val anObject = AsciiNames()
-    val a250String = RandomStringUtils.randomAlphabetic(250)
-    val a40String = RandomStringUtils.randomAlphabetic(40)
+    val a250String: String = RandomStringUtils.randomAlphabetic(250)
+    val a40String: String = RandomStringUtils.randomAlphabetic(40)
     val someVal: UUID = UUID.randomUUID()
     val id = 1234567
     val aJsonVal = """{"name":"Nathaly", "age":30, "car":"Maserati GranCabrio", "job":"CFO}"""
@@ -240,13 +288,13 @@ open class WithPropsAndCompanionProps {
     val a = "a"
     val aLongString = "aLongString ".repeat(20)
     val p = "p"
-    val u = UUID.fromString("502192e9-638c-41cb-ab67-e2082f07705f")
+    val u: UUID = UUID.fromString("502192e9-638c-41cb-ab67-e2082f07705f")
     companion object {
         val x = "cx"
         val a = "ca"
         val aLongString = "aCompanionString ".repeat(15)
         val p = "p"
-        val u = UUID.fromString("abc71969-adc6-4538-bb3b-d5aad893185f")
+        val u: UUID = UUID.fromString("abc71969-adc6-4538-bb3b-d5aad893185f")
     }
 }
 
@@ -254,7 +302,16 @@ open class WithPropsAndCompanionProps {
     sortNamesAlphabetic = true,
     propertySorters = [ReverseAlphabeticPropertyRanking::class, ReverseAlphabeticPropertyRanking2nd::class]
 )
-class SubClassOfWithPropsAndCompanionProps: WithPropsAndCompanionProps()
+class SubClassOfWithPropsAndCompanionPropsToBeReverseSorted: WithPropsAndCompanionProps()
+
+@Suppress("unused")
+class NoAsStringClassOption {
+    val x = "x"
+    val a = "a"
+    val aLongString = "aLongString ".repeat(20)
+    val p = "p"
+    val u: UUID = UUID.fromString("502192e9-638c-41cb-ab67-e2082f07705f")
+}
 
 // endregion
 
