@@ -86,6 +86,10 @@ public abstract class AsStringProducer {
  */
 public fun Any?.asString(): String = asString(emptyStringList)
 
+@JvmSynthetic // avoid access from external Java code
+// Specifically to be used for collections, arrays etc.
+internal fun Any?.asString(elementsLimit: Int? = null): String = asString(emptyStringList, elementsLimit = elementsLimit)
+
 /**
  * Convenient [asString] alternative, with only the provided properties.
  * * String value of individual properties is capped at 500; see @[AsStringClassOption] to override the default.
@@ -115,11 +119,14 @@ public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
  * for these annotations, e.g. @[AsStringOption] and other (other annotations, see package `nl.kute.core.annotation.modify`)
  * @see [AsStringBuilder]
  */
-private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String {
+private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>, elementsLimit: Int? = null): String {
     try {
         val obj = this ?: return defaultNullString
         val objectCategory = AsStringObjectCategory.resolveObjectCategory(obj)
         // If no stack guarding needed, we can handle the object here already
+        if (!objectCategory.guardStack && objectCategory.hasAnyHandler()) {
+            return handleObject(obj, objectCategory, elementsLimit)
+        }
         if (objectCategory.hasHandler() && !objectCategory.guardStack) {
             return objectCategory.handler!!(obj)
         } else {
@@ -134,10 +141,9 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                     // avoid endless loop
                     return "$recursivePrefix${objClass.simplifyClassName()}$recursivePostfix"
                 }
-                if (objectCategory.hasHandler()) {
-                    return objectCategory.handler!!(obj)
+                if (objectCategory.hasAnyHandler()) {
+                    return handleObject(obj, objectCategory, elementsLimit)
                 }
-
                 val hasAdditionalParameters = propertyNamesToExclude.isNotEmpty() || nameValues.isNotEmpty()
                 if (!hasAdditionalParameters) {
                     val (toStringPref, firstTime) = objClass.toStringHandling()
@@ -332,6 +338,11 @@ private const val recursivePrefix =  "recursive: "
 private const val recursivePostfix = "$propertyListPrefix...$propertyListSuffix"
 
 private val classPrefix = Regex("^class ")
+
+private fun handleObject(obj: Any, category: AsStringObjectCategory, limit: Int?): String {
+    return if (category.hasHandlerWithSize()) category.handlerWithSize!!(obj, limit)
+    else category.handler!!(obj)
+}
 
 /** To be used as fallback return value in case of exception within [asString] */
 @JvmSynthetic // avoid access from external Java code

@@ -262,7 +262,8 @@ internal class AsStringObjectCategoryTest {
             RoundingMode.CEILING,
             Locale.getDefault(),
             Calendar.getInstance(),
-            GregorianCalendar()
+            GregorianCalendar(),
+            0..100 // IntRange, to be rendered as `0..100`
         ).forEach {
             it.assertSystemObject()
         }
@@ -340,7 +341,7 @@ internal class AsStringObjectCategoryTest {
         assertThat(category.guardStack).isTrue
 
         this.assertObjectCategory(AsStringObjectCategory.ARRAY)
-        assertThat(category.handler!!.invoke(this))
+        assertThat(category.handlerWithSize!!.invoke(this, Int.MAX_VALUE))
             .isEqualTo(arrayAsString())
             .isEqualTo(contentDeepToString())
     }
@@ -350,7 +351,7 @@ internal class AsStringObjectCategoryTest {
         assertThat(category.guardStack).isTrue
 
         this.assertObjectCategory(AsStringObjectCategory.COLLECTION)
-        assertThat(category.handler!!.invoke(this))
+        assertThat(category.handlerWithSize!!.invoke(this, Int.MAX_VALUE))
             .isEqualTo(collectionAsString())
             .isEqualTo(this.asString())
     }
@@ -360,7 +361,7 @@ internal class AsStringObjectCategoryTest {
         assertThat(category.guardStack).isTrue
 
         this.assertObjectCategory(AsStringObjectCategory.MAP)
-        assertThat(category.handler!!.invoke(this))
+        assertThat(category.handlerWithSize!!.invoke(this, Int.MAX_VALUE))
             .isEqualTo(mapAsString())
             .isEqualTo(this.asString())
     }
@@ -370,7 +371,7 @@ internal class AsStringObjectCategoryTest {
         assertThat(category.guardStack).isFalse
 
         this.assertObjectCategory(AsStringObjectCategory.PRIMITIVE_ARRAY)
-        assertThat(category.handler!!.invoke(this))
+        assertThat(category.handlerWithSize!!.invoke(this, Int.MAX_VALUE))
             .isEqualTo(this.primitiveArrayAsString())
             .isEqualTo(this.primitiveArrayToArray().asString())
     }

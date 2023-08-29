@@ -4,6 +4,7 @@ package nl.kute.core
 
 import nl.kute.config.AsStringConfig
 import nl.kute.config.restoreInitialAsStringClassOption
+import nl.kute.config.restoreInitialAsStringOption
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
@@ -69,6 +70,7 @@ class AsStringTest: ObjectsStackVerifier {
     @AfterEach
     fun setUpAndTearDown() {
         restoreInitialAsStringClassOption()
+        restoreInitialAsStringOption()
         propsWithAnnotationsCacheByClass.reset()
         asStringClassOptionCache.reset()
     }
@@ -484,13 +486,14 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `annotations should yield output without package name`() {
-        val asStringOption = AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 12)
+        val asStringOption = AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 12, elementsLimit = 83)
 
         assertThat(asStringOption.asString())
             .isObjectAsString(
                 "AsStringOption",
                 "propMaxStringValueLength=12",
-                "showNullAs=<null>"
+                "showNullAs=<null>",
+                "elementsLimit=83"
             )
 
         // just to show the difference
@@ -498,14 +501,21 @@ class AsStringTest: ObjectsStackVerifier {
             .isObjectAsString(
                 "@nl.kute.core.annotation.option.AsStringOption",
                 "propMaxStringValueLength=12",
-                "showNullAs=<null>"
+                "showNullAs=<null>",
+                "elementsLimit=83"
             )
     }
 
     @Test
     fun `collections should yield same output as default toString`() {
-        // This applies to several Java and Kotlin built in types. Not tested all (there are 30+ of them)
-        // It may not apply to non-Java/Kotlin collections, e.g. from Google (Guave) or Apache (not tested)
+        // AsString mimics toString() output of collection-like Java and Kotlin built-in types.
+        //
+        // This test succeeds with some (arbitrarily chosen) Java and Kotlin built in types
+        // (Map, List, Queue, ArrayBlockingQueue, Stack); in other tests also Array, IntArray, etc.
+        // Not tested all, though: there are 30+ of them.
+        //
+        // Non-Java/Kotlin collections, e.g. from Google (Guave) or Apache, are not tested.
+
         val map = hashMapOf(1 to "first", 2 to "second", 3 to "third")
         assertThat(map.asString())
             .isEqualTo(map.toString())

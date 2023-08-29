@@ -1,7 +1,7 @@
 package nl.kute.core
 
-import nl.kute.config.stringJoinMaxCount
 import nl.kute.core.annotation.option.AsStringClassOption
+import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.asStringClassOption
 import nl.kute.core.annotation.option.objectIdentity
@@ -23,48 +23,74 @@ import kotlin.reflect.KType
  * [Throwable]s, [Annotation]s, [Number], [String], [Date], [Temporal], [Char] etc.
  *  * When a [handler] is provided, it should be invoked by the caller
  *  * When no [handler] is provided, the caller itself should provide the implementation
+ *
+ * ***Remark about [Iterable]:*** [Iterable]s are categorized as [SYSTEM]
+ * > (unlike collections, arrays, maps, etc.; these are handled as specific [AsStringObjectCategory]s).
+ *
+ * This is because [Iterable] has lots of more exotic implementing types,
+ * e.g. `SQLException` and other SQL stuff, `com.sun.source.util.TreePath`, etc.
+ * We better rely on the built-in `toString()` method of these types.
+ *
+ * Same goes for things like Kotlin's ranges (e.g. [IntRange]) are also handled as [SYSTEM],
+ * these have a decent [toString] method anyway, no need for custom handling there.
  */
 @AsStringClassOption(toStringPreference = ToStringPreference.PREFER_TOSTRING)
-internal enum class AsStringObjectCategory(val guardStack: Boolean, val handler: ((Any) -> String)? = null) {
+internal enum class AsStringObjectCategory(
+    val guardStack: Boolean,
+    val handler: ((Any) -> String)? = null,
+    val handlerWithSize: ((Any, Int?) -> String)? = null,
+) {
     /**
      * Base stuff like [Boolean], [Number], [String], [Date], [Temporal], [Char], these have
      * sensible [toString] implementations that we need not (and should not) override
      * @see [isBaseType]
      */
-    BASE(false, { it.toString() }),
+    BASE(guardStack = false, handler = { it.toString() }),
 
     /** Override: [Collection.toString] methods are vulnerable for stack overflow (in case of recursive data) */
-    COLLECTION(true, { (it as Collection<*>).collectionAsString() }),
+    COLLECTION(guardStack = true, handlerWithSize = {it, size -> (it as Collection<*>).collectionAsString(size)}),
 
     /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
-    ARRAY(true, { (it as Array<*>).arrayAsString() }),
+    ARRAY(guardStack = true, handlerWithSize = {it, size -> (it as Array<*>).arrayAsString(size) }),
 
     /** Override: arrays of primitives (e.g. [IntArray], [BooleanArray], [CharArray] lack proper [toString] implementation */
-    PRIMITIVE_ARRAY(false, { it.primitiveArrayAsString() }),
+    PRIMITIVE_ARRAY(guardStack = false, handlerWithSize = {it, size -> it.primitiveArrayAsString(size) }),
 
     /** Override: [Map.toString] methods are vulnerable for stack overflow (in case of recursive data) */
-    MAP(true, { (it as Map<*, *>).mapAsString() }),
+    MAP(guardStack = true, handlerWithSize = { it, size -> (it as Map<*, *>).mapAsString(size) }),
 
     /** Override: default [Throwable.toString] is way too verbose */
-    THROWABLE(true, { (it as Throwable).throwableAsString() }),
+    THROWABLE(guardStack = true, handler = { (it as Throwable).throwableAsString() }),
 
     /** Override: [Annotation.toString] is too verbose (due to inclusion of package name) */
-    ANNOTATION(true, { (it as Annotation).annotationAsString() }),
+    ANNOTATION(guardStack = true, handler = { (it as Annotation).annotationAsString() }),
 
     /** Override: String representation needs some tidying by [lambdaPropertyAsString] */
-    LAMBDA_PROPERTY(false, { it.lambdaPropertyAsString() }),
+    LAMBDA_PROPERTY(guardStack = false, handler = { it.lambdaPropertyAsString() }),
 
     /**
      * Override for Java & Kotlin internals: provide sensible alternative for classes
      * without [toString] implementation; also, adds identity if required
      */
-    SYSTEM(false, { it.systemClassObjAsString() }),
+    SYSTEM(guardStack = false, handler = { it.systemClassObjAsString() }),
 
     /** Custom handling */
     CUSTOM(guardStack = true);
 
+    init {
+        check(this.handler == null || this.handlerWithSize == null) {
+            "Either handler, or handlerWithSize may be specified, but not both. Found: hasHandler=${hasHandler()} and hasHandlerWithSize=${hasHandlerWithSize()}"
+        }
+    }
+
+    @JvmSynthetic // avoid access from external Java code
+    internal fun hasAnyHandler(): Boolean = hasHandler() || hasHandlerWithSize()
+
     @JvmSynthetic // avoid access from external Java code
     internal fun hasHandler(): Boolean = handler != null
+
+    @JvmSynthetic // avoid access from external Java code
+    internal fun hasHandlerWithSize(): Boolean = handlerWithSize != null
 
     companion object CategoryResolver {
         @JvmSynthetic // avoid access from external Java code
@@ -159,14 +185,14 @@ private val collectionTypes = arrayOf(
     Collection::class.java,
     Array::class.java,
     Map::class.java,
-    BooleanArray::class.java,
-    CharArray::class.java,
-    ByteArray::class.java,
-    ShortArray::class.java,
     IntArray::class.java,
+    ByteArray::class.java,
+    CharArray::class.java,
     LongArray::class.java,
     FloatArray::class.java,
-    DoubleArray::class.java
+    DoubleArray::class.java,
+    ShortArray::class.java,
+    BooleanArray::class.java
 )
 
 @JvmSynthetic // avoid access from external Java code
@@ -225,47 +251,47 @@ internal fun Annotation.annotationAsString(): String {
 }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Collection<*>.collectionAsString(): String {
+internal fun Collection<*>.collectionAsString(limit: Int? = null): String {
     val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
     return joinToString(
         prefix = "${collectionIdentity(includeIdentity)}[",
         separator = ", ",
         postfix = "]",
-        limit = stringJoinMaxCount
+        limit = limit ?: AsStringOption.defaultOption.elementsLimit
     ) { it.asString() }
 }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Any.primitiveArrayAsString(): String {
+internal fun Any.primitiveArrayAsString(limit: Int? = null): String {
     val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
     return this.primitiveArrayIterator().asSequence()
         .joinToString(
             prefix = "${collectionIdentity(includeIdentity)}[",
             separator = ", ",
             postfix = "]",
-            limit = stringJoinMaxCount
+            limit = limit ?: AsStringOption.defaultOption.elementsLimit
         )
 }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Map<*, *>.mapAsString(): String {
+internal fun Map<*, *>.mapAsString(limit: Int? = null): String {
     val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
     return this.entries.joinToString(
         prefix = "${collectionIdentity(includeIdentity)}{",
         separator = ", ",
         postfix = "}",
-        limit = stringJoinMaxCount
+        limit = limit ?: AsStringOption.defaultOption.elementsLimit
     ) { it.asString() }
 }
 
 @JvmSynthetic // avoid access from external Java code
-internal fun Array<*>.arrayAsString(): String {
+internal fun Array<*>.arrayAsString(limit: Int? = null): String {
     val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
     return joinToString(
         prefix = "${collectionIdentity(includeIdentity)}[",
         separator = ", ",
         postfix = "]",
-        limit = stringJoinMaxCount
+        limit = limit ?: AsStringOption.defaultOption.elementsLimit
     ) { it.asString() }
 }
 

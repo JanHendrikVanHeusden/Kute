@@ -26,9 +26,10 @@ public class AsStringConfig {
 
     private fun setNewDefaultAsStringOption(
         showNullAs: String = newDefaultAsStringOption.showNullAs,
-        propMaxLength: Int = newDefaultAsStringOption.propMaxStringValueLength) {
+        propMaxLength: Int = newDefaultAsStringOption.propMaxStringValueLength,
+        elementsLimit: Int = newDefaultAsStringOption.elementsLimit) {
 
-        setNewDefaultAsStringOption(AsStringOption(showNullAs, propMaxLength))
+        setNewDefaultAsStringOption(AsStringOption(showNullAs, propMaxLength, elementsLimit))
     }
 
     private fun setNewDefaultAsStringClassOption(newAsStringClassOption: AsStringClassOption) {
@@ -67,6 +68,19 @@ public class AsStringConfig {
      */
     public fun withMaxPropertyStringLength(propMaxLength: Int): AsStringConfig {
         setNewDefaultAsStringOption(propMaxLength = propMaxLength)
+        return this
+    }
+
+    /**
+     * Sets the new default value for [AsStringOption.elementsLimit].
+     *
+     * After being applied, this value is used as an application-wide default
+     * when no [AsStringOption] annotation is present.
+     * @return the config builder (`this`)
+     * @see [applyAsDefault]
+     */
+    public fun withElementsLimit(elementsLimit: Int): AsStringConfig {
+        setNewDefaultAsStringOption(elementsLimit = elementsLimit)
         return this
     }
 
@@ -140,10 +154,11 @@ public class AsStringConfig {
 
 }
 
-/** Limit to the number of elements to be joined together */
-// todo: make configurable by annotation AsStringOption
-@JvmSynthetic // avoid access from external Java code
-internal const val stringJoinMaxCount: Int = 200
+/** Limits the overall number of properties or [nl.kute.core.namedvalues.NamedValue]s to be joined together */
+public const val stringJoinMaxCount: Int = 1000
+
+/** Initial default value for limiting the number of elements of a collection to be parsed */
+public const val initialElementsLimit: Int = 50
 
 /** Initial default value for how to represent `null` in the [nl.kute.core.asString] */
 public const val initialNullString: String = "null"

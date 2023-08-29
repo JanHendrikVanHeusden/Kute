@@ -44,10 +44,15 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         }
         value = this.getPropValue(prop)
 
-        val hasHandler: Boolean =
-            value?.let { AsStringObjectCategory.resolveObjectCategory(value!!) }?.hasHandler() == true
+        val asStringObjectCategory = value?.let { AsStringObjectCategory.resolveObjectCategory(value!!) }
+        val hasHandlerWithSize: Boolean = asStringObjectCategory?.hasHandlerWithSize() == true
+        val hasHandler: Boolean = asStringObjectCategory?.hasHandler() == true
+        val asStringOption: AsStringOption? = annotations.findAnnotation()
+
         var strValue: String? = if (hasHandler)
             value.asString()
+        else if (hasHandlerWithSize)
+            value.asString(asStringOption?.elementsLimit)
         else if (value == null) {
             null
         } else {
@@ -63,8 +68,6 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         val asStringMaskSet: Set<AsStringMask> = annotations.findAnnotations()
         // non-repeating
         val asStringHash: AsStringHash? = annotations.findAnnotation()
-        // non-repeating
-        val asStringOption: AsStringOption = annotations.findAnnotation()!! // always present
 
         asStringReplaceSet.forEach {
             strValue = it.replacePattern(strValue)
@@ -73,7 +76,7 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
             strValue = it.mask(strValue)
         }
         strValue = asStringHash.hashString(strValue)
-        strValue = asStringOption.applyOption(strValue)
+        strValue = asStringOption?.applyOption(strValue)
         return@let strValue
     }
     val objClass = if (this == null) null else this@getPropValueString::class

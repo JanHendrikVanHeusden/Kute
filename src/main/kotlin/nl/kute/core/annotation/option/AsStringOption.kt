@@ -1,6 +1,7 @@
 package nl.kute.core.annotation.option
 
 import nl.kute.config.initialAsStringOption
+import nl.kute.config.initialElementsLimit
 import nl.kute.config.initialMaxStringValueLength
 import nl.kute.config.initialNullString
 import nl.kute.config.notifyConfigChange
@@ -28,6 +29,10 @@ import kotlin.reflect.KClass
  * * default is 500 (by [initialMaxStringValueLength])
  * * 0 results in an empty String;
  * * negative values mean: [Int.MAX_VALUE], so effectively no maximum.
+ * @param elementsLimit limits the number of elements of collection like properties to be
+ * represented in the [nl.kute.core.asString] return value. Default = 50 (by [initialElementsLimit])
+ * > * Applies to repeating values, e.g. for [Collection]s, [Map]s, [Array]s
+ * * **NB**: The String representation is also capped by [propMaxStringValueLength]
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 @MustBeDocumented
@@ -35,7 +40,8 @@ import kotlin.reflect.KClass
 @Retention(RUNTIME)
 public annotation class AsStringOption(
     val showNullAs: String = initialNullString,
-    val propMaxStringValueLength: Int = initialMaxStringValueLength
+    val propMaxStringValueLength: Int = initialMaxStringValueLength,
+    val elementsLimit: Int = initialElementsLimit
 ) {
 
     /** Static holder for [defaultOption] */

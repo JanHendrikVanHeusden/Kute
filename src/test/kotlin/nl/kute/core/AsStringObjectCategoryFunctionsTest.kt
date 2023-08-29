@@ -193,7 +193,8 @@ class AsStringObjectCategoryFunctionsTest {
             .isObjectAsString(
                 "AsStringOption",
                 "showNullAs=${defaultOption.showNullAs}",
-                "propMaxStringValueLength=${defaultOption.propMaxStringValueLength}"
+                "propMaxStringValueLength=${defaultOption.propMaxStringValueLength}",
+                "elementsLimit=${defaultOption.elementsLimit}"
             )
     }
 
