@@ -8,7 +8,7 @@ package nl.kute.core.annotation.option
 public enum class ToStringPreference {
 
     /**
-     * **Recommended** unless:
+     * [USE_ASSTRING] is **recommended** unless:
      *  * specific requirements apply to [toString] methods
      *  * [toString] methods have been created with additional value, e.g. additional values
      *    for tracing objects in logs, etc.

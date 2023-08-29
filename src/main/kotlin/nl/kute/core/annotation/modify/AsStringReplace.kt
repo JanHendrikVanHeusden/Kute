@@ -25,9 +25,9 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  * As always with regular expressions:
  *  * Design your expressions properly; stay away from so-called catastrophic backtracking!
  *    > [https://regex101.com/r/iXSKTs/1/debugger](https://regex101.com/r/iXSKTs/1/debugger),
- *    > [https://www.regular-expressions.info/catastrophic.html](https://www.regular-expressions.info/catastrophic.html)
+ *    [https://www.regular-expressions.info/catastrophic.html](https://www.regular-expressions.info/catastrophic.html)
  *
- * @param pattern The expression to replace, either as regular expression (when [isRegexpPattern] is `true`),
+ * @param pattern The expression to replace, either as regular expression (when [isRegexpPattern] is `true`; default),
  *   or as a literal (when [isRegexpPattern] is `false`). Each occurrence will be replaced by [replacement].
  *    * Invalid regular expression will result in an empty String being returned.
  * @param replacement The replacement; back references are allowed. Default is an empty string `""`

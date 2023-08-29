@@ -22,19 +22,19 @@ import kotlin.reflect.KClass
  * when no explicit [AsStringOption] annotation is applied.
  *
  * It allows specifying how property values are to be parsed in the [nl.kute.core.asString] return value.
+ *
+ * @param showNullAs How to show nulls? Default is "`"null"`" (by [initialNullString]), but you may opt for something else
+ * @param propMaxStringValueLength The maximum String value length **per property**.
+ * * default is 500 (by [initialMaxStringValueLength])
+ * * 0 results in an empty String;
+ * * negative values mean: [Int.MAX_VALUE], so effectively no maximum.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)
 public annotation class AsStringOption(
-    /** How to show nulls? Default is "`"null"`" (by [initialNullString]), but you may opt for something else */
     val showNullAs: String = initialNullString,
-    /** The maximum String value length **per property**.
-     * * default is 500 (by [initialMaxStringValueLength])
-     * * 0 results in an empty String;
-     * * negative values mean: [Int.MAX_VALUE], so effectively no maximum.
-     */
     val propMaxStringValueLength: Int = initialMaxStringValueLength
 ) {
 

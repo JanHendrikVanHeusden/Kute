@@ -17,6 +17,16 @@ import kotlin.math.min
  * ---
  * * If the position of [startMaskAt] is after that of [endMaskAt], the full [String] will be masked.
  * * If [minLength]` >  `[maxLength], [minLength] is used
+ * @param startMaskAt At which character index (inclusive) masking should start? Default = 0
+ * @param endMaskAt At which character index (exclusive) masking should end? Default = [Int.MAX_VALUE]
+ * @param mask The char to use for masking. Default = `*`
+ * @param maskNulls Should nulls be masked too?
+ *  * when `true` (default), nulls will be replaced by `"null"` and then be masked
+ *  * when `false`, nulls will be left as `null`
+ * @param minLength The minimum length of the resulting value;
+ *   so masking of `"ab"` with [minLength] of `6` will result in `******`. Default = 0
+ * @param maxLength The maximum length of the resulting value.
+ *   If less than the [String]'s length, the [String] will be truncated to the specified length. Default =[Int.MAX_VALUE]
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @Repeatable
@@ -24,26 +34,11 @@ import kotlin.math.min
 @Inherited
 @MustBeDocumented
 public annotation class AsStringMask(
-    /** At which character index (inclusive) masking should start? */
     val startMaskAt: Int = 0,
-
-    /** At which character index (exclusive) masking should end? */
     val endMaskAt: Int = Int.MAX_VALUE,
-
-    /** The char to use for masking */
     val mask: Char = '*',
-
-    /**
-     * Should nulls be masked too?
-     *  * when `true`, nulls will be replaced by `"null"` and then be masked
-     *  * when `false`, nulls will be left as `null`
-     */
     val maskNulls: Boolean = true,
-
-    /** The minimum length of the resulting value; so masking of `"ab"` with [minLength] of `6` will result in `******` */
     val minLength: Int = 0,
-
-    /** The maximum length of the resulting value. If less than the [String]'s length, the [String] will be truncated */
     val maxLength: Int = Int.MAX_VALUE,
 )
 
