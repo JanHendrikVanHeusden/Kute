@@ -26,9 +26,11 @@ import kotlin.reflect.KClass
  * @param includeIdentityHash Should the identity hash be included in output of [nl.kute.core.asString]?
  * If included, the identity hash is represented as `@` followed by the hex representation as of [System.identityHashCode]
  * (up to 8 hex characters), identical to the hex string seen in non-overridden [toString] output.
+ * > Default = `false` by [initialIncludeIdentityHash]
  * @param toStringPreference
  * * If [ToStringPreference.USE_ASSTRING] applies (either as default or by annotation), [nl.kute.core.asString] should
  *   dynamically resolve properties and values for custom classes, even if [toString] is implemented.
+ *   [USE_ASSTRING] is the default.
  * * If [ToStringPreference.PREFER_TOSTRING] applies (either as default or by annotation), and a [toString] method is
  *   implemented, [nl.kute.core.asString] should honour the class's [toString], rather than dynamically resolving
  *   properties and values.
@@ -36,9 +38,10 @@ import kotlin.reflect.KClass
  *   > [nl.kute.core.asString] will fall back to dynamically resolving properties and values for that class.
  * @param sortNamesAlphabetic Should output of [nl.kute.core.asString] be sorted alphabetically by property name in output
  * of [nl.kute.core.asString].?
+ * > Default = `false` by [initialSortNamesAlphabetic]
  * > **NB:** This is a pre-sorting. If additional [propertySorters] are given, these will be applied after the alphabetic sort.
  * @param propertySorters One or more [PropertyRankable] implementing classes can be specified to have properties sorted
- * in output of [nl.kute.core.asString].
+ * in output of [nl.kute.core.asString]. Default is none (no explicit sorting order).
  * These will be applied in order, like SQL multi-column sorting.
  * > So if the 1st sorter yields an equal result for a pair of properties, the 2nd will be applied, and so on until a non-zero
  * > result is obtained, of until the [propertySorters] are exhausted.

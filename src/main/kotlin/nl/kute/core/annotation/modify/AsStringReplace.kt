@@ -31,7 +31,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *   or as a literal (when [isRegexpPattern] is `false`). Each occurrence will be replaced by [replacement].
  *    * Invalid regular expression will result in an empty String being returned.
  * @param replacement The replacement; back references are allowed. Default is an empty string `""`
- *  * If [isRegexpPattern] is `true`, regex group capture is supported, Java style (`$1`, `$2` etc.)
+ *  * If [isRegexpPattern] is `true`, regex group capture is supported, Java style (`$1`, `$2` etc.).
  * @param isRegexpPattern
  *  * If `true` (default), the [pattern] will be considered a [Regex] pattern
  *  * If `false`, the [pattern] and [replacement] will be treated as a literals.

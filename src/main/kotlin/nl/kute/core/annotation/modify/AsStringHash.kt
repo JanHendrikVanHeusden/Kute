@@ -19,7 +19,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *      a [AsStringHash] annotation with [DigestMethod.CRC32C], and an implementing class specifies [DigestMethod.SHA1]
  *      for that property, the annotation on the overriding property is ignored, so it will still be hashed with
  *      [DigestMethod.CRC32C]
- * @param digestMethod The digest algorithm to use; see [DigestMethod]
+ * @param digestMethod The digest algorithm to use; see [DigestMethod]. Default = [DigestMethod.CRC32C]
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @Retention(RUNTIME)
