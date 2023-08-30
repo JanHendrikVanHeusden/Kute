@@ -127,7 +127,7 @@ class AnnotationFinderTest {
 
     @AsStringOption(propMaxStringValueLength = 200)
     private open class With3AsStringOptions(@AsStringOption(propMaxStringValueLength = 100) open val someVal: String) {
-        @AsStringOption(propMaxStringValueLength = 250, showNullAs = "<null>")
+        @AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 250)
         override fun toString(): String = asString()
     }
 
@@ -138,22 +138,22 @@ class AnnotationFinderTest {
     private open class WithInheritedAsStringOption(override val someVal: String) : With3AsStringOptions(someVal) {
         override fun toString(): String = asString()
 
-        @AsStringOption(propMaxStringValueLength = 999999, showNullAs = "")
+        @AsStringOption(showNullAs = "", propMaxStringValueLength = 999999)
         @Suppress("unused", "UNUSED_PARAMETER", "EmptyMethod")
         fun toString(something: String) {}
     }
 
     private open class ClassWithMethodParamSubtypeInheritance<T : Number> {
-        @AsStringOption(propMaxStringValueLength = 50, showNullAs = "")
+        @AsStringOption(showNullAs = "", propMaxStringValueLength = 50)
         open fun getList(inList: List<T>): List<T> = emptyList()
 
-        @AsStringOption(propMaxStringValueLength = 15, showNullAs = "no number")
+        @AsStringOption(showNullAs = "no number", propMaxStringValueLength = 15)
         open fun getNum(inNum: T): T? = null
 
         @Suppress("EmptyMethod") // several properties accessed by reflection only
         open fun doList(inList: List<T>) {}
 
-        @AsStringOption(propMaxStringValueLength = 250, showNullAs = "<null>")
+        @AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 250)
         override fun toString(): String = asString()
     }
 

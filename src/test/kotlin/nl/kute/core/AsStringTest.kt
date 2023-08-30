@@ -489,10 +489,10 @@ class AsStringTest: ObjectsStackVerifier {
         val asStringOption = AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 12, elementsLimit = 83)
 
         assertThat(asStringOption.asString())
-            .isObjectAsString(
-                "AsStringOption",
-                "propMaxStringValueLength=12",
+            .isObjectAsString("AsStringOption",
                 "showNullAs=<null>",
+                "surroundPropValue=NONE",
+                "propMaxStringValueLength=12",
                 "elementsLimit=83"
             )
 
@@ -500,8 +500,9 @@ class AsStringTest: ObjectsStackVerifier {
         assumeThat(asStringOption.toString())
             .isObjectAsString(
                 "@nl.kute.core.annotation.option.AsStringOption",
-                "propMaxStringValueLength=12",
                 "showNullAs=<null>",
+                "surroundPropValue=NONE",
+                "propMaxStringValueLength=12",
                 "elementsLimit=83"
             )
     }

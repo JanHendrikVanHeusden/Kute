@@ -6,6 +6,7 @@ import nl.kute.config.initialMaxStringValueLength
 import nl.kute.config.initialNullString
 import nl.kute.config.notifyConfigChange
 import nl.kute.config.subscribeConfigChange
+import nl.kute.core.annotation.option.PropertyValueSurrounder.NONE
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.util.MapCache
 import nl.kute.util.ifNull
@@ -40,6 +41,8 @@ import kotlin.reflect.KClass
 @Retention(RUNTIME)
 public annotation class AsStringOption(
     val showNullAs: String = initialNullString,
+    // TODO: KDoc
+    val surroundPropValue: PropertyValueSurrounder = NONE,
     val propMaxStringValueLength: Int = initialMaxStringValueLength,
     val elementsLimit: Int = initialElementsLimit
 ) {

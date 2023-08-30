@@ -2,6 +2,8 @@ package nl.kute.config
 
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.PropertyValueSurrounder
+import nl.kute.core.annotation.option.PropertyValueSurrounder.NONE
 import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.property.ranking.PropertyRankable
@@ -26,10 +28,16 @@ public class AsStringConfig {
 
     private fun setNewDefaultAsStringOption(
         showNullAs: String = newDefaultAsStringOption.showNullAs,
+        surroundPropValue: PropertyValueSurrounder = newDefaultAsStringOption.surroundPropValue,
         propMaxLength: Int = newDefaultAsStringOption.propMaxStringValueLength,
         elementsLimit: Int = newDefaultAsStringOption.elementsLimit) {
 
-        setNewDefaultAsStringOption(AsStringOption(showNullAs, propMaxLength, elementsLimit))
+        setNewDefaultAsStringOption(AsStringOption(
+            showNullAs = showNullAs,
+            surroundPropValue = surroundPropValue,
+            propMaxStringValueLength = propMaxLength,
+            elementsLimit = elementsLimit
+        ))
     }
 
     private fun setNewDefaultAsStringClassOption(newAsStringClassOption: AsStringClassOption) {
@@ -42,7 +50,12 @@ public class AsStringConfig {
         sortNamesAlphabetic: Boolean = newDefaultAsStringClassOption.sortNamesAlphabetic,
         vararg propertySorters: KClass<out PropertyRankable<*>> = newDefaultAsStringClassOption.propertySorters
         ) {
-        setNewDefaultAsStringClassOption(AsStringClassOption(includeIdentityHash, toStringPreference, sortNamesAlphabetic, *propertySorters))
+        setNewDefaultAsStringClassOption(AsStringClassOption(
+            includeIdentityHash = includeIdentityHash,
+            toStringPreference = toStringPreference,
+            sortNamesAlphabetic = sortNamesAlphabetic,
+            propertySorters = propertySorters
+        ))
     }
 
     /**
@@ -55,6 +68,19 @@ public class AsStringConfig {
      */
     public fun withShowNullAs(showNullAs: String): AsStringConfig {
         setNewDefaultAsStringOption(showNullAs = showNullAs)
+        return this
+    }
+
+    /**
+     * Sets the new default value for [AsStringOption.surroundPropValue].
+     *
+     * After being applied, this value is used as an application-wide default
+     * when no [AsStringOption] annotation is present.
+     * @return the config builder (`this`)
+     * @see [applyAsDefault]
+     */
+    public fun withSurroundPropValue(surroundPropValue: PropertyValueSurrounder): AsStringConfig {
+        setNewDefaultAsStringOption(surroundPropValue = surroundPropValue)
         return this
     }
 
@@ -163,6 +189,10 @@ public const val initialElementsLimit: Int = 50
 /** Initial default value for how to represent `null` in the [nl.kute.core.asString] */
 public const val initialNullString: String = "null"
 
+/** Initial default value for how to represent `null` in the [nl.kute.core.asString] */
+// TODO: Test to prove equality to actual default
+public val initialSurroundPropValue: PropertyValueSurrounder = NONE
+
 /** Initial default value for the maximum length **per property** in the [nl.kute.core.asString] output */
 public const val initialMaxStringValueLength: Int = 500
 
@@ -180,13 +210,11 @@ public val initialToStringPreference: ToStringPreference = USE_ASSTRING
 
 /** Initial default options for the output of [nl.kute.core.asString] */
 @JvmSynthetic // avoid access from external Java code
-internal val initialAsStringOption: AsStringOption =
-    AsStringOption(initialNullString, initialMaxStringValueLength)
+internal val initialAsStringOption: AsStringOption = AsStringOption()
 
 /** Initial default options for the output of [nl.kute.core.asString] */
 @JvmSynthetic // avoid access from external Java code
-internal val initialAsStringClassOption: AsStringClassOption =
-    AsStringClassOption(initialIncludeIdentityHash, initialToStringPreference, initialSortNamesAlphabetic, *initialPropertySorters)
+internal val initialAsStringClassOption: AsStringClassOption = AsStringClassOption()
 
 /** Convenience method to retrieve [AsStringOption.defaultOption]'s [AsStringOption.showNullAs] */
 internal val defaultNullString: String

@@ -91,7 +91,7 @@ class AsStringOptionConfigTest {
     @Test
     fun `change of AsStringOption defaults should not influence local AsStringOption settings`() {
         // arrange
-        @AsStringOption(propMaxStringValueLength = 20, showNullAs = "(-)")
+        @AsStringOption(showNullAs = "(-)", propMaxStringValueLength = 20)
         @Suppress("unused")
         class MyTestClass {
             val aDefaultNullValue: Any? = null

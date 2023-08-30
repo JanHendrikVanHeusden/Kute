@@ -2,6 +2,8 @@ package nl.kute.core.property
 
 import nl.kute.config.subscribeConfigChange
 import nl.kute.core.AsStringObjectCategory
+import nl.kute.core.annotation.findAnnotation
+import nl.kute.core.annotation.findAnnotations
 import nl.kute.core.annotation.modify.AsStringHash
 import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
@@ -93,12 +95,6 @@ internal fun KProperty<*>.isLambdaProperty(stringValue: String?): Boolean {
             && returnType.javaType.toString().startsWith("kotlin.jvm.functions.Function")
             && stringValue.matches(lambdaToStringRegex)
 }
-
-private inline fun <reified A : Annotation> Set<Annotation>.findAnnotation(): A? =
-    this.firstOrNull { it is A } as A?
-
-private inline fun <reified A : Annotation> Set<Annotation>.findAnnotations(): Set<A> =
-    this.filterIsInstance<A>().toSet()
 
 @JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.propertiesWithAsStringAffectingAnnotations(): Map<KProperty<*>, Set<Annotation>> {

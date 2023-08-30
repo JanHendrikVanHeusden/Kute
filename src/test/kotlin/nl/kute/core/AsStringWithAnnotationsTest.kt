@@ -397,7 +397,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
 
 // region ~ Classes, objects etc. to be used for testing
 
-    @AsStringOption(propMaxStringValueLength = 6, showNullAs = "[nil]")
+    @AsStringOption(showNullAs = "[nil]", propMaxStringValueLength = 6)
     private open class ClassWithNonDefaultAsStringOptions {
 
         @AsStringReplace("^a", "another")

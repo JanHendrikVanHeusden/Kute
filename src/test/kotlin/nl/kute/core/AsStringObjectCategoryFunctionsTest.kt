@@ -190,9 +190,9 @@ class AsStringObjectCategoryFunctionsTest {
     fun `annotationAsString should remove the package name`() {
         val defaultOption = AsStringOption.defaultOption
         assertThat(defaultOption.annotationAsString())
-            .isObjectAsString(
-                "AsStringOption",
+            .isObjectAsString("AsStringOption",
                 "showNullAs=${defaultOption.showNullAs}",
+                "surroundPropValue=NONE",
                 "propMaxStringValueLength=${defaultOption.propMaxStringValueLength}",
                 "elementsLimit=${defaultOption.elementsLimit}"
             )
