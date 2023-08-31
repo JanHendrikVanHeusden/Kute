@@ -5,6 +5,8 @@ import nl.kute.config.initialIncludeIdentityHash
 import nl.kute.config.initialSortNamesAlphabetic
 import nl.kute.config.notifyConfigChange
 import nl.kute.config.subscribeConfigChange
+import nl.kute.core.annotation.additionalAnnotations
+import nl.kute.core.annotation.findAnnotation
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.property.ranking.PropertyRankable
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
@@ -92,21 +94,16 @@ internal fun Any.objectIdentity(asStringClassOption: AsStringClassOption): Strin
 
 @JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.asStringClassOption(): AsStringClassOption =
-    nullableAsStringClassOption().ifNull {
-        AsStringClassOption.defaultOption
-            // referring to inner cache (so asStringClassOptionCache.cache)
-            // because of possible race conditions when resetting the cache
-            .also { asStringClassOptionCache.cache[this] = it }
-    }
-
-@JvmSynthetic // avoid access from external Java code
-internal fun KClass<*>.nullableAsStringClassOption(): AsStringClassOption? =
-    asStringClassOptionCache.cache.let { theCache ->
-        theCache[this].ifNull {
-            this.annotationOfSubSuperHierarchy<AsStringClassOption>()
-                // referring to inner cache (so asStringClassOptionCache.cache)
-                // because of possible race conditions when resetting the cache
-                ?.also { theCache[this] = it }
+    this.let { kClass ->
+        // referring to inner cache (so asStringClassOptionCache.cache)
+        // because of possible race conditions when resetting the cache
+        asStringClassOptionCache.cache.let { theCache ->
+            theCache[kClass].ifNull {
+                (this.annotationOfSubSuperHierarchy() ?:
+                additionalAnnotations[this]?.findAnnotation() ?:
+                AsStringClassOption.defaultOption)
+                    .also { theCache[kClass] = it }
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package nl.kute.core.property
 
 import nl.kute.config.subscribeConfigChange
 import nl.kute.core.AsStringObjectCategory
+import nl.kute.core.annotation.additionalAnnotations
 import nl.kute.core.annotation.findAnnotation
 import nl.kute.core.annotation.findAnnotations
 import nl.kute.core.annotation.modify.AsStringHash
@@ -141,9 +142,14 @@ internal fun <T : Any> KClass<T>.collectPropertyAnnotations(prop: KProperty<*>, 
         annotations.addAll(annotationSet)
     }
     // AsStringOption from the lowest subclass in hierarchy with this annotation; or defaultOption if not annotated
-    val asStringOptionClassAnnotation: AsStringOption =
-        annotationOfToStringSubSuperHierarchy() ?: annotationOfSubSuperHierarchy() ?: AsStringOption.defaultOption
-    (prop.annotationOfPropertySubSuperHierarchy() ?: asStringOptionClassAnnotation).let { annotation ->
+    val asStringOptionAnnotationClassLevel: AsStringOption =
+        annotationOfToStringSubSuperHierarchy() ?:
+        annotationOfSubSuperHierarchy() ?:
+        additionalAnnotations[this]?.findAnnotation() ?:
+        AsStringOption.defaultOption
+
+    (prop.annotationOfPropertySubSuperHierarchy() ?: asStringOptionAnnotationClassLevel)
+        .let { annotation ->
         annotations.add(annotation)
     }
 }

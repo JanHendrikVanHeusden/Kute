@@ -322,7 +322,7 @@ private fun Any.isLambdaProperty(): Boolean =
 // aimed to remove a not very useful lengthy number preceded by `/0x`
 private val javaLambdaNumberRegex = Regex("/0x[0-9a-f]+@.+$")
 
-/** Removes modifiers from `toGenericString()` output; so `public abstract interface Callable<V>()` => `Callable<V>()` */
+/** Removes modifiers etc. from `toGenericString()` output; so `public abstract interface Callable<V>()` => `Callable<V>()` */
 private fun String.removeModifiers(typeName: String): String =
     this.indexOf(typeName).let {
         if (it <= 0) this else this.drop(this.length - typeName.length)

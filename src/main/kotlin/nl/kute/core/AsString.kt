@@ -7,6 +7,7 @@ import nl.kute.config.defaultNullString
 import nl.kute.config.stringJoinMaxCount
 import nl.kute.config.subscribeConfigChange
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
+import nl.kute.core.annotation.additionalAnnotations
 import nl.kute.core.annotation.findAnnotation
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringClassOption
@@ -15,12 +16,7 @@ import nl.kute.core.annotation.option.PropertyValueSurrounder.Companion.surround
 import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
-import nl.kute.core.annotation.option.asStringClassOptionCache
-import nl.kute.core.annotation.option.asStringOptionCache
 import nl.kute.core.annotation.option.asStringClassOption
-import nl.kute.core.annotation.option.asStringOption
-import nl.kute.core.annotation.option.nullableAsStringClassOption
-import nl.kute.core.annotation.option.nullableAsStringOption
 import nl.kute.core.namedvalues.NameValue
 import nl.kute.core.namedvalues.PropertyValue
 import nl.kute.core.property.getPropValueString
@@ -30,18 +26,18 @@ import nl.kute.core.property.ranking.PropertyRankable
 import nl.kute.core.property.ranking.PropertyValueInfoComparator
 import nl.kute.core.property.ranking.getPropertyRankableInstance
 import nl.kute.log.log
+import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.reflection.hasImplementedToString
+import nl.kute.reflection.retrieveCompanionObjectInstance
 import nl.kute.reflection.simplifyClassName
 import nl.kute.util.MapCache
 import nl.kute.util.asHexString
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
-import nl.kute.util.ifNull
 import nl.kute.util.joinIfNotEmpty
 import nl.kute.util.lineEnd
 import nl.kute.util.throwableAsString
-import java.lang.reflect.Modifier
 import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -366,27 +362,21 @@ internal fun Any?.asStringFallBack(): String {
 
 @JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.companionAsString(): String {
-    if (this.companionObject == null || Modifier.isPrivate (this.java.modifiers)) {
-        // Kotlin's reflection does not provide a means to make a companion object of a private accessible.
-        return ""
-    }
     try {
-        this.companionObjectInstance?.let {
+        val companionObjectInstance = this.retrieveCompanionObjectInstance()
+        companionObjectInstance?.let { companionInstance ->
             // Do not include the companion object if it doesn't have any properties (when it is empty, or has functions only)
             if (this.companionObject?.memberProperties?.isEmpty() == true) {
                 return ""
             }
-            // fetch the companion object's relevant annotations to have them added to the cache
-            // asString will later on fetch the annotations from the cache
-            fetchCompanionAsStringOption()
-            fetchCompanionAsStringClassOption()
+            // When rendering a companion object, we should also take into account
+            // the class level annotations of the enclosing class. But we can't retrieve the enclosing class
+            // from the companion. So we pre-register these, to be retrieved further downstream
+            if (!additionalAnnotations.contains(companionInstance)) {
+                registerHolderClassAnnotations(companionInstance)
+            }
             return "companion: " + this.companionObjectInstance.asString()
         }
-    } catch (e: IllegalAccessException) {
-        println()
-        // Ignore. Happens when retrieving a companion object of a private class.
-        // Nothing we can do here, Kotlin's reflection does not provide a means to make such companion object accessible.
-        // There seems no way even to test if it is accessible at all
     } catch (e: Exception) {
         log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
                 " for companion object of class ${this};$lineEnd${e.throwableAsString(50)}")
@@ -394,35 +384,12 @@ internal fun KClass<*>.companionAsString(): String {
     return ""
 }
 
-/**
- * Retrieves and caches the receiver's companion object's relevant [AsStringOption]
- * @return
- * 1. The receiver class's companion object's [AsStringOption], if it's annotated with [AsStringOption]
- * 2. Otherwise, if the companion object is not annotated with [AsStringOption], the receiver class's
- *   [AsStringOption], if it's annotated with [AsStringOption]
- * 3. Otherwise, the [AsStringOption.defaultOption]
- * @throws [NullPointerException] if the receiver class has no companion object
- */
-private fun KClass<*>.fetchCompanionAsStringOption(): AsStringOption {
-    return asStringOptionCache[this.companionObject as KClass<*>].ifNull {
-        (this.companionObject!!.nullableAsStringOption().ifNull { this.asStringOption() })
-            .also { asStringOptionCache[this.companionObject as KClass<*>] = it }
-    }
-}
-
-/**
- * Retrieves and caches the receiver's companion object's relevant [AsStringClassOption]
- * @return
- * 1. The receiver class's companion object's [AsStringClassOption], if it's annotated with [AsStringClassOption]
- * 2. Otherwise, if the companion object is not annotated with [AsStringOption], the receiver class's
- *   [AsStringClassOption], if it's annotated with [AsStringClassOption]
- * 3. Otherwise, the [AsStringClassOption.defaultOption]
- * @throws [NullPointerException] if the receiver class has no companion object
- */
-private fun KClass<*>.fetchCompanionAsStringClassOption(): AsStringClassOption {
-    return asStringClassOptionCache[this.companionObject as KClass<*>].ifNull {
-        (this.companionObject!!.nullableAsStringClassOption().ifNull { this.asStringClassOption() })
-            .also { asStringClassOptionCache[this.companionObject as KClass<*>] = it }
+private fun KClass<*>.registerHolderClassAnnotations(companionInstance: Any) {
+    val annotationSet = mutableSetOf<Annotation>()
+    this.annotationOfSubSuperHierarchy<AsStringOption>()?.let { annotationSet.add(it) }
+    this.annotationOfSubSuperHierarchy<AsStringClassOption>()?.let { annotationSet.add(it) }
+    if (annotationSet.isNotEmpty()) {
+        additionalAnnotations[companionInstance::class] = annotationSet
     }
 }
 

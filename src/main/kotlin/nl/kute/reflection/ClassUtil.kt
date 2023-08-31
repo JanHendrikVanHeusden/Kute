@@ -1,6 +1,10 @@
 package nl.kute.reflection
 
 import kotlin.reflect.KClass
+import kotlin.reflect.KVisibility.PRIVATE
+import kotlin.reflect.KVisibility.PUBLIC
+import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.companionObjectInstance
 
 private val packageNameRegex = Regex("""([_a-zA-Z0-9]+\.)+(.+)$""")
 
@@ -99,4 +103,25 @@ private fun <T : Any> getSuperSubInterfaceHierarchy(theInterface: Class<T>): Set
     }
     hierarchy.add(theInterface)
     return hierarchy
+}
+
+/**
+ * Get the companion object for the given class, if any and if accessible.
+ * @return The companion object; or `null` in any of these cases:
+ *  * The receiver class is a companion object itself
+ *  * The receiver class is synthetic
+ *  * The receiver class does not have a companion object
+ *  * The receiver class is private
+ *  * The companion object is non-public
+ */
+@JvmSynthetic // avoid access from external Java code
+internal fun KClass<*>.retrieveCompanionObjectInstance(): Any? {
+    if (this.isCompanion || this.java.isSynthetic || this.simpleName == null ) return null
+    val companionClass: KClass<*> = this.companionObject ?: return null
+    if (this.visibility == PRIVATE || companionClass.visibility != PUBLIC) {
+        // Kotlin's reflection does not provide a means to make a companion object of a private class accessible.
+        // Same goes for non-public companion objects. We would run into IllegalAccessException there.
+        return null
+    }
+    return this.companionObjectInstance
 }

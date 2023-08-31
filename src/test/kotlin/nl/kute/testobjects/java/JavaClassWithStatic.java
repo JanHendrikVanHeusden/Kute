@@ -5,7 +5,13 @@ import nl.kute.core.AsStringProducer;
 
 import static nl.kute.core.namedvalues.NamedSupplierKt.namedSupplier;
 
+@SuppressWarnings("ClassInitializerMayBeStatic")
 public class JavaClassWithStatic {
+
+    {
+        JavaClassWithStatic.staticVar = "static var";
+    }
+
     @SuppressWarnings("ThisEscapedInObjectConstruction")
     private final AsStringProducer producer =
             AsStringBuilder.Companion.asStringBuilder(this)

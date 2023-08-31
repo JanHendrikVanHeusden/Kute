@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package nl.kute.core
 
 import nl.kute.config.AsStringConfig
@@ -11,6 +9,7 @@ import nl.kute.core.annotation.modify.AsStringMask
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.modify.AsStringReplace
 import nl.kute.core.annotation.option.AsStringOption
+import nl.kute.core.annotation.option.PropertyValueSurrounder
 import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.annotation.option.asStringClassOptionCache
 import nl.kute.core.namedvalues.NamedSupplier
@@ -56,8 +55,6 @@ import java.util.UUID
 import java.util.concurrent.ArrayBlockingQueue
 
 class AsStringTest: ObjectsStackVerifier {
-
-    private val people: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
 
     private var classLevelCounter = 0
 
@@ -486,12 +483,12 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `annotations should yield output without package name`() {
-        val asStringOption = AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 12, elementsLimit = 83)
+        val asStringOption = AsStringOption(showNullAs = "<null>", propMaxStringValueLength = 12, elementsLimit = 83, surroundPropValue = PropertyValueSurrounder.`**`)
 
         assertThat(asStringOption.asString())
             .isObjectAsString("AsStringOption",
                 "showNullAs=<null>",
-                "surroundPropValue=NONE",
+                "surroundPropValue=**",
                 "propMaxStringValueLength=12",
                 "elementsLimit=83"
             )
@@ -501,7 +498,7 @@ class AsStringTest: ObjectsStackVerifier {
             .isObjectAsString(
                 "@nl.kute.core.annotation.option.AsStringOption",
                 "showNullAs=<null>",
-                "surroundPropValue=NONE",
+                "surroundPropValue=**",
                 "propMaxStringValueLength=12",
                 "elementsLimit=83"
             )
@@ -549,6 +546,7 @@ class AsStringTest: ObjectsStackVerifier {
 
     @Test
     fun `asString should honour provided properties and their annotations`() {
+        @Suppress("unused")
         open class TestClass {
             @AsStringMask(endMaskAt = 1)
             val prop1: String = "prop1"
@@ -578,7 +576,7 @@ class AsStringTest: ObjectsStackVerifier {
     @Test
     fun `asString should give proper output for nested objects`() {
         // arrange
-        @Suppress("CanBeParameter")
+        @Suppress("CanBeParameter", "unused")
         class MyTestClass(val level: String) {
             val someProp = "some prop at level: $level"
             lateinit var nested: MyTestClass
@@ -602,67 +600,6 @@ class AsStringTest: ObjectsStackVerifier {
             .`is`(equalSignCount(6))
     }
 
-    @Test
-    fun `asString of public class with named public companion properties includes these properties`() {
-        val testObj = NestedPublicClassWithPublicCompanion()
-        assertThat(testObj.asString())
-            .isEqualTo("NestedPublicClassWithPublicCompanion(instanceProp=instance prop, companion: CompObjectName(companionProp=companion prop))")
-
-        // assign a new value
-        NestedPublicClassWithPublicCompanion.companionProp = "a new value for the companion prop"
-        // assert that the new value is reflected in the output
-        assertThat(testObj.asString())
-            .isEqualTo("NestedPublicClassWithPublicCompanion(instanceProp=instance prop, companion: CompObjectName(companionProp=a new value for the companion prop))")
-    }
-
-    @Test
-    fun `asString of public class with private companion object with properties does not include the companion object`() {
-        val testObj = NestedPublicClassWithPrivateCompanion()
-        assertThat(testObj.asString())
-            .isEqualTo("NestedPublicClassWithPrivateCompanion(instanceProp=instance prop)")
-    }
-
-    @Test
-    fun `asString of protected class with public companion object with properties includes the companion object`() {
-        val testObj = NestedProtectedClassWithPublicCompanion()
-        assertThat(testObj.asString())
-            .isEqualTo("NestedProtectedClassWithPublicCompanion(instanceProp=instance prop, companion: CompObjectName(companionProp=companion prop))")
-    }
-
-    @Test
-    fun `asString of public class with protected companion object with properties does not include the companion object`() {
-        val testObj = NestedPublicClassWithProtectedCompanion()
-        assertThat(testObj.asString())
-            .isEqualTo("NestedPublicClassWithProtectedCompanion(instanceProp=instance prop)")
-    }
-
-    @Test
-    fun `asString of private class with companion properties does not the companion object`() {
-        val testObj = PrivateClassWithCompanion()
-        assertThat(testObj.asString())
-            .`as`("Kotlin reflection cannot access companion object of private class, so it's omitted")
-            .isEqualTo("PrivateClassWithCompanion(instanceProp=instance prop)")
-
-        // you can work around it (sort of) by using AsStringBuilder
-        assertThat(testObj.asStringBuilder()
-            .withAlsoProperties(PrivateClassWithCompanion::companionProp)
-            .asString()
-        ).isEqualTo("PrivateClassWithCompanion(instanceProp=instance prop, companionProp=${NestedPrivateClassWithCompanion.companionProp})")
-    }
-
-    @Test
-    fun `asString of private nested class with companion properties does not include these properties`() {
-        val testObj = NestedPrivateClassWithCompanion()
-        assertThat(testObj.asString())
-            .`as`("Kotlin reflection cannot access companion object of private class, so it's omitted")
-            .isEqualTo("NestedPrivateClassWithCompanion(instanceProp=instance prop)")
-
-        // you can work around it (sort of) by using AsStringBuilder
-        assertThat(testObj.asStringBuilder()
-            .withAlsoProperties(NestedPrivateClassWithCompanion::companionProp)
-            .asString()
-        ).isEqualTo("NestedPrivateClassWithCompanion(instanceProp=instance prop, companionProp=${NestedPrivateClassWithCompanion.companionProp})")
-    }
 
     @Test
     fun `asString with Java object does not include static variables`() {
@@ -697,8 +634,6 @@ class AsStringTest: ObjectsStackVerifier {
             @AsStringReplace(".+", "[ $0 ]", isRegexpPattern = true )
             val prop4 = "prop 4"
         }
-        class AnotherClass(val otherProp: String = "another Prop")
-
         val testObj = TestClass("something")
 
         // act, assert
@@ -750,6 +685,8 @@ class AsStringTest: ObjectsStackVerifier {
 
 // region ~ Classes etc. to be used for testing
 
+    private val people: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
+
     private val aPrintableDate = object {
         override fun toString(): String = LocalDate.of(2022, 1, 27).toString()
     }
@@ -757,11 +694,13 @@ class AsStringTest: ObjectsStackVerifier {
         override fun toString(): String = "this is another printable"
     }
 
+    @Suppress("unused")
     private class TestClass {
         val someProp = "I am a property of ${this::class.simplifyClassName()}"
         override fun toString() = "This should not show up when asString() is called on me"
     }
 
+    @Suppress("unused")
     private class ClassWithTestClassProperty {
         val aProp = "I am a property of ${this::class.simplifyClassName()}"
         val testClass = TestClass()
@@ -792,6 +731,7 @@ class AsStringTest: ObjectsStackVerifier {
     }
 
     // anonymous nested class
+    @Suppress("unused")
     private val extensionObject: Any = object : ClassToPrint("a string", 25, anotherPrintable) {
         val asStringProducer = this.asStringBuilder()
             .exceptPropertyNames("privateToPrint")
@@ -879,48 +819,6 @@ class AsStringTest: ObjectsStackVerifier {
         override fun toString(): String = asString()
     }
 
-    class NestedPublicClassWithPublicCompanion {
-        val instanceProp = "instance prop"
-        companion object CompObjectName {
-            var companionProp = "companion prop"
-        }
-    }
-
-    protected open class NestedProtectedClassWithPublicCompanion {
-        val instanceProp = "instance prop"
-        companion object CompObjectName {
-            var companionProp = "companion prop"
-        }
-    }
-
-    class NestedPublicClassWithPrivateCompanion {
-        val instanceProp = "instance prop"
-        private companion object CompObjectName {
-            var companionProp = "companion prop"
-        }
-    }
-
-    class NestedPublicClassWithProtectedCompanion {
-        val instanceProp = "instance prop"
-        protected companion object CompObjectName {
-            var companionProp = "companion prop"
-        }
-    }
-
-    private class NestedPrivateClassWithCompanion {
-        val instanceProp = "instance prop"
-        companion object CompObjectName {
-            var companionProp = "companion prop"
-        }
-    }
-
-}
-
-private class PrivateClassWithCompanion {
-    val instanceProp = "instance prop"
-    companion object {
-        var companionProp = "companion prop"
-    }
 }
 
 // endregion

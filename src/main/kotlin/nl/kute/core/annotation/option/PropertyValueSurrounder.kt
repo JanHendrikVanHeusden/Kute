@@ -89,8 +89,6 @@ public enum class PropertyValueSurrounder(public val prefix: String, public val 
     `**`("*", "*")
     ;
 
-    public override fun toString(): String = "$name: $prefix$postfix"
-
     public companion object {
 
         /**
