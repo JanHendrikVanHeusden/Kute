@@ -2,8 +2,8 @@ package nl.kute.core.annotation.option
 
 /**
  * Enum to define prefixes and postfixes, to distinguish property value Strings from other text.
- * * Some pre/postfixes may look a bit exotic, e.g. `¶¶`, `÷÷`, `¦¦`, this is done deliberately
- *    as these do not appear usually in normal text.
+ * * Some pre/postfixes may look a bit exotic, e.g. `¶¶`, `÷÷`, `¦¦`, this is done deliberately:
+ *   these do not appear usually in normal text, so these will clearly set the value String apart.
  * * A few pre/postfixes are actually not recommended, e.g. `[]`, `{}`, `()`, `''`, `""`, `` ` ``.
  *   These are convenient, but on the other hand somewhat confusing because they are also used
  *   in various other stuff, e.g. [toString]/[nl.kute.core.asString] of [Collection], [Map], SQL-Strings, etc.
@@ -68,14 +68,10 @@ public enum class PropertyValueSurrounder(public val prefix: String, public val 
     `''`("'", "'"),
 
     /** [prefix] = `<` (Ascii 60), [postfix] = `>` (Ascii 62) */
-    ANGLED_BRACKETS("<", ">") {
-        public override fun toString(): String = "$name: $prefix$postfix"
-    },
+    ANGLED_BRACKETS("<", ">"),
 
     /** [prefix] = `[` (Ascii 91), [postfix] = `]` (Ascii 93) */
-    SQUARE_BRACKETS("[", "]") {
-        public override fun toString(): String = "$name: $prefix$postfix"
-    },
+    SQUARE_BRACKETS("[", "]"),
 
     /** [prefix] = `(` (Ascii 40), [postfix] = `)` (Ascii 41). In Java, use [PARENTHESES] */
     @JvmSynthetic
@@ -86,14 +82,14 @@ public enum class PropertyValueSurrounder(public val prefix: String, public val 
     `{}`("{", "}"),
 
     /** [prefix]/[postfix] = `` ` `` (Ascii 96) */
-    BACKTICKS("`", "`") {
-        public override fun toString(): String = "$name: $prefix$postfix"
-    },
+    BACKTICKS("`", "`"),
 
     /** [prefix]/[postfix] = `*` (Ascii 42). In Java, use [ASTERISKS] */
     @JvmSynthetic
     `**`("*", "*")
     ;
+
+    public override fun toString(): String = "$name: $prefix$postfix"
 
     public companion object {
 
