@@ -45,7 +45,4 @@ public class JavaClassToTest {
         this.num = num;
     }
 
-    public static void main(String[] args) {
-        JavaClassToTest testObj = new JavaClassToTest(" the string ", 15, "Henk");
-    }
 }

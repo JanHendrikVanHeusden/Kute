@@ -226,21 +226,23 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
             limit = limit
         ) { entry ->
             val prop = entry.key
-            val surrounder = entry.value.findAnnotation<AsStringOption>()!!.surroundPropValue
             val annotationSet = entry.value
-            "${prop.name}=${obj.getPropValueString(prop, annotationSet).second.surroundBy(surrounder)}"
+            val surrounder = entry.value.findAnnotation<AsStringOption>()!!.surroundPropValue
+            "${prop.name}=${obj.getPropValueString(prop, annotationSet).second?.surroundBy(surrounder)}"
         }
     } else {
         val metaDataStringMap = props.entries
             .map { entry ->
                 val surrounder = entry.value.findAnnotation<AsStringOption>()!!.surroundPropValue
-                obj.getPropValueString(entry.key, entry.value).let {
-                    Pair(it.first, it.second.surroundBy(surrounder))
+                obj.getPropValueString(entry.key, entry.value).let { metaDataStringPair ->
+                    Pair(metaDataStringPair.first, metaDataStringPair.second?.surroundBy(surrounder))
                 }
             }
             .associate { it.first!! to it.second }
-        // We cannot use toSortedMap() here: toSortedMap() only keeps the last entry when equal outcome of the comparator, so you might lose entries.
-        // So instead, sort keys, then re-associate them with the values.
+        // We cannot use toSortedMap() here: toSortedMap() only keeps the last entry when equal outcome
+        // of the comparator, so toSortedMap() may drop entries when sorting :-(
+        //
+        // So instead, we're going to sort keys, then re-associate them with the values.
         val sortedKeys = metaDataStringMap.keys.sortedWith(PropertyValueInfoComparator(*rankProviders))
         sortedKeys.associateWith { metaDataStringMap[it] }
             .map { "${it.key.propertyName}=${it.value}" }
