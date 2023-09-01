@@ -15,23 +15,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 
-class AsStringOptionClassConfigTest {
+class AsStringClassOptionConfigTest {
 
     @BeforeEach
     @AfterEach
     fun setUpAndTearDown() {
         restoreInitialAsStringOption()
         restoreInitialAsStringClassOption()
-    }
-
-    @Test
-    fun `when no changes yet, initial defaults should apply`() {
-        with(AsStringClassOption.defaultOption) {
-            assertThat(this.includeIdentityHash).isEqualTo(initialIncludeIdentityHash)
-            assertThat(this.toStringPreference).isEqualTo(initialToStringPreference)
-            assertThat(this.sortNamesAlphabetic).isEqualTo(initialSortNamesAlphabetic)
-            assertThat(this.propertySorters).isEqualTo(initialPropertySorters)
-        }
     }
 
     @Test

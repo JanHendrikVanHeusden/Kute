@@ -1,5 +1,6 @@
 package nl.kute.core
 
+import nl.kute.config.initialElementsLimit
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
 import nl.kute.core.annotation.option.ToStringPreference
@@ -250,6 +251,9 @@ internal fun Annotation.annotationAsString(): String {
     }
 }
 
+private fun elementsLimit(limit: Int?) =
+    (limit ?: AsStringOption.defaultOption.elementsLimit).let { if (it >= 0) it else initialElementsLimit }
+
 @JvmSynthetic // avoid access from external Java code
 internal fun Collection<*>.collectionAsString(limit: Int? = null): String {
     val includeIdentity = AsStringClassOption.defaultOption.includeIdentityHash
@@ -257,7 +261,7 @@ internal fun Collection<*>.collectionAsString(limit: Int? = null): String {
         prefix = "${collectionIdentity(includeIdentity)}[",
         separator = ", ",
         postfix = "]",
-        limit = limit ?: AsStringOption.defaultOption.elementsLimit
+        limit = elementsLimit(limit)
     ) { it.asString() }
 }
 
@@ -269,7 +273,7 @@ internal fun Any.primitiveArrayAsString(limit: Int? = null): String {
             prefix = "${collectionIdentity(includeIdentity)}[",
             separator = ", ",
             postfix = "]",
-            limit = limit ?: AsStringOption.defaultOption.elementsLimit
+            limit = elementsLimit(limit)
         )
 }
 
@@ -280,7 +284,7 @@ internal fun Map<*, *>.mapAsString(limit: Int? = null): String {
         prefix = "${collectionIdentity(includeIdentity)}{",
         separator = ", ",
         postfix = "}",
-        limit = limit ?: AsStringOption.defaultOption.elementsLimit
+        limit = elementsLimit(limit)
     ) { it.asString() }
 }
 
@@ -291,7 +295,7 @@ internal fun Array<*>.arrayAsString(limit: Int? = null): String {
         prefix = "${collectionIdentity(includeIdentity)}[",
         separator = ", ",
         postfix = "]",
-        limit = limit ?: AsStringOption.defaultOption.elementsLimit
+        limit = elementsLimit(limit)
     ) { it.asString() }
 }
 

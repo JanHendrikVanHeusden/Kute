@@ -1,8 +1,5 @@
-package nl.kute.core.annotation
+package nl.kute.core.annotation.modify
 
-import nl.kute.core.annotation.modify.AsStringReplace
-import nl.kute.core.annotation.modify.cachingRegexFactory
-import nl.kute.core.annotation.modify.replacePattern
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat

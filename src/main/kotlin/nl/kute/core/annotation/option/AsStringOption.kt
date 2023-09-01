@@ -3,9 +3,11 @@ package nl.kute.core.annotation.option
 import nl.kute.config.initialAsStringOption
 import nl.kute.config.initialElementsLimit
 import nl.kute.config.initialMaxStringValueLength
-import nl.kute.config.initialNullString
+import nl.kute.config.initialShowNullAs
 import nl.kute.config.notifyConfigChange
+import nl.kute.core.annotation.option.PropertyValueSurrounder.Companion.surroundBy
 import nl.kute.core.annotation.option.PropertyValueSurrounder.NONE
+import nl.kute.util.takeAndEllipse
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
@@ -20,15 +22,18 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *
  * It allows specifying how property values are to be parsed in the [nl.kute.core.asString] return value.
  *
- * @param showNullAs How to show nulls? Default is "`"null"`" (by [initialNullString]), but you may opt for something else
+ * @param showNullAs How to show nulls? Default is "`"null"`" (by [initialShowNullAs]), but you may opt for something else
  * @param surroundPropValue Defines prefix and postfix of the property value String. Default = [NONE].
+ *  * `null` values are not pre-/postfixed.
  * @param propMaxStringValueLength The maximum String value length **per property**.
  * * default is 500 (by [initialMaxStringValueLength])
  * * 0 results in an empty String;
- * * negative values mean: [Int.MAX_VALUE], so effectively no maximum.
+ * * negative values mean: [initialMaxStringValueLength] (default value)
  * @param elementsLimit limits the number of elements of collection like properties to be
  * represented in the [nl.kute.core.asString] return value. Default = 50 (by [initialElementsLimit])
- * > * Applies to repeating values, e.g. for [Collection]s, [Map]s, [Array]s
+ * * Applies to repeating values, e.g. for [Collection]s, [Map]s, [Array]s
+ * * When capped, the resulting String is appended with ellipsis `...`
+ * * negative values mean: [initialElementsLimit] (default value).
  * * **NB**: The String representation is also capped by [propMaxStringValueLength]
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
@@ -36,7 +41,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @Inherited
 @Retention(RUNTIME)
 public annotation class AsStringOption(
-    val showNullAs: String = initialNullString,
+    val showNullAs: String = initialShowNullAs,
     val surroundPropValue: PropertyValueSurrounder = NONE,
     val propMaxStringValueLength: Int = initialMaxStringValueLength,
     val elementsLimit: Int = initialElementsLimit
@@ -62,4 +67,7 @@ public annotation class AsStringOption(
 
 @JvmSynthetic // avoid access from external Java code
 internal fun AsStringOption.applyOption(strVal: String?): String =
-    strVal?.take(propMaxStringValueLength) ?: showNullAs
+    (if (propMaxStringValueLength >= 0) propMaxStringValueLength else initialMaxStringValueLength).let {
+        strVal?.takeAndEllipse(it)?.surroundBy(surroundPropValue) ?: showNullAs
+    }
+

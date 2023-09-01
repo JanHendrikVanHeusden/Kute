@@ -1,7 +1,5 @@
-package nl.kute.core.annotation
+package nl.kute.core.annotation.modify
 
-import nl.kute.core.annotation.modify.AsStringMask
-import nl.kute.core.annotation.modify.mask
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
@@ -172,6 +170,32 @@ class AsStringMaskTest {
             mask = mask[0]
         ).mask(input)
         ).isEqualTo("aaaaaaaaaa-----")
+    }
+
+    @Test
+    fun `AsStringMask should be resilient to unexpected parameter values`() {
+        assertThat(AsStringMask(maxLength = -12).mask("abc")).isEqualTo("***")
+        assertThat(AsStringMask(maxLength = Int.MIN_VALUE).mask("abc")).isEqualTo("***")
+        assertThat(AsStringMask(maxLength = -1).mask("abc")).isEqualTo("***")
+        assertThat(AsStringMask(maxLength = 0).mask("abc")).isEmpty()
+
+        assertThat(AsStringMask(minLength = -5).mask("abc")).isEqualTo("***")
+        assertThat(AsStringMask(minLength = Int.MIN_VALUE).mask("abc")).isEqualTo("***")
+        assertThat(AsStringMask(minLength = -1).mask("abc")).isEqualTo("***")
+        assertThat(AsStringMask(minLength = 0).mask("abc")).isEqualTo("***")
+
+        assertThat(AsStringMask(minLength = -1, maxLength = -1).mask("abc")).isEqualTo("***")
+        assertThat(AsStringMask(minLength = Int.MIN_VALUE, maxLength = Int.MIN_VALUE).mask("abc")).isEqualTo("***")
+        assertThat(AsStringMask(minLength = 0, maxLength = 0).mask("abc")).isEmpty()
+
+        assertThat(AsStringMask(minLength = Int.MAX_VALUE).mask(""))
+            .isEqualTo("*".repeat(32767))
+        assertThat(AsStringMask(minLength = Short.MAX_VALUE.toInt()).mask(""))
+            .isEqualTo("*".repeat(32767))
+        assertThat(AsStringMask(minLength = Short.MAX_VALUE.toInt()+1).mask(""))
+            .isEqualTo("*".repeat(32767))
+        assertThat(AsStringMask(minLength = Short.MAX_VALUE.toInt()-1).mask(""))
+            .isEqualTo("*".repeat(32766))
     }
 
 }

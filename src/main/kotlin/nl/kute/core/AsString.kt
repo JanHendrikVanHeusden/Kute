@@ -8,11 +8,9 @@ import nl.kute.config.stringJoinMaxCount
 import nl.kute.config.subscribeConfigChange
 import nl.kute.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.core.annotation.additionalAnnotations
-import nl.kute.core.annotation.findAnnotation
 import nl.kute.core.annotation.modify.AsStringOmit
 import nl.kute.core.annotation.option.AsStringClassOption
 import nl.kute.core.annotation.option.AsStringOption
-import nl.kute.core.annotation.option.PropertyValueSurrounder.Companion.surroundBy
 import nl.kute.core.annotation.option.ToStringPreference
 import nl.kute.core.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
@@ -223,17 +221,11 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
         ) { entry ->
             val prop = entry.key
             val annotationSet = entry.value
-            val surrounder = entry.value.findAnnotation<AsStringOption>()!!.surroundPropValue
-            "${prop.name}=${obj.getPropValueString(prop, annotationSet).second?.surroundBy(surrounder)}"
+            "${prop.name}=${obj.getPropValueString(prop, annotationSet).second}"
         }
     } else {
         val metaDataStringMap = props.entries
-            .map { entry ->
-                val surrounder = entry.value.findAnnotation<AsStringOption>()!!.surroundPropValue
-                obj.getPropValueString(entry.key, entry.value).let { metaDataStringPair ->
-                    Pair(metaDataStringPair.first, metaDataStringPair.second?.surroundBy(surrounder))
-                }
-            }
+            .map { entry -> obj.getPropValueString(entry.key, entry.value) }
             .associate { it.first!! to it.second }
         // We cannot use toSortedMap() here: toSortedMap() only keeps the last entry when equal outcome
         // of the comparator, so toSortedMap() may drop entries when sorting :-(

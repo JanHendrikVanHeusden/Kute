@@ -43,6 +43,14 @@ class NamedValueTest: GarbageCollectionWaiter {
     }
 
     @Test
+    fun `NamedValue should accept null values`() {
+        val name = "a null value"
+        val namedValue = null.namedValue(name)
+        assertThat(namedValue.name).isSameAs(name)
+        assertThat(namedValue.value).isNull()
+    }
+
+    @Test
     fun `NamedValue shouldn't prevent garbage collection`() {
         // arrange
         class ToBeGarbageCollected {

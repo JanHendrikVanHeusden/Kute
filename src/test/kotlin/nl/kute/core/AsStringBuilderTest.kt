@@ -47,6 +47,27 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
     }
 
     @Test
+    fun `AsStringBuilder without effective adjustments should give same result as AsString`() {
+        // ClassWithHashProperty(hashProperty=#$hashCode#, nullable=$showNullAs, privateProp=I am a private property)
+        assertThat(testObj.asStringBuilder().asString())
+            .isEqualTo(testObj.asString())
+
+        // act, assert
+        // SubClassWithPrintMask(nullable=$showNullAs2, replaced=xx is replaced, hashProperty=#$hashCode#)
+        assertThat(testSubObj.asStringBuilder()
+            .withAlsoNamed()
+            .withAlsoProperties()
+            .asString())
+            .isEqualTo(testSubObj.asString())
+            .isObjectAsString(
+                "SubClassWithPrintMask",
+                "nullable=$showNullAs2",
+                "replaced=xx is replaced",
+                "hashProperty=#$hashCode#"
+            )
+    }
+
+    @Test
     fun `AsStringBuilder should honour exceptProperties`() {
         // arrange, act, assert
         assertThat(testObj.asStringBuilder()

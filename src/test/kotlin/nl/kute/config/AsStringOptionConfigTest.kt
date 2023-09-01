@@ -21,7 +21,7 @@ class AsStringOptionConfigTest {
     @Test
     fun `when no changes yet, initial defaults should apply`() {
         with(AsStringOption.defaultOption) {
-            assertThat(this.showNullAs).isEqualTo(initialNullString)
+            assertThat(this.showNullAs).isEqualTo(initialShowNullAs)
             assertThat(this.propMaxStringValueLength).isEqualTo(initialMaxStringValueLength)
         }
     }
@@ -42,7 +42,7 @@ class AsStringOptionConfigTest {
         val initialNullStr = AsStringOption.defaultOption.showNullAs
         assertThat(initialNullStr)
             .isEqualTo("null")
-            .isEqualTo(initialNullString)
+            .isEqualTo(initialShowNullAs)
 
         val testObj = TestClass()
         assertThat(testObj.str600).hasSize(600)

@@ -1,9 +1,12 @@
-package nl.kute.core.annotation
+package nl.kute.core.annotation.option
 
 import nl.kute.config.AsStringConfig
+import nl.kute.config.initialIncludeIdentityHash
+import nl.kute.config.initialPropertySorters
+import nl.kute.config.initialSortNamesAlphabetic
+import nl.kute.config.initialToStringPreference
 import nl.kute.config.restoreInitialAsStringClassOption
-import nl.kute.core.annotation.option.AsStringClassOption
-import nl.kute.core.annotation.option.asStringClassOptionCache
+import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.core.asString
 import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.util.asHexString
@@ -20,6 +23,24 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
     @AfterEach
     fun setUpAndTearDown() {
         restoreInitialAsStringClassOption()
+    }
+
+    @Test
+    fun `when no changes yet, initial defaults should apply`() {
+        with(AsStringClassOption.defaultOption) {
+            assertThat(this.includeIdentityHash)
+                .isEqualTo(initialIncludeIdentityHash)
+                .isFalse
+            assertThat(this.toStringPreference)
+                .isEqualTo(initialToStringPreference)
+                .isSameAs(USE_ASSTRING)
+            assertThat(this.sortNamesAlphabetic)
+                .isEqualTo(initialSortNamesAlphabetic)
+                .isFalse
+            assertThat(this.propertySorters)
+                .isEqualTo(initialPropertySorters)
+                .isEmpty()
+        }
     }
 
     @Test

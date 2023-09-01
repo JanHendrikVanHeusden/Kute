@@ -24,7 +24,8 @@ import kotlin.math.min
  *  * when `true` (default), nulls will be replaced by `"null"` and then be masked
  *  * when `false`, nulls will be left as `null`
  * @param minLength The minimum length of the resulting value;
- *   so masking of `"ab"` with [minLength] of `6` will result in `******`. Default = 0
+ *   so masking of `"ab"` with [minLength] of `6` will result in `******`. Default = 0.
+ *   * If [minLength] > [Short.MAX_VALUE], [Short.MAX_VALUE] is used (`32767`).
  * @param maxLength The maximum length of the resulting value.
  *   If less than the [String]'s length, the [String] will be truncated to the specified length. Default =[Int.MAX_VALUE]
  */
@@ -57,8 +58,9 @@ internal fun AsStringMask?.mask(strVal: String?): String? {
         if (maxLength in 0 until strLength) {
             returnLength = maxLength
         }
-        if (minLength >= 0 && returnLength < minLength) {
-            returnLength = minLength
+        val minLen: Int = min(minLength, Short.MAX_VALUE.toInt())
+        if (minLen >= 0 && returnLength < minLen) {
+            returnLength = minLen
         }
         if (returnLength > strLength) {
             retVal += mask.toString().repeat(returnLength - strLength)
@@ -79,8 +81,8 @@ internal fun AsStringMask?.mask(strVal: String?): String? {
             max(0, strLength + endMaskAt)
         }
         retVal = retVal.take(returnLength)
-        if (retVal.length < minLength) {
-            retVal = retVal.padEnd(minLength - retVal.length, mask)
+        if (retVal.length < minLen) {
+            retVal = retVal.padEnd(minLen - retVal.length, mask)
         }
         if (maskStart in 0 until returnLength && maskEnd >= maskStart) {
             val endAt = min(maskEnd, returnLength)

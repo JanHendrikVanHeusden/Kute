@@ -90,6 +90,14 @@ class NamedSupplierTest: GarbageCollectionWaiter {
     }
 
     @Test
+    fun `NamedSupplier should accept null values`() {
+        val name = "a null value"
+        val namedSupplier = { null }.namedSupplier(name)
+        assertThat(namedSupplier.name).isSameAs(name)
+        assertThat(namedSupplier.value).isNull()
+    }
+
+    @Test
     @Suppress("UNUSED_VALUE")
     fun `NamedSupplier shouldn't prevent garbage collection`() {
         // arrange

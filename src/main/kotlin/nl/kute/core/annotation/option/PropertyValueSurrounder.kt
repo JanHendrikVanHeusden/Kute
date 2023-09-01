@@ -4,9 +4,11 @@ package nl.kute.core.annotation.option
  * Enum to define prefixes and postfixes, to distinguish property value Strings from other text.
  * * Some pre/postfixes may look a bit exotic, e.g. `¶¶`, `÷÷`, `¦¦`, this is done deliberately:
  *   these do not appear usually in normal text, so these will clearly set the value String apart.
+ *   It's a matter of choice which to choose; or use [NONE] for no surrounders.
  * * A few pre/postfixes are actually not recommended, e.g. `[]`, `{}`, `()`, `''`, `""`, `` ` ``.
  *   These are convenient, but on the other hand somewhat confusing because they are also used
- *   in various other stuff, e.g. [toString]/[nl.kute.core.asString] of [Collection], [Map], SQL-Strings, etc.
+ *   in various other stuff, e.g. [toString] or [nl.kute.core.asString] of [Collection], [Map]; SQL-Strings;
+ *   plain text, etc.
  * * Some pre/postfixes use Ascii codes 128 - 255, these may not render properly on non-UTF-8 systems
  *   (all should render correctly on Unicode / UTF-8 compatible systems and on Windows, though).
  */
@@ -96,7 +98,8 @@ public enum class PropertyValueSurrounder(public val prefix: String, public val 
          * If the receiver is `null`, it will be rendered as String `"null"` (without the `"`).
          * @return [prefix] + `receiver` + [postfix]
          */
-        public fun String?.surroundBy(surrounder: PropertyValueSurrounder): String =
+        @JvmSynthetic // avoid access from external Java code
+        internal fun String?.surroundBy(surrounder: PropertyValueSurrounder): String =
             "${surrounder.prefix}$this${surrounder.postfix}"
         
     // region ~ Constants for Java compatibility

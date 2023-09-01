@@ -213,7 +213,7 @@ class NamedPropTest: GarbageCollectionWaiter {
         // act, assert
         assertThat(NamedProp(testObj, testObj::unchanged).value)
             .`as`("AsStringOption of sub-property should override AsStringOption of super properties")
-            .isEqualTo(testObj.unchanged.take(5))
+            .isEqualTo(testObj.unchanged.take(5) + "...")
     }
 
     @Test
@@ -231,8 +231,8 @@ class NamedPropTest: GarbageCollectionWaiter {
 
         listOf(testObj::hashed, testObj::masked, testObj::replaced).forEach {
             assertThat(NamedProp(testObj, it).value!!.length)
-                .`as`("Should honour class level AsStringOption with max length (property: `${it.name}`)")
-                .isEqualTo(7)
+                .`as`("Should honour class level AsStringOption with max length 7 (property: `${it.name}`)")
+                .isEqualTo(10) // 7 + 3 for `...`
         }
     }
 
@@ -255,8 +255,8 @@ class NamedPropTest: GarbageCollectionWaiter {
 
         listOf(testObj::masked, testObj::replaced).forEach {
             assertThat(NamedProp(testObj, it).value!!.length)
-                .`as`("Should honour class level AsStringOption with max length (property: `${it.name}`)")
-                .isEqualTo(11)
+                .`as`("Should honour class level AsStringOption with max length 11 (property: `${it.name}`)")
+                .isEqualTo(14) // 11 + 3 for `...`
         }
     }
 

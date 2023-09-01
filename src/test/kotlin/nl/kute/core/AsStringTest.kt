@@ -76,7 +76,7 @@ class AsStringTest: ObjectsStackVerifier {
     fun `properties with loooooooooooong values should be capped at 500 chars`() {
         val longStr = RandomStringUtils.randomAlphabetic(800)
         assertThat(ClassToPrint(longStr, 1, null).toString().length)
-            .isEqualTo(ClassToPrint("", 1, null).toString().length + 500)
+            .isEqualTo(ClassToPrint("", 1, null).toString().length + 500 + "...".length)
     }
 
     @Test

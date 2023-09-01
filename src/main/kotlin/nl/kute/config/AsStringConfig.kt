@@ -14,7 +14,8 @@ import kotlin.reflect.KClass
 /**
  * Builder-like class, to prepare and apply newly set values as defaults
  * for [AsStringOption] / [AsStringClassOption].
- * > [AsStringConfig.applyAsDefault] must be called to make the new values effective as default.
+ * * [applyAsDefault]`()` must be called to make the new values effective as default.
+ * * [AsStringConfig] is permissive; no validation is applied to input values.
  * @see [AsStringConfig.applyAsDefault]
  */
 public class AsStringConfig {
@@ -186,11 +187,10 @@ public const val stringJoinMaxCount: Int = 1000
 /** Initial default value for limiting the number of elements of a collection to be parsed */
 public const val initialElementsLimit: Int = 50
 
-/** Initial default value for how to represent `null` in the [nl.kute.core.asString] */
-public const val initialNullString: String = "null"
+/** Initial default value for how to represent `null` in the [nl.kute.core.asString] output */
+public const val initialShowNullAs: String = "null"
 
-/** Initial default value for how to represent `null` in the [nl.kute.core.asString] */
-// TODO: Test to prove equality to actual default
+/** Initial default value for prefix/postfix property value Strings in the [nl.kute.core.asString] output */
 public val initialSurroundPropValue: PropertyValueSurrounder = NONE
 
 /** Initial default value for the maximum length **per property** in the [nl.kute.core.asString] output */

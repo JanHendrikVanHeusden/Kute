@@ -30,7 +30,8 @@ class AsStringArrayTest: ObjectsStackVerifier {
     fun `loooooooooooong array string representations should be capped at 500 chars`() {
         val array = IntArray(1000).map { it.toString() }.toTypedArray()
         val classWithArrayString = ClassWithArrayNoElementsLimit(array).asString()
-        assertThat(classWithArrayString.length).isEqualTo(500 + ClassWithArrayNoElementsLimit::class.simpleName!!.length + "(array=)".length)
+        assertThat(classWithArrayString.length)
+            .isEqualTo(500 + ClassWithArrayNoElementsLimit::class.simpleName!!.length + "(array=)".length + "...".length)
     }
 
     @Test

@@ -297,7 +297,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
         assertThat(stringVal)
             .`as`("Should adhere to @AsStringOption annotation on property")
             .isEqualTo("ClassWithAsStringOptionOnProperty(propWithAsStringOption=" +
-                    "${theObjectToPrint.propWithAsStringOption.take(maxStringLenght)})")
+                    "${theObjectToPrint.propWithAsStringOption.take(maxStringLenght)}...)")
     }
 
     @Test
@@ -319,7 +319,7 @@ class AsStringWithAnnotationsTest: ObjectsStackVerifier {
         // assert
         assertThat(stringVal)
             .`as`("Should ignore the @AsStringOption on toString, but should adhere to @AsStringOption annotation on property")
-            .isEqualTo("ClassWithAsStringOptionsOnPropertyAndToString(propWithAsStringOption=${theObjectToPrint.propWithAsStringOption.take(maxStringLenght)})")
+            .isEqualTo("ClassWithAsStringOptionsOnPropertyAndToString(propWithAsStringOption=${theObjectToPrint.propWithAsStringOption.take(maxStringLenght)}...)")
     }
 
     @Test

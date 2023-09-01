@@ -34,4 +34,8 @@ class StringUtilTest {
             .isEqualTo(stringArgs.joinToString(separator = separator))
     }
 
+    @Test
+    fun `test takeAndEllipse`() {
+
+    }
 }
