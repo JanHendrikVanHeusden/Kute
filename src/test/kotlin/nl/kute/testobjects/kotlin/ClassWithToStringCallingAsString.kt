@@ -1,6 +1,6 @@
 package nl.kute.testobjects.kotlin
 
-import nl.kute.core.asString
+import nl.kute.asstring.core.asString
 
 @Suppress("unused")
 class ClassWithToStringCallingAsString {

@@ -5,7 +5,7 @@ package nl.kute.hashing
 import nl.kute.hashing.DigestMethod.CRC32C
 import nl.kute.hashing.DigestMethod.JAVA_HASHCODE
 import nl.kute.log.logWithCaller
-import nl.kute.reflection.simplifyClassName
+import nl.kute.reflection.util.simplifyClassName
 import nl.kute.util.asHexString
 import nl.kute.util.byteArrayToHex
 import nl.kute.util.throwableAsString

@@ -1,9 +1,9 @@
 package nl.kute.testobjects.java;
 
-import nl.kute.core.AsStringBuilder;
-import nl.kute.core.AsStringProducer;
+import nl.kute.asstring.core.AsStringBuilder;
+import nl.kute.asstring.core.AsStringProducer;
 
-import static nl.kute.core.namedvalues.NamedSupplierKt.namedSupplier;
+import static nl.kute.asstring.namedvalues.NamedSupplierKt.namedSupplier;
 
 @SuppressWarnings("ClassInitializerMayBeStatic")
 public class JavaClassWithStatic {

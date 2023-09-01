@@ -1,7 +1,7 @@
 package nl.kute.util
 
-import nl.kute.core.asString
-import nl.kute.reflection.simplifyClassName
+import nl.kute.asstring.core.asString
+import nl.kute.reflection.util.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtensionContext

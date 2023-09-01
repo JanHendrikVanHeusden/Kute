@@ -1,7 +1,7 @@
 package nl.kute.demo.alternatives
 
 import nl.kute.log.log
-import nl.kute.reflection.simplifyClassName
+import nl.kute.reflection.util.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
 import org.junit.jupiter.api.Test

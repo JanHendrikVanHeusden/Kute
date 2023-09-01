@@ -2,8 +2,8 @@
 
 package nl.kute.reflection.annotationfinder
 
-import nl.kute.reflection.subSuperHierarchy
-import nl.kute.reflection.toStringImplementingMethod
+import nl.kute.reflection.util.subSuperHierarchy
+import nl.kute.reflection.util.toStringImplementingMethod
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 

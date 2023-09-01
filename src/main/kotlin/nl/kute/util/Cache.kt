@@ -1,8 +1,8 @@
 package nl.kute.util
 
-import nl.kute.core.annotation.option.AsStringClassOption
-import nl.kute.core.annotation.option.ToStringPreference.USE_ASSTRING
-import nl.kute.core.asString
+import nl.kute.asstring.annotation.option.AsStringClassOption
+import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
+import nl.kute.asstring.core.asString
 import java.util.concurrent.ConcurrentHashMap
 
 /** Initial capacity for caches */

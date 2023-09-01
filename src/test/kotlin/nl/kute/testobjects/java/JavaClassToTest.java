@@ -2,7 +2,7 @@ package nl.kute.testobjects.java;
 
 import org.jetbrains.annotations.NotNull;
 
-import static nl.kute.core.AsString.asString;
+import static nl.kute.asstring.core.AsString.asString;
 
 /** For use by [PrintableTest] */
 @SuppressWarnings("unused")

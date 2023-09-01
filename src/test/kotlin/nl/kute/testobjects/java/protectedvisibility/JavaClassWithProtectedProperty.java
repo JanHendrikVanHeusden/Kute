@@ -1,6 +1,6 @@
 package nl.kute.testobjects.java.protectedvisibility;
 
-import static nl.kute.core.AsString.asString;
+import static nl.kute.asstring.core.AsString.asString;
 
 @SuppressWarnings("unused")
 public class JavaClassWithProtectedProperty {

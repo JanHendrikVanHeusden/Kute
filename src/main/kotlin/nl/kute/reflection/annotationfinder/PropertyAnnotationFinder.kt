@@ -1,9 +1,9 @@
 package nl.kute.reflection.annotationfinder
 
-import nl.kute.reflection.declaringClass
-import nl.kute.reflection.isPrivate
-import nl.kute.reflection.subSuperHierarchy
-import nl.kute.reflection.superSubHierarchy
+import nl.kute.reflection.util.declaringClass
+import nl.kute.reflection.util.isPrivate
+import nl.kute.reflection.util.subSuperHierarchy
+import nl.kute.reflection.util.superSubHierarchy
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.findAnnotation

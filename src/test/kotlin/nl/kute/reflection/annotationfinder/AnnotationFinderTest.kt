@@ -1,11 +1,11 @@
 package nl.kute.reflection.annotationfinder
 
-import nl.kute.config.defaultNullString
-import nl.kute.core.annotation.modify.AsStringHash
-import nl.kute.core.annotation.modify.AsStringMask
-import nl.kute.core.annotation.modify.AsStringReplace
-import nl.kute.core.annotation.option.AsStringOption
-import nl.kute.core.asString
+import nl.kute.asstring.annotation.modify.AsStringHash
+import nl.kute.asstring.annotation.modify.AsStringMask
+import nl.kute.asstring.annotation.modify.AsStringReplace
+import nl.kute.asstring.annotation.option.AsStringOption
+import nl.kute.asstring.config.defaultNullString
+import nl.kute.asstring.core.asString
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.MapEntry
 import org.junit.jupiter.api.Test

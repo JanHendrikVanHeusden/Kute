@@ -2,8 +2,8 @@ package nl.kute.reflection.error
 
 import nl.kute.log.log
 import nl.kute.log.logger
-import nl.kute.reflection.declaringClass
-import nl.kute.reflection.simplifyClassName
+import nl.kute.reflection.util.declaringClass
+import nl.kute.reflection.util.simplifyClassName
 import nl.kute.util.throwableAsString
 import java.lang.reflect.InaccessibleObjectException
 import java.lang.reflect.InvocationTargetException

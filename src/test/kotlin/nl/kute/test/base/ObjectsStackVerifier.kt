@@ -1,6 +1,6 @@
 package nl.kute.test.base
 
-import nl.kute.core.getObjectsStackSize
+import nl.kute.asstring.core.getObjectsStackSize
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

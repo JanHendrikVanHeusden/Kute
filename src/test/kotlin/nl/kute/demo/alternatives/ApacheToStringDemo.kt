@@ -1,7 +1,7 @@
 package nl.kute.demo.alternatives
 
 import nl.kute.log.log
-import nl.kute.reflection.simplifyClassName
+import nl.kute.reflection.util.simplifyClassName
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
 import org.assertj.core.api.Assertions.assertThat
