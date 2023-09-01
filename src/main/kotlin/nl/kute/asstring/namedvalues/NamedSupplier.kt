@@ -35,7 +35,7 @@ private typealias Supplier<T> = () -> T?
  * @param name The name to identify this [NamedSupplier]'s value
  * @param supplier The lambda to supply the [value] on request
  */
-public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): NameValue<V?> {
+public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): AbstractNameValue<V?>() {
 
     /**
      * Secondary constructor, mainly for usage from Java.

@@ -21,11 +21,13 @@ import kotlin.reflect.KProperty
  *   the call to [AsStringBuilder.asString] produces the same result as [nl.kute.asstring.core.asString]
  *
  * *Usage:*
+ * * An [AsStringBuilder] does not prevent garbage collection of the object it applies to (it uses weak reference).
  * * For best performance, the [AsStringBuilder] object (or the [AsStringProducer] object produced by the [build]
  *   method) may be stored as an instance variable within the class it applies to.
  *   This avoids the cost of building it over and over (like when it is part of a log-statement or of a
  *   `toString()` method).
- * * An [AsStringBuilder] does not prevent garbage collection of the object it applies to (it uses weak reference).
+ * * Properties of this class (and any subclasses) are excluded from rendering
+ *   by [nl.kute.asstring.core.asString]
  * @param [obj] The object to create the [AsStringBuilder] for (and to ultimately produce the [obj].[asString]`()` for)
  */
 public class AsStringBuilder private constructor(private var obj: Any?) : AsStringProducer() {

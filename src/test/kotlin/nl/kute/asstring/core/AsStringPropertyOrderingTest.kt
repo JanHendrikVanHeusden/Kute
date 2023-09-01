@@ -4,6 +4,7 @@ import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
+import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.asstring.namedvalues.namedProp
 import nl.kute.asstring.namedvalues.namedValue
 import nl.kute.asstring.property.ranking.PropertyRanking
@@ -81,6 +82,27 @@ class AsStringPropertyOrderingTest {
         assertThat(testObj.asString())
             .isEqualTo("${testObj::class.simpleName}($sortedProps)")
             .isEqualTo("${testObj::class.simpleName}(aap=monkey, ezel=donkey, kat=cat, paard=horse, zebra=zebra)")
+    }
+
+    @Test
+    fun `properties should be ordered alphabetically case insensitive as specified`() {
+        // act, assert
+        // This test will fail if property names are sorted case-sensitive
+        assertThat(AClass().asString())
+            .isEqualTo("AClass(anInterfaceProp=an interface property, aProp=a property)")
+    }
+
+    @Test
+    fun `properties that differ in case only should be rendered correctly when ordered alphabetically`() {
+        // act, assert
+        // This test will fail if property names are sorted case-sensitive
+        println(AClassWithPropsThatDifferInCaseOnly().asString())
+        assertThat(AClassWithPropsThatDifferInCaseOnly().asString())
+            .isObjectAsString("AClassWithPropsThatDifferInCaseOnly",
+                "aProp=My name has an uppercase letter",
+                "aprop=My name is lower case only",
+                "APROP=My name is UPPER case only"
+            )
     }
 
     @Test
@@ -311,6 +333,24 @@ class NoAsStringClassOption {
     val aLongString = "aLongString ".repeat(20)
     val p = "p"
     val u: UUID = UUID.fromString("502192e9-638c-41cb-ab67-e2082f07705f")
+}
+
+@AsStringClassOption(sortNamesAlphabetic = true)
+private interface AnInterface {
+    val anInterfaceProp: String
+        get() = "an interface property"
+}
+
+@Suppress("unused")
+class AClass: AnInterface {
+    val aProp = "a property"
+}
+
+@Suppress("unused")
+class AClassWithPropsThatDifferInCaseOnly {
+    val aProp = "My name has an uppercase letter"
+    val aprop = "My name is lower case only"
+    val APROP = "My name is UPPER case only"
 }
 
 // endregion

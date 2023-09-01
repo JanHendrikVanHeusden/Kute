@@ -30,7 +30,7 @@ import nl.kute.asstring.weakreference.ObjectWeakReference
  * @param name The name to identify this [NamedValue]'s value
  * @param value The value of this [NamedValue]
  */
-public class NamedValue<V: Any?>(override val name: String, value: V?): NameValue<V?> {
+public class NamedValue<V: Any?>(override val name: String, value: V?): AbstractNameValue<V?>() {
     private val valueReference: ObjectWeakReference<V?> = ObjectWeakReference(value)
     override val value: V?
         // Using `get` so it's evaluated when required only, not at construction time of the NamedValue

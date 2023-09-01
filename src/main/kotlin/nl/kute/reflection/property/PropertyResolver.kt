@@ -2,38 +2,44 @@
 
 package nl.kute.reflection.property
 
-import nl.kute.asstring.core.AsStringProducer
-import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.reflection.util.declaringClass
 import nl.kute.reflection.util.isPrivate
+import nl.kute.reflection.util.simplifyClassName
 import nl.kute.reflection.util.subSuperHierarchy
 import nl.kute.reflection.util.superSubHierarchy
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.jvmErasure
 
-/**
- * These classes should not be included, these properties contain of meta info about objects being "asString-ed",
- * would make it verbose and confusing
- */
-private val kutePropertyClassesToOmit: Array<Class<out Any>> =
-    arrayOf(AsStringProducer::class.java, NameValue::class.java)
+internal typealias PropertyFilter = (KProperty<*>) -> Boolean
 
-/** Property filter based on [kutePropertyClassesToOmit] (should be negated when applied) */
-private val kutePropertyClassFilter: (KProperty<*>) -> Boolean =
-    { property: KProperty<*> -> kutePropertyClassesToOmit.any { it.isAssignableFrom(property.returnType.jvmErasure.java) } }
+/**
+ * Properties with return types that are (sub)types of the classes in [propertyReturnTypesToOmit]
+ * are omitted by [propertiesFromSubSuperHierarchy]
+ */
+@JvmSynthetic // avoid access from external Java code
+internal val propertyReturnTypesToOmit: MutableSet<KClass<out Any>> = ConcurrentHashMap.newKeySet()
+
+/** Property filter based on [propertyReturnTypesToOmit] (should be negated when applied) */
+private val propertyClassFilter: PropertyFilter =
+    { property: KProperty<*> -> propertyReturnTypesToOmit
+        .any { it.java.isAssignableFrom(property.returnType.jvmErasure.java) }
+        .also { if (it) println(propertyReturnTypesToOmit.map { println(">>> ${it.simplifyClassName()}") }) }
+    }
 
 /**
  * Get the properties from the class hierarchy (see [subSuperHierarchy]).
  * * In case of property overrides or name-shadowing, only the property from the most specific subclass
- *   is present in the result.
- *     * This implies that the properties are unique by name.
- * * The resulting properties are returned regardless of visibility.
- *   So not only `public` or `protected`, but also `internal` and `private` properties.
+ *   is present in the result
+ *     * This implies that the properties returned are unique by name
+ * * The resulting properties are returned regardless of visibility
+ *   So not only `public` or `protected`, but also `internal` and `private` properties
  * * The properties may or may not be accessible ([KProperty.isAccessible])
+ * * Properties that return (sub)types of any classes in [propertyReturnTypesToOmit] are omitted
  */
 @JvmSynthetic // avoid access from external Java code
 internal fun <T : Any> KClass<T>.propertiesFromSubSuperHierarchy(): List<KProperty<*>> =
@@ -49,7 +55,8 @@ internal fun <T : Any> KClass<T>.propertiesFromSubSuperHierarchy(): List<KProper
  * * The properties may or may not be accessible ([KProperty.isAccessible])
  */
 @Suppress("SameParameterValue")
-private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean, skipKuteProps: Boolean = true): List<KProperty<*>> {
+@JvmSynthetic // avoid access from external Java code
+internal fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean): List<KProperty<*>> {
     val classHierarchy: List<KClass<in T>> = if (mostSuper) this.superSubHierarchy() else this.subSuperHierarchy()
     val linkedHashSet: LinkedHashSet<KProperty1<T, *>> = linkedSetOf()
     return linkedHashSet.also { theSet ->
@@ -86,7 +93,7 @@ private fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean, skip
                 .filter { !it.isPrivate() || it.declaringClass() == this }
                 // In case of overloads or name-shadowing, keep the property that is first in the hierarchy
                 .distinctBy { prop -> prop.name }
-                .filterNot { skipKuteProps && kutePropertyClassFilter.invoke(it) }
+                .filterNot { propertyClassFilter(it) }
                 .toList() as List<KProperty1<T, *>>
         )
     }.toList()

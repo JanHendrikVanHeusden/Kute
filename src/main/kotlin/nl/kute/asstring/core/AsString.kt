@@ -26,6 +26,7 @@ import nl.kute.asstring.property.ranking.getPropertyRankableInstance
 import nl.kute.log.log
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.error.SyntheticClassException
+import nl.kute.reflection.property.propertyReturnTypesToOmit
 import nl.kute.reflection.util.hasImplementedToString
 import nl.kute.reflection.util.retrieveCompanionObjectInstance
 import nl.kute.reflection.util.simplifyClassName
@@ -46,9 +47,12 @@ import kotlin.reflect.full.memberProperties
 
 // region ~ AsStringProducer
 
-/** Abstract base class for implementing classes that want to expose an [asString] method */
+/**
+ * Abstract base class for implementing classes that want to expose an [asString] method
+ * * Properties of this class's subclasses are excluded from rendering by [asString]
+ */
 public abstract class AsStringProducer {
-// Must be in same file as fun objectAsString() (private)
+// Must be in same file as fun objectAsString() (to have it private)
 
     /**
      * Facade method allowing subclasses to access the (private) [nl.kute.asstring.core.asString] method with additional parameters
@@ -63,6 +67,13 @@ public abstract class AsStringProducer {
     public abstract fun asString(): String
 
     abstract override fun toString(): String
+
+    private companion object {
+        init {
+            // Properties of this type should not be rendered by asString()
+            propertyReturnTypesToOmit.add(AsStringProducer::class)
+        }
+    }
 }
 
 // endregion
@@ -211,7 +222,7 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
 ): String {
     val sortNamesAlphabetic = this.size > 1 && obj::class.asStringClassOption().sortNamesAlphabetic
     val props: Map<KProperty<*>, Set<Annotation>> =
-        if (sortNamesAlphabetic) this.entries.sortedBy { it.key.name }.associate { it.key to it.value }
+        if (sortNamesAlphabetic) this.entries.sortedBy { it.key.name.lowercase() }.associate { it.key to it.value }
         else this
     return if (this.size <= 1 || !rankProviders.hasEffectiveRankProvider()) {
         props.entries.joinToString(

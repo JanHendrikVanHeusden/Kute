@@ -38,8 +38,8 @@ import kotlin.reflect.KClass
  *   properties and values.
  *   > If [ToStringPreference.PREFER_TOSTRING] applies and recursion is detected in the [toString] implementation,
  *   > [nl.kute.asstring.core.asString] will fall back to dynamically resolving properties and values for that class.
- * @param sortNamesAlphabetic Should output of [nl.kute.asstring.core.asString] be sorted alphabetically by property name in output
- * of [nl.kute.asstring.core.asString].?
+ * @param sortNamesAlphabetic Should output of [nl.kute.asstring.core.asString] be sorted alphabetically
+ * by property name (case-insensitive) in output of [nl.kute.asstring.core.asString].?
  * > Default = `false` by [initialSortNamesAlphabetic]
  * > **NB:** This is a pre-sorting. If additional [propertySorters] are given, these will be applied after the alphabetic sort.
  * @param propertySorters One or more [PropertyRankable] implementing classes can be specified to have properties sorted

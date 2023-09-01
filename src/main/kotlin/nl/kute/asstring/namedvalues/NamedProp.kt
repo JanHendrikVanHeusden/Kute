@@ -57,7 +57,7 @@ import kotlin.reflect.KProperty0
  */
 @Suppress("RedundantModalityModifier")
 public final class NamedProp<T : Any?, V : Any?>(obj: T?, public override val property: KProperty<V>) :
-    NameValue<V>, WeakReferencing<T>, PropertyValue<V?> {
+    AbstractNameValue<V>(), WeakReferencing<T>, PropertyValue<V?> {
 
     /**
      * Indicates whether the [property]'s value can be resolved on the given object

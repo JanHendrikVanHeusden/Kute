@@ -4,6 +4,7 @@ import nl.kute.asstring.annotation.modify.AsStringHash
 import nl.kute.asstring.annotation.modify.AsStringMask
 import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.modify.AsStringReplace
+import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
@@ -683,7 +684,31 @@ class AsStringTest: ObjectsStackVerifier {
             .isEqualTo(testObj.toString())
     }
 
+    @Test
+    fun `properties of Kute types should not be rendered`() {
+        // arrange
+        @Suppress("unused")
+        class AClass: AnInterface {
+            val aProp = "a property"
+            // This Kute stuff should be excluded (not rendered):
+            val namedProp = namedProp(::aProp)
+            val namedVal = 25.namedValue("a name for an Int")
+            val namedSupplier = { UUID.randomUUID()}.namedSupplier("a UUID")
+            val asStringBuilder = asStringBuilder()
+                .withAlsoNamed(namedProp, namedVal, namedSupplier)
+                .withAlsoProperties(::anInterfaceProp)
+        }
+        // act, assert
+        assertThat(AClass().asString()).isEqualTo("AClass(anInterfaceProp=an interface property, aProp=a property)")
+    }
+
 // region ~ Classes etc. to be used for testing
+
+    @AsStringClassOption(sortNamesAlphabetic = true)
+    private interface AnInterface {
+        val anInterfaceProp: String
+            get() = "an interface property"
+    }
 
     private val people: Array<String> = arrayOf("Rob", "William", "Marcel", "Theo", "Jan-Hendrik")
 
