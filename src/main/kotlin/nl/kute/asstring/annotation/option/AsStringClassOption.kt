@@ -4,6 +4,7 @@ import nl.kute.asstring.annotation.additionalAnnotations
 import nl.kute.asstring.annotation.findAnnotation
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.config.initialAsStringClassOption
+import nl.kute.asstring.config.initialIncludeCompanion
 import nl.kute.asstring.config.initialIncludeIdentityHash
 import nl.kute.asstring.config.initialSortNamesAlphabetic
 import nl.kute.asstring.config.notifyConfigChange
@@ -38,6 +39,11 @@ import kotlin.reflect.KClass
  *   properties and values.
  *   > If [ToStringPreference.PREFER_TOSTRING] applies and recursion is detected in the [toString] implementation,
  *   > [nl.kute.asstring.core.asString] will fall back to dynamically resolving properties and values for that class.
+ * @param includeCompanion Should a companion object (if any) be included in the output of [nl.kute.asstring.core.asString]?
+ * Inclusion of companion object is possible only if both:
+ *  1. the companion object is public
+ *  2. the containing class is not private
+ * > Default = `false` by [initialIncludeCompanion]
  * @param sortNamesAlphabetic Should output of [nl.kute.asstring.core.asString] be sorted alphabetically
  * by property name (case-insensitive) in output of [nl.kute.asstring.core.asString].?
  * > Default = `false` by [initialSortNamesAlphabetic]
@@ -60,6 +66,7 @@ import kotlin.reflect.KClass
 public annotation class AsStringClassOption(
     val includeIdentityHash: Boolean = initialIncludeIdentityHash,
     val toStringPreference: ToStringPreference = USE_ASSTRING,
+    val includeCompanion: Boolean = initialIncludeCompanion,
     val sortNamesAlphabetic: Boolean = initialSortNamesAlphabetic,
     vararg val propertySorters: KClass<out PropertyRankable<*>> = []
 ) {

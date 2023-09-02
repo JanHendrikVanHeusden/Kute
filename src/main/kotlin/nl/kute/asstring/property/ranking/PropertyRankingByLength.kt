@@ -1,9 +1,7 @@
 package nl.kute.asstring.property.ranking
 
 import nl.kute.asstring.annotation.option.AsStringClassOption
-import nl.kute.asstring.annotation.option.ToStringPreference
-import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
-import nl.kute.asstring.namedvalues.namedProp
+import nl.kute.asstring.core.asString
 import nl.kute.asstring.property.ranking.ValueLengthRanking.S
 import nl.kute.asstring.property.ranking.ValueLengthRanking.XXL
 import java.util.EnumSet
@@ -36,7 +34,7 @@ public open class PropertyRankingByLength private constructor(): PropertyRanking
  * @param [lengthRange] The range (min inclusive, max inclusive) associated with the [ValueLengthRanking]
  */
 @Suppress("KDocMissingDocumentation") // names [S] to [XXL] should be descriptive enough
-@AsStringClassOption(toStringPreference = ToStringPreference.USE_ASSTRING, includeIdentityHash = false)
+@AsStringClassOption(includeIdentityHash = false, includeCompanion = false)
 public enum class ValueLengthRanking(public val rank: Int, public val lengthRange: IntRange) {
     S(10, 0..25),
     M(20, S.lengthRange.last + 1..50),
@@ -67,10 +65,5 @@ public enum class ValueLengthRanking(public val rank: Int, public val lengthRang
         internal fun String.getRank(): ValueLengthRanking = getRank(this.length)
     }
 
-    private val asStringBuilder = asStringBuilder()
-        .withOnlyProperties()
-        .withAlsoNamed(::name.namedProp(this), ::rank.namedProp(this), ::lengthRange.namedProp(this))
-        .build()
-
-    public override fun toString(): String = asStringBuilder.asString()
+    public override fun toString(): String = asString()
 }

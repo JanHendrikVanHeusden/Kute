@@ -40,6 +40,7 @@ class AsStringCompanionTest: ObjectsStackVerifier {
     @AfterEach
     fun setUpAndTearDown() {
         restoreInitialAsStringClassOption()
+        AsStringConfig().withIncludeCompanion(true).applyAsDefault()
     }
 
     @Test
@@ -67,6 +68,20 @@ class AsStringCompanionTest: ObjectsStackVerifier {
         val testObj = NestedProtectedClassWithPublicCompanion()
         assertThat(testObj.asString())
             .isEqualTo("NestedProtectedClassWithPublicCompanion(instanceProp=instance prop, companion: CompObjectName(companionProp=companion prop))")
+    }
+
+    @Test
+    fun `companion object should not be included if default is false`() {
+        val testObj = NestedProtectedClassWithPublicCompanion()
+        // check that default is false (due to setUpAndTearDown())
+        assertThat(AsStringClassOption.defaultOption.includeCompanion).isTrue
+        assertThat(testObj.asString())
+            .isEqualTo("NestedProtectedClassWithPublicCompanion(instanceProp=instance prop, companion: CompObjectName(companionProp=companion prop))")
+
+        // set default to false
+        AsStringConfig().withIncludeCompanion(false).applyAsDefault()
+        assertThat(testObj.asString())
+            .isEqualTo("NestedProtectedClassWithPublicCompanion(instanceProp=instance prop)")
     }
 
     @Test
@@ -405,7 +420,7 @@ class AsStringCompanionTest: ObjectsStackVerifier {
     }
 
     @AsStringOption(surroundPropValue = `¶¶`)
-    @AsStringClassOption(includeIdentityHash = true)
+    @AsStringClassOption(includeIdentityHash = true, includeCompanion = true)
     class WithAnnotationsAtClassAndUnannotatedCompanion {
         val instanceProp = "instance prop"
         companion object CompObjectName {
@@ -414,7 +429,7 @@ class AsStringCompanionTest: ObjectsStackVerifier {
     }
 
     @AsStringOption(surroundPropValue = `¶¶`)
-    @AsStringClassOption(includeIdentityHash = true, sortNamesAlphabetic = true)
+    @AsStringClassOption(includeIdentityHash = true, sortNamesAlphabetic = true, includeCompanion = true)
     class WithPropsAndCompanionPropsAndAnnotations {
 
         val instanceProp = "instance prop"

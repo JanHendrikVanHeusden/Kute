@@ -365,6 +365,7 @@ internal fun Any?.asStringFallBack(): String {
 
 @JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.companionAsString(): String {
+    if (!this.asStringClassOption().includeCompanion) return ""
     try {
         val companionObjectInstance = this.retrieveCompanionObjectInstance()
         companionObjectInstance?.let { companionInstance ->

@@ -304,7 +304,7 @@ class CommonNames {
 }
 
 @Suppress("unused")
-@AsStringClassOption(sortNamesAlphabetic = true, propertySorters = [PropertyRankingByLength::class])
+@AsStringClassOption(includeCompanion = true, sortNamesAlphabetic = true, propertySorters = [PropertyRankingByLength::class])
 open class WithPropsAndCompanionProps {
     val x = "x"
     val a = "a"
@@ -321,6 +321,7 @@ open class WithPropsAndCompanionProps {
 }
 
 @AsStringClassOption(
+    includeCompanion = true,
     sortNamesAlphabetic = true,
     propertySorters = [ReverseAlphabeticPropertyRanking::class, ReverseAlphabeticPropertyRanking2nd::class]
 )
