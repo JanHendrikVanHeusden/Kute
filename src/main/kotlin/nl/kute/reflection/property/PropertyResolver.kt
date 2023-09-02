@@ -5,7 +5,6 @@ package nl.kute.reflection.property
 import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.reflection.util.declaringClass
 import nl.kute.reflection.util.isPrivate
-import nl.kute.reflection.util.simplifyClassName
 import nl.kute.reflection.util.subSuperHierarchy
 import nl.kute.reflection.util.superSubHierarchy
 import java.util.concurrent.ConcurrentHashMap
@@ -28,7 +27,6 @@ internal val propertyReturnTypesToOmit: MutableSet<KClass<out Any>> = Concurrent
 private val propertyClassFilter: PropertyFilter =
     { property: KProperty<*> -> propertyReturnTypesToOmit
         .any { it.java.isAssignableFrom(property.returnType.jvmErasure.java) }
-        .also { if (it) println(propertyReturnTypesToOmit.map { println(">>> ${it.simplifyClassName()}") }) }
     }
 
 /**

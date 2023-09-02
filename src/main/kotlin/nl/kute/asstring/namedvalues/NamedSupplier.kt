@@ -73,4 +73,5 @@ public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplie
  * @receiver The [V] producing supplier the [NamedSupplier] is about
  * @param name The name to be associated with the value to be supplied
  */
-public fun <V: Any?> Supplier<V?>.namedSupplier(name: String): NameValue<V?> = NamedSupplier(name,this)
+public fun <V: Any?> Supplier<V?>.namedSupplier(name: String): NameValue<V?> =
+    NamedSupplier(name,this)

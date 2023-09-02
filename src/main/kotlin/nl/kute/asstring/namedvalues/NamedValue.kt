@@ -37,10 +37,3 @@ public class NamedValue<V: Any?>(override val name: String, value: V?): Abstract
         // NB: don't use `lazy`, it should honour changes in the underlying object
         get() = valueReference.get()
 }
-
-/**
- * Convenience method to construct a [NamedValue]
- * @receiver The [V] value object the [NamedValue] is about
- * @param name The name to be associated with the value
- */
-public fun <V: Any?>V?.namedValue(name: String): NameValue<V?> = NamedValue(name, this)

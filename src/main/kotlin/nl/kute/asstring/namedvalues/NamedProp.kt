@@ -28,8 +28,8 @@ import kotlin.reflect.KProperty0
  * val myObject1 = MyClass(Date().also { it.time = it.time - 86_400_000 }) // yesterday
  * val myObject2 = MyClass(myObject1.aDate) // also yesterday
  *
- * val myClass1NamedProp = NamedProp(myObject1, MyClass::aDate).also { println(it.value) /* yesterday */ }
- * val myObject2NamedProp = NamedProp(myObject2, myObject2::aDate).also { println(it.value) /* yesterday */ }
+ * val myClass1NamedProp = NamedProp(MyClass::aDate, myObject1).also { println(it.value) /* yesterday */ }
+ * val myObject2NamedProp = NamedProp(myObject2::aDate, myObject2).also { println(it.value) /* yesterday */ }
  *
  * myObject1.aDate = Date() // today
  * myObject2.aDate = myObject1.aDate // today
@@ -54,9 +54,11 @@ import kotlin.reflect.KProperty0
  *
  * @param obj The object on which the [property] is to be resolved
  * @param property The property to retrieve the value with.
+ *
+ * @see [namedProp]
  */
 @Suppress("RedundantModalityModifier")
-public final class NamedProp<T : Any?, V : Any?>(obj: T?, public override val property: KProperty<V>) :
+public final class NamedProp<T : Any?, V : Any?>(public override val property: KProperty<V>, obj: T?) :
     AbstractNameValue<V>(), WeakReferencing<T>, PropertyValue<V?> {
 
     /**
@@ -134,7 +136,8 @@ public final class NamedProp<T : Any?, V : Any?>(obj: T?, public override val pr
 
 /**
  * Convenience method to construct a [NamedProp]
- * @receiver The [T] object the [NamedProp] is about
- * @param prop The [V] producing property associated with the receiver object
+ * @receiver The [V]`?` producing property the [NamedProp] is about
+ * @param obj The object ([T]`?`, so null allowed) to retrieve the property value from
  */
-public fun <T : Any?, V : Any?> T?.namedProp(prop: KProperty<V?>): NamedProp<T?, V?> = NamedProp(this, prop)
+public fun <T : Any?, V : Any?> KProperty<V?>.namedProp(obj: T?): NamedProp<T?, V?> =
+    NamedProp(this, obj)

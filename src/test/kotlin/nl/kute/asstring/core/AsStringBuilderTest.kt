@@ -6,8 +6,8 @@ import nl.kute.asstring.annotation.modify.AsStringReplace
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.test.helper.isObjectAsString
+import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
-import nl.kute.asstring.namedvalues.namedValue
 import nl.kute.asstring.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
 import nl.kute.test.base.GarbageCollectionWaiter
@@ -114,8 +114,8 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
     @Test
     fun `exceptPropertyNames shouldn't filter out named values`() {
         // arrange
-        val namedProp = testObj.namedProp(testSubObj::hashProperty)
-        val namedVal = "I call myself privateProp".namedValue(name = "privateProp")
+        val namedProp = testObj::hashProperty.namedProp(testObj)
+        val namedVal = NamedValue("privateProp", "I call myself privateProp")
         // act
         // ClassWithHashProperty(nullable=$showNullAs, hashProperty=#$hashCode#, privateProp=${namedVal.valueString})
         val asString = testObj.asStringBuilder()
@@ -164,8 +164,8 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
     @Test
     fun `AsStringBuilder should honour withAlsoNamed`() {
         // arrange
-        val namedProp = testSubObj.namedProp(testSubObj::nullable)
-        val namedValue = "some string".namedValue("I am a named value")
+        val namedProp = testSubObj::nullable.namedProp(testSubObj)
+        val namedValue = NamedValue("I am a named value", "some string")
         // act, assert
         val asString = testObj.asStringBuilder()
             .withAlsoNamed(namedProp, namedValue)
@@ -206,7 +206,7 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
         // act, assert
         assertThat(testObj.asStringBuilder()
             .withAlsoProperties(SubClassWithPrintMask::hashProperty)
-            .withAlsoNamed("the value".namedValue("name of named value"))
+            .withAlsoNamed(NamedValue("name of named value", "the value"))
             .withOnlyProperties(SubClassWithPrintMask::replaced)
             .asString())
             .doesNotContain("nullable=")

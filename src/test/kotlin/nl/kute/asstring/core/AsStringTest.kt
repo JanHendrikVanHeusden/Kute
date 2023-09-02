@@ -19,7 +19,6 @@ import nl.kute.asstring.namedvalues.NamedSupplier
 import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
 import nl.kute.asstring.namedvalues.namedSupplier
-import nl.kute.asstring.namedvalues.namedValue
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
 import nl.kute.hashing.DigestMethod
 import nl.kute.reflection.util.simplifyClassName
@@ -202,14 +201,14 @@ class AsStringTest: ObjectsStackVerifier {
     fun `each call of asString with NamedXxx should evaluate the mutable value`(namedValueType: String) {
         // arrange
         val valueName = "classLevelCounter"
-        val namedProp = this.namedProp(this::classLevelCounter)
+        val namedProp = ::classLevelCounter.namedProp(this)
 
         val mapOfNamedValues = mapOf(
             // We can simply use the same NamedProp every time, it will evaluate the property value at runtime
             "prop" to { namedProp },
             // A new NamedValue needs to be constructed on every call, because it simply stores the value at time of construction.
             // If you don't like that, use `NamedProp` or `NamedSupplier` instead
-            "value" to { classLevelCounter.namedValue(valueName) as NamedValue<Int> }
+            "value" to { NamedValue(valueName, classLevelCounter) }
         )
         val namedXxx = mapOfNamedValues[namedValueType]!!
 
@@ -295,7 +294,7 @@ class AsStringTest: ObjectsStackVerifier {
         class SubTestClass(var aProp: String = "a Prop"): TestClass()
 
         with(SubTestClass()) {
-            val namedProp = this.namedProp(this::aProp)
+            val namedProp = this::aProp.namedProp(this)
             // act
             asString = this.asStringBuilder()
                 .exceptPropertyNames(aProp, counterName)
@@ -691,8 +690,8 @@ class AsStringTest: ObjectsStackVerifier {
         class AClass: AnInterface {
             val aProp = "a property"
             // This Kute stuff should be excluded (not rendered):
-            val namedProp = namedProp(::aProp)
-            val namedVal = 25.namedValue("a name for an Int")
+            val namedProp = ::aProp.namedProp(this)
+            val namedVal = NamedValue("a name for an Int", 25)
             val namedSupplier = { UUID.randomUUID()}.namedSupplier("a UUID")
             val asStringBuilder = asStringBuilder()
                 .withAlsoNamed(namedProp, namedVal, namedSupplier)

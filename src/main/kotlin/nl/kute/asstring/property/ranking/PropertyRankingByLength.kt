@@ -69,7 +69,7 @@ public enum class ValueLengthRanking(public val rank: Int, public val lengthRang
 
     private val asStringBuilder = asStringBuilder()
         .withOnlyProperties()
-        .withAlsoNamed(namedProp(this::name), namedProp(this::rank), namedProp(this::lengthRange))
+        .withAlsoNamed(::name.namedProp(this), ::rank.namedProp(this), ::lengthRange.namedProp(this))
         .build()
 
     public override fun toString(): String = asStringBuilder.asString()

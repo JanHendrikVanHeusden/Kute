@@ -13,7 +13,7 @@ import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.test.helper.isObjectAsString
-import nl.kute.asstring.namedvalues.namedValue
+import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.hashing.DigestMethod
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
@@ -365,7 +365,7 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
     }
 
     private class PersonWithAsStringBuilder: Person() {
-        val namedVal = "Hi!".namedValue("greeting")
+        val namedVal = NamedValue("greeting", "Hi!")
         val asStringProducer = this.asStringBuilder()
             .withOnlyProperties(this::iban, this::phoneNumber)
             .withAlsoNamed(namedVal)
@@ -374,7 +374,7 @@ class AsStringPreferToStringTest: ObjectsStackVerifier {
     }
 
     private class PersonWithAsStringBuilderAndCustomToString: Person() {
-        val namedVal = "Hi!".namedValue("greeting")
+        val namedVal = NamedValue("greeting", "Hi!")
         val toStringCustomPrefix = "My custom toString(): "
         val asStringBuilder by lazy {
             this.asStringBuilder()

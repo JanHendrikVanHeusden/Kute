@@ -5,8 +5,8 @@ import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.test.helper.isObjectAsString
+import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
-import nl.kute.asstring.namedvalues.namedValue
 import nl.kute.asstring.property.ranking.PropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankingByCommonNames
 import nl.kute.asstring.property.ranking.PropertyRankingByLength
@@ -198,9 +198,9 @@ class AsStringPropertyOrderingTest {
         val asStringBuilder = testObj
             .asStringBuilder()
             .withAlsoNamed(
-                testObj.namedProp(testObj::aLongString),
-                testObj.namedProp(testObj::p),
-                "just something".namedValue("aNamedValue")
+                testObj::aLongString.namedProp(testObj),
+                testObj::p.namedProp(testObj),
+                NamedValue("aNamedValue", "just something")
             )
         // act, assert
         assertThat(asStringBuilder.asString())

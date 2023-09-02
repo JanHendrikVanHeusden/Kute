@@ -4,7 +4,7 @@ import nl.kute.reflection.property.propertyReturnTypesToOmit
 
 /**
  * Interface for classes to provide name / value combinations from various sources.
- * * This interface is **sealed**, so it can not be implemented by external classes.
+ * * This interface is **sealed**, so it can not be implemented directly by external classes.
  *  Please extend [AbstractNameValue] instead.
  * > For usage, see: [nl.kute.asstring.core.AsStringBuilder]
  */

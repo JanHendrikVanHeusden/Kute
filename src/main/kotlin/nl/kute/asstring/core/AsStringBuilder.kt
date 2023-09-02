@@ -72,7 +72,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
      */
     public fun withAlsoProperties(vararg props: KProperty<*>): AsStringBuilder {
         if (!isBuilt) {
-            this.alsoNamed.addAll(props.map { objectReference.get().namedProp(it) })
+            this.alsoNamed.addAll(props.map { it.namedProp(objectReference.get()) })
         }
         return this
     }
