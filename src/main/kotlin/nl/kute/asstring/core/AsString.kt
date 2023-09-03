@@ -84,11 +84,12 @@ public abstract class AsStringProducer {
  * Mimics the format of Kotlin data class's [toString] method.
  * * Super-class properties are included
  * * Private properties are included (but not in subclasses)
- * * String value of individual properties is capped at 500; see @[AsStringClassOption] to override the default.
+ * * String value of individual properties is capped at 500; see [AsStringClassOption] to override the default.
  * * Want more control of what is included or not? See [AsStringBuilder]
  * @return A String representation of the receiver object, including class name and property names + values;
- * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and other
- * (other annotations, see package `nl.kute.core.annotation.modify`)
+ * adhering to related annotations; for these annotations, e.g. [AsStringOption], [AsStringClassOption],
+ * and other annotations
+ * > other annotations, see package `nl.kute.core.annotation.modify`
  * @see [AsStringBuilder]
  */
 public fun Any?.asString(): String = asString(emptyStringList)
