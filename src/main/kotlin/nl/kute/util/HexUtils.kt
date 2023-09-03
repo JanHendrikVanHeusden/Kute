@@ -1,6 +1,6 @@
 package nl.kute.util
 /**
- * Most of this code would not be needed in Java 17+ (would use HexFormat class in J17).
+ * Most of this code would not be needed in Java 17+ (would use HexFormat class in Java 17+).
  * But we want Kute to be Java 11+ compatible...
 */
 

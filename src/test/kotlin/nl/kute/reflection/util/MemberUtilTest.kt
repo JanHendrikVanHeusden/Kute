@@ -1,10 +1,6 @@
-package nl.kute.util
+package nl.kute.reflection.util
 
 import nl.kute.asstring.core.asString
-import nl.kute.reflection.util.classToStringMethodCache
-import nl.kute.reflection.util.hasImplementedToString
-import nl.kute.reflection.util.simplifyClassName
-import nl.kute.reflection.util.toStringImplementingMethod
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.Test

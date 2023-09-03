@@ -1,8 +1,7 @@
 @file:Suppress("unused")
-
+@file:JvmName("MemberUtil")
 package nl.kute.reflection.util
 
-import nl.kute.log.log
 import nl.kute.log.logWithCaller
 import nl.kute.util.MapCache
 import nl.kute.util.throwableAsString
@@ -16,7 +15,9 @@ import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 import kotlin.reflect.jvm.kotlinFunction
 
-private const val fqn: String = "nl.kute.reflection.MemberUtil"
+private val fqn: String by lazy {
+    "$packageName.MemberUtil"
+}
 
 /**
  * Determines the [toString]-method, if overridden. [toString] of [Any] or [Object] are ignored.
@@ -47,7 +48,7 @@ internal fun KClass<*>.toStringImplementingMethod(): KFunction<String>? {
         // Might happen when called with synthetic class.
         // Functionally, this methods should never be called with such classes though.
         // So if it happens, something is going wrong in the calling code & it should be fixed
-        log(e.throwableAsString(50))
+        logWithCaller(fqn, e.throwableAsString(50))
         return null
     }
 }
@@ -84,3 +85,9 @@ internal fun KFunction<*>.isPrivate() = this.visibility == PRIVATE
 internal fun KFunction<*>.isProtected() = this.visibility == PROTECTED
 @JvmSynthetic // avoid access from external Java code
 internal fun KFunction<*>.isPublic() = this.visibility == PUBLIC
+
+private val packageName: String by lazy {
+    // clumsy, but more maintenance friendly than hard coded
+    class Dummy
+    Dummy::class.java.packageName
+}
