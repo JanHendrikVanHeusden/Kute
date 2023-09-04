@@ -14,6 +14,7 @@ import java.util.UUID
  * * For sure it won't fit **your** naming conventions. So the implementation is given "as is"!
  *    * You are encouraged to roll your own ranking, if you feel like it!
  * * Of course it can be combined it with other provided implementations, e.g. [PropertyRankingByLength] or [PropertyRankingByLength].
+ * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
 public open class PropertyRankingByCommonNames private constructor(): PropertyRanking() {
 
@@ -51,18 +52,23 @@ public open class PropertyRankingByCommonNames private constructor(): PropertyRa
         /** Singleton instance of [PropertyRankingByCommonNames] */
         @Suppress("unused") // will be called reflectively
         public val instance: PropertyRankingByCommonNames = PropertyRankingByCommonNames()
+
+        // region ~ Extensions and keywords to distinguish categories of properties
+        
+        /** @suppress - no KDoc generated */
+        public val propNamesCategorizing: Array<String> = arrayOf("code", "type", "category", "order", "kind")
+        /** @suppress - no KDoc generated */
+        public val propNamesNumberSuffix: Array<String> = arrayOf("num", "no", "nr", "number", "numer", "numero")
+        /** @suppress - no KDoc generated */
+        public val propNamesLink: Array<String> = arrayOf("url", "uri", "link")
+        /** @suppress - no KDoc generated */
+        public val propNamesInformative: Array<String> = arrayOf("text", "txt", "tekst", "desc", "info", "expl")
+        /** @suppress - no KDoc generated */
+        public val propNamesDocument: Array<String> = arrayOf("file", "report", "doc", "content")
+        /** @suppress - no KDoc generated */
+        public val propNamesContentFormat: Array<String> = arrayOf("xml", "csv", "yaml", "yml", "axon", "html", "htm", "protobuf")
+
+        // endregion
     }
 }
 
-@Suppress("KDocMissingDocumentation")
-public val propNamesCategorizing: Array<String> = arrayOf("code", "type", "category", "order", "kind")
-@Suppress("KDocMissingDocumentation")
-public val propNamesNumberSuffix: Array<String> = arrayOf("num", "no", "nr", "number", "numer", "numero")
-@Suppress("KDocMissingDocumentation")
-public val propNamesLink: Array<String> = arrayOf("url", "uri", "link")
-@Suppress("KDocMissingDocumentation")
-public val propNamesInformative: Array<String> = arrayOf("text", "txt", "tekst", "desc", "info", "expl")
-@Suppress("KDocMissingDocumentation")
-public val propNamesDocument: Array<String> = arrayOf("file", "report", "doc", "content")
-@Suppress("KDocMissingDocumentation")
-public val propNamesContentFormat: Array<String> = arrayOf("xml", "csv", "yaml", "yml", "axon", "html", "htm", "protobuf")

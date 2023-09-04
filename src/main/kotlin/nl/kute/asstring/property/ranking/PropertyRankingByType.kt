@@ -3,9 +3,9 @@ package nl.kute.asstring.property.ranking
 /**
  * Provides ranking for ordering properties in [nl.kute.asstring.core.asString] output, based
  * on [PropertyValueMetaData.returnType].
- * Intended mainly to keep known basic types with not too long String-representations ordered first
+ * Intended mainly to keep known basic types with not too long `toString()`-representations ordered first
  * > E.g. [Number], [java.util.Date], [Char], [Boolean], [java.time.temporal.Temporal] etc.; see [nl.kute.asstring.core.isBaseType]
- * @see [ValueLengthRanking]
+ * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
 public open class PropertyRankingByType private constructor(): PropertyRanking() {
     /** @return A low value if it's a base-type and not a [CharSequence]; a high value otherwise */

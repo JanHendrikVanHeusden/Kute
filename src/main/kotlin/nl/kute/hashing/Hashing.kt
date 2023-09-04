@@ -42,6 +42,7 @@ private fun MessageDigest.hashByAlgorithm(input: String, charset: Charset): Stri
  * @param digestMethod The [DigestMethod] to create the hash with
  * @param charset The [Charset] of the input [String]; default is [Charset.defaultCharset].
  * @return The hash String as a hexadecimal String, consisting of characters `0..9`, `a..f`
+ * @see [nl.kute.asstring.annotation.modify.AsStringHash]
  */
 @JvmSynthetic // avoid access from external Java code
 internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Charset = Charset.defaultCharset()): String? {

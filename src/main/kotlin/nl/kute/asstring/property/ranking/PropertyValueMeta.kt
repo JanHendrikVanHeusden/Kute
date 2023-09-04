@@ -19,7 +19,7 @@ import kotlin.reflect.KType
 
 /** Interface for metadata about a property and the property's value */
 public interface PropertyValueMetaData {
-    /** Class name of the class that incorporates the property */
+    /** Class name of the class that comprises the property */
     public val objectClassName: String?
     /** The property's name */
     public val propertyName: String

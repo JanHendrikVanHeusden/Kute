@@ -13,7 +13,8 @@ public fun Any?.log(msg: Any?): Unit = try {
 }
 
 /** Logs message [msg] to [loggerWithCaller], prefixed by the [caller] String */
-public fun logWithCaller(caller: String, msg: Any?): Unit = try {
+@JvmSynthetic // avoid access from external Java code
+internal fun logWithCaller(caller: String, msg: Any?): Unit = try {
     loggerWithCaller(caller, msg)
 } catch (e: Exception) {
     e.printStackTrace() // not much else we can do
@@ -33,13 +34,14 @@ internal val loggerWithCaller: (String, Any?) -> Unit = { caller, msg: Any? -> l
  *
  * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
  * > To be used from within Kotlin.
- * > For use from Java code: see [setLogConsumer]
+ * > In **Java** code, use [setLogConsumer] instead (more convenient in Java)
  *
- * Typical usage for Kotlin with an SLF4J compatible logger might be:
+ * Typical usage for **Kotlin** with an SLF4J compatible logger might be:
  * ```
  * private val kuteLogger = Logger.getLogger("nl.kute")
  * nl.kute.log.logger = { msg -> kuteLogger.error(msg) }
  * ```
+ * @see [setLogConsumer]
  */
 public var logger: (String?) -> Unit = stdOutLogger
     set(newLogger) {
@@ -65,15 +67,16 @@ public var logger: (String?) -> Unit = stdOutLogger
  *
  * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
  * > To be used from within Java.
- * > For use from Kotlin code: see [logger]
+ * > **In from Kotlin code, use [logger] instead**
  *
- * More convenient in Java than hassling with [Unit] (as you would with [logger])
+ * More convenient in **Java** than hassling with [Unit] (as you would with [logger])
  * > Typical usage for Java with an SLF4J compatible logger would be:
  * ```
  * Logger myLogger = Logger.getLogger("nl.kute")
  * Consumer<String> kuteErrorLogger = msg -> myLogger.error(msg);
  * nl.kute.log.setLogConsumer(kuteErrorLogger);
  * ```
+ * @see [logger]
  */
 public fun setLogConsumer(aLogger: Consumer<String?>) {
     logger = { msg: String? -> aLogger.accept(msg) }

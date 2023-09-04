@@ -1,7 +1,7 @@
 package nl.kute.asstring.annotation.option
 
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
-import nl.kute.asstring.config.AsStringConfig
+import nl.kute.asstring.config.asStringConfig
 import nl.kute.asstring.config.initialIncludeIdentityHash
 import nl.kute.asstring.config.initialPropertySorters
 import nl.kute.asstring.config.initialSortNamesAlphabetic
@@ -117,7 +117,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
             .isEqualTo(1)
 
         // act
-        AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
+        asStringConfig().withIncludeIdentityHash(true).applyAsDefault()
 
         // assert
         assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isTrue
@@ -175,7 +175,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
     fun `re-applying same value of AsStringClassOption should not empty the cache`() {
         // arrange
         assertThat(AsStringClassOption.defaultOption.includeIdentityHash).isFalse
-        AsStringConfig().withIncludeIdentityHash(true).applyAsDefault()
+        asStringConfig().withIncludeIdentityHash(true).applyAsDefault()
         assertThat(asStringClassOptionCache.size).isZero
 
         class MyTestClass
@@ -187,7 +187,7 @@ class AsStringClassOptionTest: ObjectsStackVerifier {
 
         // act
         @Suppress("KotlinConstantConditions")
-        AsStringConfig().withIncludeIdentityHash("aa" == "aa").applyAsDefault()
+        asStringConfig().withIncludeIdentityHash("aa" == "aa").applyAsDefault()
         // assert
         assertThat(asStringClassOptionCache.size)
             .`as`("MyTestClass should still be present in cache")

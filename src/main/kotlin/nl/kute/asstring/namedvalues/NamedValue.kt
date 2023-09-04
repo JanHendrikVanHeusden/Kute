@@ -4,6 +4,8 @@ import nl.kute.asstring.weakreference.ObjectWeakReference
 
 /**
  * A [NameValue] implementation where its value is provided directly, as parameter [value].
+ * * Goal: To provide an additional value to include in the [nl.kute.asstring.core.asString] output
+ * * Usage: See  [nl.kute.asstring.core.AsStringBuilder.withAlsoNamed]
  *
  * [NamedValue] is intended for situations where the value is provided once, and reassignment to
  * the source value need not be reflected. State changes are reflected though.
@@ -29,6 +31,7 @@ import nl.kute.asstring.weakreference.ObjectWeakReference
  * * The [value] is weakly referenced only, so the [NamedValue] does not prevent garbage collection of the [value]
  * @param name The name to identify this [NamedValue]'s value
  * @param value The value of this [NamedValue]
+ * @see [nl.kute.asstring.core.AsStringBuilder.withAlsoNamed]
  */
 public class NamedValue<V: Any?>(override val name: String, value: V?): AbstractNameValue<V?>() {
     private val valueReference: ObjectWeakReference<V?> = ObjectWeakReference(value)

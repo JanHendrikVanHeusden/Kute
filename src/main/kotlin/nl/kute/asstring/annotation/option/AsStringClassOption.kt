@@ -20,16 +20,14 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.reflect.KClass
 
 /**
- * The [AsStringClassOption] annotation can be placed on classes only.
+ * * The [AsStringClassOption] annotation controls what is included, and ordering of properties
+ * * The [AsStringClassOption] annotation can be placed on classes.
  *
- * Besides that, the [AsStringClassOption.defaultOption] is used as a default
- * when no explicit [AsStringClassOption] annotation is applied.
- *
- * It allows specifying how property values are to be parsed in the [nl.kute.asstring.core.asString] return value.
  * @param includeIdentityHash Should the identity hash be included in output of [nl.kute.asstring.core.asString]?
  * If included, the identity hash is represented as `@` followed by the hex representation as of [System.identityHashCode]
  * (up to 8 hex characters), identical to the hex string seen in non-overridden [toString] output.
  * > Default = `false` by [initialIncludeIdentityHash]
+ *
  * @param toStringPreference
  * * If [ToStringPreference.USE_ASSTRING] applies (either as default or by annotation), [nl.kute.asstring.core.asString] should
  *   dynamically resolve properties and values for custom classes, even if [toString] is implemented.
@@ -39,6 +37,7 @@ import kotlin.reflect.KClass
  *   properties and values.
  *   > If [ToStringPreference.PREFER_TOSTRING] applies and recursion is detected in the [toString] implementation,
  *   > [nl.kute.asstring.core.asString] will fall back to dynamically resolving properties and values for that class.
+ *
  * @param includeCompanion Should a companion object (if any) be included in the output of [nl.kute.asstring.core.asString]?
  * Inclusion of companion object is possible only if both:
  *  1. the companion object is public
@@ -53,10 +52,9 @@ import kotlin.reflect.KClass
  * These will be applied in order, like SQL multi-column sorting.
  * > So if the 1st sorter yields an equal result for a pair of properties, the 2nd will be applied, and so on until a non-zero
  * > result is obtained, of until the [propertySorters] are exhausted.
- * * **NB:** Usage of [propertySorters] has a significant effect on CPU and memory footprint of [nl.kute.asstring.core.asString].
- *
- * > **NB:** This sorting is applied after alphabetic sorting is applied.
- * The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic sorting is preserved.
+ * * This sorting is applied after alphabetic sorting is applied.
+ *  The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic sorting is preserved.
+ * * Usage of [propertySorters] may have a significant effect on CPU and memory footprint of [nl.kute.asstring.core.asString].
  *
  */
 @Target(AnnotationTarget.CLASS)
@@ -77,6 +75,7 @@ public annotation class AsStringClassOption(
          * [AsStringOption] to be used as default if no explicit [AsStringOption] annotation is specified.
          * > On change (see [nl.kute.asstring.config.AsStringConfig]), the property cache will be reset (cleared).
          */
+        @Volatile
         public var defaultOption: AsStringClassOption = initialAsStringClassOption
             @JvmSynthetic // avoid access from external Java code
             internal set(newDefault) {

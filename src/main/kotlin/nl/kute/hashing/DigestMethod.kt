@@ -11,30 +11,31 @@ package nl.kute.hashing
  *   and performance; not in the first place for security.
  * @param instanceProvider A lambda to supply the message digester
  * (e.g., an instance of [java.security.MessageDigest] or of [java.util.zip.CRC32C])
+ * @see [nl.kute.asstring.annotation.modify.AsStringHash]
  */
-public enum class DigestMethod(public val instanceProvider: (() -> Any)? = null) {
+public enum class DigestMethod(internal val instanceProvider: (() -> Any)? = null) {
     /**
      * Simply using the java [hashCode].
      * Length is 1 to 8 when represented as a hex String. Security is nearly absent
-     * The resulting hex String may be `0`.
+     * > The resulting hex String may be `0`.
      */
     JAVA_HASHCODE,
 
     /**
      * CRC32C is a fast hash methods with compact output (length 1 to 8), but security is nearly absent.
-     * The resulting hex String may be `0`.
+     * > The resulting hex String may be `0`.
      */
     CRC32C({ java.util.zip.CRC32C() }),
 
     /**
      * SHA1 is considered as one of the better performing hash methods; but not considered secure.
-     * Length is 40 when represented as a hex String.
+     * > Length is 40 when represented as a hex String.
      */
     SHA1({ java.security.MessageDigest.getInstance("SHA-1") }),
 
     /**
-     * MD5 is considered as one of the better performing hash methods; but not considered secure
-     * Length is 32 when represented as a hex String.
+     * MD5 is considered as one of the better performing hash methods; but not considered secure.
+     * > Length is 32 when represented as a hex String.
      */
     MD5({ java.security.MessageDigest.getInstance("MD5") })
 }

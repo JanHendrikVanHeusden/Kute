@@ -16,7 +16,7 @@ public class JavaLoggerTest {
     @BeforeEach
     @AfterEach
     void setUp() {
-        stringLog = null;
+        JavaLoggerTest.stringLog = null;
         KuteLog.resetStdOutLogger();
     }
 
@@ -28,7 +28,7 @@ public class JavaLoggerTest {
         // Act
         KuteLog.log(this, msg);
         // Assert
-        assertThat(stringLog).isEqualTo(this.getClass() + " - " + msg);
+        assertThat(JavaLoggerTest.stringLog).isEqualTo(this.getClass() + " - " + msg);
     }
 
     @Test
@@ -39,19 +39,7 @@ public class JavaLoggerTest {
         // Act
         KuteLog.log(this, msg);
         // Assert
-        assertThat(stringLog).isEqualTo(this.getClass() + " - null");
-    }
-
-    @Test
-    void logWithCaller_shouldRenderCallerAndMessage() {
-        // Arrange
-        KuteLog.setLogConsumer(createStringLogger());
-        String msg = "msg from testLog()";
-        String caller = "I am the caller";
-        // Act
-        KuteLog.logWithCaller(caller, msg);
-        // Assert
-        assertThat(stringLog).isEqualTo(caller + " - " + msg);
+        assertThat(JavaLoggerTest.stringLog).isEqualTo(this.getClass() + " - null");
     }
 
     @Test
@@ -75,11 +63,11 @@ public class JavaLoggerTest {
 
         // assert
         assertThat(buffer.toString()).isEqualTo(logMsg1); // unchanged
-        assertThat(stringLog).isEqualTo(logMsg2);
+        assertThat(JavaLoggerTest.stringLog).isEqualTo(logMsg2);
     }
 
     private Consumer<String> createStringLogger() {
-        return msg -> stringLog = msg;
+        return msg -> JavaLoggerTest.stringLog = msg;
     }
 
     private Consumer<String> createBufferLogger(StringBuffer buffer) {

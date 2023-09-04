@@ -27,9 +27,13 @@ import kotlin.reflect.jvm.isAccessible
  *   an instance of the concrete [PropertyRankable] subclass.
  *   2. Have a no-arg constructor that is reachable (`public`) or that can be set accessible reflectively
  *   by means of [kotlin.reflect.KProperty.isAccessible]
+ *
+ * This interface is sealed, so external code can not implement it.
+ * Concrete implementations should extend [PropertyRanking] instead.
  * @see [PropertyRanking]
  * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
+@AsStringClassOption(toStringPreference = USE_ASSTRING)
 public sealed interface PropertyRankable<out T: PropertyRankable<T>> {
 
     /**
@@ -39,7 +43,10 @@ public sealed interface PropertyRankable<out T: PropertyRankable<T>> {
      */
     public fun getRank(propertyValueMetaData: PropertyValueMetaData): Int
 
-    /** Register this concrete [PropertyRankable] class to allow using it for ordering properties in [nl.kute.asstring.core.asString] output */
+    /**
+     * Register this concrete [PropertyRankable] class to allow using it for ordering properties
+     * in [nl.kute.asstring.core.asString] output
+     * */
     public fun register() {
         registerPropertyRankingClass(this::class to this)
     }
@@ -51,13 +58,18 @@ public sealed interface PropertyRankable<out T: PropertyRankable<T>> {
  * * On construction, it automatically registers the concrete class to  be used for ordering properties.
  * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
-@AsStringClassOption(toStringPreference = USE_ASSTRING)
 public abstract class PropertyRanking : PropertyRankable<PropertyRanking> {
 
     init {
         register()
     }
 
+    /**
+     * Register this concrete [PropertyRankable] class to allow using it for ordering properties in
+     * [nl.kute.asstring.core.asString] output.
+     * > This method is called automatically when the class (or a subclass) is constructed;
+     * so there is no need to call it explicitly.
+     */
     public final override fun register() {
         super.register()
     }

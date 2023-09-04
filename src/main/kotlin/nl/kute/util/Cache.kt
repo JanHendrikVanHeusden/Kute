@@ -56,6 +56,7 @@ internal open class SetCache<T : Any>(initialCapacity: Int = defaultInitialCapac
      * > rather than using convenience methods [SetCache.get], [SetCache.contains], [SetCache.add]
      * > (to avoid bugs due to race-conditions)!
      */
+    @Volatile // see reset()
     override var cache: ConcurrentHashMap.KeySetView<T, Boolean> =
         ConcurrentHashMap.newKeySet(initialCapacity)
         protected set
@@ -90,6 +91,7 @@ internal open class MapCache<K : Any, V : Any>(initialCapacity: Int = defaultIni
      * > rather than using convenience methods [MapCache.get], [MapCache.contains], [MapCache.set]
      * > (to avoid bugs due to race-conditions)!
      */
+    @Volatile // see reset()
     override var cache: ConcurrentHashMap<K, V> = ConcurrentHashMap(initialCapacity)
         protected set
 

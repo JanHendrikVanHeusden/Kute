@@ -25,6 +25,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  * @param showNullAs How to show nulls? Default is "`"null"`" (by [initialShowNullAs]), but you may opt for something else
  * @param surroundPropValue Defines prefix and postfix of the property value String. Default = [NONE].
  *  * `null` values are not pre-/postfixed.
+ *  See [PropertyValueSurrounder] for available surrounding pairs.
  * @param propMaxStringValueLength The maximum String value length **per property**.
  * * default is 500 (by [initialMaxStringValueLength])
  * * 0 results in an empty String;
@@ -53,6 +54,7 @@ public annotation class AsStringOption(
          * [AsStringOption] to be used as default if no explicit [AsStringOption] annotation is specified.
          * > On change (see [nl.kute.asstring.config.AsStringConfig]), the property cache will be reset (cleared).
          */
+        @Volatile
         public var defaultOption: AsStringOption = initialAsStringOption
             @JvmSynthetic // avoid access from external Java code
             internal set(newDefault) {

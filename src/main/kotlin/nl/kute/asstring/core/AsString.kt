@@ -52,7 +52,7 @@ import kotlin.reflect.full.memberProperties
  * * Properties of this class's subclasses are excluded from rendering by [asString]
  */
 public abstract class AsStringProducer {
-// Must be in same file as fun objectAsString() (to have it private)
+// Must be in same file as private fun `objectAsString()` (to call the private method)
 
     /**
      * Facade method allowing subclasses to access the (private) [nl.kute.asstring.core.asString] method with additional parameters
@@ -81,15 +81,22 @@ public abstract class AsStringProducer {
 // region ~ asString
 
 /**
- * Mimics the format of Kotlin data class's [toString] method.
+ * Mimics the format of Kotlin data class's [toString] method (insofar not modified by annotations).
  * * Super-class properties are included
  * * Private properties are included (but not in subclasses)
  * * String value of individual properties is capped at 500; see [AsStringClassOption] to override the default.
  * * Want more control of what is included or not? See [AsStringBuilder]
+ *
+ * The output of [asString] can be controlled / modified by using these annotations:
+ * * `@`[AsStringClassOption] to control what is included, and ordering of properties (at class level)
+ * * `@`[AsStringOption] to control how properties are rendered (e.g. delimiters, max. lengths, how to represent `null`s, etc.)
+ * * `@`[nl.kute.asstring.annotation.modify.AsStringOmit] to exclude individual properties from [asString] output
+ * * `@`[nl.kute.asstring.annotation.modify.AsStringMask] to mask properties, typically to keep private or sensitive data out
+ *   of the [asString] output
+ * * `@`[nl.kute.asstring.annotation.modify.AsStringReplace]
+ * * `@`[nl.kute.asstring.annotation.modify.AsStringHash]
  * @return A String representation of the receiver object, including class name and property names + values;
- * adhering to related annotations; for these annotations, e.g. [AsStringOption], [AsStringClassOption],
- * and other annotations
- * > other annotations, see package `nl.kute.core.annotation.modify`
+ * adhering to related annotations
  * @see [AsStringBuilder]
  */
 public fun Any?.asString(): String = asString(emptyStringList)
@@ -99,15 +106,15 @@ public fun Any?.asString(): String = asString(emptyStringList)
 internal fun Any?.asString(elementsLimit: Int? = null): String = asString(emptyStringList, elementsLimit = elementsLimit)
 
 /**
- * Convenient [asString] alternative, with only the provided properties.
- * * String value of individual properties is capped at 500; see @[AsStringClassOption] to override the default.
- * * Want more options? See [AsStringBuilder]
+ * Convenient [asString] overload, with only the provided properties.
+ * * See also the KDoc of [asString] for comprehensive explanation, e.g. on usage of annotations.
+ * * Want more control of what is included or not? See [AsStringBuilder]
  *
  * > This method builds an [AsStringBuilder] object on each call, which is marginally less efficient
  * > than defining a reusable immutable [AsStringBuilder] as a class instance value.
  * @return A String representation of the receiver object, including class name and property names + values;
- * adhering to related annotations; for these annotations, e.g. @[AsStringOption] and other
- * (other annotations, see package `nl.kute.core.annotation.modify`)
+ * adhering to related annotations
+ * @see [asString]
  * @see [AsStringBuilder]
  */
 public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =

@@ -14,8 +14,12 @@ import kotlin.reflect.KClass
 /**
  * Builder-like class, to prepare and apply newly set values as defaults
  * for [AsStringOption] / [AsStringClassOption].
- * * [applyAsDefault]`()` must be called to make the new values effective as default.
- * * [AsStringConfig] is permissive; no validation is applied to input values.
+ * * Various `with*`-methods are available to set the desired defaults
+ * * [applyAsDefault]`()` must be called to make the new values effective as default
+ * * [AsStringConfig] is permissive; no validation is applied to input values
+ * > The current (and newly set) defaults can be accessed as [AsStringOption.defaultOption] and
+ * [AsStringClassOption.defaultOption]
+ * @constructor As an alternative, one can use static method [asStringConfig] instead
  * @see [AsStringConfig.applyAsDefault]
  */
 public class AsStringConfig {
@@ -64,10 +68,12 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringOption.showNullAs].
      *
-     * After being applied, this value is used as an application-wide default
-     * when no [AsStringOption] annotation is present.
+     * After being applied, this value is used as an application-wide default (see [AsStringOption.defaultOption])
+     * when no explicit [AsStringOption] annotation applies to the property or class.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
+     * @see [AsStringOption.defaultOption]
+     * @see [AsStringOption.showNullAs]
      */
     public fun withShowNullAs(showNullAs: String): AsStringConfig {
         setNewDefaultAsStringOption(showNullAs = showNullAs)
@@ -77,10 +83,11 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringOption.surroundPropValue].
      *
-     * After being applied, this value is used as an application-wide default
-     * when no [AsStringOption] annotation is present.
+     * After being applied, this value is used as an application-wide default (see [AsStringOption.defaultOption])
+     * when no explicit [AsStringOption] annotation applies to the property or class.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
+     * @see [AsStringOption.surroundPropValue]
      */
     public fun withSurroundPropValue(surroundPropValue: PropertyValueSurrounder): AsStringConfig {
         setNewDefaultAsStringOption(surroundPropValue = surroundPropValue)
@@ -90,10 +97,11 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringOption.propMaxStringValueLength].
      *
-     * After being applied, this value is used as an application-wide default
-     * when no [AsStringOption] annotation is present.
+     * After being applied, this value is used as an application-wide default (see [AsStringOption.defaultOption])
+     * when no explicit [AsStringOption] annotation applies to the property or class.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
+     * @see [AsStringOption.propMaxStringValueLength]
      */
     public fun withMaxPropertyStringLength(propMaxLength: Int): AsStringConfig {
         setNewDefaultAsStringOption(propMaxLength = propMaxLength)
@@ -103,10 +111,11 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringOption.elementsLimit].
      *
-     * After being applied, this value is used as an application-wide default
-     * when no [AsStringOption] annotation is present.
+     * After being applied, this value is used as an application-wide default (see [AsStringOption.defaultOption])
+     * when no explicit [AsStringOption] annotation applies to the property or class.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
+     * @see [AsStringOption.elementsLimit]
      */
     public fun withElementsLimit(elementsLimit: Int): AsStringConfig {
         setNewDefaultAsStringOption(elementsLimit = elementsLimit)
@@ -116,10 +125,11 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.includeIdentityHash].
      *
-     * After being applied, this value is used as an application-wide default
-     * when no [AsStringClassOption] annotation is present.
+     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
+     * when no explicit [AsStringClassOption] annotation applies to the class.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
+     * @see [AsStringClassOption.includeIdentityHash]
      */
     public fun withIncludeIdentityHash(includeHash: Boolean): AsStringConfig {
         setNewDefaultAsStringClassOption(includeIdentityHash = includeHash)
@@ -129,10 +139,11 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.includeIdentityHash].
      *
-     * After being applied, this value is used as an application-wide default
-     * when no [AsStringClassOption] annotation is present.
+     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
+     * when no explicit [AsStringClassOption] annotation applies to the class.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
+     * @see [AsStringClassOption.toStringPreference]
      */
     public fun withToStringPreference(toStringPreference: ToStringPreference): AsStringConfig {
         setNewDefaultAsStringClassOption(toStringPreference = toStringPreference)
@@ -142,10 +153,11 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.includeCompanion].
      *
-     * After being applied, this value is used as an application-wide default
-     * when no [AsStringClassOption] annotation is present.
+     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
+     * when no explicit [AsStringClassOption] annotation applies to the class.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
+     * @see [AsStringClassOption.includeCompanion]
      */
     public fun withIncludeCompanion(includeCompanion: Boolean): AsStringConfig {
         setNewDefaultAsStringClassOption(includeCompanion = includeCompanion)
@@ -155,15 +167,16 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.sortNamesAlphabetic].
      *
-     * After being applied, this value is used as an application-wide default
-     * when no [AsStringClassOption] annotation is present.
+     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
+     * when no explicit [AsStringClassOption] annotation applies to the class.
      *
      * > **NB:** This is a pre-sorting. If additional [AsStringClassOption.propertySorters] are given,
      *   these will be applied after the alphabetic sort. That sorting is stable, so if sorters yield an equal value,
      *   the alphabetic ordering is preserved.
      * @return the config builder (`this`)
-     * @see [applyAsDefault]
      * @see [withPropertySorters]
+     * @see [applyAsDefault]
+     * @see [AsStringClassOption.sortNamesAlphabetic]
      */
     public fun withPropertiesAlphabetic(sortNamesAlphabetic: Boolean): AsStringConfig {
         setNewDefaultAsStringClassOption(sortNamesAlphabetic = sortNamesAlphabetic)
@@ -173,15 +186,16 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.propertySorters].
      *
-     * After being applied, this value is used as an application-wide default
-     * when no [AsStringClassOption] annotation is present.
+     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
+     * when no explicit [AsStringClassOption] annotation applies to the class.
      *
      * > **NB:** This sorting is applied after the alphabetic ordering (see: [withPropertiesAlphabetic]).
      * The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic ordering is preserved.
      *
      * @return the config builder (`this`)
-     * @see [applyAsDefault]
      * @see [withPropertiesAlphabetic]
+     * @see [applyAsDefault]
+     * @see [AsStringClassOption.propertySorters]
      */
     public fun withPropertySorters(vararg propertySorters: KClass<out PropertyRankable<*>>): AsStringConfig {
         setNewDefaultAsStringClassOption(propertySorters = propertySorters)
@@ -189,9 +203,9 @@ public class AsStringConfig {
     }
 
     /**
-     * Assigns the [AsStringOption] that is built to [AsStringOption.defaultOption],
-     * as the new application default.
-     *  > This operation will reset (clear) the property cache, if necessary
+     * Assigns the [AsStringOption] and [AsStringClassOption] being built, to [AsStringOption.defaultOption]
+     * and [AsStringClassOption.defaultOption], respectively, as the new application defaults.
+     *  > This operation will reset (clear) the property cache and other caches, if necessary.
      */
     public fun applyAsDefault() {
         AsStringOption.defaultOption = newDefaultAsStringOption
@@ -199,6 +213,10 @@ public class AsStringConfig {
     }
 
 }
+
+/** Static convenience method to construct an [AsStringConfig] object */
+public fun asStringConfig(): AsStringConfig = AsStringConfig()
+
 
 /** Limits the overall number of properties values or [nl.kute.asstring.namedvalues.NamedValue]s to be joined together */
 public const val stringJoinMaxCount: Int = 1000

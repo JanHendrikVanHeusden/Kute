@@ -13,9 +13,10 @@ import kotlin.reflect.KProperty0
 
 /**
  * A [NameValue] implementation where the value to be resolved is provided through the given [property]
- *
- * [NamedProp] is a wrapper for a [property], with a weak reference [objectReference] to the object
- * the [property] is to be associated with.
+ * * Goal: To provide an additional value to include in the [nl.kute.asstring.core.asString] output
+ * * Usage: See  [nl.kute.asstring.core.AsStringBuilder.withAlsoNamed]
+ * * [NamedProp] is a wrapper for a [property], with a weak reference [objectReference] to the object
+ *  the [property] is to be associated with.
  *
  * [NamedProp] is intended for situations where the [property]'s value needs to be evaluated on each access, where:
  * * All annotations that affect output of [nl.kute.asstring.core.asString] are taken into account
@@ -56,6 +57,7 @@ import kotlin.reflect.KProperty0
  * @param property The property to retrieve the value with.
  *
  * @see [namedProp]
+ * @see [nl.kute.asstring.core.AsStringBuilder.withAlsoNamed]
  */
 @Suppress("RedundantModalityModifier")
 public final class NamedProp<T : Any?, V : Any?>(public override val property: KProperty<V>, obj: T?) :

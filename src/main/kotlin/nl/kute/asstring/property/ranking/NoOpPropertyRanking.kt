@@ -2,6 +2,7 @@ package nl.kute.asstring.property.ranking
 
 /**
  * Class to explicitly specify that properties need not be ordered
+ * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
 public class NoOpPropertyRanking private constructor() : PropertyRanking() {
 

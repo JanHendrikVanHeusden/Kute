@@ -6,10 +6,13 @@ import nl.kute.reflection.util.simplifyClassName
 import nl.kute.util.throwableAsString
 import java.util.concurrent.Callable
 
-private typealias Supplier<T> = () -> T?
+/** Convenience type alias for `() -> T?` */
+public typealias Supplier<T> = () -> T?
 
 /**
  * A [NameValue] implementation where the value to be resolved is provided by means of a [Supplier] lambda.
+ * * Goal: To provide an additional value to include in the [nl.kute.asstring.core.asString] output
+ * * Usage: See  [nl.kute.asstring.core.AsStringBuilder.withAlsoNamed]
  *
  * [NamedSupplier] is intended for situations where the supplied value needs to be evaluated on each access,
  * both state changes and reassignment.
@@ -30,10 +33,11 @@ private typealias Supplier<T> = () -> T?
  *   the supplied object. Annotations in the outer context (e.g. in the above example: annotations within the class
  *   that holds the `aDate` variable) are not taken in account.
  *   * If annotations in the outer context are to be honoured, consider using [NamedProp]
- * * The supplier is weakly referenced only, so the [NamedSupplier] does not prevent garbage collection of the supplier,
+ * * The `supplier` is weakly referenced only, so the [NamedSupplier] does not prevent garbage collection of the supplier,
  *   or it's supplied value.
  * @param name The name to identify this [NamedSupplier]'s value
  * @param supplier The lambda to supply the [value] on request
+ * @see [nl.kute.asstring.core.AsStringBuilder.withAlsoNamed]
  */
 public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): AbstractNameValue<V?>() {
 

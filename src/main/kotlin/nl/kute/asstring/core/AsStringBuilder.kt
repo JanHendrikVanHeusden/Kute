@@ -2,6 +2,7 @@
 
 package nl.kute.asstring.core
 
+import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.asstring.namedvalues.namedProp
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
@@ -11,16 +12,35 @@ import nl.kute.reflection.util.simplifyClassName
 import kotlin.reflect.KProperty
 
 /**
- * Builder to allow more options than [nl.kute.asstring.core.asString], like additional properties, filtering out properties
- * (by property or by name), specify ordering, etc.
+ * Builder for more fine-grained specification of what is included/excluded in the output of [nl.kute.asstring.core.asString],
+ * like additional values, filtering out properties (by reference or by name), etc.
+ *
+ * An [AsStringBuilder] object is constructed by calling static method [asStringBuilder].
  *
  * Building it can be done explicitly by calling [AsStringBuilder.build], or implicitly by the first call to
  * [AsStringBuilder.asString].
  * * After being built, the [AsStringBuilder] is effectively immutable.
  * * Without any further settings (e.g. [exceptProperties], [withAlsoProperties], [alsoNamed] etc.),
- *   the call to [AsStringBuilder.asString] produces the same result as [nl.kute.asstring.core.asString]
+ *   a call to `MyClass.`[AsStringBuilder.asString] produces the same result as `MyClass.`[nl.kute.asstring.core.asString]
  *
  * *Usage:*
+ * * Recommended is to declare a property of type [AsStringBuilder] in your class.
+ *  * Alternatively, an [AsStringBuilder] object can be constructed on the fly (typically in a [toString] method);
+ *    this is less efficient though.
+ * * On the [AsStringBuilder] object, call the `with*`- and `except*`-methods to specify what to include / exclude.
+ *    * Exclusion can also be accomplished (in a more static way & different semantics) with
+ *   the [nl.kute.asstring.annotation.modify.AsStringOmit] annotation
+ * > E.g.
+ * ```
+ * class MyClass(val myProp1: Prop1Type, val myProp2: Prop2Type, val unimportantProp: Unimportant, myParam: ParamClass) {
+ *   // using static method to construct it
+ *   val asStringBuilder = asStringBuilder()
+ *       .exceptProperties(::unimportantProp)
+ *       .withAlsoNamed(NamedValue("myParam", myParam))
+ *   // ... more code
+ *  }
+ * ```
+ *
  * * An [AsStringBuilder] does not prevent garbage collection of the object it applies to (it uses weak reference).
  * * For best performance, the [AsStringBuilder] object (or the [AsStringProducer] object produced by the [build]
  *   method) may be stored as an instance variable within the class it applies to.
@@ -84,6 +104,10 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
      * calculated values, etc.
      * > For usage of these, see the subclasses of [NameValue]
      * @param nameValues The [NameValue]s to add to the output of [asString]
+     * @see [nl.kute.asstring.namedvalues.NameValue]
+     * @see [nl.kute.asstring.namedvalues.NamedSupplier]
+     * @see [nl.kute.asstring.namedvalues.NamedProp]
+     * @see [nl.kute.asstring.namedvalues.NamedValue]
      */
     public fun withAlsoNamed(vararg nameValues: NameValue<*>): AsStringBuilder {
         if (!isBuilt) {
@@ -94,7 +118,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
 
     /**
      * Restricts the output to only the object's properties listed in [props].
-     * > *NB:* [NameValue]s added by [withAlsoNamed] and [withAlsoProperties] are not filtered out.
+     * > *NB:* [NameValue]s added by [withAlsoNamed] are not filtered out.
      * @param props The restrictive list of properties to be included in the output of [asString].
      */
     public fun withOnlyProperties(vararg props: KProperty<*>): AsStringBuilder {
@@ -107,7 +131,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
 
     /**
      * Restricts the output to only the object's property names listed in [names].
-     * > *NB:* [NameValue]s added by [withAlsoNamed] and [withAlsoProperties] are not filtered out.
+     * > *NB:* [NameValue]s added by [withAlsoNamed] are not filtered out.
      * @param names The restrictive list of property names to be included in the output of [asString].
      */
     public fun withOnlyPropertyNames(vararg names: String): AsStringBuilder {
@@ -120,7 +144,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
 
     /**
      * Restricts the output by excluding the object's properties listed in [props].
-     * > *NB:* [NameValue]s added by [withAlsoNamed] and [withAlsoProperties] are not excluded.
+     * > *NB:* [NameValue]s added by [withAlsoNamed] are not excluded.
      * @param props The list of properties to be excluded in the output of [asString].
      */
     public fun exceptProperties(vararg props: KProperty<*>): AsStringBuilder {
@@ -132,7 +156,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
 
     /**
      * Restricts the output by excluding the object's property names listed in [names].
-     * > *NB:* [NameValue]s added by [withAlsoNamed] and [withAlsoProperties] are not excluded.
+     * > *NB:* [NameValue]s added by [withAlsoNamed] are not excluded.
      * @param names The list of property names to be excluded in the output of [asString].
      */
     public fun exceptPropertyNames(vararg names: String): AsStringBuilder {
@@ -145,6 +169,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
     private fun buildIt(): AsStringProducer {
         val propNamesToInclude: Set<String> =
             (if (isOnlyPropertiesSet) (onlyProperties.map { it.name }) else classPropertyNames)
+                .asSequence()
                 .filter { !isOnlyPropertyNamesSet || onlyPropertyNames.contains(it) }
                 .filterNot { exceptProperties.map { prop -> prop.name }.contains(it) }
                 .filterNot { exceptPropertyNames.contains(it) }
@@ -160,6 +185,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
 
     /**
      * Build this [AsStringBuilder].
+     *
      * When built:
      *  * the internal state of the [AsStringBuilder] is initialized
      *  * the [AsStringBuilder] is effectively immutable
@@ -169,6 +195,12 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         return if (isBuilt) this else buildIt()
     }
 
+    /**
+     * * Builds the [AsStringBuilder], insofar not already built
+     * * Produces the [asString]-result.
+     * @return The resulting [String] according to the specified options
+     * @see [build]
+     */
     override fun asString(): String {
         build()
         return objectReference.get().objectAsString(propertyNamesToExclude, *alsoNamedAsTypedArray)
@@ -179,13 +211,12 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
                 " (built = $isBuilt; excluded = $propertyNamesToExclude; properties = ${classPropertyNames - propertyNamesToExclude};" +
                 " alsoNamed = ${alsoNamed.map { it.name }})"
 
-    /** Static method [asStringBuilder] to create an [AsStringBuilder] object */
     public companion object {
-        @JvmStatic
         /**
          * Static method to construct an [AsStringBuilder] for the receiver object
          * @receiver The object to construct the [AsStringBuilder] for
          */
+        @JvmStatic
         public fun Any?.asStringBuilder(): AsStringBuilder = AsStringBuilder(this)
     }
 
