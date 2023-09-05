@@ -11,10 +11,9 @@ import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.annotation.option.asStringClassOption
-import nl.kute.asstring.config.defaultNullString
-import nl.kute.asstring.config.stringJoinMaxCount
 import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
+import nl.kute.asstring.core.defaults.defaultNullString
 import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.asstring.namedvalues.PropertyValue
 import nl.kute.asstring.property.getPropValueString
@@ -345,6 +344,9 @@ internal val useToStringByClass = MapCache<KClass<*>, ToStringPreference>()
 
 // region ~ Constants, helper methods etc.
 
+/** Limits the overall number of properties values or [nl.kute.asstring.namedvalues.NamedValue]s to be joined together */
+public const val stringJoinMaxCount: Int = 1000
+
 private val emptyStringList: List<String> = listOf()
 
 private const val propertyListPrefix = "("
@@ -377,13 +379,14 @@ internal fun KClass<*>.companionAsString(): String {
     try {
         val companionObjectInstance = this.retrieveCompanionObjectInstance()
         companionObjectInstance?.let { companionInstance ->
-            // Do not include the companion object if it doesn't have any properties (when it is empty, or has functions only)
+            // Do not include the companion object if it doesn't have any properties
             if (this.companionObject?.memberProperties?.isEmpty() == true) {
                 return ""
             }
-            // When rendering a companion object, we should also take into account
-            // the class level annotations of the enclosing class. But we can't retrieve the enclosing class
-            // from the companion. So we pre-register these, to be retrieved further downstream
+            // When rendering a companion object, we should also take into account the class level
+            // annotations of the enclosing class.
+            // But we can't retrieve the enclosing class from the companion.
+            // So we pre-register the enclosing class's annotations with the companion class, to be retrieved further downstream
             if (!additionalAnnotations.contains(companionInstance)) {
                 registerHolderClassAnnotations(companionInstance)
             }

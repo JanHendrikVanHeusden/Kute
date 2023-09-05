@@ -1,6 +1,6 @@
 package nl.kute.asstring.namedvalues
 
-import nl.kute.asstring.config.defaultNullString
+import nl.kute.asstring.core.defaults.defaultNullString
 import nl.kute.asstring.property.collectPropertyAnnotations
 import nl.kute.asstring.property.getPropValueString
 import nl.kute.asstring.weakreference.ObjectWeakReference

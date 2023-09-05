@@ -5,7 +5,7 @@ import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.asStringClassOption
 import nl.kute.asstring.annotation.option.objectIdentity
-import nl.kute.asstring.config.initialElementsLimit
+import nl.kute.asstring.core.defaults.initialElementsLimit
 import nl.kute.asstring.core.AsStringObjectCategory.SYSTEM
 import nl.kute.asstring.property.lambdaSignatureString
 import nl.kute.reflection.util.hasImplementedToString

@@ -1,6 +1,6 @@
 package nl.kute.asstring.annotation.modify
 
-import nl.kute.asstring.config.defaultNullString
+import nl.kute.asstring.core.defaults.defaultNullString
 import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.math.max

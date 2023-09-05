@@ -3,10 +3,10 @@ package nl.kute.asstring.annotation.option
 import nl.kute.asstring.annotation.additionalAnnotations
 import nl.kute.asstring.annotation.findAnnotation
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
-import nl.kute.asstring.config.initialAsStringClassOption
-import nl.kute.asstring.config.initialIncludeCompanion
-import nl.kute.asstring.config.initialIncludeIdentityHash
-import nl.kute.asstring.config.initialSortNamesAlphabetic
+import nl.kute.asstring.core.defaults.initialAsStringClassOption
+import nl.kute.asstring.core.defaults.initialIncludeCompanion
+import nl.kute.asstring.core.defaults.initialIncludeIdentityHash
+import nl.kute.asstring.core.defaults.initialSortNamesAlphabetic
 import nl.kute.asstring.config.notifyConfigChange
 import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.property.ranking.PropertyRankable
@@ -39,19 +39,22 @@ import kotlin.reflect.KClass
  *   > [nl.kute.asstring.core.asString] will fall back to dynamically resolving properties and values for that class.
  *
  * @param includeCompanion Should a companion object (if any) be included in the output of [nl.kute.asstring.core.asString]?
- * Inclusion of companion object is possible only if both:
- *  1. the companion object is public
- *  2. the containing class is not private
+ * A companion object will be included only if all of these apply:
+ *  1. The class that contains the companion object is not private
+ *  2. The companion object is public
+ *  3. The companion object has at least 1 property
  * > Default = `false` by [initialIncludeCompanion]
  * @param sortNamesAlphabetic Should output of [nl.kute.asstring.core.asString] be sorted alphabetically
- * by property name (case-insensitive) in output of [nl.kute.asstring.core.asString].?
+ * by property name (case-insensitive) in output of [nl.kute.asstring.core.asString]?
+ *
+ * **NB:** This is a pre-sorting. If additional [propertySorters] are given, these will be applied after the alphabetic sort.
  * > Default = `false` by [initialSortNamesAlphabetic]
- * > **NB:** This is a pre-sorting. If additional [propertySorters] are given, these will be applied after the alphabetic sort.
  * @param propertySorters One or more [PropertyRankable] implementing classes can be specified to have properties sorted
  * in output of [nl.kute.asstring.core.asString]. Default is none (no explicit sorting order).
  * These will be applied in order, like SQL multi-column sorting.
  * > So if the 1st sorter yields an equal result for a pair of properties, the 2nd will be applied, and so on until a non-zero
  * > result is obtained, of until the [propertySorters] are exhausted.
+ *
  * * This sorting is applied after alphabetic sorting is applied.
  *  The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic sorting is preserved.
  * * Usage of [propertySorters] may have a significant effect on CPU and memory footprint of [nl.kute.asstring.core.asString].

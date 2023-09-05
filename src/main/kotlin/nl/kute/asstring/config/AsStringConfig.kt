@@ -3,9 +3,9 @@ package nl.kute.asstring.config
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder
-import nl.kute.asstring.annotation.option.PropertyValueSurrounder.NONE
 import nl.kute.asstring.annotation.option.ToStringPreference
-import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
+import nl.kute.asstring.core.defaults.initialAsStringClassOption
+import nl.kute.asstring.core.defaults.initialAsStringOption
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
@@ -35,14 +35,17 @@ public class AsStringConfig {
         showNullAs: String = newDefaultAsStringOption.showNullAs,
         surroundPropValue: PropertyValueSurrounder = newDefaultAsStringOption.surroundPropValue,
         propMaxLength: Int = newDefaultAsStringOption.propMaxStringValueLength,
-        elementsLimit: Int = newDefaultAsStringOption.elementsLimit) {
+        elementsLimit: Int = newDefaultAsStringOption.elementsLimit
+    ) {
 
-        setNewDefaultAsStringOption(AsStringOption(
-            showNullAs = showNullAs,
-            surroundPropValue = surroundPropValue,
-            propMaxStringValueLength = propMaxLength,
-            elementsLimit = elementsLimit
-        ))
+        setNewDefaultAsStringOption(
+            AsStringOption(
+                showNullAs = showNullAs,
+                surroundPropValue = surroundPropValue,
+                propMaxStringValueLength = propMaxLength,
+                elementsLimit = elementsLimit
+            )
+        )
     }
 
     private fun setNewDefaultAsStringClassOption(newAsStringClassOption: AsStringClassOption) {
@@ -55,21 +58,24 @@ public class AsStringConfig {
         includeCompanion: Boolean = newDefaultAsStringClassOption.includeCompanion,
         sortNamesAlphabetic: Boolean = newDefaultAsStringClassOption.sortNamesAlphabetic,
         vararg propertySorters: KClass<out PropertyRankable<*>> = newDefaultAsStringClassOption.propertySorters
-        ) {
-        setNewDefaultAsStringClassOption(AsStringClassOption(
-            includeIdentityHash = includeIdentityHash,
-            toStringPreference = toStringPreference,
-            includeCompanion = includeCompanion,
-            sortNamesAlphabetic = sortNamesAlphabetic,
-            propertySorters = propertySorters
-        ))
+    ) {
+        setNewDefaultAsStringClassOption(
+            AsStringClassOption(
+                includeIdentityHash = includeIdentityHash,
+                toStringPreference = toStringPreference,
+                includeCompanion = includeCompanion,
+                sortNamesAlphabetic = sortNamesAlphabetic,
+                propertySorters = propertySorters
+            )
+        )
     }
 
     /**
      * Sets the new default value for [AsStringOption.showNullAs].
      *
-     * After being applied, this value is used as an application-wide default (see [AsStringOption.defaultOption])
-     * when no explicit [AsStringOption] annotation applies to the property or class.
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the value being set to the [AsStringOption.defaultOption]
+     *  application-wide default.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
      * @see [AsStringOption.defaultOption]
@@ -83,8 +89,9 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringOption.surroundPropValue].
      *
-     * After being applied, this value is used as an application-wide default (see [AsStringOption.defaultOption])
-     * when no explicit [AsStringOption] annotation applies to the property or class.
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the value being set to the [AsStringOption.defaultOption]
+     *  application-wide default.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
      * @see [AsStringOption.surroundPropValue]
@@ -97,8 +104,9 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringOption.propMaxStringValueLength].
      *
-     * After being applied, this value is used as an application-wide default (see [AsStringOption.defaultOption])
-     * when no explicit [AsStringOption] annotation applies to the property or class.
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the value being set to the [AsStringOption.defaultOption]
+     *  application-wide default.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
      * @see [AsStringOption.propMaxStringValueLength]
@@ -111,8 +119,9 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringOption.elementsLimit].
      *
-     * After being applied, this value is used as an application-wide default (see [AsStringOption.defaultOption])
-     * when no explicit [AsStringOption] annotation applies to the property or class.
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the value being set to the [AsStringOption.defaultOption]
+     *  application-wide default.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
      * @see [AsStringOption.elementsLimit]
@@ -125,8 +134,9 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.includeIdentityHash].
      *
-     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
-     * when no explicit [AsStringClassOption] annotation applies to the class.
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the value being set to the [AsStringClassOption.defaultOption]
+     *  application-wide default.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
      * @see [AsStringClassOption.includeIdentityHash]
@@ -139,8 +149,9 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.includeIdentityHash].
      *
-     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
-     * when no explicit [AsStringClassOption] annotation applies to the class.
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the value being set to the [AsStringClassOption.defaultOption]
+     *  application-wide default.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
      * @see [AsStringClassOption.toStringPreference]
@@ -153,8 +164,9 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.includeCompanion].
      *
-     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
-     * when no explicit [AsStringClassOption] annotation applies to the class.
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the value being set to the [AsStringClassOption.defaultOption]
+     *  application-wide default.
      * @return the config builder (`this`)
      * @see [applyAsDefault]
      * @see [AsStringClassOption.includeCompanion]
@@ -167,8 +179,9 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.sortNamesAlphabetic].
      *
-     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
-     * when no explicit [AsStringClassOption] annotation applies to the class.
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the value being set to the [AsStringClassOption.defaultOption]
+     *  application-wide default.
      *
      * > **NB:** This is a pre-sorting. If additional [AsStringClassOption.propertySorters] are given,
      *   these will be applied after the alphabetic sort. That sorting is stable, so if sorters yield an equal value,
@@ -186,8 +199,9 @@ public class AsStringConfig {
     /**
      * Sets the new default value for [AsStringClassOption.propertySorters].
      *
-     * After being applied, this value is used as an application-wide default (see [AsStringClassOption.defaultOption])
-     * when no explicit [AsStringClassOption] annotation applies to the class.
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the value being set to the [AsStringClassOption.defaultOption]
+     *  application-wide default.
      *
      * > **NB:** This sorting is applied after the alphabetic ordering (see: [withPropertiesAlphabetic]).
      * The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic ordering is preserved.
@@ -218,54 +232,6 @@ public class AsStringConfig {
 public fun asStringConfig(): AsStringConfig = AsStringConfig()
 
 
-/** Limits the overall number of properties values or [nl.kute.asstring.namedvalues.NamedValue]s to be joined together */
-public const val stringJoinMaxCount: Int = 1000
-
-/** Initial default value for limiting the number of elements of a collection to be parsed */
-public const val initialElementsLimit: Int = 50
-
-/** Initial default value for how to represent `null` in the [nl.kute.asstring.core.asString] output */
-public const val initialShowNullAs: String = "null"
-
-/** Initial default value for prefix/postfix property value Strings in the [nl.kute.asstring.core.asString] output */
-public val initialSurroundPropValue: PropertyValueSurrounder = NONE
-
-/** Initial default value for the maximum length **per property** in the [nl.kute.asstring.core.asString] output */
-public const val initialMaxStringValueLength: Int = 500
-
-/** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.asstring.core.asString] output */
-public const val initialIncludeIdentityHash: Boolean = false
-
-/** Initial default value for the choice whether the properties should be pre-sorted alphabetically in  [nl.kute.asstring.core.asString] output */
-public const val initialSortNamesAlphabetic: Boolean = false
-
-/** Initial default value for the choice whether to include the object's companion (if any) in the [nl.kute.asstring.core.asString] output */
-public const val initialIncludeCompanion: Boolean = false
-
-/** Initial default value for [PropertyRankable] property ranking classes to be used for sorting properties in [nl.kute.asstring.core.asString] output */
-public val initialPropertySorters: Array<KClass<PropertyRankable<*>>> = arrayOf()
-
-/** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.asstring.core.asString] output */
-public val initialToStringPreference: ToStringPreference = USE_ASSTRING
-
-/** Initial default options for the output of [nl.kute.asstring.core.asString] */
-@JvmSynthetic // avoid access from external Java code
-internal val initialAsStringOption: AsStringOption = AsStringOption()
-
-/** Initial default options for the output of [nl.kute.asstring.core.asString] */
-@JvmSynthetic // avoid access from external Java code
-internal val initialAsStringClassOption: AsStringClassOption = AsStringClassOption()
-
-/** Convenience method to retrieve [AsStringOption.defaultOption]'s [AsStringOption.showNullAs] */
-internal val defaultNullString: String
-    @JvmSynthetic // avoid access from external Java code
-    get() = AsStringOption.defaultOption.showNullAs
-
-/** Convenience method to retrieve [AsStringOption.defaultOption]'s [AsStringOption.propMaxStringValueLength] */
-internal val defaultMaxStringValueLength: Int
-    @JvmSynthetic // avoid access from external Java code
-    get() = AsStringOption.defaultOption.propMaxStringValueLength
-
 /**
  * Reset config options: resets [AsStringOption.defaultOption] to [initialAsStringOption].
  * Mainly for testing purposes.
@@ -286,8 +252,8 @@ internal fun restoreInitialAsStringClassOption(): AsStringClassOption =
 
 @JvmSynthetic // avoid access from external Java code
 internal fun KClass<*>.notifyConfigChange() {
-    configChangeSubscriptions[this]?.forEach {
-            callback -> callback.invoke()
+    configChangeSubscriptions[this]?.forEach { callback ->
+        callback.invoke()
     }
 }
 

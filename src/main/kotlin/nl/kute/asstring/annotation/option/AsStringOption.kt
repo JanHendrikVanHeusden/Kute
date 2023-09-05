@@ -2,10 +2,10 @@ package nl.kute.asstring.annotation.option
 
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder.Companion.surroundBy
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder.NONE
-import nl.kute.asstring.config.initialAsStringOption
-import nl.kute.asstring.config.initialElementsLimit
-import nl.kute.asstring.config.initialMaxStringValueLength
-import nl.kute.asstring.config.initialShowNullAs
+import nl.kute.asstring.core.defaults.initialAsStringOption
+import nl.kute.asstring.core.defaults.initialElementsLimit
+import nl.kute.asstring.core.defaults.initialMaxStringValueLength
+import nl.kute.asstring.core.defaults.initialShowNullAs
 import nl.kute.asstring.config.notifyConfigChange
 import nl.kute.util.takeAndEllipse
 import java.lang.annotation.Inherited
