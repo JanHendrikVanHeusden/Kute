@@ -2,6 +2,8 @@ package nl.kute.asstring.config
 
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.core.asString
+import nl.kute.asstring.core.defaults.initialMaxStringValueLength
+import nl.kute.asstring.core.defaults.initialShowNullAs
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach

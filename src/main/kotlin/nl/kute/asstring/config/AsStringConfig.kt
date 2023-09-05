@@ -147,7 +147,7 @@ public class AsStringConfig {
     }
 
     /**
-     * Sets the new default value for [AsStringClassOption.includeIdentityHash].
+     * Sets the new default value for [AsStringClassOption.toStringPreference].
      *
      * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
      * * [applyAsDefault] applies the value being set to the [AsStringClassOption.defaultOption]

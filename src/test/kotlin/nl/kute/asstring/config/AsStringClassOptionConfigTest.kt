@@ -6,6 +6,8 @@ import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.annotation.option.asStringClassOptionCache
 import nl.kute.asstring.core.asString
+import nl.kute.asstring.core.defaults.initialIncludeIdentityHash
+import nl.kute.asstring.core.defaults.initialToStringPreference
 import nl.kute.asstring.core.useToStringByClass
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
 import nl.kute.util.hexHashCode

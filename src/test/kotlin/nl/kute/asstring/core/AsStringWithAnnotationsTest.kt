@@ -5,8 +5,8 @@ import nl.kute.asstring.annotation.modify.AsStringMask
 import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.modify.AsStringReplace
 import nl.kute.asstring.annotation.option.AsStringOption
-import nl.kute.asstring.config.defaultMaxStringValueLength
-import nl.kute.asstring.config.defaultNullString
+import nl.kute.asstring.core.defaults.defaultMaxStringValueLength
+import nl.kute.asstring.core.defaults.defaultNullString
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
