@@ -10,7 +10,9 @@ package nl.kute.asstring.annotation.option
  *   in various other stuff, e.g. [toString] or [nl.kute.asstring.core.asString] of [Collection], [Map]; SQL-Strings;
  *   plain text, etc.
  * * Some pre/postfixes use Ascii codes 128 - 255, these may not render properly on non-UTF-8 systems
- *   (all should render correctly on Unicode / UTF-8 compatible systems and on Windows, though).
+ *   (all should render correctly on Unicode / UTF-8 compatible systems and on Microsoft Windows, though).
+ * * **Java:** The [Companion] object contains aliases for backtick-ed names that cannot directly be used
+ *   in Java code, e.g.  ``` `«»`, `^^`, `~~` ```
  */
 @Suppress("DANGEROUS_CHARACTERS", "NonAsciiCharacters", "EnumEntryName")
 public enum class PropertyValueSurrounder(public val prefix: String, public val postfix: String) {
@@ -91,7 +93,11 @@ public enum class PropertyValueSurrounder(public val prefix: String, public val 
     `**`("*", "*")
     ;
 
-    public companion object {
+    /**
+     * Contains constants for Java compatibility
+     * > Java does not support backtick-ed names like ``` `«»`, `^^`, `~~` etc.```
+     */
+    public companion object Companion {
 
         /**
          * Surrounds the receiver String by [surrounder].[prefix] / [surrounder].[postfix].
@@ -108,7 +114,10 @@ public enum class PropertyValueSurrounder(public val prefix: String, public val 
         // poor Java does not support the backtick-ed names.
         // Usable from Kotlin too, if you don't like the backtick-ed names.
 
-        /** [prefix] = `«` (Ascii 171), [postfix] = `»` (Ascii 187). */
+        /**
+         * [prefix] = `«` (Ascii 171), [postfix] = `»` (Ascii 187).
+         * > Allows Java code to use [«»]
+         */
         @JvmField
         public val GUILLEMETS: PropertyValueSurrounder = `«»`
 

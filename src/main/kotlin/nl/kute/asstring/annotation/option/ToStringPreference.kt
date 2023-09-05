@@ -2,8 +2,7 @@ package nl.kute.asstring.annotation.option
 
 /**
  * Preference for whether to use [toString] (insofar implemented) or [nl.kute.asstring.core.asString] (with dynamic property &
- * value resolution) for custom classes.
- * [toString] implementation
+ * value resolution) for custom classes' that have [toString] implemented
  */
 public enum class ToStringPreference {
 
