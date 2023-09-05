@@ -33,8 +33,8 @@ internal val loggerWithCaller: (String, Any?) -> Unit = { caller, msg: Any? -> l
  * By default, wen no other logger set explicitly, Kute uses [stdOutLogger] to output to std out (using `println()`).
  *
  * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
- * > To be used from within Kotlin.
- * > In **Java** code, use [setLogConsumer] instead (more convenient in Java)
+ * * To be used in **Kotlin**.
+ * * In **Java** code, use [setLogConsumer] instead (more convenient in Java)
  *
  * Typical usage for **Kotlin** with an SLF4J compatible logger might be:
  * ```
@@ -66,8 +66,8 @@ public var logger: (String?) -> Unit = stdOutLogger
  * By default, wen no other logger set explicitly, Kute uses [stdOutLogger] to output to std out (using `println()`).
  *
  * A different logger (typically SLF4J etc.) can be injected to have it send error logs to your logging framework.
- * > To be used from within Java.
- * > **In from Kotlin code, use [logger] instead**
+ * * To be used from within **Java**
+ * * In **Kotlin** code, use [logger] instead
  *
  * More convenient in **Java** than hassling with [Unit] (as you would with [logger])
  * > Typical usage for Java with an SLF4J compatible logger would be:
