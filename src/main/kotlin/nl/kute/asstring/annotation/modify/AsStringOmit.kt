@@ -7,7 +7,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  * The [AsStringOmit] annotation can be placed on properties to indicate that the property is excluded
  * (both name and value) from the return value of [nl.kute.asstring.core.asString].
  * * Typical usage is to leave insignificant or sensitive data out of [String] representations
- *     * It may be used keep sensitive or personally identifiable out of logging etc.
+ *     * It may be used to keep sensitive or personally identifiable data out of log files etc.
  *       This may limit exposure of such data; but on its own it must **not** be considered a security feature.
  * * When applied to a property in an interface of a super-class, it will be applied to that property
  *   in the subclass hierarchy; regardless whether or not the property is overridden, and whether or not

@@ -8,7 +8,7 @@ import kotlin.math.min
 /**
  * The [AsStringMask] annotation can be placed on properties to indicate that the property is
  * included in the return value of [nl.kute.asstring.core.asString], but with its value masked.
- * * Typical usage is to keep sensitive or personally identifiable out of logging etc.
+ * * Typical usage is to keep sensitive or personally identifiable out of log files etc.
  * * This may limit exposure of such data, but on its own it must not be considered as a security feature.
  * * [AsStringMask] is repeatable. If multiple annotations are present, they are applied in order of occurrence,
  *   with the subsequent mask working on the result of the previous one.
@@ -16,7 +16,7 @@ import kotlin.math.min
  *      [AsStringMask], they are applied in order from super class to subclass.
  * ---
  * * If the position of [startMaskAt] is after that of [endMaskAt], the full [String] will be masked.
- * * If [minLength]` >  `[maxLength], [minLength] is used
+ * * If [minLength] is greater than [maxLength], [minLength] applies
  * @param startMaskAt At which character index (inclusive) masking should start? Default = 0
  * @param endMaskAt At which character index (exclusive) masking should end? Default = [Int.MAX_VALUE]
  * @param mask The char to use for masking. Default = `*`
