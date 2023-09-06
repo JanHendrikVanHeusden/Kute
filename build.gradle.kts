@@ -1,7 +1,8 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import org.apache.commons.io.FileUtils
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 group = "nl.kute"
 version = "1.0-SNAPSHOT"
@@ -50,7 +51,6 @@ tasks.withType<Test> {
     exclude("**/**Demo.class")
 }
 
-
 repositories {
     mavenLocal()
     mavenCentral()
@@ -95,11 +95,13 @@ dependencies {
     val awaitilityVersion by System.getProperties()
     val pitestJUnit5PluginVersion by System.getProperties()
     val commonsLangVersion by System.getProperties()
+    val commonsIoVersion by System.getProperties()
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
+    compileOnly("commons-io:commons-io:$commonsIoVersion")
 
     // Used in tests only.
     // Do not use it in source code, packaged Kute should not rely on any external dependency
@@ -154,6 +156,23 @@ tasks.withType<Test> {
         TestLogEvent.SKIPPED,
         TestLogEvent.STANDARD_OUT
     )
+}
+
+// Tried with a task of type Copy, but that caused unnecessary git diffs
+// So using custom task with Apache's FileUtils instead
+tasks.register("copyApiDocs") {
+    dependsOn(tasks.named("dokkaGfm"))
+    group = "documentation"
+    doLast {
+        val apiDir = File("./apidocs/gfm")
+        val generatedDir = File("build/dokka/gfm")
+        FileUtils.deleteDirectory(apiDir)
+        FileUtils.copyDirectory(generatedDir, apiDir)
+    }
+}
+
+tasks.named("assemble") {
+    dependsOn(tasks.named("copyApiDocs"))
 }
 
 pitest {
