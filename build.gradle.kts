@@ -158,8 +158,8 @@ tasks.withType<Test> {
     )
 }
 
-// Tried with a task of type Copy, but that caused unnecessary git diffs
-// So using custom task with Apache's FileUtils instead
+// Tried with a task of type Copy, but it didn't work as desired in case of non-empty directories
+// So using custom task with Apache's FileUtils instead, works nicely
 tasks.register("copyApiDocs") {
     dependsOn(tasks.named("dokkaGfm"))
     group = "documentation"
