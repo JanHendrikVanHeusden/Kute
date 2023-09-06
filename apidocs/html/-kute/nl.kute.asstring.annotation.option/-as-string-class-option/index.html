@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>AsStringClassOption</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>Kute</span>
+            </a>
+    </div>
+    <div>
+1.0-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":dokkaHtml/main">jvm</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="Kute::nl.kute.asstring.annotation.option/AsStringClassOption///PointingToDeclaration//769193423">
+  <div class="breadcrumbs"><a href="../../../index.html">Kute</a><span class="delimiter">/</span><a href="../index.html">nl.kute.asstring.annotation.option</a><span class="delimiter">/</span><span class="current">AsStringClassOption</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>As</span><wbr></wbr><span>String</span><wbr></wbr><span>Class</span><wbr></wbr><span><span>Option</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.annotation/-target/index.html"><span class="token annotation builtin">Target</span></a><span class="token punctuation">(</span><span>allowedTargets<span class="token operator"> = </span><span class="token punctuation">[</span><span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.annotation/-annotation-target/-c-l-a-s-s/index.html">AnnotationTarget.CLASS</a></span><wbr></wbr><span class="token punctuation">]</span></span><wbr></wbr><span class="token punctuation">)</span></div><div class="block"><span class="token annotation builtin">@</span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/Inherited.html"><span class="token annotation builtin">Inherited</span></a></div></div><span class="token keyword">annotation class </span><a href="index.html">AsStringClassOption</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>includeIdentityHash<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span>initialIncludeIdentityHash<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>toStringPreference<span class="token operator">: </span><a href="../-to-string-preference/index.html">ToStringPreference</a><span class="token operator"> = </span>USE_ASSTRING<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>includeCompanion<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span>initialIncludeCompanion<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>sortNamesAlphabetic<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span>initialSortNamesAlphabetic<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>propertySorters<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="../../nl.kute.asstring.property.ranking/-property-rankable/index.html">PropertyRankable</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="token operator"> = </span>[]</span></span><span class="token punctuation">)</span></div><ul><li><p class="paragraph">The <a href="index.html">AsStringClassOption</a> annotation controls what is included, and ordering of properties</p></li><li><p class="paragraph">The <a href="index.html">AsStringClassOption</a> annotation can be placed on classes.</p></li></ul><h4 class="">Parameters</h4><div class="table"><div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>include</span><wbr></wbr><span>Identity</span><wbr></wbr><span><span>Hash</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Should the identity hash be included in output of <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a>? If included, the identity hash is represented as <code class="lang-kotlin">@</code> followed by the hex representation as of <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/System.html#identityHashCode-kotlin.Any-">System.identityHashCode</a> (up to 8 hex characters), identical to the hex string seen in non-overridden <span data-unresolved-link="nl.kute.asstring.annotation.option/AsStringClassOption/toString/#/PointingToDeclaration/">toString</span> output.</p><blockquote class="quotation"><p class="paragraph">Default = <code class="lang-kotlin">false</code> by <a href="../../nl.kute.asstring.core.defaults/initial-include-identity-hash.html">initialIncludeIdentityHash</a></p></blockquote></div></div></div></div><div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>to</span><wbr></wbr><span>String</span><wbr></wbr><span><span>Preference</span></span></u></div></span></div><div><div class="title"><ul><li><p class="paragraph">If <a href="../-to-string-preference/-u-s-e_-a-s-s-t-r-i-n-g/index.html">ToStringPreference.USE_ASSTRING</a> applies (either as default or by annotation), <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a> should dynamically resolve properties and values for custom classes, even if <span data-unresolved-link="nl.kute.asstring.annotation.option/AsStringClassOption/toString/#/PointingToDeclaration/">toString</span> is implemented. <a href="../-to-string-preference/-u-s-e_-a-s-s-t-r-i-n-g/index.html">USE_ASSTRING</a> is the default.</p></li><li><p class="paragraph">If <a href="../-to-string-preference/-p-r-e-f-e-r_-t-o-s-t-r-i-n-g/index.html">ToStringPreference.PREFER_TOSTRING</a> applies (either as default or by annotation), and a <span data-unresolved-link="nl.kute.asstring.annotation.option/AsStringClassOption/toString/#/PointingToDeclaration/">toString</span> method is implemented, <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a> should honour the class's <span data-unresolved-link="nl.kute.asstring.annotation.option/AsStringClassOption/toString/#/PointingToDeclaration/">toString</span>, rather than dynamically resolving properties and values.</p></li></ul><blockquote class="quotation"><p class="paragraph">If <a href="../-to-string-preference/-p-r-e-f-e-r_-t-o-s-t-r-i-n-g/index.html">ToStringPreference.PREFER_TOSTRING</a> applies and recursion is detected in the <span data-unresolved-link="nl.kute.asstring.annotation.option/AsStringClassOption/toString/#/PointingToDeclaration/">toString</span> implementation, <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a> will fall back to dynamically resolving properties and values for that class.</p></blockquote></div></div></div></div><div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>include</span><wbr></wbr><span><span>Companion</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Should a companion object (if any) be included in the output of <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a>? A companion object will be included only if all of these apply:</p><ol><li><p class="paragraph">The class that contains the companion object is not private</p></li><li><p class="paragraph">The companion object is public</p></li><li><p class="paragraph">The companion object has at least 1 property</p></li></ol><blockquote class="quotation"><p class="paragraph">Default = <code class="lang-kotlin">false</code> by <a href="../../nl.kute.asstring.core.defaults/initial-include-companion.html">initialIncludeCompanion</a></p></blockquote></div></div></div></div><div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>sort</span><wbr></wbr><span>Names</span><wbr></wbr><span><span>Alphabetic</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Should output of <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a> be sorted alphabetically by property name (case-insensitive) in output of <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a>?</p><p class="paragraph"><strong>NB:</strong> This is a pre-sorting. If additional <a href="property-sorters.html">propertySorters</a> are given, these will be applied after the alphabetic sort.</p><blockquote class="quotation"><p class="paragraph">Default = <code class="lang-kotlin">false</code> by <a href="../../nl.kute.asstring.core.defaults/initial-sort-names-alphabetic.html">initialSortNamesAlphabetic</a></p></blockquote></div></div></div></div><div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>property</span><wbr></wbr><span><span>Sorters</span></span></u></div></span></div><div><div class="title"><p class="paragraph">One or more <a href="../../nl.kute.asstring.property.ranking/-property-rankable/index.html">PropertyRankable</a> implementing classes can be specified to have properties sorted in output of <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a>. Default is none (no explicit sorting order). These will be applied in order, like SQL multi-column sorting.</p><blockquote class="quotation"><p class="paragraph">So if the 1st sorter yields an equal result for a pair of properties, the 2nd will be applied, and so on until a non-zero result is obtained, of until the <a href="property-sorters.html">propertySorters</a> are exhausted.</p></blockquote><ul><li><p class="paragraph">This sorting is applied after alphabetic sorting is applied. The sorting is stable, so if the <a href="property-sorters.html">propertySorters</a> yield an equal value, the alphabetic sorting is preserved.</p></li><li><p class="paragraph">Usage of <a href="property-sorters.html">propertySorters</a> may have a significant effect on CPU and memory footprint of <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a>.</p></li></ul></div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="">Types</h2>
+        <div class="table"><a data-name="1661636706%2FClasslikes%2F769193423" anchor-label="DefaultOption" id="1661636706%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-default-option/index.html"><span>Default</span><wbr></wbr><span><span>Option</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1661636706%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-default-option/index.html">DefaultOption</a></div><div class="brief "><p class="paragraph">Static holder for <a href="-default-option/default-option.html">defaultOption</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-1406495407%2FProperties%2F769193423" anchor-label="includeCompanion" id="-1406495407%2FProperties%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="include-companion.html"><span>include</span><wbr></wbr><span><span>Companion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1406495407%2FProperties%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="include-companion.html">includeCompanion</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1977251023%2FProperties%2F769193423" anchor-label="includeIdentityHash" id="-1977251023%2FProperties%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="include-identity-hash.html"><span>include</span><wbr></wbr><span>Identity</span><wbr></wbr><span><span>Hash</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1977251023%2FProperties%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="include-identity-hash.html">includeIdentityHash</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-974794670%2FProperties%2F769193423" anchor-label="propertySorters" id="-974794670%2FProperties%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="property-sorters.html"><span>property</span><wbr></wbr><span><span>Sorters</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-974794670%2FProperties%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="property-sorters.html">propertySorters</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="../../nl.kute.asstring.property.ranking/-property-rankable/index.html">PropertyRankable</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2058844558%2FProperties%2F769193423" anchor-label="sortNamesAlphabetic" id="2058844558%2FProperties%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="sort-names-alphabetic.html"><span>sort</span><wbr></wbr><span>Names</span><wbr></wbr><span><span>Alphabetic</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2058844558%2FProperties%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="sort-names-alphabetic.html">sortNamesAlphabetic</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1487008654%2FProperties%2F769193423" anchor-label="toStringPreference" id="1487008654%2FProperties%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="to-string-preference.html"><span>to</span><wbr></wbr><span>String</span><wbr></wbr><span><span>Preference</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1487008654%2FProperties%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="to-string-preference.html">toStringPreference</a><span class="token operator">: </span><a href="../-to-string-preference/index.html">ToStringPreference</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2023 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>

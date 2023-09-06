@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>PropertyValueSurrounder</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>Kute</span>
+            </a>
+    </div>
+    <div>
+1.0-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":dokkaHtml/main">jvm</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="Kute::nl.kute.asstring.annotation.option/PropertyValueSurrounder///PointingToDeclaration//769193423">
+  <div class="breadcrumbs"><a href="../../../index.html">Kute</a><span class="delimiter">/</span><a href="../index.html">nl.kute.asstring.annotation.option</a><span class="delimiter">/</span><span class="current">PropertyValueSurrounder</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Property</span><wbr></wbr><span>Value</span><wbr></wbr><span><span>Surrounder</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">enum </span><a href="index.html">PropertyValueSurrounder</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">PropertyValueSurrounder</a><span class="token operator">&gt; </span></div><p class="paragraph">Enum to define prefixes and postfixes, to distinguish property value Strings from other text. E.g.</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">class MyClass {<br>    public val my1stVal: String = &quot;first value&quot;<br>    public val my2ndVal: String = &quot;second value&quot;<br>    public val myNullableVal: String? = null<br>}<br>// ...<br>asStringConfig().withSurroundPropValue(PropertyValueSurrounder.`«»`).applyAsDefault()<br>println(MyClass().asString()) // MyClass(my1stVal=«first value», my2ndVal=«second value», myNullableVal=null)</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><ul><li><p class="paragraph">Some pre/postfixes may look a bit exotic, e.g. <code class="lang-kotlin">¶¶</code>, <code class="lang-kotlin">÷÷</code>, <code class="lang-kotlin">¦¦</code>, this is done deliberately: these do not appear usually in normal text, so these will clearly set the value String apart. It's a matter of choice which to choose; or use <a href="-n-o-n-e/index.html">NONE</a> for no prefix/postfix.</p></li><li><p class="paragraph">A few pre/postfixes are convenient, yet not recommended, e.g. <code class="lang-kotlin">[]</code>, <code class="lang-kotlin">{}</code>, <code class="lang-kotlin">()</code>, <code class="lang-kotlin">''</code>, <code class="lang-kotlin">&quot;&quot;</code>, <code class="lang-kotlin">` ` `</code>. These are somewhat confusing because they are also used in various other stuff; e.g. <span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder/toString/#/PointingToDeclaration/">toString</span> or <a href="../../nl.kute.asstring.core/as-string.html">nl.kute.asstring.core.asString</a> of <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html">Collection</a>, <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a>; SQL-Strings; plain texts, etc.</p></li><li><p class="paragraph">Some pre/postfixes use Ascii codes 128 - 255, these may not render properly on non-UTF-8 systems (all should render correctly on Unicode / UTF-8 compatible systems and on Microsoft Windows, though).</p></li></ul><blockquote class="quotation"><p class="paragraph"><strong>Java:</strong> Backtick-ed names, e.g.  <code class="lang-kotlin">` `«»`, `^^`, `~~` `</code> cannot be used directly in Java code. The <a href="-companion/index.html">Companion</a> object contains aliases for these, to allow usage of these in Java.</p></blockquote><h4 class="">Parameters</h4><div class="table"><div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>prefix</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The prefix (if any) to be concatenated at the start of a property's String value</p></div></div></div></div><div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>postfix</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The postfix (if any) to be concatenated at the end of a property's String value</p></div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="ENTRY">Entries</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="ENTRY">
+        <h2 class="">Entries</h2>
+        <div class="table"><a data-name="-748808682%2FClasslikes%2F769193423" anchor-label="NONE" id="-748808682%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-n-o-n-e/index.html">NONE</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-748808682%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="-n-o-n-e/index.html">NONE</a></div></div><div class="brief "><p class="paragraph">No pre/postfix: empty Strings</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1542980402%2FClasslikes%2F769193423" anchor-label="«»" id="-1542980402%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="«»/index.html">«»</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1542980402%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="«»/index.html">«»</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.«»/prefix/#/PointingToDeclaration/">prefix</span> = <code class="lang-kotlin">«</code> <i>(Ascii 171)</i>, <span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.«»/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">»</code> <i>(Ascii 187)</i>. In Java, use <a href="-companion/-g-u-i-l-l-e-m-e-t-s.html">Companion.GUILLEMETS</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="373049118%2FClasslikes%2F769193423" anchor-label="^^" id="373049118%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="^^/index.html">^^</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="373049118%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="^^/index.html">^^</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.^^/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.^^/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">^</code> <i>(Ascii 94)</i>. In Java, use <a href="-companion/-c-a-r-e-t-s.html">Companion.CARETS</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1244482334%2FClasslikes%2F769193423" anchor-label="~~" id="1244482334%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="~~/index.html">~~</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1244482334%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="~~/index.html">~~</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.~~/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.~~/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">~</code> <i>(Ascii 126)</i>. In Java, use <a href="-companion/-t-i-l-d-e-s.html">Companion.TILDES</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1961193442%2FClasslikes%2F769193423" anchor-label="¦¦" id="-1961193442%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="¦¦/index.html">¦¦</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1961193442%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="¦¦/index.html">¦¦</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.¦¦/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.¦¦/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">¦</code> <i>(Ascii 166)</i>. In Java, use <a href="-companion/-b-r-o-k-e-n_-p-i-p-e-s.html">Companion.BROKEN_PIPES</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2031207714%2FClasslikes%2F769193423" anchor-label="||" id="-2031207714%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="[124][124]/index.html">||</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2031207714%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="[124][124]/index.html">||</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.||/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.||/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">|</code> <i>(Ascii 124)</i>. In Java, use <a href="-companion/-p-i-p-e-s.html">Companion.PIPES</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-323348418%2FClasslikes%2F769193423" anchor-label="§§" id="-323348418%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="§§/index.html">§§</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-323348418%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="§§/index.html">§§</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.§§/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.§§/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">§</code> <i>(Ascii 167)</i>. In Java, use <a href="-companion/-p-a-r-a-g-r-a-p-h-s.html">Companion.PARAGRAPHS</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1525476834%2FClasslikes%2F769193423" anchor-label="¶¶" id="-1525476834%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="¶¶/index.html">¶¶</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1525476834%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="¶¶/index.html">¶¶</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.¶¶/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.¶¶/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">¶</code> <i>(Ascii 182)</i>. In Java, use <a href="-companion/-a-l-i-n-e-a_-s-i-g-n-s.html">Companion.ALINEA_SIGNS</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1855234622%2FClasslikes%2F769193423" anchor-label="÷÷" id="1855234622%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="÷÷/index.html">÷÷</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1855234622%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="÷÷/index.html">÷÷</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.÷÷/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.÷÷/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">÷</code> <i>(Ascii 247)</i>. In Java, use <a href="-companion/-d-i-v-i-s-i-o-n_-s-i-g-n-s.html">Companion.DIVISION_SIGNS</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1770526786%2FClasslikes%2F769193423" anchor-label="##" id="-1770526786%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="##/index.html">##</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1770526786%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="##/index.html">##</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.##/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.##/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">#</code> <i>(Ascii 35)</i>. In Java, use <a href="-companion/-h-a-s-h_-s-i-g-n-s.html">Companion.HASH_SIGNS</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="886595486%2FClasslikes%2F769193423" anchor-label="&quot;&quot;" id="886595486%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="[34][34]/index.html">&quot;&quot;</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="886595486%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="[34][34]/index.html">&quot;&quot;</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.&amp;quot;&amp;quot;/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.&amp;quot;&amp;quot;/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">&quot;</code> <i>(Ascii 34)</i>. In Java, use <a href="-companion/-d-o-u-b-l-e_-q-u-o-t-e-s.html">Companion.DOUBLE_QUOTES</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="485886014%2FClasslikes%2F769193423" anchor-label="''" id="485886014%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="''/index.html">''</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="485886014%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="''/index.html">''</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.''/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.''/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">'</code> <i>(Ascii 39)</i>. In Java, use <a href="-companion/-s-i-n-g-l-e_-q-u-o-t-e-s.html">Companion.SINGLE_QUOTES</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-911527517%2FClasslikes%2F769193423" anchor-label="ANGLED_BRACKETS" id="-911527517%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-a-n-g-l-e-d_-b-r-a-c-k-e-t-s/index.html">ANGLED_BRACKETS</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-911527517%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="-a-n-g-l-e-d_-b-r-a-c-k-e-t-s/index.html">ANGLED_BRACKETS</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.ANGLED_BRACKETS/prefix/#/PointingToDeclaration/">prefix</span> = <code class="lang-kotlin">&lt;</code> <i>(Ascii 60)</i>, <span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.ANGLED_BRACKETS/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">&gt;</code> <i>(Ascii 62)</i></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="341971191%2FClasslikes%2F769193423" anchor-label="SQUARE_BRACKETS" id="341971191%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-s-q-u-a-r-e_-b-r-a-c-k-e-t-s/index.html">SQUARE_BRACKETS</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="341971191%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="-s-q-u-a-r-e_-b-r-a-c-k-e-t-s/index.html">SQUARE_BRACKETS</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.SQUARE_BRACKETS/prefix/#/PointingToDeclaration/">prefix</span> = <code class="lang-kotlin">[</code> <i>(Ascii 91)</i>, <span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.SQUARE_BRACKETS/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">]</code> <i>(Ascii 93)</i></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-241005409%2FClasslikes%2F769193423" anchor-label="()" id="-241005409%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="()/index.html">()</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-241005409%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="()/index.html">()</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.()/prefix/#/PointingToDeclaration/">prefix</span> = <code class="lang-kotlin">(</code> <i>(Ascii 40)</i>, <span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.()/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">)</code> <i>(Ascii 41)</i>. In Java, use <a href="-companion/-p-a-r-e-n-t-h-e-s-e-s.html">Companion.PARENTHESES</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="191408960%2FClasslikes%2F769193423" anchor-label="{}" id="191408960%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="{}/index.html">{}</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="191408960%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="{}/index.html">{}</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.{}/prefix/#/PointingToDeclaration/">prefix</span> = <code class="lang-kotlin">{</code> <i>(Ascii 123)</i>, <span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.{}/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">}</code> <i>(Ascii 125)</i>. In Java, use <a href="-companion/-b-r-a-c-e-s.html">Companion.BRACES</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1094690279%2FClasslikes%2F769193423" anchor-label="BACKTICKS" id="-1094690279%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-b-a-c-k-t-i-c-k-s/index.html">BACKTICKS</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1094690279%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="-b-a-c-k-t-i-c-k-s/index.html">BACKTICKS</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.BACKTICKS/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.BACKTICKS/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">`` ` ``</code> <i>(Ascii 96)</i> */</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1104453790%2FClasslikes%2F769193423" anchor-label="**" id="1104453790%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="ENTRY" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="[42][42]/index.html">**</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1104453790%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><a href="[42][42]/index.html">**</a></div></div><div class="brief "><p class="paragraph"><span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.**/prefix/#/PointingToDeclaration/">prefix</span>/<span data-unresolved-link="nl.kute.asstring.annotation.option/PropertyValueSurrounder.**/postfix/#/PointingToDeclaration/">postfix</span> = <code class="lang-kotlin">*</code> <i>(Ascii 42)</i>. In Java, use <a href="-companion/-a-s-t-e-r-i-s-k-s.html">Companion.ASTERISKS</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="TYPE">
+        <h2 class="">Types</h2>
+        <div class="table"><a data-name="-1666421233%2FClasslikes%2F769193423" anchor-label="Companion" id="-1666421233%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-companion/index.html"><span><span>Companion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1666421233%2FClasslikes%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-companion/index.html">Companion</a></div><div class="brief "><p class="paragraph">Contains constants for Java compatibility</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-372974862%2FProperties%2F769193423" anchor-label="name" id="-372974862%2FProperties%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../nl.kute.hashing/-digest-method/-m-d5/index.html#-372974862%2FProperties%2F769193423"><span><span>name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-372974862%2FProperties%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../../nl.kute.hashing/-digest-method/-m-d5/index.html#-372974862%2FProperties%2F769193423">name</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-739389684%2FProperties%2F769193423" anchor-label="ordinal" id="-739389684%2FProperties%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../nl.kute.hashing/-digest-method/-m-d5/index.html#-739389684%2FProperties%2F769193423"><span><span>ordinal</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-739389684%2FProperties%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../../nl.kute.hashing/-digest-method/-m-d5/index.html#-739389684%2FProperties%2F769193423">ordinal</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1385664947%2FProperties%2F769193423" anchor-label="postfix" id="1385664947%2FProperties%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="postfix.html"><span><span>postfix</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1385664947%2FProperties%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="postfix.html">postfix</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2085303360%2FProperties%2F769193423" anchor-label="prefix" id="2085303360%2FProperties%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="prefix.html"><span><span>prefix</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2085303360%2FProperties%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="prefix.html">prefix</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="820121508%2FFunctions%2F769193423" anchor-label="valueOf" id="820121508%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="value-of.html"><span>value</span><wbr></wbr><span><span>Of</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="820121508%2FFunctions%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="value-of.html"><span class="token function">valueOf</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PropertyValueSurrounder</a></div><div class="brief "><p class="paragraph">Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1026837424%2FFunctions%2F769193423" anchor-label="values" id="1026837424%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="values.html"><span><span>values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1026837424%2FFunctions%2F769193423"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="values.html"><span class="token function">values</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">PropertyValueSurrounder</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns an array containing the constants of this enum type, in the order they're declared.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2023 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>
