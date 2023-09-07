@@ -1,5 +1,9 @@
 package nl.kute.asstring.property.ranking
 
+import nl.kute.asstring.annotation.modify.AsStringOmit
+import nl.kute.asstring.annotation.option.AsStringClassOption
+import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
+import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.isBaseType
 import java.util.UUID
 
@@ -16,6 +20,7 @@ import java.util.UUID
  * * Of course it can be combined it with other provided implementations, e.g. [PropertyRankingByLength] or [PropertyRankingByLength].
  * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
+@AsStringClassOption(includeCompanion = true, toStringPreference = USE_ASSTRING)
 public open class PropertyRankingByCommonNames private constructor(): PropertyRanking() {
 
     /** @return A numeric rank based on [PropertyValueMetaData.stringValueLength] and T-shirt sizes as of [ValueLengthRanking] */
@@ -48,9 +53,12 @@ public open class PropertyRankingByCommonNames private constructor(): PropertyRa
         }
     }
 
+    override fun toString(): String = asString()
+
     public companion object {
         /** Singleton instance of [PropertyRankingByCommonNames] */
         @Suppress("unused") // will be called reflectively
+        @AsStringOmit
         public val instance: PropertyRankingByCommonNames = PropertyRankingByCommonNames()
 
         // region ~ Extensions and keywords to distinguish categories of properties
@@ -71,4 +79,3 @@ public open class PropertyRankingByCommonNames private constructor(): PropertyRa
         // endregion
     }
 }
-

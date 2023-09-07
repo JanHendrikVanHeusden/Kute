@@ -1,5 +1,8 @@
 package nl.kute.asstring.property.ranking
 
+import nl.kute.asstring.annotation.modify.AsStringOmit
+import nl.kute.asstring.annotation.option.AsStringClassOption
+
 /**
  * Provides ranking for ordering properties in [nl.kute.asstring.core.asString] output, based
  * on [PropertyValueMetaData.returnType].
@@ -7,6 +10,7 @@ package nl.kute.asstring.property.ranking
  * > E.g. [Number], [java.util.Date], [Char], [Boolean], [java.time.temporal.Temporal] etc.; see [nl.kute.asstring.core.isBaseType]
  * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
+@AsStringClassOption(includeCompanion = false)
 public open class PropertyRankingByType private constructor(): PropertyRanking() {
     /** @return A low value if it's a base-type and not a [CharSequence]; a high value otherwise */
     public override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int {
@@ -17,6 +21,7 @@ public open class PropertyRankingByType private constructor(): PropertyRanking()
     public companion object {
         /** Singleton instance of [PropertyRankingByType] */
         @Suppress("unused") // will be called reflectively
+        @AsStringOmit
         public val instance: PropertyRankingByType = PropertyRankingByType()
     }
 }

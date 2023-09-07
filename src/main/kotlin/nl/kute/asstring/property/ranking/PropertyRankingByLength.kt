@@ -1,5 +1,6 @@
 package nl.kute.asstring.property.ranking
 
+import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.property.ranking.ValueLengthRanking.S
@@ -14,6 +15,7 @@ import java.util.EnumSet
  * @see [ValueLengthRanking]
  * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
+@AsStringClassOption(includeCompanion = false)
 public open class PropertyRankingByLength private constructor(): PropertyRanking() {
     /** @return A numeric rank based on [PropertyValueMetaData.stringValueLength] and T-shirt sizes as of [ValueLengthRanking] */
     override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int =
@@ -22,9 +24,9 @@ public open class PropertyRankingByLength private constructor(): PropertyRanking
     public companion object {
         /** Singleton instance of [PropertyRankingByLength] */
         @Suppress("unused") // will be called reflectively
+        @AsStringOmit
         public var instance: PropertyRankingByLength = PropertyRankingByLength()
     }
-
 }
 
 /**
