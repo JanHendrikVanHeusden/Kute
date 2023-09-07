@@ -134,83 +134,93 @@ public fun <T: Any?> T.asString(vararg props: KProperty1<T, *>): String =
  * @see [AsStringBuilder]
  */
 private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>, elementsLimit: Int? = null): String {
+    val obj = this ?: return defaultNullString
     try {
-        val obj = this ?: return defaultNullString
-        val objectCategory = AsStringObjectCategory.resolveObjectCategory(obj)
-        // If no stack guarding needed, we can handle the object here already
-        if (!objectCategory.guardStack && objectCategory.hasAnyHandler()) {
-            return handleObject(obj, objectCategory, elementsLimit)
-        }
-        if (objectCategory.hasHandler() && !objectCategory.guardStack) {
-            return objectCategory.handler!!(obj)
-        } else {
-            try {
-                @Suppress("UNCHECKED_CAST")
-                val objClass: KClass<T> = obj::class as KClass<T>
-                // Check recursion: are we were already busy processing this object?
-                val isRecursiveCall = !objectsStackGuard.get().addIfNotPresent(obj)
-                if (isRecursiveCall) {
-                    // if recursive (and maybe PREFER_TOSTRING), reset it to USE_ASSTRING
-                    useToStringByClass[objClass] = USE_ASSTRING
-                    // avoid endless loop
-                    return "$recursivePrefix${objClass.simplifyClassName()}$recursivePostfix"
-                }
-                if (objectCategory.hasAnyHandler()) {
-                    return handleObject(obj, objectCategory, elementsLimit)
-                }
-                val hasAdditionalParameters = propertyNamesToExclude.isNotEmpty() || nameValues.isNotEmpty()
-                if (!hasAdditionalParameters) {
-                    val (toStringPref, firstTime) = objClass.toStringHandling()
-                    if (toStringPref == PREFER_TOSTRING) {
-                        obj.tryToString(firstTime)?.let { return it }
-                    }
-                }
-
-                // not preferring toString() & no handler, so custom object to dynamically resolve
-                // let's process it, with all params provided
-                try {
-                    val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
-                        objClass.propertiesWithAsStringAffectingAnnotations()
-                            .filterNot { propertyNamesToExclude.contains(it.key.name) }
-                            .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
-                    val named: List<NameValue<*>> = nameValues
-                        .filterNot { nameValue ->
-                            nameValue is PropertyValue<*>
-                                    && nameValue.asStringAffectingAnnotations.any { it is AsStringOmit }
-                        }
-                    val asStringClassOption = objClass.asStringClassOption()
-                    val rankProviders = asStringClassOption.propertySorters
-                        .mapNotNull { it.getPropertyRankableInstance() }
-                        .toTypedArray()
-                    return "${obj.objectIdentity()}$propertyListPrefix" +
-                    joinIfNotEmpty(
-                        separator = valueSeparator,
-                        annotationsByProperty.joinToStringWithOrderRank(
-                            obj = obj,
-                            rankProviders = rankProviders,
-                            separator = valueSeparator,
-                            limit = stringJoinMaxCount
-                        ),
-                        objClass.companionAsString(),
-                        named.joinToString(
-                            separator = valueSeparator,
-                            limit = stringJoinMaxCount
-                        ) {
-                            "${it.name}=${it.value.asString()}"
-                        }
-                    ) + propertyListSuffix
-                } catch (e: SyntheticClassException) {
-                    // Kotlin's reflection can't handle synthetic classes, like for lambda, callable reference etc.
-                    // (more details, see KDoc of SyntheticClassException)
-                    return obj.syntheticClassObjectAsString()
-                } catch (e: Exception) {
-                    log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
-                            " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
-                    return obj.asStringFallBack()
-                }
-            } finally {
-                objectsStackGuard.get().remove(obj)
+        try {
+            val objectCategory = AsStringObjectCategory.resolveObjectCategory(obj)
+            // If no stack guarding needed, we can handle the object here already
+            if (!objectCategory.guardStack && objectCategory.hasAnyHandler()) {
+                return handleObject(obj, objectCategory, elementsLimit)
             }
+            if (objectCategory.hasHandler() && !objectCategory.guardStack) {
+                return objectCategory.handler!!(obj)
+            } else {
+                try {
+                    @Suppress("UNCHECKED_CAST")
+                    val objClass: KClass<T> = obj::class as KClass<T>
+                    // Check recursion: are we were already busy processing this object?
+                    val isRecursiveCall = !objectsStackGuard.get().addIfNotPresent(obj)
+                    if (isRecursiveCall) {
+                        // if recursive (and maybe PREFER_TOSTRING), reset it to USE_ASSTRING
+                        useToStringByClass[objClass] = USE_ASSTRING
+                        // avoid endless loop
+                        return "$recursivePrefix${objClass.simplifyClassName()}$recursivePostfix"
+                    }
+                    if (objectCategory.hasAnyHandler()) {
+                        return handleObject(obj, objectCategory, elementsLimit)
+                    }
+                    val hasAdditionalParameters = propertyNamesToExclude.isNotEmpty() || nameValues.isNotEmpty()
+                    if (!hasAdditionalParameters) {
+                        val (toStringPref, firstTime) = objClass.toStringHandling()
+                        if (toStringPref == PREFER_TOSTRING) {
+                            obj.tryToString(firstTime)?.let { return it }
+                        }
+                    }
+
+                    // not preferring toString() & no handler, so custom object to dynamically resolve
+                    // let's process it, with all params provided
+                    try {
+                        val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
+                            objClass.propertiesWithAsStringAffectingAnnotations()
+                                .filterNot { propertyNamesToExclude.contains(it.key.name) }
+                                .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
+                        val named: List<NameValue<*>> = nameValues
+                            .filterNot { nameValue ->
+                                nameValue is PropertyValue<*>
+                                        && nameValue.asStringAffectingAnnotations.any { it is AsStringOmit }
+                            }
+                        val asStringClassOption = objClass.asStringClassOption()
+                        val rankProviders = asStringClassOption.propertySorters
+                            .mapNotNull { it.getPropertyRankableInstance() }
+                            .toTypedArray()
+                        return "${obj.objectIdentity()}$propertyListPrefix" +
+                        joinIfNotEmpty(
+                            separator = valueSeparator,
+                            annotationsByProperty.joinToStringWithOrderRank(
+                                obj = obj,
+                                rankProviders = rankProviders,
+                                separator = valueSeparator,
+                                limit = stringJoinMaxCount
+                            ),
+                            objClass.companionAsString(),
+                            named.joinToString(
+                                separator = valueSeparator,
+                                limit = stringJoinMaxCount
+                            ) {
+                                "${it.name}=${it.value.asString()}"
+                            }
+                        ) + propertyListSuffix
+                    } catch (e: SyntheticClassException) {
+                        // Kotlin's reflection can't handle synthetic classes, like for lambda, callable reference etc.
+                        // (more details, see KDoc of SyntheticClassException)
+                        return obj.syntheticClassObjectAsString()
+                    }
+                } finally {
+                    objectsStackGuard.get().remove(obj)
+                }
+            }
+        } catch (e: ConcurrentModificationException) {
+            // Seems to be an unsafe Collection, Map, Array, etc.
+            // Try to create a defensive copy, and return asString() of that.
+            // This is tried once only; if unsuccessful, return fallback string
+            log("Warning: Non-thread safe collection/map was modified concurrently!\n ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                    " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
+            return obj.cloneCollectionLikeStuff()?.asString(propertyNamesToExclude, *nameValues, elementsLimit = elementsLimit)
+                ?: obj.asStringFallBack()
+        } catch (e: Exception) {
+            log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                    " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
+            return obj.asStringFallBack()
         }
     } catch (e: Exception) {
         // Should not happen!
@@ -371,6 +381,28 @@ internal fun Any?.asStringFallBack(): String {
         "${this::class.simplifyClassName()}@${this.identityHashHex}"
             .replace(classPrefix, "")
     }
+}
+
+/** Tries to clone a [Collection], [Array], [Map], etc., typically as a defensive copy */
+private fun Any.cloneCollectionLikeStuff(): Any? =
+    try {
+        when (this) {
+            is List<*> -> {
+                java.util.List.copyOf(this)
+            }
+            is Collection<*> -> {
+                this.toList()
+            }
+            is Map<*, *> -> {
+                this.toMap()
+            }
+            else -> {
+                null
+            }
+        }
+    } catch (e: Exception) {
+        // ignore
+        null
 }
 
 @JvmSynthetic // avoid access from external Java code

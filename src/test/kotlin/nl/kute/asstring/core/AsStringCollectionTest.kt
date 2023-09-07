@@ -3,7 +3,13 @@ package nl.kute.asstring.core
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringOption
+import nl.kute.log.log
+import nl.kute.log.logger
+import nl.kute.log.resetStdOutLogger
+import nl.kute.test.base.ObjectsStackVerifier
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assumptions.assumeThat
+import org.awaitility.Awaitility
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -12,9 +18,14 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
+import org.opentest4j.TestAbortedException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Stream
+import kotlin.random.Random
 
-class AsStringCollectionTest {
+class AsStringCollectionTest: ObjectsStackVerifier {
 
     // will be like {0=..., 1=..., 2=..., 10=...}
     private val intStringMap = (0..10).map { it to (it+20).toString() }.toMap()
@@ -320,6 +331,161 @@ class AsStringCollectionTest {
         // act, assert
         assertThat(testObj.asString())
             .isEqualTo("TestClass(theMap={$expected, ...})")
+    }
+
+    @Test
+    fun `non-thread safe collections should be handled without exception, with defensive copy if needed`() {
+        // This test depends on a race condition that is hit in most cases, but not always.
+        // So it uses assumeThat() rather than assertThat() - which means it will not really fail
+
+        val maxTries = 10
+        var tryCount = 0
+        val elementsLimit = AsStringOption.defaultOption.elementsLimit
+
+        // exits when test succeeds, or maxTries is reached
+        while (true) {
+            tryCount++
+
+            try {// arrange
+                val result: String?
+                val unsafeList: ArrayList<Int> = ArrayList((0..150).toList())
+
+                // Buffer to store error message in
+                val logBuffer = StringBuffer()
+                logger = { msg -> logBuffer.append(msg) }
+
+                // Continuously modify list in separate thread
+                val threadList: MutableList<Thread> = mutableListOf()
+                val executors: MutableList<ExecutorService> =
+                    (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
+                val modifications = AtomicInteger(0)
+                val listModifier = Runnable {
+                    threadList.add(Thread.currentThread())
+                    var i = unsafeList.size
+                    while (true) {
+                        Thread.sleep(0, 1)
+                        try {
+                            val index = Random.nextInt(0, minOf(elementsLimit, unsafeList.size-1))
+                            unsafeList.add(index, i++)
+                        } catch (e: ConcurrentModificationException) {
+                            // ignore
+                        }
+                        modifications.incrementAndGet()
+                    }
+                }
+                try {
+                    // act
+                    executors.forEach { it.submit(listModifier) }
+                    Awaitility.await().until { modifications.get() > 0 }
+                    // On ConcurrentModificationException, asString should retry with a defensive copy
+                    result = unsafeList.asString()
+                } finally {
+                    executors.forEach { it.shutdownNow() }
+                    threadList.forEach { it.interrupt() }
+                }
+                // assert
+                assumeThat(result)
+                    .`as`("In most cases, a defensive copy of the collection can be taken," +
+                            " but it may run into a ConcurrentModificationException itself." +
+                            " If so, the output will be something like ArrayList@83af56e7")
+                    .matches("""\[(\d+, ){$elementsLimit}\.\.\.]""")
+                @Suppress("RegExpSimplifiable") // this inspection doesn't understand it actually...
+                assumeThat(logBuffer.toString())
+                    .`as`("In some cases, no ConcurrentModificationException is logged, so log content may be an empty String")
+                    .contains(
+                    "Warning: Non-thread safe collection/map was modified concurrently",
+                    ConcurrentModificationException::class.simpleName
+                )
+
+                resetStdOutLogger()
+                log("Test with non-threadsafe collection succeeded after $tryCount tries")
+                return // success
+
+            } catch (e: TestAbortedException) {
+                if (tryCount > maxTries) {
+                    resetStdOutLogger()
+                    log("Test failed after $tryCount tries")
+                    throw e // assume failed
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `non-thread safe maps should be handled without exception, with defensive copy if needed`() {
+        // This test depends on a race condition that is hit in most cases, but not always.
+        // So it uses assumeThat() rather than assertThat() - which means it will not really fail
+
+        val maxTries = 20
+        var tryCount = 0
+
+        // exits when test succeeds, or maxTries is reached
+        while (true) {
+            tryCount++
+            try {
+                // arrange
+                val result: String?
+                val unsafeMap: MutableMap<Int, Int> = mutableMapOf()
+
+                // Buffer to store error message in
+                val logBuffer = StringBuffer()
+                logger = { msg -> logBuffer.append(msg) }
+
+                // Continuously modify list in separate thread
+                val threadList: MutableList<Thread> = mutableListOf()
+                val executors: MutableList<ExecutorService> =
+                    (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
+                val modifications = AtomicInteger(0)
+                val mapModifier = Runnable {
+                    threadList.add(Thread.currentThread())
+                    var i = unsafeMap.size
+                    while (true) {
+                        Thread.sleep(0, 1)
+                        try {
+                            unsafeMap[unsafeMap.size] = i++
+                        } catch (e: ConcurrentModificationException) {
+                            // ignore
+                        }
+                        modifications.incrementAndGet()
+                    }
+                }
+                try {
+                    // act
+                    executors.forEach { it.submit(mapModifier) }
+                    Awaitility.await().until { modifications.get() > 0 }
+                    // On ConcurrentModificationException, asString should retry with a defensive copy
+                    result = unsafeMap.asString()
+                } finally {
+                    executors.forEach { it.shutdownNow() }
+                    threadList.forEach { it.interrupt() }
+                }
+                // assert
+                assumeThat(result)
+                    .`as`(
+                        "In most cases, a defensive copy of the map can be taken," +
+                                " but it may run into a ConcurrentModificationException itself." +
+                                " If so, the output will be something like LinkedHashMap@83af56e7"
+                    )
+                    .matches("""\{(\d+=\d+, )+((\d+=\d+)|(\.\.\.)?)}""")
+                assumeThat(logBuffer.toString())
+                    .`as`("In some cases, no ConcurrentModificationException is logged, so log content may be an empty String")
+                    .contains(
+                        "Warning: Non-thread safe collection/map was modified concurrently",
+                        ConcurrentModificationException::class.simpleName
+                    )
+
+                resetStdOutLogger()
+                log("Test with non-threadsafe map succeeded after $tryCount tries")
+                return // success
+
+            } catch (e: TestAbortedException) {
+                if (tryCount > maxTries) {
+                    resetStdOutLogger()
+                    log("Test failed after $tryCount tries")
+                    throw e // assume failed
+                }
+            }
+        }
     }
 }
 
