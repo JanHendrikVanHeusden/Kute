@@ -31,6 +31,15 @@ class ObjectsToStringDemo {
     }
 
     @Test
+    fun `Objects toString should accept null`() {
+        assumeThat(demosEnabled)
+            .`as`("Will succeed, Objects.toString() handles `null` as expected")
+            .isTrue
+
+        assertThat(Objects.toString(null)).isEqualTo("null")
+    }
+
+    @Test
     fun `Object with nested array should yield decent output with Objects toString`() {
         assumeThat(demosEnabled)
             .`as`("Would fail, nested array elements fall back to non-informative toString output with `Objects toString`")
@@ -301,7 +310,7 @@ class ObjectsToStringDemo {
                 // act, assert
                 assertThat(unsafeClass.toString())
                     .`as`("ConcurrentModificationException should be handled")
-                    .isNotNull()
+                    .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
                 threadList.forEach { it.interrupt() }
@@ -354,7 +363,7 @@ class ObjectsToStringDemo {
                 // act, assert
                 assertThat(unsafeClass.toString())
                     .`as`("ConcurrentModificationException should be handled")
-                    .isNotNull()
+                    .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
                 threadList.forEach { it.interrupt() }

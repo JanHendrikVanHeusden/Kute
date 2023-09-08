@@ -24,11 +24,32 @@ class ApacheToStringDemo {
     companion object {
         init {
             log(
-                "\nSeveral of the tests in ${ApacheToStringDemo::class.simplifyClassName()}, when enabled, would fail! " +
-                        "Demonstrating that `Apache ToStringBuilder()` will cause StackOverflowError with recursive stuff; " +
-                        "or otherwise fall back to non-informative output\n"
+                "\nSeveral of the tests in ${ApacheToStringDemo::class.simplifyClassName()}, when enabled, would fail!\n" +
+                        "Demonstrating that `Apache ToStringBuilder().reflectionToString()`:\n" +
+                        " * causes StackOverflowError with recursive stuff\n" +
+                        " * throws several other exceptions\n" +
+                        " * or may fall back to non-informative output\n"
             )
         }
+    }
+
+    @Test
+    fun `Apache's reflective ToStringBuilder should accept null and yield decent output`() {
+        assumeThat(demosEnabled)
+            .`as`("Will fail with NullPointerException")
+            .isTrue
+
+        assertThat(ToStringBuilder.reflectionToString(null).toString()).isNotNull
+    }
+
+    @Test
+    fun `Apache's non-reflective ToStringBuilder should accept null and give decent output`() {
+        assumeThat(demosEnabled)
+            .`as`("Will succeed with decent output")
+            .isTrue
+
+        assertThat(ToStringBuilder(null).toString())
+            .isEqualTo("<null>")
     }
 
     @Test
@@ -360,7 +381,7 @@ class ApacheToStringDemo {
                 // act, assert
                 assertThat(ToStringBuilder.reflectionToString(unsafeClass))
                     .`as`("ConcurrentModificationException should be handled")
-                    .isNotNull()
+                    .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
                 threadList.forEach { it.interrupt() }
@@ -412,7 +433,7 @@ class ApacheToStringDemo {
                 // act, assert
                 assertThat(ToStringBuilder.reflectionToString(unsafeClass))
                     .`as`("ConcurrentModificationException should be handled")
-                    .isNotNull()
+                    .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
                 threadList.forEach { it.interrupt() }
@@ -420,4 +441,32 @@ class ApacheToStringDemo {
         }
     }
 
+    @Test
+    fun `ToStringBuilder (non-reflective) should give proper output after refactoring property names` () {
+        assumeThat(demosEnabled)
+            .`as`("Will fail, demonstrating that Apache's non-reflective `ToStringBuilder` is not too maintenance-friendly")
+            .isTrue
+
+        class Person {
+            var name: String? = null
+            var age = 0
+            var isSmoker = true // refactored from `smoker` to `isSmoker`
+            private var willStopSmoking: () -> Boolean = { isSmoker && Random.nextBoolean() }
+            override fun toString(): String {
+                return ToStringBuilder(this)
+                    .append("name", name)
+                    .append("age", age)
+                    .append("smoker", isSmoker) // refactored
+                    .append("willStopSmoking", willStopSmoking)
+                    .append("some string to be appended")
+                    .toString()
+            }
+        }
+        val result = Person().toString()
+        assertThat(result)
+            .contains("willStopSmoking=() -> kotlin.Boolean") // will succeed
+            .endsWith("some string to be appended]") // will succeed
+            .`as`("Should contain refactored property name")
+            .contains("isSmoker=smoker") // will fail, showing why it's less maintenance-friendly
+    }
 }
