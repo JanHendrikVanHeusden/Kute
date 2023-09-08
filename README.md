@@ -22,7 +22,7 @@ Currently, **Kute** aims to be a <u>better</u> alternative to
     * Works very well; but the Lombok plugin does not work properly with later versions of IntelliJ.<br>
       And Lombok and Kotlin are not always friends.
 * `Gson` and `Jackson`
-    * Good solutions for regular attributes, but not useful for
+    * Good solutions for regular attributes, but intended in first place for serialization, not for `String` representation in logging, etc.
 * IDE generated `toString()` methods
 * Home-grown solutions
 
