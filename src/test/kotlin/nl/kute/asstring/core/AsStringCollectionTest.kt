@@ -354,7 +354,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                 val logBuffer = StringBuffer()
                 logger = { msg -> logBuffer.append(msg) }
 
-                // Continuously modify list in separate thread
+                // Continuously modify list in separate threads
                 val threadList: MutableList<Thread> = mutableListOf()
                 val executors: MutableList<ExecutorService> =
                     (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
@@ -391,7 +391,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                     .matches("""\[(\d+, ){$elementsLimit}\.\.\.]""")
                 @Suppress("RegExpSimplifiable") // this inspection doesn't understand it actually...
                 assumeThat(logBuffer.toString())
-                    .`as`("In some cases, no ConcurrentModificationException is logged, so log content may be an empty String")
+                    .`as`("In some cases, ConcurrentModificationException is not logged, so log content may be an empty String")
                     .contains(
                     "Warning: Non-thread safe collection/map was modified concurrently",
                     ConcurrentModificationException::class.simpleName
@@ -404,7 +404,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
             } catch (e: TestAbortedException) {
                 if (tryCount > maxTries) {
                     resetStdOutLogger()
-                    log("Test failed after $tryCount tries")
+                    log("Test did not cause ConcurrentModificationException after $tryCount tries")
                     throw e // assume failed
                 }
             }
@@ -416,7 +416,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
         // This test depends on a race condition that is hit in most cases, but not always.
         // So it uses assumeThat() rather than assertThat() - which means it will not really fail
 
-        val maxTries = 20
+        val maxTries = 10
         var tryCount = 0
 
         // exits when test succeeds, or maxTries is reached
@@ -431,7 +431,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                 val logBuffer = StringBuffer()
                 logger = { msg -> logBuffer.append(msg) }
 
-                // Continuously modify list in separate thread
+                // Continuously modify list in separate threads
                 val threadList: MutableList<Thread> = mutableListOf()
                 val executors: MutableList<ExecutorService> =
                     (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
@@ -452,7 +452,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                 try {
                     // act
                     executors.forEach { it.submit(mapModifier) }
-                    Awaitility.await().until { modifications.get() > 0 }
+                    Awaitility.await().until { unsafeMap.size > 10 }
                     // On ConcurrentModificationException, asString should retry with a defensive copy
                     result = unsafeMap.asString()
                 } finally {
@@ -468,7 +468,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                     )
                     .matches("""\{(\d+=\d+, )+((\d+=\d+)|(\.\.\.)?)}""")
                 assumeThat(logBuffer.toString())
-                    .`as`("In some cases, no ConcurrentModificationException is logged, so log content may be an empty String")
+                    .`as`("In some cases, ConcurrentModificationException is not logged, so log content may be an empty String")
                     .contains(
                         "Warning: Non-thread safe collection/map was modified concurrently",
                         ConcurrentModificationException::class.simpleName
@@ -481,7 +481,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
             } catch (e: TestAbortedException) {
                 if (tryCount > maxTries) {
                     resetStdOutLogger()
-                    log("Test failed after $tryCount tries")
+                    log("Test did not cause ConcurrentModificationException after $tryCount tries")
                     throw e // assume failed
                 }
             }

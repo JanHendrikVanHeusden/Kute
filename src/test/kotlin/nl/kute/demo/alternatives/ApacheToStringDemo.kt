@@ -1,14 +1,20 @@
 package nl.kute.demo.alternatives
 
 import nl.kute.log.log
+import nl.kute.log.logger
 import nl.kute.reflection.util.simplifyClassName
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
+import org.awaitility.Awaitility
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.LinkedList
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.random.Random
 
 class ApacheToStringDemo {
 
@@ -170,7 +176,7 @@ class ApacheToStringDemo {
         log(toString)
 
         assertThat(toString)
-            .isEqualTo("[first, (this Collection), third, (this Collection)]")
+            .contains("java.util.ArrayList", "[size=")
     }
 
     @Test
@@ -311,4 +317,107 @@ class ApacheToStringDemo {
             assertThat(toString).isNotNull()
         }
     }
+
+    @Test
+    fun `non-thread safe collections should be handled without ConcurrentModificationException`() {
+
+        assumeThat(demosEnabled)
+            .`as`("Will usually fail when enabled, `Apache ToStringBuilder` does not handle ConcurrentModificationException")
+            .isTrue
+
+        // This test depends on a race condition that is hit in most cases, but not always.
+        // So sometimes the test might succeed
+        repeat(10) {
+            // arrange
+            class UnsafeClass {
+                val unsafeList: ArrayList<Int> = ArrayList((0..150).toList())
+            }
+
+            val unsafeClass = UnsafeClass()
+
+            // Continuously modify list in separate threads
+            val threadList: MutableList<Thread> = mutableListOf()
+            val executors: MutableList<ExecutorService> =
+                (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
+            val modifications = AtomicInteger(0)
+            val listModifier = Runnable {
+                threadList.add(Thread.currentThread())
+                var i = unsafeClass.unsafeList.size
+                while (true) {
+                    Thread.sleep(0, 1)
+                    try {
+                        val index = Random.nextInt(0, unsafeClass.unsafeList.size - 1)
+                        unsafeClass.unsafeList.add(index, i++)
+                    } catch (e: ConcurrentModificationException) {
+                        // ignore
+                    }
+                    modifications.incrementAndGet()
+                }
+            }
+            try {
+                executors.forEach { it.submit(listModifier) }
+                Awaitility.await().until { modifications.get() > 0 }
+                // act, assert
+                assertThat(ToStringBuilder.reflectionToString(unsafeClass))
+                    .`as`("ConcurrentModificationException should be handled")
+                    .isNotNull()
+            } finally {
+                executors.forEach { it.shutdownNow() }
+                threadList.forEach { it.interrupt() }
+            }
+        }
+    }
+
+    @Test
+    fun `non-thread safe maps should be handled without ConcurrentModificationException`() {
+
+        assumeThat(demosEnabled)
+            .`as`("Will usually fail when enabled, `Apache ToStringBuilder` does not handle ConcurrentModificationException")
+            .isTrue
+
+        // This test depends on a race condition that is hit in most cases, but not always.
+        // So sometimes the test might succeed
+        repeat(10) {
+            // arrange
+            class UnsafeClass {
+                val unsafeMap: MutableMap<Int, Int> = mutableMapOf()
+            }
+
+            val unsafeClass = UnsafeClass()
+            // Buffer to store error message in
+            val logBuffer = StringBuffer()
+            logger = { msg -> logBuffer.append(msg) }
+
+            // Continuously modify list in separate threads
+            val threadList: MutableList<Thread> = mutableListOf()
+            val executors: MutableList<ExecutorService> =
+                (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
+            val modifications = AtomicInteger(0)
+            val mapModifier = Runnable {
+                threadList.add(Thread.currentThread())
+                var i = unsafeClass.unsafeMap.size
+                while (true) {
+                    Thread.sleep(0, 1)
+                    try {
+                        unsafeClass.unsafeMap[unsafeClass.unsafeMap.size + 1] = i++
+                    } catch (e: ConcurrentModificationException) {
+                        // ignore
+                    }
+                    modifications.incrementAndGet()
+                }
+            }
+            try {
+                executors.forEach { it.submit(mapModifier) }
+                Awaitility.await().until { unsafeClass.unsafeMap.size > 10 }
+                // act, assert
+                assertThat(ToStringBuilder.reflectionToString(unsafeClass))
+                    .`as`("ConcurrentModificationException should be handled")
+                    .isNotNull()
+            } finally {
+                executors.forEach { it.shutdownNow() }
+                threadList.forEach { it.interrupt() }
+            }
+        }
+    }
+
 }

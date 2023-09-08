@@ -1,13 +1,19 @@
 package nl.kute.demo.alternatives
 
 import nl.kute.log.log
+import nl.kute.log.logger
 import nl.kute.reflection.util.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
+import org.awaitility.Awaitility
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.LinkedList
 import java.util.Objects
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.random.Random
 
 class ObjectsToStringDemo {
 
@@ -25,10 +31,11 @@ class ObjectsToStringDemo {
     }
 
     @Test
-    fun `Object with nested array causes stack overflow with Objects toString`() {
+    fun `Object with nested array should yield decent output with Objects toString`() {
         assumeThat(demosEnabled)
-            .`as`("No recursion here, just a nested array, yet `Objects.toString()` causes stack overflow")
+            .`as`("Would fail, nested array elements fall back to non-informative toString output with `Objects toString`")
             .isTrue
+
 
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3)
@@ -36,10 +43,12 @@ class ObjectsToStringDemo {
                 myArray[2] = arrayOf(4, 5, 6)
             }
 
-            override fun toString(): String = Objects.toString(this)
+            override fun toString(): String = Objects.toString(myArray)
         }
         val testObj = MyTestClass()
-        assertThat(testObj.toString()).isNotNull
+        val result = testObj.toString()
+        assertThat(result)
+            .doesNotMatch("""\[Ljava.lang.Object;@[a-z0-9]+.*""")
     }
 
     @Test
@@ -60,9 +69,9 @@ class ObjectsToStringDemo {
     }
 
     @Test
-    fun `Objects with array properties with self-referencing elements cause stack overflow with Objects toString`() {
+    fun `Objects with array properties with self-referencing elements should be handled without exception`() {
         assumeThat(demosEnabled)
-            .`as`("Would fail, self referencing array elements cause StackOverflowError with `Objects.toString()`")
+            .`as`("Would succeed, does not cause StackOverflowError with `Objects.toString()`")
             .isTrue
 
         class MyTestClass {
@@ -73,7 +82,7 @@ class ObjectsToStringDemo {
                 myArray[4] = myArray
             }
 
-            override fun toString() = Objects.toString(this)
+            override fun toString() = Objects.toString(myArray)
         }
         val myArraysObject = MyTestClass()
         val stringVal = myArraysObject.toString()
@@ -83,7 +92,7 @@ class ObjectsToStringDemo {
     @Test
     fun `Objects with array properties with mutually referencing elements cause stack overflow with Objects toString`() {
         assumeThat(demosEnabled)
-            .`as`("Would fail, mutually referencing array elements cause StackOverflowError with `Objects.toString()`")
+            .`as`("Would succeed, mutually referencing array elements do not cause StackOverflowError with `Objects.toString()`")
             .isTrue
 
         class MyTestClass {
@@ -96,7 +105,7 @@ class ObjectsToStringDemo {
                 myList[1] = myArray
             }
 
-            override fun toString() = Objects.toString(this)
+            override fun toString() = Objects.toString(myArray)
         }
         val myArraysObject = MyTestClass()
         val stringVal = myArraysObject.toString()
@@ -140,7 +149,7 @@ class ObjectsToStringDemo {
 
     @Suppress("unused")
     private class GetSelfReference (val id: Int, var selfRef: GetSelfReference? = null, var otherRef: GetSelfReference? = null) {
-        override fun toString(): String = Objects.toString(this)
+        override fun toString(): String = Objects.toString(selfRef)
     }
 
     @Test
@@ -165,17 +174,16 @@ class ObjectsToStringDemo {
             .isTrue
 
         class Parent(val name: String, val children: MutableSet<Any> = mutableSetOf()) {
-            override fun toString(): String = Objects.toString(this)
+            override fun toString(): String = Objects.toString(children)
         }
 
-        @Suppress("CanBeParameter")
         class Child(val name: String, val mother: Parent, val father: Parent) {
             init {
                 mother.children.add(this)
                 father.children.add(this)
             }
 
-            override fun toString(): String = Objects.toString(this)
+            override fun toString(): String = Objects.toString(mother) + " " + Objects.toString(father)
         }
 
         val mother = Parent(name = "M")
@@ -205,7 +213,7 @@ class ObjectsToStringDemo {
                 }
             }
 
-            override fun toString(): String = Objects.toString(this)
+            override fun toString(): String = Objects.toString(uninitializedStringVar)
         }
         assertThat(WithLateinits().toString()).isNotNull
     }
@@ -219,44 +227,9 @@ class ObjectsToStringDemo {
         @Suppress("unused")
         class WithUninitializedLateinit {
             lateinit var uninitializedStringVar: String
-            override fun toString(): String = Objects.toString(this)
+            override fun toString(): String = Objects.toString(uninitializedStringVar)
         }
         assertThat(WithUninitializedLateinit().toString()).isNotNull
-    }
-
-    @Test
-    fun `object with initialized lateinit and init block causes stack overflow with Objects toString`() {
-        assumeThat(demosEnabled)
-            .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
-            .isTrue
-
-        class WithInitializedLateinit {
-            lateinit var initializedStringVar: String
-            init {
-                if (LocalDate.now().isAfter(LocalDate.of(2000, 1, 1))) {
-                    initializedStringVar = "I am initialized"
-                }
-            }
-
-            override fun toString(): String = Objects.toString(this)
-        }
-        assertThat(WithInitializedLateinit().toString()).isNotNull
-    }
-
-    @Test
-    fun `object with initialized lateinit causes stack overflow with Objects toString`() {
-        assumeThat(demosEnabled)
-            .`as`("Initialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
-            .isTrue
-
-        class WithInitializedLateinit {
-            lateinit var initializedStringVar: String
-            override fun toString(): String = Objects.toString(this)
-        }
-
-        val objToTest = WithInitializedLateinit()
-        objToTest.initializedStringVar = "I am initialized"
-        assertThat(objToTest.toString()).isNotNull
     }
 
     @Test
@@ -282,6 +255,110 @@ class ObjectsToStringDemo {
             // Nice!
             println(toString)
             assertThat(toString).isNotNull()
+        }
+    }
+
+    @Test
+    fun `non-thread safe collections should be handled without ConcurrentModificationException`() {
+
+        assumeThat(demosEnabled)
+            .`as`("Will usually fail when enabled, `Objects.toString()` does not handle ConcurrentModificationException")
+            .isTrue
+
+        // This test depends on a race condition that is hit in most cases, but not always.
+        // So sometimes the test might succeed
+        repeat(10) {
+            // arrange
+            class UnsafeClass {
+                val unsafeList: ArrayList<Int> = ArrayList((0..150).toList())
+                override fun toString(): String = Objects.toString(unsafeList)
+            }
+
+            val unsafeClass = UnsafeClass()
+
+            // Continuously modify list in separate threads
+            val threadList: MutableList<Thread> = mutableListOf()
+            val executors: MutableList<ExecutorService> =
+                (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
+            val modifications = AtomicInteger(0)
+            val listModifier = Runnable {
+                threadList.add(Thread.currentThread())
+                var i = unsafeClass.unsafeList.size
+                while (true) {
+                    Thread.sleep(0, 1)
+                    try {
+                        val index = Random.nextInt(0, unsafeClass.unsafeList.size - 1)
+                        unsafeClass.unsafeList.add(index, i++)
+                    } catch (e: ConcurrentModificationException) {
+                        // ignore
+                    }
+                    modifications.incrementAndGet()
+                }
+            }
+            try {
+                executors.forEach { it.submit(listModifier) }
+                Awaitility.await().until { modifications.get() > 0 }
+                // act, assert
+                assertThat(unsafeClass.toString())
+                    .`as`("ConcurrentModificationException should be handled")
+                    .isNotNull()
+            } finally {
+                executors.forEach { it.shutdownNow() }
+                threadList.forEach { it.interrupt() }
+            }
+        }
+    }
+
+    @Test
+    fun `non-thread safe maps should be handled without ConcurrentModificationException`() {
+
+        assumeThat(demosEnabled)
+            .`as`("Will usually fail when enabled, `Objects.toString()` does not handle ConcurrentModificationException")
+            .isTrue
+
+        // This test depends on a race condition that is hit in most cases, but not always.
+        // So sometimes the test might succeed
+        repeat(10) {
+            // arrange
+            class UnsafeClass {
+                val unsafeMap: MutableMap<Int, Int> = mutableMapOf()
+                override fun toString(): String = Objects.toString(unsafeMap)
+            }
+
+            val unsafeClass = UnsafeClass()
+            // Buffer to store error message in
+            val logBuffer = StringBuffer()
+            logger = { msg -> logBuffer.append(msg) }
+
+            // Continuously modify list in separate threads
+            val threadList: MutableList<Thread> = mutableListOf()
+            val executors: MutableList<ExecutorService> =
+                (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
+            val modifications = AtomicInteger(0)
+            val mapModifier = Runnable {
+                threadList.add(Thread.currentThread())
+                var i = unsafeClass.unsafeMap.size
+                while (true) {
+                    Thread.sleep(0, 1)
+                    try {
+                        unsafeClass.unsafeMap[unsafeClass.unsafeMap.size + 1] = i++
+                    } catch (e: ConcurrentModificationException) {
+                        // ignore
+                    }
+                    modifications.incrementAndGet()
+                }
+            }
+            try {
+                executors.forEach { it.submit(mapModifier) }
+                Awaitility.await().until { unsafeClass.unsafeMap.size > 10 }
+                // act, assert
+                assertThat(unsafeClass.toString())
+                    .`as`("ConcurrentModificationException should be handled")
+                    .isNotNull()
+            } finally {
+                executors.forEach { it.shutdownNow() }
+                threadList.forEach { it.interrupt() }
+            }
         }
     }
 }
