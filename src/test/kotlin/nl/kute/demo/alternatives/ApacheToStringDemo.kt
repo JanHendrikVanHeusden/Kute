@@ -53,6 +53,22 @@ class ApacheToStringDemo {
     }
 
     @Test
+    fun `Apache's reflective ToStringBuilder should give yield decent output on 'this'`() {
+        assumeThat(demosEnabled)
+            .`as`("Will succeed when enabled")
+            .isTrue
+
+        @Suppress("unused")
+        class MyClass {
+            val myProp: String = "my prop value"
+            override fun toString(): String = ToStringBuilder.reflectionToString(this)
+        }
+
+        val result = MyClass().toString()
+        assertThat(result).endsWith("[myProp=my prop value]")
+    }
+
+    @Test
     fun `Object with array properties should yield decent output with Apache ToStringBuilder - same as contentDeepToString`() {
         assumeThat(demosEnabled)
             .`as`("Will succeed when enabled, nested arrays give decent toString output with `Apache ToStringBuilder`")

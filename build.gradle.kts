@@ -96,32 +96,37 @@ dependencies {
     val pitestJUnit5PluginVersion by System.getProperties()
     val commonsLangVersion by System.getProperties()
     val commonsIoVersion by System.getProperties()
+    val gsonVersion by System.getProperties()
 
+    // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    // Used by Gradle tasks
     compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
     compileOnly("commons-io:commons-io:$commonsIoVersion")
 
-    // Used in tests only.
-    // Do not use it in source code, packaged Kute should not rely on any external dependency
-    testImplementation("org.apache.commons:commons-lang3:$commonsLangVersion")
-
-    // These inherit version from Kotlin version
+    // Test stuff that inherit version from Kotlin version
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 
+    // JUnit test dependencies
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
     testImplementation("org.junit.platform:junit-platform-suite-api:$junitPlatformVersion")
 
+    // Other test dependencies
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
     testImplementation("org.assertj:assertj-core:$assertJVersion")
     testImplementation("org.awaitility:awaitility:$awaitilityVersion")
-
     // must be specified explicitly, otherwise runtime exception on task pitest
     testRuntimeOnly("org.pitest:pitest-junit5-plugin:$pitestJUnit5PluginVersion")
+
+    // Common libraries - to be used in tests only !
+    // Do NOT use these in source code, packaged Kute should not rely on ANY external dependency
+    testImplementation("org.apache.commons:commons-lang3:$commonsLangVersion")
+    testImplementation("com.google.code.gson:gson:$gsonVersion")
 }
 
 dependencyCheck {

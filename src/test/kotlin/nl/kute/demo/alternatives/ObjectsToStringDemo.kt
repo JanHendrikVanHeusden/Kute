@@ -33,10 +33,45 @@ class ObjectsToStringDemo {
     @Test
     fun `Objects toString should accept null`() {
         assumeThat(demosEnabled)
-            .`as`("Will succeed, Objects.toString() handles `null` as expected")
+            .`as`("Will succeed when enabled, Objects.toString() handles `null` as expected")
             .isTrue
 
         assertThat(Objects.toString(null)).isEqualTo("null")
+    }
+
+    @Test
+    fun `Objects toString should not throw StackOverflowError on 'this'`() {
+        assumeThat(demosEnabled)
+            .`as`("Will fail with StackOverflowError when enabled")
+            .isTrue
+
+        class MyClass {
+            // looks intuitive, doesn't it? but... throws StackOverflowError :-()
+            override fun toString(): String = Objects.toString(this)
+        }
+
+        assertThat(MyClass().toString()).isNotNull
+    }
+
+    @Test
+    fun `Objects toString should yield property values on a custom object`() {
+        assumeThat(demosEnabled)
+            .`as`("Will fail, it does not display the properies :-( ")
+            .isTrue
+
+        @Suppress("unused")
+        class MyClass {
+            val prop1 = "value of prop 1"
+            val prop2 = "value of prop 2"
+        }
+
+        assertThat(Objects.toString(MyClass()))
+            // Will be something like "nl.kute.demo.alternatives.ObjectsToStringDemo$Objects toString should yield property values on a custom object$MyClass@7ce69770"
+            .contains("MyClass") // OK
+            .contains("prop1=") // fails
+            .contains("prop2=") // fails
+            .contains("value of prop 1") // fails
+            .contains("value of prop 2") // fails
     }
 
     @Test
