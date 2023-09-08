@@ -2,6 +2,8 @@
 
 # PropertyRankingByType
 
+@[AsStringClassOption](../../nl.kute.asstring.annotation.option/-as-string-class-option/index.md)(includeCompanion = false)
+
 open class [PropertyRankingByType](index.md) : [PropertyRanking](../-property-ranking/index.md)
 
 Provides ranking for ordering properties in [nl.kute.asstring.core.asString](../../nl.kute.asstring.core/as-string.md) output, based on [PropertyValueMetaData.returnType](../-property-value-meta-data/return-type.md). Intended mainly to keep known basic types with not too long `toString()`-representations ordered first

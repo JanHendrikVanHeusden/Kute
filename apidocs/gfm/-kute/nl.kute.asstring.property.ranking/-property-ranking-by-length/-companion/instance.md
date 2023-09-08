@@ -3,6 +3,9 @@
 # instance
 
 [jvm]\
+
+@[AsStringOmit](../../../nl.kute.asstring.annotation.modify/-as-string-omit/index.md)
+
 var [instance](instance.md): [PropertyRankingByLength](../index.md)
 
 Singleton instance of [PropertyRankingByLength](../index.md)

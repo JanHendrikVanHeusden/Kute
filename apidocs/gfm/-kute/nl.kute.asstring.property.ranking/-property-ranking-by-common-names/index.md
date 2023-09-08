@@ -2,6 +2,8 @@
 
 # PropertyRankingByCommonNames
 
+@[AsStringClassOption](../../nl.kute.asstring.annotation.option/-as-string-class-option/index.md)(includeCompanion = true, toStringPreference = ToStringPreference.USE_ASSTRING)
+
 open class [PropertyRankingByCommonNames](index.md) : [PropertyRanking](../-property-ranking/index.md)
 
 Provides ranking for ordering properties in [nl.kute.asstring.core.asString](../../nl.kute.asstring.core/as-string.md) output, based on common property names and suffixes, combined with value lengths.
@@ -39,4 +41,4 @@ It is intended to demonstrate usage of naming conventions (together with lengths
 | [getRank](get-rank.md) | [jvm]<br>open override fun [getRank](get-rank.md)(propertyValueMetaData: [PropertyValueMetaData](../-property-value-meta-data/index.md)): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) |
 | [hashCode](../-property-ranking/hash-code.md) | [jvm]<br>open override fun [hashCode](../-property-ranking/hash-code.md)(): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) |
 | [register](../-property-ranking/register.md) | [jvm]<br>override fun [register](../-property-ranking/register.md)()<br>Register this concrete [PropertyRankable](../-property-rankable/index.md) class to allow using it for ordering properties in [nl.kute.asstring.core.asString](../../nl.kute.asstring.core/as-string.md) output. |
-| [toString](../-property-ranking/to-string.md) | [jvm]<br>open override fun [toString](../-property-ranking/to-string.md)(): [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |
+| [toString](to-string.md) | [jvm]<br>open override fun [toString](to-string.md)(): [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |

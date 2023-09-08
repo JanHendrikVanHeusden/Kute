@@ -9,4 +9,4 @@ object [Companion](index.md)
 
 | Name | Summary |
 |---|---|
-| [instance](instance.md) | [jvm]<br>val [instance](instance.md): [PropertyRankingByType](../index.md)<br>Singleton instance of [PropertyRankingByType](../index.md) |
+| [instance](instance.md) | [jvm]<br>@[AsStringOmit](../../../nl.kute.asstring.annotation.modify/-as-string-omit/index.md)<br>val [instance](instance.md): [PropertyRankingByType](../index.md)<br>Singleton instance of [PropertyRankingByType](../index.md) |

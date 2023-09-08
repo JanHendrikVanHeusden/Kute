@@ -2,6 +2,8 @@
 
 # NoOpPropertyRanking
 
+@[AsStringClassOption](../../nl.kute.asstring.annotation.option/-as-string-class-option/index.md)(includeCompanion = false)
+
 class [NoOpPropertyRanking](index.md) : [PropertyRanking](../-property-ranking/index.md)
 
 Class to explicitly specify that properties need not be ordered

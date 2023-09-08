@@ -3,6 +3,9 @@
 # instance
 
 [jvm]\
+
+@[AsStringOmit](../../../nl.kute.asstring.annotation.modify/-as-string-omit/index.md)
+
 val [instance](instance.md): [PropertyRankingByCommonNames](../index.md)
 
 Singleton instance of [PropertyRankingByCommonNames](../index.md)
