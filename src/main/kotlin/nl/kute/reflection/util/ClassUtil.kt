@@ -16,6 +16,8 @@ internal fun String.simplifyClassName() =
 internal fun KClass<*>.simplifyClassName(): String =
     try {
         simpleName ?: toString().simplifyClassName()
+    } catch (e: InterruptedException) {
+        throw e
     } catch (e: Exception) {
         toString()
     }

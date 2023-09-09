@@ -57,6 +57,8 @@ public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplie
         get() {
             return try {
                 (supplierReference.get())?.invoke()
+            } catch (e: InterruptedException) {
+                throw e
             } catch (e: Exception) {
                 log("Exception ${e::class.simplifyClassName()} while evaluating supplier of ${this::class.simplifyClassName()}: ${e.throwableAsString()} ")
                 return null

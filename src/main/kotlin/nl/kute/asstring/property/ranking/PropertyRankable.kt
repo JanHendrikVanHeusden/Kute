@@ -128,6 +128,8 @@ private fun <T: PropertyRankable<T>> KClass<out T>.getInstance(): T? {
             .getter
             .also { it.isAccessible = true }
             .call(this.companionObjectInstance!!) as T?
+    } catch (e: InterruptedException) {
+        throw e
     } catch (e: Exception) {
         // ignore
          null
@@ -139,6 +141,8 @@ private fun <T: PropertyRankable<T>> KClass<out T>.constructInstance(): T? {
         this.constructors.firstOrNull { it.parameters.isEmpty() }
             ?.also { it.isAccessible = true }
             ?.call()
+    } catch (e: InterruptedException) {
+        throw e
     } catch (e: Exception) {
         // ignore
         null

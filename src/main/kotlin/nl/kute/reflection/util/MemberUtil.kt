@@ -67,6 +67,8 @@ internal val classToStringMethodCache = MapCache<KClass<*>, Pair<KFunction<*>?, 
 internal fun KProperty<*>.declaringClass(): KClass<*>? =
     try {
         this?.javaGetter?.declaringClass?.kotlin ?: this?.javaField?.declaringClass?.kotlin
+    } catch (e: InterruptedException) {
+        throw e
     } catch (e: Exception) {
         logWithCaller(fqn, "${e.javaClass.name.simplifyClassName()} occurred when retrieving declaring class of property [${this?.name}]; exception: ${e.throwableAsString()}")
         null

@@ -217,11 +217,15 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                     " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
             return obj.cloneCollectionLikeStuff()?.asString(propertyNamesToExclude, *nameValues, elementsLimit = elementsLimit)
                 ?: obj.asStringFallBack()
+        } catch (e: InterruptedException) {
+            throw e
         } catch (e: Exception) {
             log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
                     " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
             return obj.asStringFallBack()
         }
+    } catch (e: InterruptedException) {
+        throw e
     } catch (e: Exception) {
         // Should not happen!
         // It's probably a secondary exception somewhere. Not much more we can do here
@@ -400,6 +404,8 @@ private fun Any.cloneCollectionLikeStuff(): Any? =
                 null
             }
         }
+    } catch (e: InterruptedException) {
+        throw e
     } catch (e: Exception) {
         // ignore
         null
@@ -424,6 +430,8 @@ internal fun KClass<*>.companionAsString(): String {
             }
             return "companion: " + this.companionObjectInstance.asString()
         }
+    } catch (e: InterruptedException) {
+        throw e
     } catch (e: Exception) {
         log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
                 " for companion object of class ${this};$lineEnd${e.throwableAsString(50)}")

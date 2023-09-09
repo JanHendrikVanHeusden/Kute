@@ -49,6 +49,8 @@ internal fun AsStringReplace?.replacePattern(strVal: String?): String? =
         try {
             if (isRegexpPattern) strVal?.replace(cachingRegexFactory[pattern]!!, replacement)
             else strVal?.replace(pattern, replacement)
+        } catch (e: InterruptedException) {
+            throw e
         } catch (e: Exception) {
             // The property's value is probably sensitive
             // So make sure not to use the value in the error message

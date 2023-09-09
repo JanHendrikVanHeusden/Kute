@@ -55,11 +55,13 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
 
             else -> (digestMethod.instanceProvider!!.invoke() as MessageDigest).hashByAlgorithm(input, charset)
         }
-    } catch (t: Throwable) {
+    } catch (e: InterruptedException) {
+        throw e
+    } catch (e: Exception) {
         // The property's value is probably sensitive, so make sure not to use the value in the error message
         logWithCaller(
             "Hashing.hashString()",
-            "${t.javaClass.name.simplifyClassName()} occurred when hashing with digestMethod $digestMethod; exception: [${t.throwableAsString()}]"
+            "${e.javaClass.name.simplifyClassName()} occurred when hashing with digestMethod $digestMethod; exception: [${e.throwableAsString()}]"
         )
         null
     }

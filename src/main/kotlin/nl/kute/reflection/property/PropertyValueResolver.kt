@@ -50,6 +50,8 @@ internal fun <T : Any?, V : Any?> T.getPropValue(property: KProperty<V>?): V? {
                 }
             }
         }
+    } catch (e: InterruptedException) {
+        throw e
     } catch (e: Exception) {
         property?.handlePropValException(e)
         null

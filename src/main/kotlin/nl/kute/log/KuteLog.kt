@@ -8,6 +8,8 @@ import java.util.function.Consumer
 /** Logs message [msg] to [loggerWithCaller], prefixed by the receiver's class name  */
 public fun Any?.log(msg: Any?): Unit = try {
     loggerWithCaller("${this?.javaClass ?: ""}", msg)
+} catch (e: InterruptedException) {
+    throw e
 } catch (e: Exception) {
     e.printStackTrace() // not much else we can do
 }
@@ -16,6 +18,8 @@ public fun Any?.log(msg: Any?): Unit = try {
 @JvmSynthetic // avoid access from external Java code
 internal fun logWithCaller(caller: String, msg: Any?): Unit = try {
     loggerWithCaller(caller, msg)
+} catch (e: InterruptedException) {
+    throw e
 } catch (e: Exception) {
     e.printStackTrace() // not much else we can do
 }
@@ -51,6 +55,8 @@ public var logger: (String?) -> Unit = stdOutLogger
                 newLogger("")
             }
             field = newLogger // when no exception occurred
+        } catch (e: InterruptedException) {
+            throw e
         } catch (e: Exception) {
             field.invoke(
                 """Tried to set logger, but logger caused exception ${e::class}.

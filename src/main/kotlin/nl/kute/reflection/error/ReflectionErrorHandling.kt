@@ -35,7 +35,9 @@ internal fun KProperty<*>?.handlePropValException(exception: Exception) {
     val baseErrMsg: String =
         try {
             "${exception::class.simplifyClassName()} occurred when retrieving value of property [${this?.declaringClass()?.simplifyClassName()}.${this?.name}]; exception: ${exception.throwableAsString()}"
-        } catch (t: Throwable) {
+        } catch (e: InterruptedException) {
+            throw e
+        } catch (e: Exception) {
             "${exception::class} occurred when retrieving value of property [${this?.name}]; exception message: ${exception.message}; cause: ${exception.cause?.javaClass}"
         }
     try {
@@ -79,10 +81,14 @@ internal fun KProperty<*>?.handlePropValException(exception: Exception) {
                 log(baseErrMsg)
             }
         }
+    } catch (e: InterruptedException) {
+        throw e
     } catch (e1: Exception) {
         // Should never happen - just as a last resort
         try {
             logger.invoke(baseErrMsg)
+        } catch (e: InterruptedException) {
+            throw e
         } catch (e2: Exception) {
             // ignore
         }
