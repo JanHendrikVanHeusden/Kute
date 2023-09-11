@@ -1,8 +1,8 @@
 [← README.md](../README.md)
 
-- [**Kute** aims to be a <u>better</u> alternative to](#--kute---aims-to-be-a--u-better--u--alternative-to)
-- [How is **Kute** better than others for implementing `toString()`?](#how-is---kute---better-than-others-for-implementing--tostring----)
-    * [Compared to Apache's `ToStringBuilder`, `Objects.toString()`, `Lombok`, `Gson`, `Jackson`](#compared-to-apache-s--tostringbuilder----objectstostring------lombok----gson----jackson-)
+- [**Kute** aims to be a <u>better</u> alternative to other libraries](#kute-aims-to-be-a-better-alternative-to)
+- [How is **Kute** better than others for implementing `toString()`?](#how-is-kute-better-than-others-for-implementing-tostring)
+    * [Compared to Apache's `ToStringBuilder`, `Objects.toString()`, `Lombok`, `Gson`, `Jackson`](#compared-to-apaches-tostringbuilder-objectstostring-lombok-gson-jackson)
 
 <hr>
 

@@ -1,17 +1,17 @@
 # Kute
 
 - [Kute](#kute)
-    * [**Kute**?](#--kute---)
-        + [Basic ideas of Kute's `asString()`](#basic-ideas-of-kute-s--asstring---)
-    * [Aim of **Kute**](#aim-of---kute--)
-        + [**Kute** aims to be a <u>better</u> alternative to:](#--kute---aims-to-be-a--u-better--u--alternative-to-)
-        + [How is **Kute** better?](#how-is---kute---better-)
+    * [**Kute**?](#kute-1)
+        + [Basic ideas of Kute's `asString()`](#basic-ideas-of-kutes-asstring)
+    * [Aim of **Kute**](#aim-of-kute)
+        + [**Kute** aims to be a <u>better</u> alternative to other libraries](#kute-aims-to-be-a-better-alternative-to)
+        + [How is **Kute** better?](#how-is-kute-better)
     * [Compatibility](#compatibility)
         + [Java version](#java-version)
         + [Kotlin version](#kotlin-version)
         + [Dependencies](#dependencies)
-        + [Platform: JVM](#platform--jvm)
-            - [Porting to other platforms?](#porting-to-other-platforms-)
+        + [Platform: JVM](#platform-jvm)
+            - [Porting to other platforms?](#porting-to-other-platforms)
 
 ## **Kute**?
 
@@ -34,14 +34,16 @@ never getting in the way when developing great code (or when troubleshooting les
    * Exceptions should never propagate out of your `toString()`. Period.
        * Uhmmm... except `InterruptedException`
    * If your object model includes recursive data, you still want your `toString()` giving you the information you expect (without `StackOverflowError`)
+   * If your data is modified concurrently, you still don't want to have a `ConcurrentModificationException` thrown by your `toString()` method
 3. **<u>Decent & informative</u>**
    * Decent, informative, human-readable representation of just **any** object, whether your own custom-made stuff, library objects, or Java/Kotlin built-in stuff
 4. **<u>Customizable</u>**
-   * In practice, there will be some obstacles that you need to tackle.
+   * In practice, there will be some obstacles that you need to tackle, and where you want customization:
        * GDPR / Personally Identifiable Data
           * You may want to keep certain data out of log files
-       * Data that, if included, might cause performance issues
+       * Data that you want to exclude, as it might cause performance issues
           * E.g. `List` of children in JPA Entities
+       * etc.
 5. **Zero transitive dependencies**
    * See below, under [Compatibility → dependencies](#dependencies)
 
