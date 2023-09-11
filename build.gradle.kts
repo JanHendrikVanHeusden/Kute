@@ -65,14 +65,14 @@ repositories {
 plugins {
     // Values retrieved from gradle.properties
     // This seems about the only way; you cannot retrieve them otherwise from outside the plugins' scope
-    val kotlinVersion: String by System.getProperties()
+    val kotlinJvmPluginVersion: String by System.getProperties()
     val owaspDependencyCheckVersion: String by System.getProperties()
     val dependencyCheckVersion: String by System.getProperties()
     val dokkaVersion: String by System.getProperties()
     val pitestPluginVersion: String by System.getProperties()
     val koverVersion: String by System.getProperties()
 
-    kotlin("jvm") version kotlinVersion
+    kotlin("jvm") version kotlinJvmPluginVersion
 
     `java-library`
     `maven-publish`
