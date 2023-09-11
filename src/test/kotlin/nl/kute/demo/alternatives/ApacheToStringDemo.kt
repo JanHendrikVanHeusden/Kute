@@ -4,6 +4,7 @@ import nl.kute.log.log
 import nl.kute.log.logger
 import nl.kute.reflection.util.simplifyClassName
 import org.apache.commons.lang3.builder.ToStringBuilder
+import org.apache.commons.lang3.builder.ToStringExclude
 import org.apache.commons.lang3.builder.ToStringStyle
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
@@ -359,6 +360,30 @@ class ApacheToStringDemo {
     }
 
     @Test
+    fun `Apache ToStringBuilder should omit excluded properties when annotated with ToStringExcluded`() {
+        assumeThat(demosEnabled)
+            .`as`("Would succeed when enabled, `Apache ToStringBuilder` omits excluded properties")
+            .isTrue
+
+        @Suppress("unused")
+        open class MyClass {
+            val myIncludedField = "I should be included"
+            @ToStringExclude
+            val myExcludedField = "I should be excluded"
+
+            override fun toString() = ToStringBuilder.reflectionToString(this)
+        }
+
+        @Suppress("unused")
+        class MySubClass: MyClass() {
+            override fun toString() = ToStringBuilder.reflectionToString(this)
+        }
+
+        assertThat(MyClass().toString()).doesNotContain("myExcludedField")
+        assertThat(MySubClass().toString()).doesNotContain("myExcludedField")
+    }
+
+    @Test
     fun `synthetic types shouldn't cause exceptions with Apache's ToStringBuilder`() {
         assumeThat(demosEnabled)
             .`as`("This test would succeed if enabled: `ToStringBuilder.reflectionToString` handles synthetic types without exceptions")
@@ -509,4 +534,6 @@ class ApacheToStringDemo {
             .`as`("Should contain refactored property name")
             .contains("isSmoker=smoker") // will fail, showing why it's less maintenance-friendly
     }
+
+
 }
