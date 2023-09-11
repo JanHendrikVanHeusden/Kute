@@ -28,7 +28,7 @@ class ApacheToStringDemo {
                         "Demonstrating that `Apache ToStringBuilder().reflectionToString()`:\n" +
                         " * causes StackOverflowError with recursive stuff\n" +
                         " * throws several other exceptions\n" +
-                        " * or may fall back to non-informative output\n"
+                        " * may fall back to non-informative output\n"
             )
         }
     }
@@ -36,7 +36,7 @@ class ApacheToStringDemo {
     @Test
     fun `Apache's reflective ToStringBuilder should accept null and yield decent output`() {
         assumeThat(demosEnabled)
-            .`as`("Will fail with NullPointerException")
+            .`as`("Will fail with NullPointerException when enabled")
             .isTrue
 
         assertThat(ToStringBuilder.reflectionToString(null).toString()).isNotNull
@@ -53,7 +53,7 @@ class ApacheToStringDemo {
     }
 
     @Test
-    fun `Apache's reflective ToStringBuilder should give yield decent output on 'this'`() {
+    fun `Apache's reflective ToStringBuilder should yield decent output on 'this'`() {
         assumeThat(demosEnabled)
             .`as`("Will succeed when enabled")
             .isTrue
@@ -66,6 +66,29 @@ class ApacheToStringDemo {
 
         val result = MyClass().toString()
         assertThat(result).endsWith("[myProp=my prop value]")
+    }
+
+    @Test
+    fun `Apache's reflective ToStringBuilder should include supertype properties`() {
+        assumeThat(demosEnabled)
+            .`as`("Will succeed when enabled, Apache's `ToStringBuilder` includes supertype properties")
+            .isTrue
+
+        @Suppress("unused")
+        open class MyClass {
+            val myProp: String = "my prop value"
+            override fun toString(): String = ToStringBuilder.reflectionToString(this)
+        }
+
+        @Suppress("unused")
+        class MySubClass: MyClass() {
+            val mySubClassProp = "my subclass prop value"
+            // NB: No override of toString() here!
+        }
+
+        val result = MySubClass().toString()
+        assertThat(result)
+            .contains("mySubClassProp=my subclass prop value", "myProp=my prop value")
     }
 
     @Test
@@ -174,9 +197,10 @@ class ApacheToStringDemo {
     }
 
     @Test
-    fun `Objects with array properties fall back to non-informative toString output with Apache ToStringBuilder`() {
+    fun `Objects with mutually referencing array properties fall back to non-informative toString output with Apache ToStringBuilder`() {
         assumeThat(demosEnabled)
-            .`as`("Would fail, objects with array properties fall back to non-informative toString output with `Apache ToStringBuilder`")
+            .`as`("Would succeed, objects with mutually referencing array properties do not cause exceptions," +
+                    " but fall back to non-informative toString output with `Apache ToStringBuilder`")
             .isTrue
 
         class MyTestClass {
@@ -196,7 +220,7 @@ class ApacheToStringDemo {
 
         log(toString)
         // Not sufficiently useful output
-        assertThat(toString).doesNotMatch(""".*\[Ljava.lang.Object;@[a-z0-9]+.*""")
+        assertThat(toString).matches(""".*\[Ljava.lang.Object;@[a-z0-9]+.*""")
     }
 
     @Test
@@ -335,7 +359,7 @@ class ApacheToStringDemo {
     }
 
     @Test
-    fun `synthetic types shouldn't cause exceptions`() {
+    fun `synthetic types shouldn't cause exceptions with Apache's ToStringBuilder`() {
         assumeThat(demosEnabled)
             .`as`("This test would succeed if enabled: `ToStringBuilder.reflectionToString` handles synthetic types without exceptions")
             .isTrue

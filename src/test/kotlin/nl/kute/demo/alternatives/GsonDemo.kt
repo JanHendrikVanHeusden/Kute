@@ -1,109 +1,112 @@
 package nl.kute.demo.alternatives
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import nl.kute.log.log
 import nl.kute.log.logger
-import nl.kute.reflection.util.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
 import org.awaitility.Awaitility
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.LinkedList
-import java.util.Objects
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
-class ObjectsToStringDemo {
+class GsonDemo {
 
     // Set to true to enable the demos (not advised, several of them fail with stack overflow)
     private val demosEnabled = false
 
+    private val gsonWithNulls = GsonBuilder()
+        .serializeNulls().create()
+
     companion object {
         init {
             log(
-                "\nMost of the tests in ${ObjectsToStringDemo::class.simplifyClassName()}, when enabled, would fail! " +
-                        "Demonstrating that `Objects.toString()`\n" +
-                        " * simply calls the object's `toString()`\n" +
-                        "    * so still requires some `toString()` implementation\n" +
-                        "    * or otherwise fall back to non-informative output\n" +
-                        " * will cause StackOverflowError when called with `this` :-O \n" +
-                        " * will cause StackOverflowError with recursive stuff and other advanced constructs\n"
+                "\nIn some projects, Gson is used to produce toString() output, which isn't too bad at all.\n" +
+                        "But Gson is not really designed for that.\n" +
+                        " * It produces json, which is primarily designed for machine reading rather than human reading" +
+                        " * By default, it does not include `null` values\n" +
+                        " * It does not (and should not!) handle exceptions\n"
             )
         }
     }
 
     @Test
-    fun `Objects toString should accept null`() {
+    fun `Gson should accept null and yield decent output`() {
         assumeThat(demosEnabled)
-            .`as`("Will succeed when enabled, Objects.toString() handles `null` as expected")
+            .`as`("Will succeed when enabled")
             .isTrue
 
-        assertThat(Objects.toString(null)).isEqualTo("null")
+        val result = Gson().toJson(null)
+        assertThat(result).isEqualTo("null")
     }
 
     @Test
-    fun `Objects toString should not throw StackOverflowError on 'this'`() {
+    fun `Gson should yield decent output on 'this'`() {
         assumeThat(demosEnabled)
-            .`as`("Will fail with StackOverflowError when enabled")
-            .isTrue
-
-        class MyClass {
-            // looks intuitive, doesn't it? but... throws StackOverflowError :-()
-            override fun toString(): String = Objects.toString(this)
-        }
-
-        assertThat(MyClass().toString()).isNotNull
-    }
-
-    @Test
-    fun `Objects toString should yield property values on a custom object`() {
-        assumeThat(demosEnabled)
-            .`as`("Will fail, it does not display the properties :-( ")
+            .`as`("Will succeed when enabled")
             .isTrue
 
         @Suppress("unused")
         class MyClass {
-            val prop1 = "value of prop 1"
-            val prop2 = "value of prop 2"
+            val myProp: String = "my prop value"
+            override fun toString(): String = Gson().toJson(this)
         }
 
-        assertThat(Objects.toString(MyClass()))
-            // Will be something like
-            // "nl.kute.demo.alternatives.ObjectsToStringDemo$Objects toString should yield property values on a custom object$MyClass@7ce69770"
-            .contains("MyClass") // OK
-            .contains("prop1") // fails
-            .contains("prop2") // fails
-            .contains("value of prop 1") // fails
-            .contains("value of prop 2") // fails
+        val result = MyClass().toString()
+        assertThat(result).isEqualTo("""{"myProp":"my prop value"}""")
     }
 
     @Test
-    fun `Object with nested array should yield decent output with Objects toString`() {
+    fun `Gson should include supertype properties`() {
         assumeThat(demosEnabled)
-            .`as`("Would fail, nested array elements fall back to non-informative toString output with `Objects toString`")
+            .`as`("Will succeed when enabled, Gson includes supertype properties")
             .isTrue
 
+        @Suppress("unused")
+        open class MyClass {
+            val myProp: String = "my prop value"
+            override fun toString(): String = Gson().toJson(this)
+        }
+
+        @Suppress("unused")
+        class MySubClass: MyClass() {
+            val mySubClassProp = "my subclass prop value"
+            // NB: No override of toString() here!
+        }
+
+        val result = MySubClass().toString()
+        assertThat(result)
+            .contains(""""mySubClassProp":"my subclass prop value""", """myProp":"my prop value"""")
+    }
+
+    @Test
+    fun `Object with array properties should yield decent output with Gson - same as contentDeepToString`() {
+        assumeThat(demosEnabled)
+            .`as`("Will succeed when enabled, nested arrays give decent toString output with Gson")
+            .isTrue
 
         class MyTestClass {
             val myArray: Array<Any> = arrayOf(0, 1, 2, 3)
             init {
                 myArray[2] = arrayOf(4, 5, 6)
             }
-
-            override fun toString(): String = Objects.toString(myArray)
         }
         val testObj = MyTestClass()
-        val result = testObj.toString()
-        assertThat(result)
-            .doesNotMatch("""\[Ljava.lang.Object;@[a-z0-9]+.*""")
+        val toString = Gson().toJson(testObj)
+
+        println(toString)
+        assertThat(toString).isEqualTo("""{"myArray":[0,1,[4,5,6],3]}""")
     }
 
     @Test
-    fun `Arrays with self-referencing elements should yield decent output with Objects toString`() {
+    fun `Arrays with self-referencing elements fails with stack overflow with Gson`() {
         assumeThat(demosEnabled)
-            .`as`("Would fail, self referencing array elements fall back to non-informative toString output with `Objects toString`")
+            .`as`("Would fail when enabled, causes StackOverflowError with Gson")
             .isTrue
 
         val myArray: Array<Any> = arrayOf(0, 1, 2, 3, 4)
@@ -111,16 +114,14 @@ class ObjectsToStringDemo {
         myArray[3] = myArray
         myArray[4] = myArray
 
-        val toString = Objects.toString(myArray)
-        log(toString)
-        assertThat(toString)
-            .doesNotMatch("""\[Ljava.lang.Object;@[a-z0-9]+.*""")
+        val toString = Gson().toJson(myArray)
+        assertThat(toString).isNotNull
     }
 
     @Test
-    fun `Objects with array properties with self-referencing elements should be handled without exception`() {
+    fun `Objects with array properties with self-referencing elements cause stack overflow with Gson`() {
         assumeThat(demosEnabled)
-            .`as`("Would succeed, does not cause StackOverflowError with `Objects.toString()`")
+            .`as`("Would fail with StackOverflowError with Gson when enabled")
             .isTrue
 
         class MyTestClass {
@@ -131,17 +132,17 @@ class ObjectsToStringDemo {
                 myArray[4] = myArray
             }
 
-            override fun toString() = Objects.toString(myArray)
+            override fun toString() = Gson().toJson(this)
         }
         val myArraysObject = MyTestClass()
-        val stringVal = myArraysObject.toString()
-        assertThat(stringVal).isNotNull
+        val toString = myArraysObject.toString()
+        assertThat(toString).isNotNull
     }
 
     @Test
-    fun `Objects with array properties with mutually referencing elements cause stack overflow with Objects toString`() {
+    fun `Objects with mutually referencing array properties cause stack overflow with Gson`() {
         assumeThat(demosEnabled)
-            .`as`("Would succeed, mutually referencing array elements do not cause StackOverflowError with `Objects.toString()`")
+            .`as`("Would fail when enabled, objects with mutually referencing array properties cause StackOverflowError with Gson")
             .isTrue
 
         class MyTestClass {
@@ -154,34 +155,33 @@ class ObjectsToStringDemo {
                 myList[1] = myArray
             }
 
-            override fun toString() = Objects.toString(myArray)
+            override fun toString() = Gson().toJson(this)
         }
         val myArraysObject = MyTestClass()
-        val stringVal = myArraysObject.toString()
-        log(stringVal)
-        assertThat(stringVal).isNotNull
+        val toString = myArraysObject.toString()
+
+        assertThat(toString).isNotNull
     }
 
     @Test
-    fun `Collections with self-referencing elements should yield decent output with Objects toString`() {
+    fun `Collections with self-referencing elements cause stack overflow with Gson`() {
         assumeThat(demosEnabled)
-            .`as`("This test would succeed with decent output if enabled: Collections.toString handles self-reference correctly")
+            .`as`("Collection with self reference causes stack overflow with Gson")
             .isTrue
 
         val mutableList: MutableList<Any> = mutableListOf("first", "second", "third")
         mutableList[1] = mutableList // self reference
         mutableList.add(mutableList) // self reference
 
-        val toString = Objects.toString(mutableList)
-        log(toString)
-        assertThat(toString)
-            .isEqualTo("[first, (this Collection), third, (this Collection)]")
+        val toString = Gson().toJson(mutableList)
+
+        assertThat(toString).isNotNull
     }
 
     @Test
-    fun `Collections with mutually referencing elements cause stack overflow with Objects toString`() {
+    fun `Collections with mutually referencing elements cause stack overflow with Gson`() {
         assumeThat(demosEnabled)
-            .`as`("Would fail, mutually referencing collection elements cause StackOverflowError with `Objects.toString()`")
+            .`as`("Would fail, mutually referencing collection elements cause stack overfow with Gson")
             .isTrue
 
         val list1: MutableList<Any> = mutableListOf("first 1", "second 1", "third 1")
@@ -192,47 +192,55 @@ class ObjectsToStringDemo {
         list2.add(list1)
         list2.add(list1)
 
-        assertThat(Objects.toString(list1)).isNotNull
-        assertThat(Objects.toString(list2)).isNotNull
+        val toString1 = Gson().toJson(list1)
+        val toString2 = Gson().toJson(list2)
+        assertThat(toString1).isNotNull
+        assertThat(toString2).isNotNull
     }
 
     @Suppress("unused")
     private class GetSelfReference (val id: Int, var selfRef: GetSelfReference? = null, var otherRef: GetSelfReference? = null) {
-        override fun toString(): String = Objects.toString(selfRef)
+        override fun toString(): String = Gson().toJson(this)
     }
 
     @Test
-    fun `objects with self reference cause stack overflow with Objects toString`() {
+    fun `objects with self reference should yield decent output with Gson`() {
         assumeThat(demosEnabled)
-            .`as`("Object with self reference causes stack overflow with Objects toString")
+            .`as`("Will succeed if enabled, it provides useful output with Gson")
             .isTrue
 
         val testObj = GetSelfReference(1)
         val other = GetSelfReference(2)
         testObj.selfRef = testObj
         testObj.otherRef = other
-        val expected = "GetSelfReference(id=1, otherRef=GetSelfReference(id=2, otherRef=null, selfRef=null), selfRef=recursive: GetSelfReference(...))"
-        assertThat(Objects.toString(testObj)).isEqualTo(expected)
+
+        val toString = testObj.toString()
+        // "{"id":1,"otherRef":{"id":2}}"
+        println(toString)
+        // selfRef is not included, seems Gson keeps self-references out
+        assertThat(toString)
+            // .contains("selfRef") // would fail
+            .isEqualTo("""{"id":1,"otherRef":{"id":2}}""")
     }
 
     @Suppress("unused")
     @Test
-    fun `objects with mutual reference cause stack overflow with Objects toString`() {
+    fun `objects with mutual reference cause stack overflow with Gson`() {
         assumeThat(demosEnabled)
-            .`as`("Would fail, mutually referencing objects cause StackOverflowError with `Objects.toString()`")
+            .`as`("Would fail when enabled, throws StackOverflowError with Gson")
             .isTrue
 
         class Parent(val name: String, val children: MutableSet<Any> = mutableSetOf()) {
-            override fun toString(): String = Objects.toString(children)
+            override fun toString(): String = Gson().toJson(this)
         }
 
+        @Suppress("CanBeParameter")
         class Child(val name: String, val mother: Parent, val father: Parent) {
             init {
                 mother.children.add(this)
                 father.children.add(this)
             }
-
-            override fun toString(): String = Objects.toString(mother) + " " + Objects.toString(father)
+            override fun toString(): String = Gson().toJson(this)
         }
 
         val mother = Parent(name = "M")
@@ -240,20 +248,23 @@ class ObjectsToStringDemo {
         val child1 = Child("C1", mother, father)
         val child2 = Child("C2", mother, father)
 
-        assertThat(mother.toString()).isNotNull
-        assertThat(father.toString()).isNotNull
-        assertThat(child1.toString()).isNotNull
-        assertThat(child2.toString()).isNotNull
+        listOf(mother, father, child1, child2).forEach {
+            assertThat(it.toString())
+                .contains("name=M")
+                .contains("name=F")
+                .contains("C1")
+                .contains("C2")
+        }
     }
 
     @Test
-    fun `object with uninitialized lateinit property causes stack overflow with Objects toString`() {
+    fun `object with uninitialized lateinit property yields decent output with Gson`() {
         assumeThat(demosEnabled)
-            .`as`("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
+            .`as`("Would succeed when enabled, yields decent output for uninitialized lateinit var with Gson")
             .isTrue
 
         @Suppress("unused")
-        class WithLateinits {
+        class WithLateinit {
             lateinit var uninitializedStringVar: String
             lateinit var initializedStringVar: String
             init {
@@ -262,29 +273,16 @@ class ObjectsToStringDemo {
                 }
             }
 
-            override fun toString(): String = Objects.toString(uninitializedStringVar)
+            override fun toString(): String = gsonWithNulls.toJson(this)
         }
-        assertThat(WithLateinits().toString()).isNotNull
+        assertThat(WithLateinit().toString())
+            .isEqualTo("""{"uninitializedStringVar":null,"initializedStringVar":"I am initialized"}""")
     }
 
     @Test
-    fun `object with only uninitialized lateinit property causes stack overflow with Objects toString`() {
+    fun `synthetic types shouldn't cause exceptions with Gson`() {
         assumeThat(demosEnabled)
-            .`as`("Uninitialized lateinit var causes stack overflow with `Objects.toString`, even without recursion`")
-            .isTrue
-
-        @Suppress("unused")
-        class WithUninitializedLateinit {
-            lateinit var uninitializedStringVar: String
-            override fun toString(): String = Objects.toString(uninitializedStringVar)
-        }
-        assertThat(WithUninitializedLateinit().toString()).isNotNull
-    }
-
-    @Test
-    fun `synthetic types shouldn't cause exceptions with Objects toString`() {
-        assumeThat(demosEnabled)
-            .`as`("This test would succeed if enabled: `Objects.toString()` yields decent output on synthetic types")
+            .`as`("This test would succeed if enabled: Gson handles synthetic types without exceptions")
             .isTrue
 
         // arrange
@@ -296,22 +294,19 @@ class ObjectsToStringDemo {
             { Any() }
         ).forEach {
             // act, assert
-            val toString = Objects.toString(it)
-            // Output will be like
-            // () -> kotlin.String
-            // () -> kotlin.Any
-            // () -> kotlin.Any
-            // Nice!
+            val toString = Gson().toJson(it)
             println(toString)
-            assertThat(toString).isNotNull()
+            assertThat(toString)
+                .`as`("Not too informative - but no exceptions, at least")
+                .isEqualTo("""{"arity":0}""")
         }
     }
 
     @Test
-    fun `non-thread safe collections should be handled without ConcurrentModificationException`() {
+    fun `non-thread safe collections throw ConcurrentModificationException with Gson when modified concurrently`() {
 
         assumeThat(demosEnabled)
-            .`as`("Will usually fail when enabled, `Objects.toString()` does not handle ConcurrentModificationException")
+            .`as`("Will usually fail when enabled, Gson does not (and should not!) handle ConcurrentModificationException")
             .isTrue
 
         // This test depends on a race condition that is hit in most cases, but not always.
@@ -320,7 +315,6 @@ class ObjectsToStringDemo {
             // arrange
             class UnsafeClass {
                 val unsafeList: ArrayList<Int> = ArrayList((0..150).toList())
-                override fun toString(): String = Objects.toString(unsafeList)
             }
 
             val unsafeClass = UnsafeClass()
@@ -348,8 +342,7 @@ class ObjectsToStringDemo {
                 executors.forEach { it.submit(listModifier) }
                 Awaitility.await().until { modifications.get() > 0 }
                 // act, assert
-                assertThat(unsafeClass.toString())
-                    .`as`("ConcurrentModificationException should be handled")
+                assertThat(Gson().toJson(unsafeClass))
                     .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
@@ -359,10 +352,10 @@ class ObjectsToStringDemo {
     }
 
     @Test
-    fun `non-thread safe maps should be handled without ConcurrentModificationException`() {
+    fun `non-thread safe maps throw ConcurrentModificationException with Gson when modified concurrently`() {
 
         assumeThat(demosEnabled)
-            .`as`("Will usually fail when enabled, `Objects.toString()` does not handle ConcurrentModificationException")
+            .`as`("Will usually fail when enabled, Gson does not (and should not!) handle ConcurrentModificationException")
             .isTrue
 
         // This test depends on a race condition that is hit in most cases, but not always.
@@ -371,7 +364,6 @@ class ObjectsToStringDemo {
             // arrange
             class UnsafeClass {
                 val unsafeMap: MutableMap<Int, Int> = mutableMapOf()
-                override fun toString(): String = Objects.toString(unsafeMap)
             }
 
             val unsafeClass = UnsafeClass()
@@ -401,8 +393,7 @@ class ObjectsToStringDemo {
                 executors.forEach { it.submit(mapModifier) }
                 Awaitility.await().until { unsafeClass.unsafeMap.size > 10 }
                 // act, assert
-                assertThat(unsafeClass.toString())
-                    .`as`("ConcurrentModificationException should be handled")
+                assertThat(Gson().toJson(unsafeClass))
                     .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
@@ -410,4 +401,5 @@ class ObjectsToStringDemo {
             }
         }
     }
+
 }
