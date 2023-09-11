@@ -1,9 +1,8 @@
-<style>
-    ol { font-weight: bolder}
-    ul { font-weight: initial; line-height: 150% }
-</style>
-
 [← README.md](../README.md)
+
+- [**Kute** aims to be a <u>better</u> alternative to](#--kute---aims-to-be-a--u-better--u--alternative-to)
+- [How is **Kute** better than others for implementing `toString()`?](#how-is---kute---better-than-others-for-implementing--tostring----)
+    * [Compared to Apache's `ToStringBuilder`, `Objects.toString()`, `Lombok`, `Gson`, `Jackson`](#compared-to-apache-s--tostringbuilder----objectstostring------lombok----gson----jackson-)
 
 <hr>
 
@@ -26,7 +25,7 @@
 #### Compared to Apache's `ToStringBuilder`, `Objects.toString()`, `Lombok`, `Gson`, `Jackson`
 <hr>
 
-1. Ease of use
+1. **Ease of use**
     * **With Kute, a `toString()` method typically is as simple as <br>
       ```override fun toString(): String = asString()```** <br>
         * *With `Objects.toString()`, you have to call it for every individual property - ugly code*
@@ -62,7 +61,7 @@
     * Any object, including Lambda's, `Number`, collections, maps, custom objects, native Java & Kotin stuff, synthetic objects, can be represented as `String` by calling `obj.asString()`
 
 <br><hr><br>
-2. Stability
+2. **Stability**
    > `Objects.toString()` and Apache's `ToStringBuilder` are less stable than you might hope or expect...
 * **As a developer, I don't want any `toString()`-like thing get in the way**
     * I want decent output and no `NullPointerException` when the object I called it on appears to be `null`
@@ -94,7 +93,7 @@
              > Even while you might hate such constructs, you may have to deal with them, and you probably want them represented without `StackOverflowError`, I assume...
 
 <br><hr><br>
-3. Better `String` representation
+3. **Better `String` representation**
     > * You hate things like `[Ljava.lang.Object;@e3b3b2f` as much as anybody
     > * You expect that Lambdas are represented decently<br>
     > * You hate it when every object is preceded by its fully qualified package name
@@ -112,7 +111,7 @@
       > Or, alternatively, by applying `ToStringPreference.PREFER_TOSTRING` as application-wide default
 
 <br><hr><br>
-4. Kotlin first
+4. **Kotlin first**
     * By default, **Kute**'s `asString()` representation of objects is equal to Kotlin's `toString()` representation of **_data_** classes
         * To be used with any object (including Lambda's, `Number`, collections, maps, custom objects, native Java & Kotlin stuff, synthetic objects, `null`, ...)
     * **Kute** offers the option to include `companion` objects in the `asString` output
@@ -120,7 +119,7 @@
     * Intuitive API by usage of extension methods: `asString()` can be called on *any* object (even `null.asString()`).
 
 <br><hr><br>
-5. Protection of <u>P</u>ersonally <u>I</u>dentifiable <u>D</u>ata / GDPR
+5. **Protection of <u>P</u>ersonally <u>I</u>dentifiable <u>D</u>ata / GDPR**
  > Think of properties that contain data like family names, dates of birth, bank account numbers, ID-card numbers, e-mail addresses, social media account names, login names, password data (no plain text, hopefully!), etc. etc. etc.
 
 **Kute** has several options that may help to keep Personally Identifiable Data out of your log files:
