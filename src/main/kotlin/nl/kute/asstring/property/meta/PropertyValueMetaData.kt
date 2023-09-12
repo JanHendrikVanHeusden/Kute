@@ -1,14 +1,13 @@
 package nl.kute.asstring.property.meta
 
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-/**
- * Interface for metadata about a property and the property's value.
- * > Advice to use [PropertyValueMeta] for a concrete implementation
- * @see [PropertyValueMeta]
- */
+/** Interface for metadata about a property and the property's value */
 public interface PropertyValueMetaData {
-    /** Class name of the class that comprises the property */
+    /** [KClass] that comprises the property */
+    public val objectClass: KClass<*>?
+    /** Class name of the [KClass] that comprises the property */
     public val objectClassName: String?
     /** The property's name */
     public val propertyName: String

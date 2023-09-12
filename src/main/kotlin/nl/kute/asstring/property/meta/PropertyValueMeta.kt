@@ -22,19 +22,23 @@ private val collectionLikeCategories: Array<AsStringObjectCategory> =
 
 /**
  * Metadata about a property and the property's value
- * >
+ * > Advised concrete implementation of [PropertyValueMetaData]
  */
 @AsStringClassOption(toStringPreference = ToStringPreference.PREFER_TOSTRING) // Not using asString() here, it will cause StackOverflowError
-public class PropertyValueMeta(
+internal class PropertyValueMeta(
     propertyValue: Any?,
-    @JvmSynthetic // avoid access from external Java code
-    internal val objectClass: KClass<*>?,
+
+    override val objectClass: KClass<*>?,
+
     @JvmSynthetic // avoid access from external Java code
     internal val property: KProperty<*>,
+
     override val stringValueLength: Int?): PropertyValueMetaData {
 
     override val objectClassName: String? by lazy { objectClass?.simplifyClassName() }
+
     override val propertyName: String = property.name
+
     override val returnType: KType = property.returnType
 
     override val isCharSequence: Boolean =
