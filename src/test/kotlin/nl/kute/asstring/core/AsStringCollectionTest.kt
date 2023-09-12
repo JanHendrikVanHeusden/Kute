@@ -34,6 +34,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
     @AfterEach
     fun setUpAndTearDown() {
         restoreInitialAsStringOption()
+        resetStdOutLogger()
     }
 
     @ParameterizedTest
@@ -340,19 +341,21 @@ class AsStringCollectionTest: ObjectsStackVerifier {
 
         val maxTries = 10
         var tryCount = 0
+
+        // Buffer to store error message in
+        val logBuffer = StringBuffer(1000)
+        logger = { msg -> logBuffer.append(msg) }
+
         val elementsLimit = AsStringOption.defaultOption.elementsLimit
 
         // exits when test succeeds, or maxTries is reached
         while (true) {
             tryCount++
 
-            try {// arrange
+            try {
+                // arrange
                 val result: String?
                 val unsafeList: ArrayList<Int> = ArrayList((0..150).toList())
-
-                // Buffer to store error message in
-                val logBuffer = StringBuffer()
-                logger = { msg -> logBuffer.append(msg) }
 
                 // Continuously modify list in separate threads
                 val threadList: MutableList<Thread> = mutableListOf()
@@ -391,7 +394,8 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                     .matches("""\[(\d+, ){$elementsLimit}\.\.\.]""")
                 @Suppress("RegExpSimplifiable") // this inspection doesn't understand it actually...
                 assumeThat(logBuffer.toString())
-                    .`as`("In some cases, ConcurrentModificationException is not logged, so log content may be an empty String")
+                    .`as`("ConcurrentModificationException should be logged;" +
+                            " but in race conditions logging may be empty (notably when running on Windows)")
                     .contains(
                     "Warning: Non-thread safe collection/map was modified concurrently",
                     ConcurrentModificationException::class.simpleName
@@ -402,9 +406,9 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                 return // success
 
             } catch (e: TestAbortedException) {
-                if (tryCount > maxTries) {
+                if (tryCount >= maxTries) {
                     resetStdOutLogger()
-                    log("Test did not cause ConcurrentModificationException after $tryCount tries")
+                    log("Test did not cause (or did not log) ConcurrentModificationException after $tryCount tries")
                     throw e // assume failed
                 }
             }
@@ -419,6 +423,10 @@ class AsStringCollectionTest: ObjectsStackVerifier {
         val maxTries = 10
         var tryCount = 0
 
+        // Buffer to store error message in
+        val logBuffer = StringBuffer(1000)
+        logger = { msg -> logBuffer.append(msg) }
+
         // exits when test succeeds, or maxTries is reached
         while (true) {
             tryCount++
@@ -426,10 +434,6 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                 // arrange
                 val result: String?
                 val unsafeMap: MutableMap<Int, Int> = mutableMapOf()
-
-                // Buffer to store error message in
-                val logBuffer = StringBuffer()
-                logger = { msg -> logBuffer.append(msg) }
 
                 // Continuously modify list in separate threads
                 val threadList: MutableList<Thread> = mutableListOf()
@@ -467,8 +471,10 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                                 " If so, the output will be something like LinkedHashMap@83af56e7"
                     )
                     .matches("""\{(\d+=\d+, )+((\d+=\d+)|(\.\.\.)?)}""")
+
                 assumeThat(logBuffer.toString())
-                    .`as`("In some cases, ConcurrentModificationException is not logged, so log content may be an empty String")
+                    .`as`("ConcurrentModificationException should be logged;" +
+                            " but in race conditions logging may be empty (notably when running on Windows)")
                     .contains(
                         "Warning: Non-thread safe collection/map was modified concurrently",
                         ConcurrentModificationException::class.simpleName
@@ -479,9 +485,9 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                 return // success
 
             } catch (e: TestAbortedException) {
-                if (tryCount > maxTries) {
+                if (tryCount >= maxTries) {
                     resetStdOutLogger()
-                    log("Test did not cause ConcurrentModificationException after $tryCount tries")
+                    log("Test did not cause (or did not log) ConcurrentModificationException after $tryCount tries")
                     throw e // assume failed
                 }
             }
