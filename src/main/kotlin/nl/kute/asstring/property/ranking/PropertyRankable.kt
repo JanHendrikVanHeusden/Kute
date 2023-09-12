@@ -3,6 +3,7 @@ package nl.kute.asstring.property.ranking
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.core.asString
+import nl.kute.asstring.property.meta.PropertyValueMetaData
 import nl.kute.log.log
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap

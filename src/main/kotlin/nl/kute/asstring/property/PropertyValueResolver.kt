@@ -18,8 +18,8 @@ import nl.kute.asstring.core.AsStringObjectCategory
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.hasEffectiveRankProvider
 import nl.kute.asstring.core.lambdaToStringRegex
-import nl.kute.asstring.property.ranking.PropertyValueMeta
-import nl.kute.asstring.property.ranking.PropertyValueMetaData
+import nl.kute.asstring.property.meta.PropertyValueMeta
+import nl.kute.asstring.property.meta.PropertyValueMetaData
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfPropertySuperSubHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
@@ -33,19 +33,18 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaType
 
-/** @return
- *  * for [Array]s: [Array.contentDeepToString]
- *  * otherwise: the [toString] value of the property, modified if needed by annotations @[AsStringOmit],
- *  @[AsStringReplace], @[AsStringMask], @[AsStringHash]
+/**
+ * @return A [Pair] of [PropertyValueMetaData]`?` (may be `null`)
+ * and the property value String, as resolved by the[property] and the given [annotations]
  */
 @JvmSynthetic // avoid access from external Java code
-internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Set<Annotation>): Pair<PropertyValueMetaData?, String?> {
+internal fun <T : Any> T?.getPropValueString(property: KProperty<*>, annotations: Set<Annotation>): Pair<PropertyValueMetaData?, String?> {
     var value: Any? = null
     val stringVal: String? = let {
         if (this == null) {
             return@let null
         }
-        value = this.getPropValue(prop)
+        value = this.getPropValue(property)
 
         val asStringObjectCategory = value?.let { AsStringObjectCategory.resolveObjectCategory(value!!) }
         val hasHandlerWithSize: Boolean = asStringObjectCategory?.hasHandlerWithSize() == true
@@ -61,7 +60,7 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         } else {
             value.asString()
         }
-        if (prop.isLambdaProperty(strValue)) {
+        if (property.isLambdaProperty(strValue)) {
             strValue = strValue!!.lambdaSignatureString()
         }
         if (annotations.any { it is AsStringOmit }) {
@@ -82,12 +81,17 @@ internal fun <T : Any> T?.getPropValueString(prop: KProperty<*>, annotations: Se
         strValue = asStringOption?.applyOption(strValue)
         return@let strValue
     }
+
     val objClass = if (this == null) null else this@getPropValueString::class
     val hasEffectiveRankProvider = objClass?.asStringClassOption()?.propertySorters.hasEffectiveRankProvider()
+
+    // For efficiency, the propertyValueMeta is constructed only when needed downstream
+    // A bit ugly though (introducing high coupling with downstream code...)
     val propertyValueMeta =
-        if (objClass != null && hasEffectiveRankProvider) PropertyValueMeta(value, objClass, prop, stringVal?.length)
+        if (objClass != null && hasEffectiveRankProvider) PropertyValueMeta(value, objClass, property, stringVal?.length)
         // no property sorting required
         else null
+
     return (propertyValueMeta to stringVal)
 }
 

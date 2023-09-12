@@ -7,10 +7,10 @@ import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
+import nl.kute.asstring.property.meta.PropertyValueMetaData
 import nl.kute.asstring.property.ranking.PropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankingByCommonNames
 import nl.kute.asstring.property.ranking.PropertyRankingByLength
-import nl.kute.asstring.property.ranking.PropertyValueMetaData
 import nl.kute.asstring.property.ranking.ValueLengthRanking
 import nl.kute.asstring.property.ranking.ValueLengthRanking.Companion.getRank
 import nl.kute.asstring.property.ranking.ValueLengthRanking.L

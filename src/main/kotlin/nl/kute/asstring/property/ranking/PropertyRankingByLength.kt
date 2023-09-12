@@ -3,6 +3,7 @@ package nl.kute.asstring.property.ranking
 import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.core.asString
+import nl.kute.asstring.property.meta.PropertyValueMetaData
 import nl.kute.asstring.property.ranking.ValueLengthRanking.S
 import nl.kute.asstring.property.ranking.ValueLengthRanking.XXL
 import java.util.EnumSet

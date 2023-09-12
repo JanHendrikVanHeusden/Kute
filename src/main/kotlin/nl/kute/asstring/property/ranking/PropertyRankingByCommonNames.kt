@@ -5,6 +5,7 @@ import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.isBaseType
+import nl.kute.asstring.property.meta.PropertyValueMetaData
 import java.util.UUID
 
 /**

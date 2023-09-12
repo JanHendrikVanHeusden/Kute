@@ -20,7 +20,7 @@ import nl.kute.asstring.property.getPropValueString
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.asstring.property.ranking.NoOpPropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankable
-import nl.kute.asstring.property.ranking.PropertyValueInfoComparator
+import nl.kute.asstring.property.ranking.PropertyValueMetaComparator
 import nl.kute.asstring.property.ranking.getPropertyRankableInstance
 import nl.kute.log.log
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
@@ -246,6 +246,7 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
         if (sortNamesAlphabetic) this.entries.sortedBy { it.key.name.lowercase() }.associate { it.key to it.value }
         else this
     return if (this.size <= 1 || !rankProviders.hasEffectiveRankProvider()) {
+        // no ranking/ordering of properties required, just process the values
         props.entries.joinToString(
             separator = separator,
             prefix = prefix,
@@ -256,14 +257,16 @@ private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
             "${prop.name}=${obj.getPropValueString(prop, annotationSet).second}"
         }
     } else {
+        // ranking/ordering required
+        // retrieve the String values and map them against the property metadata
         val metaDataStringMap = props.entries
             .map { entry -> obj.getPropValueString(entry.key, entry.value) }
             .associate { it.first!! to it.second }
         // We cannot use toSortedMap() here: toSortedMap() only keeps the last entry when equal outcome
         // of the comparator, so toSortedMap() may drop entries when sorting :-(
         //
-        // So instead, we're going to sort keys, then re-associate them with the values.
-        val sortedKeys = metaDataStringMap.keys.sortedWith(PropertyValueInfoComparator(*rankProviders))
+        // So instead, we're going to sort keys (property metadata), then re-associate them with the value Strings.
+        val sortedKeys = metaDataStringMap.keys.sortedWith(PropertyValueMetaComparator(*rankProviders))
         sortedKeys.associateWith { metaDataStringMap[it] }
             .map { "${it.key.propertyName}=${it.value}" }
             .joinToString(
