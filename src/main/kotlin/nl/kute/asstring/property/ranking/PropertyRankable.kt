@@ -3,7 +3,7 @@ package nl.kute.asstring.property.ranking
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.core.asString
-import nl.kute.asstring.property.meta.PropertyValueMetaData
+import nl.kute.asstring.property.meta.PropertyValueMeta
 import nl.kute.log.log
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
@@ -38,11 +38,11 @@ import kotlin.reflect.jvm.isAccessible
 public sealed interface PropertyRankable<out T: PropertyRankable<T>> {
 
     /**
-     * Provide a rank, typically to be used for sorting properties / values, based on the [propertyValueMetaData].
+     * Provide a rank, typically to be used for sorting properties / values, based on the [propertyValueMeta].
      * > The rank should be deterministic (i.e. always return the same value given same input)
-     * @return A numeric rank based on / associated with the given [propertyValueMetaData]
+     * @return A numeric rank based on / associated with the given [propertyValueMeta]
      */
-    public fun getRank(propertyValueMetaData: PropertyValueMetaData): Int
+    public fun getRank(propertyValueMeta: PropertyValueMeta): Int
 
     /**
      * Register this concrete [PropertyRankable] class to allow using it for ordering properties

@@ -5,6 +5,7 @@ import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.isBaseType
+import nl.kute.asstring.property.meta.PropertyValueMeta
 import nl.kute.asstring.property.meta.PropertyValueMetaData
 import java.util.UUID
 
@@ -25,11 +26,11 @@ import java.util.UUID
 public open class PropertyRankingByCommonNames private constructor(): PropertyRanking() {
 
     /** @return A numeric rank based on [PropertyValueMetaData.stringValueLength] and T-shirt sizes as of [ValueLengthRanking] */
-    public override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int {
-        val propName = propertyValueMetaData.propertyName
-        val propNameLower = propertyValueMetaData.propertyName.lowercase()
-        val propSizeRank = ValueLengthRanking.getRank(propertyValueMetaData.stringValueLength)
-        val returnTypeClass = propertyValueMetaData.returnType.classifier
+    public override fun getRank(propertyValueMeta: PropertyValueMeta): Int {
+        val propName = propertyValueMeta.propertyName
+        val propNameLower = propertyValueMeta.propertyName.lowercase()
+        val propSizeRank = ValueLengthRanking.getRank(propertyValueMeta.stringValueLength)
+        val returnTypeClass = propertyValueMeta.returnType.classifier
         return when {
             propNameLower == "id" -> 0
             propName.endsWith("Id") -> 5

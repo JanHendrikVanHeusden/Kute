@@ -2,7 +2,7 @@ package nl.kute.asstring.property.ranking
 
 import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.option.AsStringClassOption
-import nl.kute.asstring.property.meta.PropertyValueMetaData
+import nl.kute.asstring.property.meta.PropertyValueMeta
 
 /**
  * Class to explicitly specify that properties need not be ordered
@@ -11,10 +11,10 @@ import nl.kute.asstring.property.meta.PropertyValueMetaData
 @AsStringClassOption(includeCompanion = false)
 public class NoOpPropertyRanking private constructor() : PropertyRanking() {
 
-    /** @return A constant value regardless of [propertyValueMetaData] input;
+    /** @return A constant value regardless of [propertyValueMeta] input;
      * so effectively, it will not contribute to ordering
      */
-    override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int = 0
+    override fun getRank(propertyValueMeta: PropertyValueMeta): Int = 0
 
     public companion object {
         /** Singleton instance of [NoOpPropertyRanking] */

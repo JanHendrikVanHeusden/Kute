@@ -7,7 +7,7 @@ import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
-import nl.kute.asstring.property.meta.PropertyValueMetaData
+import nl.kute.asstring.property.meta.PropertyValueMeta
 import nl.kute.asstring.property.ranking.PropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankingByCommonNames
 import nl.kute.asstring.property.ranking.PropertyRankingByLength
@@ -218,14 +218,14 @@ class AsStringPropertyOrderingTest {
 
 /** Property sorting by 1st letter only! */
 private class ReverseAlphabeticPropertyRanking: PropertyRanking() {
-    override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int =
-        (-propertyValueMetaData.propertyName[0].code)
+    override fun getRank(propertyValueMeta: PropertyValueMeta): Int =
+        (-propertyValueMeta.propertyName[0].code)
 }
 
 private class ReverseAlphabeticPropertyRanking2nd: PropertyRanking() {
-    override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int {
+    override fun getRank(propertyValueMeta: PropertyValueMeta): Int {
         return try {
-            return (-propertyValueMetaData.propertyName[1].code)
+            return (-propertyValueMeta.propertyName[1].code)
         } catch (e: IndexOutOfBoundsException) {
             // It's dirty. But it's test-code ʘ‿ʘ
             Int.MAX_VALUE
@@ -234,8 +234,8 @@ private class ReverseAlphabeticPropertyRanking2nd: PropertyRanking() {
 }
 
 private class PropertyRankingByOddEvenHashCodeOfPropName: PropertyRanking() {
-    override fun getRank(propertyValueMetaData: PropertyValueMetaData): Int =
-        propertyValueMetaData.propertyName.hashCode().let { if (it % 2 == 0) -it else it }
+    override fun getRank(propertyValueMeta: PropertyValueMeta): Int =
+        propertyValueMeta.propertyName.hashCode().let { if (it % 2 == 0) -it else it }
 }
 
 @Suppress("unused")

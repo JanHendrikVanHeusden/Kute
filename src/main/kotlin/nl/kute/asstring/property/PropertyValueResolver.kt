@@ -34,11 +34,11 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaType
 
 /**
- * @return A [Pair] of [PropertyValueMetaData]`?` (may be `null`)
+ * @return A [Pair] of [PropertyValueMeta]`?` (may be `null`)
  * and the property value String, as resolved by the[property] and the given [annotations]
  */
 @JvmSynthetic // avoid access from external Java code
-internal fun <T : Any> T?.getPropValueString(property: KProperty<*>, annotations: Set<Annotation>): Pair<PropertyValueMetaData?, String?> {
+internal fun <T : Any> T?.getPropValueString(property: KProperty<*>, annotations: Set<Annotation>): Pair<PropertyValueMeta?, String?> {
     var value: Any? = null
     val stringVal: String? = let {
         if (this == null) {
@@ -88,7 +88,7 @@ internal fun <T : Any> T?.getPropValueString(property: KProperty<*>, annotations
     // For efficiency, the propertyValueMeta is constructed only when needed downstream
     // A bit ugly though (introducing high coupling with downstream code...)
     val propertyValueMeta =
-        if (objClass != null && hasEffectiveRankProvider) PropertyValueMeta(value, objClass, property, stringVal?.length)
+        if (objClass != null && hasEffectiveRankProvider) PropertyValueMetaData(property, objClass, value, stringVal?.length)
         // no property sorting required
         else null
 
