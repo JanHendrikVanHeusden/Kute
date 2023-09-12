@@ -42,6 +42,7 @@ jvm
 
 | Name | Summary |
 |---|---|
+| [entries](entries.md) | [jvm]<br>val [entries](entries.md): [EnumEntries](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.enums/-enum-entries/index.html)&lt;[DigestMethod](index.md)&gt;<br>Returns a representation of an immutable list of all enum entries, in the order they're declared. |
 | [name](-m-d5/index.md#-372974862%2FProperties%2F-1216412040) | [jvm]<br>val [name](-m-d5/index.md#-372974862%2FProperties%2F-1216412040): [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |
 | [ordinal](-m-d5/index.md#-739389684%2FProperties%2F-1216412040) | [jvm]<br>val [ordinal](-m-d5/index.md#-739389684%2FProperties%2F-1216412040): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) |
 

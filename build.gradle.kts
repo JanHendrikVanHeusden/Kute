@@ -4,6 +4,9 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
 
+val apiDocsGfmDir: File = File("./apidocs/gfm")
+val generatedGfmDir: File = File("build/dokka/gfm")
+
 group = "nl.kute"
 version = "1.0-SNAPSHOT"
 description = "Kute"
@@ -163,16 +166,25 @@ tasks.withType<Test> {
     )
 }
 
+tasks.register("cleanDokkaGfm") {
+    group = "documentation"
+    doLast {
+        FileUtils.deleteDirectory(generatedGfmDir)
+    }
+}
+
+tasks.named("dokkaGfm") {
+    dependsOn(tasks.named("cleanDokkaGfm"))
+}
+
 // Tried with a task of type Copy, but it didn't work as desired in case of non-empty directories
 // So using custom task with Apache's FileUtils instead, works nicely
 tasks.register("copyApiDocs") {
     dependsOn(tasks.named("dokkaGfm"))
     group = "documentation"
     doLast {
-        val apiDir = File("./apidocs/gfm")
-        val generatedDir = File("build/dokka/gfm")
-        FileUtils.deleteDirectory(apiDir)
-        FileUtils.copyDirectory(generatedDir, apiDir)
+        FileUtils.deleteDirectory(apiDocsGfmDir)
+        FileUtils.copyDirectory(generatedGfmDir, apiDocsGfmDir)
     }
 }
 

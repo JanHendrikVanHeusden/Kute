@@ -1,4 +1,4 @@
-//[Kute](../../../index.md)/[nl.kute.asstring.property.ranking](../index.md)/[PropertyValueMetaData](index.md)/[isCharSequence](is-char-sequence.md)
+//[Kute](../../../index.md)/[nl.kute.asstring.property.meta](../index.md)/[PropertyValueMetaData](index.md)/[isCharSequence](is-char-sequence.md)
 
 # isCharSequence
 

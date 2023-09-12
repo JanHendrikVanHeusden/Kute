@@ -65,6 +65,7 @@ $dokka.location:nl.kute.asstring.annotation.option/PropertyValueSurrounder.«»/
 $dokka.location:nl.kute.asstring.annotation.option/PropertyValueSurrounder.¶¶///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-kute/nl.kute.asstring.annotation.option/-property-value-surrounder/¶¶/index.md
 $dokka.location:nl.kute.asstring.annotation.option/PropertyValueSurrounder.÷÷///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-kute/nl.kute.asstring.annotation.option/-property-value-surrounder/÷÷/index.md
 $dokka.location:nl.kute.asstring.annotation.option/PropertyValueSurrounder///PointingToDeclaration/-kute/nl.kute.asstring.annotation.option/-property-value-surrounder/index.md
+$dokka.location:nl.kute.asstring.annotation.option/PropertyValueSurrounder/entries/#/PointingToDeclaration/-kute/nl.kute.asstring.annotation.option/-property-value-surrounder/entries.md
 $dokka.location:nl.kute.asstring.annotation.option/PropertyValueSurrounder/postfix/#/PointingToDeclaration/-kute/nl.kute.asstring.annotation.option/-property-value-surrounder/postfix.md
 $dokka.location:nl.kute.asstring.annotation.option/PropertyValueSurrounder/prefix/#/PointingToDeclaration/-kute/nl.kute.asstring.annotation.option/-property-value-surrounder/prefix.md
 $dokka.location:nl.kute.asstring.annotation.option/PropertyValueSurrounder/valueOf/#kotlin.String/PointingToDeclaration/-kute/nl.kute.asstring.annotation.option/-property-value-surrounder/value-of.md
@@ -72,6 +73,7 @@ $dokka.location:nl.kute.asstring.annotation.option/PropertyValueSurrounder/value
 $dokka.location:nl.kute.asstring.annotation.option/ToStringPreference.PREFER_TOSTRING///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-kute/nl.kute.asstring.annotation.option/-to-string-preference/-p-r-e-f-e-r_-t-o-s-t-r-i-n-g/index.md
 $dokka.location:nl.kute.asstring.annotation.option/ToStringPreference.USE_ASSTRING///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-kute/nl.kute.asstring.annotation.option/-to-string-preference/-u-s-e_-a-s-s-t-r-i-n-g/index.md
 $dokka.location:nl.kute.asstring.annotation.option/ToStringPreference///PointingToDeclaration/-kute/nl.kute.asstring.annotation.option/-to-string-preference/index.md
+$dokka.location:nl.kute.asstring.annotation.option/ToStringPreference/entries/#/PointingToDeclaration/-kute/nl.kute.asstring.annotation.option/-to-string-preference/entries.md
 $dokka.location:nl.kute.asstring.annotation.option/ToStringPreference/valueOf/#kotlin.String/PointingToDeclaration/-kute/nl.kute.asstring.annotation.option/-to-string-preference/value-of.md
 $dokka.location:nl.kute.asstring.annotation.option/ToStringPreference/values/#/PointingToDeclaration/-kute/nl.kute.asstring.annotation.option/-to-string-preference/values.md
 $dokka.location:nl.kute.asstring.config////PointingToDeclaration/-kute/nl.kute.asstring.config/index.md
@@ -144,13 +146,28 @@ $dokka.location:nl.kute.asstring.namedvalues/NamedValue///PointingToDeclaration/
 $dokka.location:nl.kute.asstring.namedvalues/NamedValue/NamedValue/#kotlin.String#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/-kute/nl.kute.asstring.namedvalues/-named-value/-named-value.md
 $dokka.location:nl.kute.asstring.namedvalues/NamedValue/name/#/PointingToDeclaration/-kute/nl.kute.asstring.namedvalues/-named-value/name.md
 $dokka.location:nl.kute.asstring.namedvalues/NamedValue/value/#/PointingToDeclaration/-kute/nl.kute.asstring.namedvalues/-named-value/value.md
+$dokka.location:nl.kute.asstring.namedvalues/Supplier///PointingToDeclaration/-kute/nl.kute.asstring.namedvalues/-supplier/index.md
+$dokka.location:nl.kute.asstring.property.meta////PointingToDeclaration/-kute/nl.kute.asstring.property.meta/index.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData///PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/index.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/equals/#kotlin.Any?/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/equals.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/hashCode/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/hash-code.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/isBaseType/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/is-base-type.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/isCharSequence/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/is-char-sequence.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/isCollectionLike/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/is-collection-like.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/isNull/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/is-null.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/objectClass/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/object-class.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/objectClassName/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/object-class-name.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/propertyName/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/property-name.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/returnType/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/return-type.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/stringValueLength/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/string-value-length.md
+$dokka.location:nl.kute.asstring.property.meta/PropertyValueMetaData/toString/#/PointingToDeclaration/-kute/nl.kute.asstring.property.meta/-property-value-meta-data/to-string.md
 $dokka.location:nl.kute.asstring.property.ranking////PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/index.md
 $dokka.location:nl.kute.asstring.property.ranking/NoOpPropertyRanking.Companion///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-no-op-property-ranking/-companion/index.md
 $dokka.location:nl.kute.asstring.property.ranking/NoOpPropertyRanking.Companion/instance/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-no-op-property-ranking/-companion/instance.md
 $dokka.location:nl.kute.asstring.property.ranking/NoOpPropertyRanking///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-no-op-property-ranking/index.md
-$dokka.location:nl.kute.asstring.property.ranking/NoOpPropertyRanking/getRank/#nl.kute.asstring.property.ranking.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-no-op-property-ranking/get-rank.md
+$dokka.location:nl.kute.asstring.property.ranking/NoOpPropertyRanking/getRank/#nl.kute.asstring.property.meta.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-no-op-property-ranking/get-rank.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankable///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-rankable/index.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyRankable/getRank/#nl.kute.asstring.property.ranking.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-rankable/get-rank.md
+$dokka.location:nl.kute.asstring.property.ranking/PropertyRankable/getRank/#nl.kute.asstring.property.meta.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-rankable/get-rank.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankable/register/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-rankable/register.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRanking///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking/index.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRanking/PropertyRanking/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking/-property-ranking.md
@@ -161,41 +178,16 @@ $dokka.location:nl.kute.asstring.property.ranking/PropertyRanking/toString/#/Poi
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByCommonNames.Companion///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-common-names/-companion/index.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByCommonNames.Companion/instance/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-common-names/-companion/instance.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByCommonNames///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-common-names/index.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByCommonNames/getRank/#nl.kute.asstring.property.ranking.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-common-names/get-rank.md
+$dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByCommonNames/getRank/#nl.kute.asstring.property.meta.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-common-names/get-rank.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByCommonNames/toString/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-common-names/to-string.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByLength.Companion///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-length/-companion/index.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByLength.Companion/instance/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-length/-companion/instance.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByLength///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-length/index.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByLength/getRank/#nl.kute.asstring.property.ranking.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-length/get-rank.md
+$dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByLength/getRank/#nl.kute.asstring.property.meta.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-length/get-rank.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByType.Companion///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-type/-companion/index.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByType.Companion/instance/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-type/-companion/instance.md
 $dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByType///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-type/index.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByType/getRank/#nl.kute.asstring.property.ranking.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-type/get-rank.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/index.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/PropertyValueMeta/#kotlin.Any?#kotlin.reflect.KClass[*]?#kotlin.reflect.KProperty[*]#kotlin.Int?/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/-property-value-meta.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/equals/#kotlin.Any?/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/equals.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/hashCode/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/hash-code.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/isBaseType/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/is-base-type.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/isCharSequence/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/is-char-sequence.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/isCollectionLike/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/is-collection-like.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/isNull/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/is-null.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/objectClassName/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/object-class-name.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/propertyName/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/property-name.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/returnType/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/return-type.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/stringValueLength/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/string-value-length.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMeta/toString/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta/to-string.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/index.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/equals/#kotlin.Any?/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/equals.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/hashCode/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/hash-code.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/isBaseType/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/is-base-type.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/isCharSequence/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/is-char-sequence.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/isCollectionLike/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/is-collection-like.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/isNull/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/is-null.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/objectClassName/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/object-class-name.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/propertyName/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/property-name.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/returnType/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/return-type.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/stringValueLength/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/string-value-length.md
-$dokka.location:nl.kute.asstring.property.ranking/PropertyValueMetaData/toString/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-value-meta-data/to-string.md
+$dokka.location:nl.kute.asstring.property.ranking/PropertyRankingByType/getRank/#nl.kute.asstring.property.meta.PropertyValueMetaData/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-property-ranking-by-type/get-rank.md
 $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking.Companion///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-value-length-ranking/-companion/index.md
 $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking.Companion/getRank/#kotlin.Int?/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-value-length-ranking/-companion/get-rank.md
 $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking.Companion/maxRank/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-value-length-ranking/-companion/max-rank.md
@@ -206,6 +198,7 @@ $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking.S///Pointin
 $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking.XL///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-kute/nl.kute.asstring.property.ranking/-value-length-ranking/-x-l/index.md
 $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking.XXL///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-kute/nl.kute.asstring.property.ranking/-value-length-ranking/-x-x-l/index.md
 $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking///PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-value-length-ranking/index.md
+$dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking/entries/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-value-length-ranking/entries.md
 $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking/lengthRange/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-value-length-ranking/length-range.md
 $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking/rank/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-value-length-ranking/rank.md
 $dokka.location:nl.kute.asstring.property.ranking/ValueLengthRanking/toString/#/PointingToDeclaration/-kute/nl.kute.asstring.property.ranking/-value-length-ranking/to-string.md
@@ -221,6 +214,7 @@ $dokka.location:nl.kute.hashing/DigestMethod.JAVA_HASHCODE///PointingToDeclarati
 $dokka.location:nl.kute.hashing/DigestMethod.MD5///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-kute/nl.kute.hashing/-digest-method/-m-d5/index.md
 $dokka.location:nl.kute.hashing/DigestMethod.SHA1///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-kute/nl.kute.hashing/-digest-method/-s-h-a1/index.md
 $dokka.location:nl.kute.hashing/DigestMethod///PointingToDeclaration/-kute/nl.kute.hashing/-digest-method/index.md
+$dokka.location:nl.kute.hashing/DigestMethod/entries/#/PointingToDeclaration/-kute/nl.kute.hashing/-digest-method/entries.md
 $dokka.location:nl.kute.hashing/DigestMethod/valueOf/#kotlin.String/PointingToDeclaration/-kute/nl.kute.hashing/-digest-method/value-of.md
 $dokka.location:nl.kute.hashing/DigestMethod/values/#/PointingToDeclaration/-kute/nl.kute.hashing/-digest-method/values.md
 $dokka.location:nl.kute.log////PointingToDeclaration/-kute/nl.kute.log/index.md
@@ -233,6 +227,7 @@ nl.kute.asstring.config
 nl.kute.asstring.core
 nl.kute.asstring.core.defaults
 nl.kute.asstring.namedvalues
+nl.kute.asstring.property.meta
 nl.kute.asstring.property.ranking
 nl.kute.asstring.weakreference
 nl.kute.hashing

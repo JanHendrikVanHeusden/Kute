@@ -19,7 +19,7 @@ jvm
 | callable | The [Callable](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Callable.html) to supply the [value](value.md) on request |
 
 [jvm]\
-constructor(name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), supplier: [Supplier](../index.md#-531561431%2FClasslikes%2F-1216412040)&lt;[V](index.md)?&gt;)
+constructor(name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), supplier: [Supplier](../-supplier/index.md)&lt;[V](index.md)?&gt;)
 
 #### Parameters
 

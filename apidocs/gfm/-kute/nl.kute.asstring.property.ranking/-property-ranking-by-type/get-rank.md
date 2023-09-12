@@ -3,7 +3,7 @@
 # getRank
 
 [jvm]\
-open override fun [getRank](get-rank.md)(propertyValueMetaData: [PropertyValueMetaData](../-property-value-meta-data/index.md)): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)
+open override fun [getRank](get-rank.md)(propertyValueMetaData: [PropertyValueMetaData](../../nl.kute.asstring.property.meta/-property-value-meta-data/index.md)): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)
 
 #### Return
 

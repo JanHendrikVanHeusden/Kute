@@ -68,6 +68,7 @@ jvm
 
 | Name | Summary |
 |---|---|
+| [entries](entries.md) | [jvm]<br>val [entries](entries.md): [EnumEntries](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.enums/-enum-entries/index.html)&lt;[PropertyValueSurrounder](index.md)&gt;<br>Returns a representation of an immutable list of all enum entries, in the order they're declared. |
 | [name](../../nl.kute.hashing/-digest-method/-m-d5/index.md#-372974862%2FProperties%2F-1216412040) | [jvm]<br>val [name](../../nl.kute.hashing/-digest-method/-m-d5/index.md#-372974862%2FProperties%2F-1216412040): [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |
 | [ordinal](../../nl.kute.hashing/-digest-method/-m-d5/index.md#-739389684%2FProperties%2F-1216412040) | [jvm]<br>val [ordinal](../../nl.kute.hashing/-digest-method/-m-d5/index.md#-739389684%2FProperties%2F-1216412040): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) |
 | [postfix](postfix.md) | [jvm]<br>val [postfix](postfix.md): [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) |

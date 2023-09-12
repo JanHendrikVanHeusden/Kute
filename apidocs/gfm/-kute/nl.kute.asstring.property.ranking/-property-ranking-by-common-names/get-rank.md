@@ -3,8 +3,8 @@
 # getRank
 
 [jvm]\
-open override fun [getRank](get-rank.md)(propertyValueMetaData: [PropertyValueMetaData](../-property-value-meta-data/index.md)): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)
+open override fun [getRank](get-rank.md)(propertyValueMetaData: [PropertyValueMetaData](../../nl.kute.asstring.property.meta/-property-value-meta-data/index.md)): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)
 
 #### Return
 
-A numeric rank based on [PropertyValueMetaData.stringValueLength](../-property-value-meta-data/string-value-length.md) and T-shirt sizes as of [ValueLengthRanking](../-value-length-ranking/index.md)
+A numeric rank based on [PropertyValueMetaData.stringValueLength](../../nl.kute.asstring.property.meta/-property-value-meta-data/string-value-length.md) and T-shirt sizes as of [ValueLengthRanking](../-value-length-ranking/index.md)

@@ -1,4 +1,4 @@
-//[Kute](../../../index.md)/[nl.kute.asstring.property.ranking](../index.md)/[PropertyValueMetaData](index.md)/[isNull](is-null.md)
+//[Kute](../../../index.md)/[nl.kute.asstring.property.meta](../index.md)/[PropertyValueMetaData](index.md)/[isNull](is-null.md)
 
 # isNull
 

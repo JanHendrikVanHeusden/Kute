@@ -1,4 +1,4 @@
-//[Kute](../../../index.md)/[nl.kute.asstring.property.ranking](../index.md)/[PropertyValueMetaData](index.md)/[stringValueLength](string-value-length.md)
+//[Kute](../../../index.md)/[nl.kute.asstring.property.meta](../index.md)/[PropertyValueMetaData](index.md)/[stringValueLength](string-value-length.md)
 
 # stringValueLength
 
