@@ -17,9 +17,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
-private val collectionLikeCategories: Array<AsStringObjectCategory> =
-    arrayOf(COLLECTION, ARRAY, MAP, PRIMITIVE_ARRAY)
-
 /**
  * Metadata about a property and the property's value
  * > Advised concrete implementation of [PropertyValueMetaData]
@@ -92,5 +89,9 @@ internal class PropertyValueMeta(
     override fun hashCode(): Int =
         Objects.hash(stringValueLength, objectClass, property, isNull)
 
+    companion object {
+        private val collectionLikeCategories: Array<AsStringObjectCategory> =
+            arrayOf(COLLECTION, ARRAY, MAP, PRIMITIVE_ARRAY)
+    }
 }
 

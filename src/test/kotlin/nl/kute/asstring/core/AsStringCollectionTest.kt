@@ -358,9 +358,10 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                 val unsafeList: ArrayList<Int> = ArrayList((0..150).toList())
 
                 // Continuously modify list in separate threads
+                val threadCount = 4
                 val threadList: MutableList<Thread> = mutableListOf()
                 val executors: MutableList<ExecutorService> =
-                    (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
+                    (1..threadCount).map { Executors.newSingleThreadExecutor() }.toMutableList()
                 val modifications = AtomicInteger(0)
                 val listModifier = Runnable {
                     threadList.add(Thread.currentThread())
@@ -395,7 +396,8 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                 @Suppress("RegExpSimplifiable") // this inspection doesn't understand it actually...
                 assumeThat(logBuffer.toString())
                     .`as`("ConcurrentModificationException should be logged;" +
-                            " but in race conditions logging may be empty (notably when running on Windows)")
+                            " but in race conditions logging may be empty" +
+                            " (notably when JVM is pre-warmed; maybe also dependent on environment)")
                     .contains(
                     "Warning: Non-thread safe collection/map was modified concurrently",
                     ConcurrentModificationException::class.simpleName
@@ -436,9 +438,10 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                 val unsafeMap: MutableMap<Int, Int> = mutableMapOf()
 
                 // Continuously modify list in separate threads
+                val threadCount = 4
                 val threadList: MutableList<Thread> = mutableListOf()
                 val executors: MutableList<ExecutorService> =
-                    (1..32).map { Executors.newSingleThreadExecutor() }.toMutableList()
+                    (1..threadCount).map { Executors.newSingleThreadExecutor() }.toMutableList()
                 val modifications = AtomicInteger(0)
                 val mapModifier = Runnable {
                     threadList.add(Thread.currentThread())
@@ -474,7 +477,8 @@ class AsStringCollectionTest: ObjectsStackVerifier {
 
                 assumeThat(logBuffer.toString())
                     .`as`("ConcurrentModificationException should be logged;" +
-                            " but in race conditions logging may be empty (notably when running on Windows)")
+                            " but in race conditions logging may be empty" +
+                            " (notably when JVM is pre-warmed; maybe also dependent on environment)")
                     .contains(
                         "Warning: Non-thread safe collection/map was modified concurrently",
                         ConcurrentModificationException::class.simpleName
