@@ -16,7 +16,9 @@ import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.defaults.defaultNullString
 import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.asstring.namedvalues.PropertyValue
+import nl.kute.asstring.property.filter.propertyOmitFilter
 import nl.kute.asstring.property.getPropValueString
+import nl.kute.asstring.property.meta.PropertyMetaData
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.asstring.property.ranking.NoOpPropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankable
@@ -170,10 +172,18 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                     // not preferring toString() & no handler, so custom object to dynamically resolve
                     // let's process it, with all params provided
                     try {
-                        val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
+                        var annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
                             objClass.propertiesWithAsStringAffectingAnnotations()
                                 .filterNot { propertyNamesToExclude.contains(it.key.name) }
                                 .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
+
+                        if (propertyOmitFilter.hasFilter()) {
+                            // todo: cache propertyMetaData by property
+                            annotationsByProperty = annotationsByProperty.filterKeys { prop ->
+                                propertyOmitFilter.getFilters()
+                                    .all { filter -> !filter(PropertyMetaData(prop, objClass)) }
+                            }
+                        }
                         val named: List<NameValue<*>> = nameValues
                             .filterNot { nameValue ->
                                 nameValue is PropertyValue<*>

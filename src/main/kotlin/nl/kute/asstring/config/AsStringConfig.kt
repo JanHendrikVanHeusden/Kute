@@ -6,6 +6,8 @@ import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.core.defaults.initialAsStringClassOption
 import nl.kute.asstring.core.defaults.initialAsStringOption
+import nl.kute.asstring.property.filter.PropertyMetaFilter
+import nl.kute.asstring.property.filter.propertyOmitFilter
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
@@ -26,6 +28,8 @@ public class AsStringConfig {
 
     private var newDefaultAsStringOption: AsStringOption = AsStringOption.defaultOption
     private var newDefaultAsStringClassOption: AsStringClassOption = AsStringClassOption.defaultOption
+
+    private var propertyOmitFilters: Array<out PropertyMetaFilter> = emptyArray()
 
     private fun setNewDefaultAsStringOption(newAsStringOption: AsStringOption) {
         this.newDefaultAsStringOption = newAsStringOption
@@ -217,6 +221,27 @@ public class AsStringConfig {
     }
 
     /**
+     * Sets the new [PropertyMetaFilter]s to be applied.
+     *
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the values as an application-wide default.
+     * * Any previously existing filters will be removed by [applyAsDefault].
+     * @see getPropertyOmitFilters
+     * @see [applyAsDefault]
+     */
+    public fun withPropertyOmitFilters(vararg filters: PropertyMetaFilter): AsStringConfig {
+        propertyOmitFilters = filters
+        return this
+    }
+
+    /**
+     * @return The currently effective [PropertyMetaFilter]s
+     * @see [withPropertyOmitFilters]
+     */
+    public fun getPropertyOmitFilters(): Collection<PropertyMetaFilter> =
+        propertyOmitFilter.getRegisteredFilters().keys
+
+    /**
      * Assigns the [AsStringOption] and [AsStringClassOption] being built, to [AsStringOption.defaultOption]
      * and [AsStringClassOption.defaultOption], respectively, as the new application defaults.
      *  > This operation will reset (clear) the property cache and other caches, if necessary.
@@ -224,6 +249,7 @@ public class AsStringConfig {
     public fun applyAsDefault() {
         AsStringOption.defaultOption = newDefaultAsStringOption
         AsStringClassOption.defaultOption = newDefaultAsStringClassOption
+        propertyOmitFilter.setFilters(*propertyOmitFilters)
     }
 
 }

@@ -42,7 +42,7 @@ internal class PropertyValueMetaData(
     objectClass: KClass<*>?,
     propertyValue: Any?,
     override val stringValueLength: Int?,
-): PropertyMetaData(objectClass, property), PropertyValueMeta {
+): PropertyMetaData(property, objectClass), PropertyValueMeta {
 
     @Suppress("unused")
     constructor(propertyMeta: PropertyMeta, propertyValue: Any?, stringValueLength: Int?):
@@ -65,8 +65,10 @@ internal class PropertyValueMetaData(
     // Not using asString() here, it will cause StackOverflowError
     override fun toString(): String {
         return buildString {
-            append(this::class.simplifyClassName())
-            append("(stringValueLength=$stringValueLength,")
+            append(this@PropertyValueMetaData::class.simplifyClassName())
+            append("(")
+            append("objectClassname='$objectClassName',")
+            append(" stringValueLength=$stringValueLength,")
             append(" propertyName='$propertyName',")
             append(" returnType=$returnType")
             append(" isCharSequence=$isCharSequence,")

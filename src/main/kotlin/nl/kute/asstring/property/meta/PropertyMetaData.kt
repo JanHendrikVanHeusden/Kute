@@ -48,7 +48,9 @@ public interface PropertyMeta {
 
 /** Metadata about a property */
 @AsStringClassOption(toStringPreference = ToStringPreference.PREFER_TOSTRING) // Not using asString() here, it will cause StackOverflowError
-public open class PropertyMetaData(final override val objectClass: KClass<*>?, final override val property: KProperty<*>, ) : PropertyMeta {
+public open class PropertyMetaData(
+    final override val property: KProperty<*>,
+    final override val objectClass: KClass<*>?, ) : PropertyMeta {
 
     override val objectClassName: String? by lazy { objectClass?.simplifyClassName() }
     override val propertyName: String = property.name
@@ -60,7 +62,9 @@ public open class PropertyMetaData(final override val objectClass: KClass<*>?, f
     // Not using asString() here, it will cause StackOverflowError
     override fun toString(): String {
         return buildString {
-            append(this::class.simplifyClassName())
+            append(this@PropertyMetaData::class.simplifyClassName())
+            append("(")
+            append("objectClassname='$objectClassName',")
             append(" propertyName='$propertyName',")
             append(" returnType=$returnType")
             append(" isCharSequence=$isCharSequence,")
