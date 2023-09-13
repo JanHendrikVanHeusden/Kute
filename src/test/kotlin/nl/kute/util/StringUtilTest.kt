@@ -36,6 +36,19 @@ class StringUtilTest {
 
     @Test
     fun `test takeAndEllipse`() {
+        val nullStr: String? = null
+        assertThat(nullStr.takeAndEllipse(1)).isNull()
 
+        val randomStr10 = RandomStringUtils.random(10)
+        assertThat(randomStr10.takeAndEllipse(-1)).isEqualTo(randomStr10)
+        assertThat(randomStr10.takeAndEllipse(Int.MIN_VALUE)).isEqualTo(randomStr10)
+
+        assertThat(randomStr10.takeAndEllipse(10)).isEqualTo(randomStr10)
+        assertThat(randomStr10.takeAndEllipse(12)).isEqualTo(randomStr10)
+        assertThat(randomStr10.takeAndEllipse(Int.MAX_VALUE)).isEqualTo(randomStr10)
+
+        (0..9).forEach {
+            assertThat(randomStr10.takeAndEllipse(it)).isEqualTo(randomStr10.take(it) + "...")
+        }
     }
 }

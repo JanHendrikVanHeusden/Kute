@@ -13,14 +13,16 @@ internal fun joinIfNotEmpty(separator: String, vararg strings: String): String =
     strings.asSequence().filterNot { it.isEmpty() }.joinToString(separator = separator)
 
 /**
- * Takes the first [n] characters of a String and, if capped, appends ellipsis `...`
+ * Takes the first [n] characters of a String and, if capped, appends ellipsis `...
+ * @receiver A [String]`?` (so null allowed)
  * @return
- * * `null` if this String is `null`
- * * If this String is not longer than [n], the original String.
- * * Otherwise, if this String is longer than [n], a string containing the first [n] characters from this string,
- *  followed by ellipsis `...`
- * @throws [IllegalArgumentException] if [n] is negative.
+ * * `null` if `this` [String]`?` is `null`
+ * * If [n] `< 0`, the original [String]`?`
+ * * If `this` [String] is not longer than [n], the original String.
+ * * Otherwise, if `this` [String] is longer than [n],
+ *  a [String] containing the first [n] characters from this [String], followed by ellipsis `...`
  */
 @JvmSynthetic // avoid access from external Java code
 internal fun String?.takeAndEllipse(n: Int): String? =
-    this?.take(n)?.let { if (it.length == this.length) this else "$it..." }
+    if (n < 0) this
+    else this?.take(n)?.let { if (it.length == this.length) this else "$it..." }
