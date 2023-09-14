@@ -16,19 +16,6 @@ import java.util.Objects
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-/** Metadata about a property and the property's value */
-public interface PropertyValueMeta: PropertyMeta {
-
-    /** The value of the actual instance of this property */
-    public val stringValueLength: Int?
-    /** Is the value of the actual instance of this property `null`? */
-    public val isNull: Boolean
-
-    override fun toString(): String
-    override fun equals(other: Any?): Boolean
-    override fun hashCode(): Int
-}
-
 /**
  * Metadata about a property and the property's value
  * @param property The property this [PropertyValueMeta] is about
