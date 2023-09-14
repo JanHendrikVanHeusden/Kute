@@ -59,7 +59,7 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
                 || it.declaringClass()?.java?.isAssignableFrom(objJavaClass) == true
         }
 
-    private val classProperties: Set<KProperty<*>> by lazy {
+    private val classProperties: Set<KProperty<*>> by lazy(LazyThreadSafetyMode.NONE) {
         if (obj == null) {
             emptySet()
         } else {
@@ -67,22 +67,22 @@ public class AsStringBuilder private constructor(private var obj: Any?) : AsStri
         }
     }
 
-    private val classPropertyNames: Set<String> by lazy {
+    private val classPropertyNames: Set<String> by lazy(LazyThreadSafetyMode.NONE) {
         classProperties.map { it.name }.toSet()
     }
 
-    private val alsoNamed: MutableSet<NameValue<*>> by lazy { mutableSetOf() }
-    private val alsoNamedAsTypedArray by lazy { alsoNamed.toTypedArray() }
+    private val alsoNamed: MutableSet<NameValue<*>> by lazy(LazyThreadSafetyMode.NONE) { mutableSetOf() }
+    private val alsoNamedAsTypedArray by lazy(LazyThreadSafetyMode.NONE) { alsoNamed.toTypedArray() }
 
-    private val onlyProperties: MutableSet<KProperty<*>> by lazy { mutableSetOf() }
+    private val onlyProperties: MutableSet<KProperty<*>> by lazy(LazyThreadSafetyMode.NONE) { mutableSetOf() }
     private var isOnlyPropertiesSet: Boolean = false
-    private val onlyPropertyNames: MutableSet<String> by lazy { mutableSetOf() }
+    private val onlyPropertyNames: MutableSet<String> by lazy(LazyThreadSafetyMode.NONE) { mutableSetOf() }
     private var isOnlyPropertyNamesSet: Boolean = false
 
-    private val exceptProperties: MutableSet<KProperty<*>> by lazy { mutableSetOf() }
-    private val exceptPropertyNames: MutableSet<String> by lazy { mutableSetOf() }
+    private val exceptProperties: MutableSet<KProperty<*>> by lazy(LazyThreadSafetyMode.NONE) { mutableSetOf() }
+    private val exceptPropertyNames: MutableSet<String> by lazy(LazyThreadSafetyMode.NONE) { mutableSetOf() }
 
-    private val propertyNamesToExclude: MutableSet<String> by lazy { mutableSetOf() }
+    private val propertyNamesToExclude: MutableSet<String> by lazy(LazyThreadSafetyMode.NONE) { mutableSetOf() }
 
     private var isBuilt: Boolean = false
 
