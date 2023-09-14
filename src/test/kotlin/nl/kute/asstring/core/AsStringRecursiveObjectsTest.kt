@@ -230,6 +230,9 @@ class AsStringRecursiveObjectsTest: ObjectsStackVerifier {
                 "prop1=I am prop1",
                 withLastPropertyString = "asStringCaller=recursive: ClassWithToStringCallingAsString(...)"
             )
+        assertThat(testObj)
+            .`as`("This assertion is just to prevent the testObj to be garbage collected prematurely")
+            .isNotNull
     }
 
     @Suppress("unused")
