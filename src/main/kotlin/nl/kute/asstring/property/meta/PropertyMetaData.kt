@@ -17,12 +17,13 @@ public open class PropertyMetaData(
     final override val property: KProperty<*>,
     final override val objectClass: KClass<*>?, ) : PropertyMeta {
 
-    override val objectClassName: String? by lazy { objectClass?.simplifyClassName() }
     override val propertyName: String = property.name
     final override val returnType: KType = property.returnType
-    override val isBaseType: Boolean = returnType.isBaseType()
-    override val isCollectionLike: Boolean = returnType.isCollectionType()
-    override val isCharSequence: Boolean = returnType.isCharSequenceType()
+
+    override val objectClassName: String? by lazy(LazyThreadSafetyMode.NONE) { objectClass?.simplifyClassName() }
+    override val isBaseType: Boolean by lazy(LazyThreadSafetyMode.NONE) { returnType.isBaseType() }
+    override val isCollectionLike: Boolean by lazy(LazyThreadSafetyMode.NONE) { returnType.isCollectionType() }
+    override val isCharSequence: Boolean by lazy(LazyThreadSafetyMode.NONE) { returnType.isCharSequenceType() }
 
     // Not using asString() here, it will cause StackOverflowError
     override fun toString(): String {
@@ -47,9 +48,6 @@ public open class PropertyMetaData(
         if (propertyName != other.propertyName) return false
         if (returnType != other.returnType) return false
         if (objectClass != other.objectClass) return false
-        if (isCharSequence != other.isCharSequence) return false
-        if (isBaseType != other.isBaseType) return false
-        if (isCollectionLike != other.isCollectionLike) return false
 
         return true
     }

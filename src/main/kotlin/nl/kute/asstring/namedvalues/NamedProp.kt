@@ -85,7 +85,7 @@ public final class NamedProp<T : Any?, V : Any?>(public override val property: K
 
     public override val name: String = if (propertyCoherentWithObject) property.name else defaultNullString
 
-    override val asStringAffectingAnnotations: Set<Annotation> by lazy {
+    override val asStringAffectingAnnotations: Set<Annotation> by lazy(LazyThreadSafetyMode.NONE) {
         if (!propertyCoherentWithObject) emptySet() else {
             mutableSetOf<Annotation>().also { annotationSet ->
                 objClass?.run {
