@@ -172,18 +172,21 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                     // not preferring toString() & no handler, so custom object to dynamically resolve
                     // let's process it, with all params provided
                     try {
-                        var annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
-                            objClass.propertiesWithAsStringAffectingAnnotations()
+                        val annotationsByProperty: Map<KProperty<*>, Set<Annotation>> =
+                            objClass.propertiesWithAsStringAffectingAnnotations().asSequence()
                                 .filterNot { propertyNamesToExclude.contains(it.key.name) }
                                 .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
+                                .filterNot { entry ->
+                                    propertyOmitFilter.hasFilter() && propertyOmitFilter.getFilters()
+                                        // No caching here.
+                                        // * Caching by property only does not meet requirements.
+                                        // *  Maybe PropertyMetaData might be cached by Pair(prop, objClass
+                                        //    But that involves constructing a Pair for each.
+                                        // Construction of PropertyMetaData is not an expensive operation.
+                                        // So gain of caching is probably marginal
+                                        .any { filter -> filter(PropertyMetaData(entry.key, objClass)) }
+                                }.associate { it.key to it.value }
 
-                        if (propertyOmitFilter.hasFilter()) {
-                            // todo: cache propertyMetaData by property
-                            annotationsByProperty = annotationsByProperty.filterKeys { prop ->
-                                propertyOmitFilter.getFilters()
-                                    .all { filter -> !filter(PropertyMetaData(prop, objClass)) }
-                            }
-                        }
                         val named: List<NameValue<*>> = nameValues
                             .filterNot { nameValue ->
                                 nameValue is PropertyValue<*>
