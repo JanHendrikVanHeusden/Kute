@@ -5,6 +5,7 @@ import nl.kute.reflection.util.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.api.fail
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
@@ -41,6 +42,7 @@ internal class MapCacheTest {
                 theCache.add(key)
                 assertThat(theCache.cache).hasSize(1)
             }
+            else -> fail { "Not implemented" }
         }
 
         // assert content
@@ -66,6 +68,7 @@ internal class MapCacheTest {
                 assertThat(theCache.cache).isEmpty()
                 assertThat(theCache[key]).isFalse
             }
+            else -> fail { "Not implemented" }
         }
     }
 
