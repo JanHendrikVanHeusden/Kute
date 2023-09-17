@@ -1,20 +1,28 @@
-@file:Suppress("KDocMissingDocumentation", "DuplicatedCode")
+@file:Suppress("KDocMissingDocumentation")
 
 package nl.kute.performance
 
 import nl.kute.asstring.annotation.additionalAnnotations
 import nl.kute.asstring.annotation.modify.cachingRegexFactory
+import nl.kute.asstring.annotation.option.PropertyValueSurrounder
+import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.asStringClassOptionCache
+import nl.kute.asstring.config.asStringConfig
+import nl.kute.asstring.config.restoreInitialAsStringClassOption
+import nl.kute.asstring.config.restoreInitialAsStringOption
 import nl.kute.asstring.core.objectCategoryCache
 import nl.kute.asstring.core.useToStringByClass
+import nl.kute.asstring.property.filter.PropertyMetaFilter
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
+import nl.kute.asstring.property.ranking.PropertyRankingByStringValueLength
 import nl.kute.log.log
+import nl.kute.performance.PerformanceFewPropsLotsOfOptions.Companion.callCountPerMethodPerIteration
 import nl.kute.reflection.util.classToStringMethodCache
 import nl.kute.testobjects.performance.PropsToString
-import nl.kute.testobjects.performance.modifyManyPropValues
-import nl.kute.testobjects.performance.propClassesManyProps
-import nl.kute.testobjects.performance.propListManyPropsAll
-import nl.kute.testobjects.performance.testObjectsManyProps
+import nl.kute.testobjects.performance.modifyFewPropValues
+import nl.kute.testobjects.performance.propClassesFewProps
+import nl.kute.testobjects.performance.propListFewPropsAll
+import nl.kute.testobjects.performance.testObjectsFewProps
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Level
@@ -24,26 +32,24 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
-import java.lang.IllegalStateException
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 // Set to `true` to enable the test
-private var enabled = false
+private var enabled = true
+
+internal class Dummy
 
 /**
- * Runs performance tests with **Kute** [nl.kute.asstring.core.asString], compared to
- * Apache's `ToStringBuilder`, `Gson.toJson()`, and IDE-generated toString.
- *  * The classes of this test have 500 properties each
- *  * **Kute** `asString` is used with vanilla options, so without any additional options specified.
+ * Runs the same tests as [PerformanceFewProps], but with property sorting (i.e.,
+ * properties with their String-values are ordered by specified criteria in the output of [nl.kute.asstring.core.asString])
  *
  *  * *Run gradle task *jmh* -> `jmh` to execute this test.*
  *  * Or run it using the generated jar: `build/libs/Kute-<version>-jmh.jar`
  *  * Alternatively, run it from your IDE if you can find a plugin that does the job
  *
- * The test typically runs in less than 15 minutes, depending on hardware & environment
+ * The test typically runs in less than 5 minutes, depending on hardware & environment
  * > With [callCountPerMethodPerIteration] = 1000
  *  * If running it on a laptop, make sure it does not enter sleep mode.
  *     * on Mac you may run the command<br>
@@ -52,36 +58,49 @@ private var enabled = false
  *     * on Linux and Windows, Google and/or consult documentation on how to prevent sleep mode
  */
 @State(Scope.Benchmark)
-open class PerformanceManyProps {
+open class PerformanceFewPropsLotsOfOptions {
 
     @Setup(Level.Iteration)
     fun setUpIteration() {
         if (!enabled) {
             throw(IllegalStateException(disabledWarning))
         }
-        testObjectsManyProps.modifyManyPropValues()
-        var charCount: Long = 0
-        tasks.toMutableList().shuffled().forEach { task ->
-            repeat(callCountPerMethodPerIteration) {
-                charCount += task(testObjectsManyProps[Random.nextInt(0, testObjectCount)]).length.toLong()
-            }
+        val propertyFilter : PropertyMetaFilter = { meta ->
+            // won't filter out anything, but it will be checked on each asString() call
+            meta.returnType.classifier == Dummy::class
         }
+        asStringConfig()
+            .withPropertiesAlphabetic(true)
+            .withPropertySorters(PropertyRankingByStringValueLength::class)
+            .withSurroundPropValue(PropertyValueSurrounder.`«»`)
+            .withIncludeIdentityHash(true)
+            .withToStringPreference(ToStringPreference.PREFER_TOSTRING)
+            .withPropertyOmitFilters(propertyFilter)
+            .applyAsDefault()
+
+        testObjectsFewProps.modifyFewPropValues()
+        var charCount: Long = 0
+        repeat(callCountPerMethodPerIteration) {
+            charCount += asStringTask(testObjectsFewProps[Random.nextInt(0, testObjectCount)]).length.toLong()
+        }
+
         // charCount: just to make sure that the JVM does not eliminate the asString()/ToStringBuilder/gson/ideToString calls
         log("Iteration yielded $charCount characters")
         log("""# of executions (total over iterations):
                | asString       : $asStringExecutionCount
-               | ToStringBuilder: $toStringBuilderExecutionCount
-               | gson:          : $gsonStringExecutionCount
-               | IDE generated  : $ideToStringExceutionCount
         """.trimMargin())
 
     }
 
     @TearDown(Level.Trial)
     fun tearDownPerformanceTest() {
+        restoreInitialAsStringClassOption()
+        restoreInitialAsStringOption()
+
         if (!enabled) {
             throw(IllegalStateException(disabledWarning))
         }
+
         log(
             """Cache sizes:
 
@@ -101,48 +120,24 @@ open class PerformanceManyProps {
 
         val callCountPerMethodPerIteration: Int = 1000
 
-        val testObjectCount: Int = testObjectsManyProps.size
-        private val propertyCount: Int = propListManyPropsAll.size
-        private val classCount: Int = propClassesManyProps.size
+        val testObjectCount: Int = testObjectsFewProps.size
+        private val propertyCount: Int = propListFewPropsAll.size
+        private val classCount: Int = propClassesFewProps.size
 
-        private val plan: PerformanceManyProps = PerformanceManyProps()
+        private val plan: PerformanceFewPropsLotsOfOptions = PerformanceFewPropsLotsOfOptions()
 
         val asStringExecutionCount: AtomicInteger = AtomicInteger(0)
-        private val asStringTask: ToStringTask = { p ->
+        val asStringTask: ToStringTask = { p ->
             asStringExecutionCount.incrementAndGet()
             plan.asString(p)
         }
 
-        val toStringBuilderExecutionCount: AtomicInteger = AtomicInteger(0)
-        private val toStringBuilderTask: ToStringTask = { p ->
-            toStringBuilderExecutionCount.incrementAndGet()
-            plan.toStringBuilder(p)
-        }
-
-        val ideToStringExceutionCount: AtomicInteger = AtomicInteger(0)
-        private val ideToStringTask: ToStringTask = { p ->
-            ideToStringExceutionCount.incrementAndGet()
-            plan.ideGeneratedToString(p)
-        }
-
-        val gsonStringExecutionCount: AtomicInteger = AtomicInteger(0)
-        private val gsonStringTask: ToStringTask = { p ->
-            gsonStringExecutionCount.incrementAndGet()
-            plan.gsonToJson(p)
-        }
-
-        val tasks: MutableSet<ToStringTask> =
-            ConcurrentHashMap.newKeySet<ToStringTask?>().also { it.addAll(listOf(asStringTask, toStringBuilderTask, ideToStringTask, gsonStringTask)) }
-
         init {
             log("""
 
-            This test measures the performance of **`asString()`** compared to:
-             * Apache's `ToStringBuilder.reflectionToString()`
-             * `gson.toJson()`
-             * IDE generated toString()
+            This test measures the performance of **`asString()`**, with several additional settings.
 
-            Each method is called $callCountPerMethodPerIteration times per iteration, in 4 threads.
+            `asString()` is called $callCountPerMethodPerIteration times per iteration, in 4 threads.
 
             The test comprises $testObjectCount objects, with $propertyCount distinct `var` properties in $classCount classes.
             Between runs of the tests, the property values are updated.
@@ -152,7 +147,7 @@ open class PerformanceManyProps {
 
             log("""
 
-            The test typically runs in less than 15 minutes, depending on hardware & environment.
+            The test typically runs in less than 5 minutes, depending on hardware & environment.
             If running it on a laptop, make sure it does not enter sleep mode.
              * on Mac you may run the command `caffeinate -d -t 108000` to keep it awake for half an hour (108000s)
              * on Linux and Windows, Google and/or consult documentation
@@ -166,18 +161,4 @@ open class PerformanceManyProps {
     @BenchmarkMode(Mode.All)
     open fun asString(propsInstance: PropsToString): String = propsInstance.withAsString()
 
-    @Benchmark
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    @BenchmarkMode(Mode.All)
-    open fun toStringBuilder(propsInstance: PropsToString): String = propsInstance.withToStringBuilder()
-
-    @Benchmark
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    @BenchmarkMode(Mode.All)
-    open fun gsonToJson(propsInstance: PropsToString): String = propsInstance.withGson()
-
-    @Benchmark
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    @BenchmarkMode(Mode.All)
-    open fun ideGeneratedToString(propsInstance: PropsToString): String = propsInstance.withIdeGeneratedToString()
 }

@@ -11,10 +11,10 @@ import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
 import nl.kute.log.log
 import nl.kute.reflection.util.classToStringMethodCache
 import nl.kute.testobjects.performance.PropsToString
-import nl.kute.testobjects.performance.modifyManyPropValues
-import nl.kute.testobjects.performance.propClassesManyProps
-import nl.kute.testobjects.performance.propListManyPropsAll
-import nl.kute.testobjects.performance.testObjectsManyProps
+import nl.kute.testobjects.performance.modifyFewPropValues
+import nl.kute.testobjects.performance.propClassesFewProps
+import nl.kute.testobjects.performance.propListFewPropsAll
+import nl.kute.testobjects.performance.testObjectsFewProps
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Level
@@ -24,7 +24,6 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
-import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -36,7 +35,7 @@ private var enabled = false
 /**
  * Runs performance tests with **Kute** [nl.kute.asstring.core.asString], compared to
  * Apache's `ToStringBuilder`, `Gson.toJson()`, and IDE-generated toString.
- *  * The classes of this test have 500 properties each
+ *  * The classes of this test have 7 properties each
  *  * **Kute** `asString` is used with vanilla options, so without any additional options specified.
  *
  *  * *Run gradle task *jmh* -> `jmh` to execute this test.*
@@ -52,18 +51,18 @@ private var enabled = false
  *     * on Linux and Windows, Google and/or consult documentation on how to prevent sleep mode
  */
 @State(Scope.Benchmark)
-open class PerformanceManyProps {
+open class PerformanceFewProps {
 
     @Setup(Level.Iteration)
     fun setUpIteration() {
         if (!enabled) {
             throw(IllegalStateException(disabledWarning))
         }
-        testObjectsManyProps.modifyManyPropValues()
+        testObjectsFewProps.modifyFewPropValues()
         var charCount: Long = 0
         tasks.toMutableList().shuffled().forEach { task ->
             repeat(callCountPerMethodPerIteration) {
-                charCount += task(testObjectsManyProps[Random.nextInt(0, testObjectCount)]).length.toLong()
+                charCount += task(testObjectsFewProps[Random.nextInt(0, testObjectCount)]).length.toLong()
             }
         }
         // charCount: just to make sure that the JVM does not eliminate the asString()/ToStringBuilder/gson/ideToString calls
@@ -101,11 +100,11 @@ open class PerformanceManyProps {
 
         val callCountPerMethodPerIteration: Int = 1000
 
-        val testObjectCount: Int = testObjectsManyProps.size
-        private val propertyCount: Int = propListManyPropsAll.size
-        private val classCount: Int = propClassesManyProps.size
+        val testObjectCount: Int = testObjectsFewProps.size
+        private val propertyCount: Int = propListFewPropsAll.size
+        val classCount: Int = propClassesFewProps.size
 
-        private val plan: PerformanceManyProps = PerformanceManyProps()
+        private val plan: PerformanceFewProps = PerformanceFewProps()
 
         val asStringExecutionCount: AtomicInteger = AtomicInteger(0)
         private val asStringTask: ToStringTask = { p ->
@@ -132,7 +131,8 @@ open class PerformanceManyProps {
         }
 
         val tasks: MutableSet<ToStringTask> =
-            ConcurrentHashMap.newKeySet<ToStringTask?>().also { it.addAll(listOf(asStringTask, toStringBuilderTask, ideToStringTask, gsonStringTask)) }
+            ConcurrentHashMap.newKeySet<ToStringTask?>()
+                .also { it.addAll(listOf(asStringTask, toStringBuilderTask, ideToStringTask, gsonStringTask)) }
 
         init {
             log("""
