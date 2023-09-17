@@ -19,7 +19,7 @@ It is intended to demonstrate usage of naming conventions (together with lengths
 - - 
       You are encouraged to roll your own ranking, if you feel like it!
 - 
-   Of course it can be combined it with other provided implementations, e.g. [PropertyRankingByLength](../-property-ranking-by-length/index.md) or [PropertyRankingByLength](../-property-ranking-by-length/index.md).
+   Of course it can be combined it with other provided implementations, e.g. [PropertyRankingByStringValueLength](../-property-ranking-by-string-value-length/index.md).
 
 #### See also
 

@@ -23,7 +23,7 @@ Abstract base class to provide ranking for ordering properties in [nl.kute.asstr
 |---|
 | [NoOpPropertyRanking](../-no-op-property-ranking/index.md) |
 | [PropertyRankingByCommonNames](../-property-ranking-by-common-names/index.md) |
-| [PropertyRankingByLength](../-property-ranking-by-length/index.md) |
+| [PropertyRankingByStringValueLength](../-property-ranking-by-string-value-length/index.md) |
 | [PropertyRankingByType](../-property-ranking-by-type/index.md) |
 
 ## Constructors

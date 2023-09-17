@@ -1,4 +1,4 @@
-//[Kute](../../../index.md)/[nl.kute.asstring.property.ranking](../index.md)/[PropertyRankingByLength](index.md)/[getRank](get-rank.md)
+//[Kute](../../../index.md)/[nl.kute.asstring.property.ranking](../index.md)/[PropertyRankingByStringValueLength](index.md)/[getRank](get-rank.md)
 
 # getRank
 

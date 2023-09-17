@@ -23,7 +23,7 @@ jvm
 
 | |
 |---|
-| [PropertyRankingByLength](../-property-ranking-by-length/index.md) |
+| [PropertyRankingByStringValueLength](../-property-ranking-by-string-value-length/index.md) |
 
 ## Entries
 

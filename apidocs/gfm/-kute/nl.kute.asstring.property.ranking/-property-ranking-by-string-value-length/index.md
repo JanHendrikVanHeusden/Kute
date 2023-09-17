@@ -1,10 +1,10 @@
-//[Kute](../../../index.md)/[nl.kute.asstring.property.ranking](../index.md)/[PropertyRankingByLength](index.md)
+//[Kute](../../../index.md)/[nl.kute.asstring.property.ranking](../index.md)/[PropertyRankingByStringValueLength](index.md)
 
-# PropertyRankingByLength
+# PropertyRankingByStringValueLength
 
 @[AsStringClassOption](../../nl.kute.asstring.annotation.option/-as-string-class-option/index.md)(includeCompanion = false)
 
-open class [PropertyRankingByLength](index.md) : [PropertyRanking](../-property-ranking/index.md)
+open class [PropertyRankingByStringValueLength](index.md) : [PropertyRanking](../-property-ranking/index.md)
 
 Provides ranking for ordering properties in [nl.kute.asstring.core.asString](../../nl.kute.asstring.core/as-string.md) output, based on T-shirt sizing by means of [ValueLengthRanking](../-value-length-ranking/index.md)
 
