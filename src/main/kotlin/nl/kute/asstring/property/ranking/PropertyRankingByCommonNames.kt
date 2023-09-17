@@ -19,7 +19,7 @@ import java.util.UUID
  * * Names and suffixes usually case-insensitive
  * * For sure it won't fit **your** naming conventions. So the implementation is given "as is"!
  *    * You are encouraged to roll your own ranking, if you feel like it!
- * * Of course it can be combined it with other provided implementations, e.g. [PropertyRankingByLength] or [PropertyRankingByLength].
+ * * Of course it can be combined it with other provided implementations, e.g. [PropertyRankingByStringValueLength].
  * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
 @AsStringClassOption(includeCompanion = true, toStringPreference = USE_ASSTRING)

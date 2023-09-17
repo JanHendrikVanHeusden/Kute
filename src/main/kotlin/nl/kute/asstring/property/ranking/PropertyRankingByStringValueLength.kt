@@ -17,16 +17,16 @@ import java.util.EnumSet
  * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
 @AsStringClassOption(includeCompanion = false)
-public open class PropertyRankingByLength private constructor(): PropertyRanking() {
+public open class PropertyRankingByStringValueLength private constructor(): PropertyRanking() {
     /** @return A numeric rank based on [PropertyValueMeta.stringValueLength] and T-shirt sizes as of [ValueLengthRanking] */
     override fun getRank(propertyValueMeta: PropertyValueMeta): Int =
         ValueLengthRanking.getRank(propertyValueMeta.stringValueLength).rank
 
     public companion object {
-        /** Singleton instance of [PropertyRankingByLength] */
+        /** Singleton instance of [PropertyRankingByStringValueLength] */
         @Suppress("unused") // will be called reflectively
         @AsStringOmit
-        public var instance: PropertyRankingByLength = PropertyRankingByLength()
+        public var instance: PropertyRankingByStringValueLength = PropertyRankingByStringValueLength()
     }
 }
 
@@ -36,7 +36,7 @@ public open class PropertyRankingByLength private constructor(): PropertyRanking
  * > The [lengthRange]s fully cover the [Int] values from `0` to [Int.MAX_VALUE], without overlap.
  * @param [rank] The relative weight associated with the [ValueLengthRanking], ranging up from [S] to [XXL]
  * @param [lengthRange] The range (min inclusive, max inclusive) associated with the [ValueLengthRanking]
- * @see [PropertyRankingByLength]
+ * @see [PropertyRankingByStringValueLength]
  */
 @AsStringClassOption(includeIdentityHash = false, includeCompanion = false)
 public enum class ValueLengthRanking(public val rank: Int, public val lengthRange: IntRange) {

@@ -10,7 +10,7 @@ import nl.kute.asstring.namedvalues.namedProp
 import nl.kute.asstring.property.meta.PropertyValueMeta
 import nl.kute.asstring.property.ranking.PropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankingByCommonNames
-import nl.kute.asstring.property.ranking.PropertyRankingByLength
+import nl.kute.asstring.property.ranking.PropertyRankingByStringValueLength
 import nl.kute.asstring.property.ranking.ValueLengthRanking
 import nl.kute.asstring.property.ranking.ValueLengthRanking.Companion.getRank
 import nl.kute.asstring.property.ranking.ValueLengthRanking.L
@@ -124,7 +124,7 @@ class AsStringPropertyOrderingTest {
         // check annotations
         val asStringClassOption = testObj::class.annotations.first { it is AsStringClassOption } as AsStringClassOption
         assertThat(asStringClassOption.sortNamesAlphabetic).isTrue
-        assertThat(asStringClassOption.propertySorters).isEqualTo(arrayOf(PropertyRankingByLength::class))
+        assertThat(asStringClassOption.propertySorters).isEqualTo(arrayOf(PropertyRankingByStringValueLength::class))
         assertThat(testObj::class.companionObject!!.annotations.isEmpty())
         // act, assert
         assertThat(testObj.asString())
@@ -193,7 +193,7 @@ class AsStringPropertyOrderingTest {
         val testObj = WithPropsAndCompanionProps()
         val asStringClassOption = testObj::class.annotations.first { it is AsStringClassOption } as AsStringClassOption
         assertThat(asStringClassOption.sortNamesAlphabetic).isTrue
-        assertThat(asStringClassOption.propertySorters).isEqualTo(arrayOf(PropertyRankingByLength::class))
+        assertThat(asStringClassOption.propertySorters).isEqualTo(arrayOf(PropertyRankingByStringValueLength::class))
         assertThat(testObj::class.companionObject!!.annotations.isEmpty())
         val asStringBuilder = testObj
             .asStringBuilder()
@@ -254,7 +254,7 @@ private open class TestClassWithSingleLetterProperties {
 }
 
 @Suppress("unused")
-@AsStringClassOption(sortNamesAlphabetic = false, propertySorters = [PropertyRankingByLength::class, ReverseAlphabeticPropertyRanking::class])
+@AsStringClassOption(sortNamesAlphabetic = false, propertySorters = [PropertyRankingByStringValueLength::class, ReverseAlphabeticPropertyRanking::class])
 private open class TestClassWithSingleLetterPropertiesAndDifferentValueLengths: TestClassWithSingleLetterProperties() {
     open val a = "a".repeat(80)
     override val d: String = "d".repeat(30)
@@ -288,7 +288,7 @@ class AsciiNames {
 
 @AsStringClassOption(
     sortNamesAlphabetic = true,
-    propertySorters = [PropertyRankingByCommonNames::class, PropertyRankingByLength::class]
+    propertySorters = [PropertyRankingByCommonNames::class, PropertyRankingByStringValueLength::class]
 )
 class CommonNames {
     val myUuid: String = "uuid in name only :-)"
@@ -304,7 +304,7 @@ class CommonNames {
 }
 
 @Suppress("unused")
-@AsStringClassOption(includeCompanion = true, sortNamesAlphabetic = true, propertySorters = [PropertyRankingByLength::class])
+@AsStringClassOption(includeCompanion = true, sortNamesAlphabetic = true, propertySorters = [PropertyRankingByStringValueLength::class])
 open class WithPropsAndCompanionProps {
     val x = "x"
     val a = "a"
