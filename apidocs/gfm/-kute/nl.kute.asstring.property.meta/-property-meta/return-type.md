@@ -1,4 +1,4 @@
-//[Kute](../../../index.md)/[nl.kute.asstring.property.meta](../index.md)/[PropertyValueMetaData](index.md)/[returnType](return-type.md)
+//[Kute](../../../index.md)/[nl.kute.asstring.property.meta](../index.md)/[PropertyMeta](index.md)/[returnType](return-type.md)
 
 # returnType
 

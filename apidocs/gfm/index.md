@@ -12,6 +12,7 @@
 | [nl.kute.asstring.core](-kute/nl.kute.asstring.core/index.md) |
 | [nl.kute.asstring.core.defaults](-kute/nl.kute.asstring.core.defaults/index.md) |
 | [nl.kute.asstring.namedvalues](-kute/nl.kute.asstring.namedvalues/index.md) |
+| [nl.kute.asstring.property.filter](-kute/nl.kute.asstring.property.filter/index.md) |
 | [nl.kute.asstring.property.meta](-kute/nl.kute.asstring.property.meta/index.md) |
 | [nl.kute.asstring.property.ranking](-kute/nl.kute.asstring.property.ranking/index.md) |
 | [nl.kute.asstring.weakreference](-kute/nl.kute.asstring.weakreference/index.md) |

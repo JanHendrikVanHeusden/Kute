@@ -3,7 +3,7 @@
 # namedSupplier
 
 [jvm]\
-fun &lt;[V](named-supplier.md)&gt; [Supplier](-supplier/index.md)&lt;[V](named-supplier.md)?&gt;.[namedSupplier](named-supplier.md)(name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)): [NameValue](-name-value/index.md)&lt;[V](named-supplier.md)?&gt;
+fun &lt;[V](named-supplier.md)&gt; [ValueSupplier](-value-supplier/index.md)&lt;[V](named-supplier.md)?&gt;.[namedSupplier](named-supplier.md)(name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)): [NameValue](-name-value/index.md)&lt;[V](named-supplier.md)?&gt;
 
 Convenience method to construct a [NamedSupplier](-named-supplier/index.md)
 

@@ -2,9 +2,9 @@
 
 # NamedSupplier
 
-class [NamedSupplier](index.md)&lt;[V](index.md)&gt;(val name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), supplier: [Supplier](../-supplier/index.md)&lt;[V](index.md)?&gt;) : [AbstractNameValue](../-abstract-name-value/index.md)&lt;[V](index.md)?&gt; 
+class [NamedSupplier](index.md)&lt;[V](index.md)&gt;(val name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), supplier: [ValueSupplier](../-value-supplier/index.md)&lt;[V](index.md)?&gt;) : [AbstractNameValue](../-abstract-name-value/index.md)&lt;[V](index.md)?&gt; 
 
-A [NameValue](../-name-value/index.md) implementation where the value to be resolved is provided by means of a [Supplier](../-supplier/index.md) lambda.
+A [NameValue](../-name-value/index.md) implementation where the value to be resolved is provided by means of a [ValueSupplier](../-value-supplier/index.md) lambda.
 
 - 
    Goal: To provide an additional value to include in the [nl.kute.asstring.core.asString](../../nl.kute.asstring.core/as-string.md) output
@@ -53,7 +53,7 @@ jvm
 
 | | |
 |---|---|
-| [NamedSupplier](-named-supplier.md) | [jvm]<br>constructor(name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), callable: [Callable](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Callable.html)&lt;[V](index.md)?&gt;)<br>Secondary constructor, mainly for usage from Java.<br>constructor(name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), supplier: [Supplier](../-supplier/index.md)&lt;[V](index.md)?&gt;) |
+| [NamedSupplier](-named-supplier.md) | [jvm]<br>constructor(name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), callable: [Callable](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Callable.html)&lt;[V](index.md)?&gt;)<br>Secondary constructor, mainly for usage from Java.<br>constructor(name: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), supplier: [ValueSupplier](../-value-supplier/index.md)&lt;[V](index.md)?&gt;) |
 
 ## Properties
 

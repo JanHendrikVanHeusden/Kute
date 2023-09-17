@@ -41,5 +41,5 @@ This interface is sealed, so external code can not implement it. Concrete implem
 
 | Name | Summary |
 |---|---|
-| [getRank](get-rank.md) | [jvm]<br>abstract fun [getRank](get-rank.md)(propertyValueMetaData: [PropertyValueMetaData](../../nl.kute.asstring.property.meta/-property-value-meta-data/index.md)): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)<br>Provide a rank, typically to be used for sorting properties / values, based on the [propertyValueMetaData](get-rank.md). |
+| [getRank](get-rank.md) | [jvm]<br>abstract fun [getRank](get-rank.md)(propertyValueMeta: [PropertyValueMeta](../../nl.kute.asstring.property.meta/-property-value-meta/index.md)): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)<br>Provide a rank, typically to be used for sorting properties / values, based on the [propertyValueMeta](get-rank.md). |
 | [register](register.md) | [jvm]<br>open fun [register](register.md)()<br>Register this concrete [PropertyRankable](index.md) class to allow using it for ordering properties in [nl.kute.asstring.core.asString](../../nl.kute.asstring.core/as-string.md) output |

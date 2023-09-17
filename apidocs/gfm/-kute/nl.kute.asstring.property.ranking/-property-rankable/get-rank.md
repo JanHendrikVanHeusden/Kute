@@ -3,12 +3,12 @@
 # getRank
 
 [jvm]\
-abstract fun [getRank](get-rank.md)(propertyValueMetaData: [PropertyValueMetaData](../../nl.kute.asstring.property.meta/-property-value-meta-data/index.md)): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)
+abstract fun [getRank](get-rank.md)(propertyValueMeta: [PropertyValueMeta](../../nl.kute.asstring.property.meta/-property-value-meta/index.md)): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)
 
-Provide a rank, typically to be used for sorting properties / values, based on the [propertyValueMetaData](get-rank.md).
+Provide a rank, typically to be used for sorting properties / values, based on the [propertyValueMeta](get-rank.md).
 
 The rank should be deterministic (i.e. always return the same value given same input)
 
 #### Return
 
-A numeric rank based on / associated with the given [propertyValueMetaData](get-rank.md)
+A numeric rank based on / associated with the given [propertyValueMeta](get-rank.md)
