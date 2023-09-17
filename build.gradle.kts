@@ -48,7 +48,7 @@ sourceSets.jmh {
 
     java.srcDirs()
     kotlin.srcDirs("src/main/kotlin", "src/jmh/kotlin")
-    resources.srcDirs("src/test/resources")
+    resources.srcDirs("src/jmh/resources")
     dependencies {
         // Common libraries - to be used in tests only !
         // Do NOT use these in source code, packaged Kute should not rely on ANY external dependency
