@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
-
 typealias ToStringTask = (PropsToString) -> String
 
 /**
@@ -40,8 +39,10 @@ typealias ToStringTask = (PropsToString) -> String
  * The test typically runs in less than 15 minutes, depending on hardware & environment
  * > With [callCountPerMethodPerIteration] = 1000
  *  * If running it on a laptop, make sure it does not enter sleep mode.
- *     * on Mac you may run the command `caffeinate -d -t 108000` to keep it awake for half an hour (108000s)
- *     * on Linux and Windows, Google and/or consult documention
+ *     * on Mac you may run the command<br>
+ *       `caffeinate -d -t 108000`
+ *       <br>to keep it awake for half an hour (108000s)
+ *     * on Linux and Windows, Google and/or consult documentation on how to prevent sleep mode
  */
 @State(Scope.Benchmark)
 open class PerformanceManyProps {
@@ -112,7 +113,6 @@ open class PerformanceManyProps {
         }
 
         val gsonStringExecutionCount: AtomicInteger = AtomicInteger(0)
-        // gson causes failures with jmh... See comments in interface PropsToString
         val gsonStringTask: ToStringTask = { p ->
             gsonStringExecutionCount.incrementAndGet()
             plan.gsonToJson(p)

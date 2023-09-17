@@ -1085,21 +1085,6 @@ open class PropsToString {
     open fun withAsString(): String = ""
     open fun withToStringBuilder(): String = ""
     open fun withIdeGeneratedToString(): String = ""
-
-    // Performance test failure with jmh, so can't use gson :-(
-    //
-    // ava.lang.IllegalArgumentException: Class nl.kute.testobjects.performance.jmh_generated.Props0_jmhType declares multiple JSON fields named 'p000'; conflict is caused by fields nl.kute.testobjects.performance.jmh_generated.Props0_jmhType_B3#p000 and nl.kute.testobjects.performance.jmh_generated.Props0_jmhType_B1#p000
-    //	at com.google.gson.internal.bind.ReflectiveTypeAdapterFactory.getBoundFields(ReflectiveTypeAdapterFactory.java:302)
-    //	at com.google.gson.internal.bind.ReflectiveTypeAdapterFactory.create(ReflectiveTypeAdapterFactory.java:130)
-    //	at com.google.gson.Gson.getAdapter(Gson.java:556)
-    //	at com.google.gson.Gson.toJson(Gson.java:834)
-    //	at com.google.gson.Gson.toJson(Gson.java:812)
-    //	at com.google.gson.Gson.toJson(Gson.java:759)
-    //	at com.google.gson.Gson.toJson(Gson.java:736)
-    //	at nl.kute.testobjects.performance.Props0.withGson(PropertyTestClasses.kt:....)
-    //	at nl.kute.testobjects.performance.jmh_generated.Props0_withGson_jmhTest.withGson_avgt_jmhStub(Props0_withGson_jmhTest.java:190)
-    //	at nl.kute.testobjects.performance.jmh_generated.Props0_withGson_jmhTest
-
      open fun withGson(): String = ""
 }
 
@@ -1210,7 +1195,6 @@ open class Props0: PropsToString() {
 
     override fun withAsString(): String = this.asString()
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
@@ -1327,7 +1311,6 @@ open class Props1: PropsToString() {
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
     override fun withIdeGeneratedToString(): String =
@@ -1440,7 +1423,6 @@ open class Props2: PropsToString() {
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
     override fun withIdeGeneratedToString(): String =
@@ -1553,7 +1535,6 @@ open class Props3: PropsToString() {
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
     override fun withIdeGeneratedToString(): String =
@@ -1666,7 +1647,6 @@ open class Props4: PropsToString() {
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
 
@@ -1780,7 +1760,6 @@ open class Props5: PropsToString() {
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
     override fun withIdeGeneratedToString(): String =
@@ -1893,7 +1872,6 @@ open class Props6: PropsToString() {
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
     override fun withIdeGeneratedToString(): String =
@@ -2006,7 +1984,6 @@ open class Props7: PropsToString() {
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
 
@@ -2120,7 +2097,6 @@ open class Props8: PropsToString() {
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
     override fun withIdeGeneratedToString(): String =
@@ -2234,7 +2210,6 @@ open class Props9: PropsToString() {
 
     override fun withToStringBuilder(): String = ToStringBuilder.reflectionToString(this)
 
-    // gson causes failures with jmh test :-(
     override fun withGson(): String = gson.toJson(this)
 
     override fun withIdeGeneratedToString(): String =
