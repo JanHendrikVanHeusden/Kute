@@ -7,10 +7,10 @@ import nl.kute.util.throwableAsString
 import java.util.concurrent.Callable
 
 /** Convenience type alias for `() -> T?` */
-public typealias Supplier<T> = () -> T?
+public typealias ValueSupplier<T> = () -> T?
 
 /**
- * A [NameValue] implementation where the value to be resolved is provided by means of a [Supplier] lambda.
+ * A [NameValue] implementation where the value to be resolved is provided by means of a [ValueSupplier] lambda.
  * * Goal: To provide an additional value to include in the [nl.kute.asstring.core.asString] output
  * * Usage: See  [nl.kute.asstring.core.AsStringBuilder.withAlsoNamed]
  *
@@ -39,7 +39,7 @@ public typealias Supplier<T> = () -> T?
  * @param supplier The lambda to supply the [value] on request
  * @see [nl.kute.asstring.core.AsStringBuilder.withAlsoNamed]
  */
-public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplier<V?>): AbstractNameValue<V?>() {
+public class NamedSupplier<V: Any?>(override val name: String, supplier: ValueSupplier<V?>): AbstractNameValue<V?>() {
 
     /**
      * Secondary constructor, mainly for usage from Java.
@@ -49,7 +49,7 @@ public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplie
      */
     public constructor(name: String, callable: Callable<V?>) : this(name, {callable.call()})
 
-    private val supplierReference: ObjectWeakReference<Supplier<V>> = ObjectWeakReference(supplier)
+    private val supplierReference: ObjectWeakReference<ValueSupplier<V>> = ObjectWeakReference(supplier)
 
     override val value: V?
         // Using `get()` so it's evaluated when required only, not at construction time of the NamedSupplier
@@ -79,5 +79,5 @@ public class NamedSupplier<V: Any?>(override val name: String, supplier: Supplie
  * @receiver The [V] producing supplier the [NamedSupplier] is about
  * @param name The name to be associated with the value to be supplied
  */
-public fun <V: Any?> Supplier<V?>.namedSupplier(name: String): NameValue<V?> =
+public fun <V: Any?> ValueSupplier<V?>.namedSupplier(name: String): NameValue<V?> =
     NamedSupplier(name,this)

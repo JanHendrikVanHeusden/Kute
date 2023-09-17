@@ -9,8 +9,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-private typealias Supplier<T> = () -> T?
-
 class NamedSupplierTest: GarbageCollectionWaiter {
 
     @BeforeEach
@@ -107,7 +105,7 @@ class NamedSupplierTest: GarbageCollectionWaiter {
             override fun toString(): String = asString()
         }
         var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
-        var supplier: Supplier<ToBeGarbageCollected?>? = { toBeGarbageCollected }
+        var supplier: ValueSupplier<ToBeGarbageCollected?>? = { toBeGarbageCollected }
         val namedSupplier: NamedSupplier<ToBeGarbageCollected> =
             supplier!!.namedSupplier("to be garbage collected") as NamedSupplier
 
