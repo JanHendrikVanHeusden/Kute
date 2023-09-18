@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 // Set to `true` to enable the test
-private var enabled = false
+private var enabled = true
 
 /**
  * Runs the same tests as [PerformanceManyProps], but with property sorting (i.e.,
