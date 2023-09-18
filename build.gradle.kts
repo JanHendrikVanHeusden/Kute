@@ -26,7 +26,9 @@ tasks.withType<KotlinCompile> {
 }
 
 kotlin {
-    // requires public stuff to explicitly specify `public`; and requires explicit return types for these
+    // requires:
+    //  * public stuff to explicitly declare `public`
+    //  * requires explicit return types for non-private var/val and methods
     explicitApi()
 }
 
@@ -223,6 +225,17 @@ tasks.register("assembleWithApiDocs") {
 }
 
 tasks.register("buildWithApiDocs") {
+    // This is the preferred `build` task, it keeps the API docs up-to-date with the source
+    //
+    // On Windows you frequently may run into IOExceptions
+    //   Probably because Windows writes asynchronously to files, and keeps locks on files
+    //   for a second or so after writing or deleting, this may block subsequent access
+    // If that is the case, do the following:
+    //  1. Instead of `buildWithApiDocs`, run the normal `build` task
+    //  2. Manually delete the API docs `gfm` folder (see variable `apiDocsGfmDir`)
+    //  3. Run the `dokkaGfm` task
+    //  4. Manually copy the dokkaGfm `gfm` folder (see variable `generatedGfmDir`) to the API docs directory
+    //  5. Add the files in the `apiDocsGfmDir` folder to git
     group = "build"
     dependsOn(tasks.named("build"))
     dependsOn(tasks.named("copyApiDocs"))
