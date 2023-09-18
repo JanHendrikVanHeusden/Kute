@@ -1,0 +1,10 @@
+Benchmark                                     Mode  Cnt  Score   Error  Units
+PerformanceFewPropsLotsOfOptions.asString     avgt    8  4,930 ± 0,188  ns/op
+
+Executed on:
+  macOS Ventura 13.x
+  2,6 GHz 6-Core Intel Core i7
+  16 GB 2667 MHz DDR4
+Running gradle task `jmh` from IntelliJ IDE
+Several other apps running on same machine, but not actively used (no user interaction),
+run task window (text output) minimized

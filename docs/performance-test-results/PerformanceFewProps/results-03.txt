@@ -1,0 +1,5 @@
+Benchmark                                     Mode  Cnt  Score   Error  Units
+PerformanceFewProps.asString                  avgt    8  4,972 ± 0,371  ns/op
+PerformanceFewProps.gsonToJson                avgt    8  4,824 ± 0,151  ns/op
+PerformanceFewProps.ideGeneratedToString      avgt    8  4,898 ± 0,260  ns/op
+PerformanceFewProps.toStringBuilder           avgt    8  5,021 ± 0,602  ns/op

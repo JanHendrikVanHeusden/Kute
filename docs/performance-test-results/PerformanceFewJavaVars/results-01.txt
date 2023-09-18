@@ -1,0 +1,13 @@
+Benchmark                                    Mode  Cnt  Score   Error  Units
+PerformanceFewJavaVars.asString              avgt    8  5,864 ± 0,586  ns/op
+PerformanceFewJavaVars.gsonToJson            avgt    8  5,365 ± 0,247  ns/op
+PerformanceFewJavaVars.ideGeneratedToString  avgt    8  5,337 ± 0,190  ns/op
+PerformanceFewJavaVars.toStringBuilder       avgt    8  5,299 ± 0,127  ns/op
+
+Executed on:
+  macOS Ventura 13.x
+  2,6 GHz 6-Core Intel Core i7
+  16 GB 2667 MHz DDR4
+Running gradle task `jmh` from IntelliJ IDE
+Several other apps running on same machine, but not actively used (no user interaction)
+Run task window minimized
