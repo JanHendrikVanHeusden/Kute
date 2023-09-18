@@ -48,8 +48,8 @@ private var enabled = true
  * > With [callCountPerMethodPerIteration] = 1000
  *  * If running it on a laptop, make sure it does not enter sleep mode.
  *     * on Mac you may run the command<br>
- *       `caffeinate -d -t 108000`
- *       <br>to keep it awake for half an hour (108000s)
+ *       `caffeinate -d -t 1800`
+ *       <br>to keep it awake for half an hour (1800s)
  *     * on Linux and Windows, Google and/or consult documentation on how to prevent sleep mode
  */
 @State(Scope.Benchmark)
@@ -137,7 +137,7 @@ open class PerformanceManyPropsWithPropSorting {
 
             The test typically runs in less than 5 minutes, depending on hardware & environment.
             If running it on a laptop, make sure it does not enter sleep mode.
-             * on Mac you may run the command `caffeinate -d -t 108000` to keep it awake for half an hour (108000s)
+             * on Mac you may run the command `caffeinate -d -t 1800` to keep it awake for half an hour (1800s)
              * on Linux and Windows, Google and/or consult documentation
 
         """.trimIndent())

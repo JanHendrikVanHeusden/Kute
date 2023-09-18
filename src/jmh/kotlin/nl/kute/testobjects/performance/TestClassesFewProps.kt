@@ -3,6 +3,7 @@
 package nl.kute.testobjects.performance
 
 import nl.kute.asstring.core.asString
+import nl.kute.performance.retrieveProperties
 import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.openjdk.jmh.annotations.Scope
@@ -36,9 +37,7 @@ val propClassesFewProps: Set<KClass<out PropsToString>> = setOf(FewPropsSub00::c
 )
 
 val propListFewPropsAll: List<KMutableProperty1<out PropsToString, *>> =
-    propClassesFewProps.map { it.memberProperties }
-        .flatten()
-        .map { it as KMutableProperty1<out PropsToString, *> }
+    propClassesFewProps.retrieveProperties()
 
 val testObjectsFewProps: List<PropsToString> = ArrayList<PropsToString>(1000).also { list ->
     repeat(100) {

@@ -4,7 +4,7 @@ package nl.kute.testobjects.performance
 
 import com.google.gson.Gson
 import nl.kute.asstring.core.asString
-import nl.kute.reflection.util.declaringClass
+import nl.kute.performance.retrieveProperties
 import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.openjdk.jmh.annotations.Scope
@@ -21,10 +21,9 @@ import kotlin.reflect.full.memberProperties
 //         may slow down your IDE dramatically.
 // There is no KDoc, there are
 
-public val gson: Gson = Gson()
+val gson: Gson = Gson()
 
 
-@Suppress("UNCHECKED_CAST")
 val propClassesManyProps: Set<KClass<out PropsToString>> = setOf(
     Props0::class,
     Props1::class,
@@ -39,9 +38,7 @@ val propClassesManyProps: Set<KClass<out PropsToString>> = setOf(
     )
 
 val propListManyPropsAll: List<KProperty1<out PropsToString, *>> =
-    propClassesManyProps.map { it.memberProperties }
-        .flatten()
-        .map { it as KMutableProperty1<out PropsToString, *> }
+    propClassesManyProps.retrieveProperties()
 
 val testObjectsManyProps: List<PropsToString> = ArrayList<PropsToString>(1000).also { list ->
     repeat(100) {
