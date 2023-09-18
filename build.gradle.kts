@@ -208,15 +208,23 @@ tasks.named("dokkaGfm") {
 // Tried with a task of type Copy, but it didn't work as desired in case of non-empty directories
 // So using custom task with Apache's FileUtils instead, works nicely
 tasks.register("copyApiDocs") {
-    dependsOn(tasks.named("dokkaGfm"))
     group = "documentation"
+    dependsOn(tasks.named("dokkaGfm"))
     doLast {
         FileUtils.deleteDirectory(apiDocsGfmDir)
         FileUtils.copyDirectory(generatedGfmDir, apiDocsGfmDir)
     }
 }
 
-tasks.named("assemble") {
+tasks.register("assembleWithApiDocs") {
+    group = "build"
+    dependsOn(tasks.named("assemble"))
+    dependsOn(tasks.named("copyApiDocs"))
+}
+
+tasks.register("buildWithApiDocs") {
+    group = "build"
+    dependsOn(tasks.named("build"))
     dependsOn(tasks.named("copyApiDocs"))
 }
 
