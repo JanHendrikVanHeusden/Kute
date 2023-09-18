@@ -46,7 +46,7 @@ sourceSets.jmh {
     val commonsLangVersion by System.getProperties()
     val gsonVersion by System.getProperties()
 
-    java.srcDirs()
+    java.srcDirs("src/jmh/kotlin")
     kotlin.srcDirs("src/main/kotlin", "src/jmh/kotlin")
     resources.srcDirs("src/jmh/resources")
     dependencies {
