@@ -1,0 +1,27 @@
+Benchmark                                     Mode  Cnt  Score   Error  Units
+
+PerformanceFewJavaVars.asString               avgt    8  5,161 ± 0,190  ns/op
+PerformanceFewJavaVars.gsonToJson             avgt    8  5,130 ± 0,144  ns/op
+PerformanceFewJavaVars.ideGeneratedToString   avgt    8  5,226 ± 0,057  ns/op
+PerformanceFewJavaVars.toStringBuilder        avgt    8  5,435 ± 0,249  ns/op
+
+PerformanceFewProps.asString                  avgt    8  5,514 ± 0,173  ns/op
+PerformanceFewProps.gsonToJson                avgt    8  5,995 ± 1,290  ns/op
+PerformanceFewProps.ideGeneratedToString      avgt    8  5,561 ± 0,743  ns/op
+PerformanceFewProps.toStringBuilder           avgt    8  5,359 ± 0,045  ns/op
+
+PerformanceManyProps.asString                 avgt    8  5,806 ± 0,510  ns/op
+PerformanceManyProps.gsonToJson               avgt    8  5,656 ± 0,293  ns/op
+PerformanceManyProps.ideGeneratedToString     avgt    8  5,670 ± 0,229  ns/op
+PerformanceManyProps.toStringBuilder          avgt    8  5,735 ± 0,532  ns/op
+
+PerformanceFewPropsLotsOfOptions.asString     avgt    8  5,413 ± 0,119  ns/op
+PerformanceManyPropsWithPropSorting.asString  avgt    8  5,552 ± 0,048  ns/op
+
+Executed on:
+  macOS Ventura 13.x
+  2,6 GHz 6-Core Intel Core i7
+  16 GB 2667 MHz DDR4
+Running gradle task `jmh` from IntelliJ IDE
+Several other apps running on same machine, but not actively used (no user interaction)
+All windows minimized.

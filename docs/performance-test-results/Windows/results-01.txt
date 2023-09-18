@@ -23,3 +23,4 @@ Executed on:
   Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz   2.60 GHz
   Installed RAM-memory	32,0 GB
   Windows 11 Pro, version 21H2
+No further active foreground programs. All windows minimized.
