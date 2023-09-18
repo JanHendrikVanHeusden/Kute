@@ -9,6 +9,7 @@ import nl.kute.asstring.core.objectCategoryCache
 import nl.kute.asstring.core.useToStringByClass
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
 import nl.kute.log.log
+import nl.kute.performance.PerformanceManyProps.Companion.callCountPerMethodPerIteration
 import nl.kute.reflection.util.classToStringMethodCache
 import nl.kute.testobjects.performance.PropsToString
 import nl.kute.testobjects.performance.modifyManyPropValues
@@ -24,7 +25,6 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
-import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -50,6 +50,8 @@ private var enabled = true
  *       `caffeinate -d -t 1800`
  *       <br>to keep it awake for half an hour (1800s)
  *     * on Linux and Windows, Google and/or consult documentation on how to prevent sleep mode
+ *
+ *  Total duration of the Gradle `jmh` task may take about 40 minutes if all tests are enabled.
  */
 @State(Scope.Benchmark)
 open class PerformanceManyProps {

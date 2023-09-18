@@ -56,6 +56,8 @@ internal class Dummy
  *       `caffeinate -d -t 1800`
  *       <br>to keep it awake for half an hour (1800s)
  *     * on Linux and Windows, Google and/or consult documentation on how to prevent sleep mode
+ *
+ *  Total duration of the Gradle `jmh` task may take about 40 minutes if all tests are enabled.
  */
 @State(Scope.Benchmark)
 open class PerformanceFewPropsLotsOfOptions {
