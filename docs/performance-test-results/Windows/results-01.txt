@@ -1,0 +1,25 @@
+Benchmark                                     Mode  Cnt  Score   Error  Units
+
+PerformanceFewJavaVars.asString               avgt    8  9,651 ± 0,419  ns/op
+PerformanceFewJavaVars.gsonToJson             avgt    8  9,458 ± 0,211  ns/op
+PerformanceFewJavaVars.ideGeneratedToString   avgt    8  9,778 ± 0,895  ns/op
+PerformanceFewJavaVars.toStringBuilder        avgt    8  9,627 ± 0,455  ns/op
+
+PerformanceFewProps.asString                  avgt    8  9,795 ± 0,555  ns/op
+PerformanceFewProps.gsonToJson                avgt    8  9,475 ± 0,236  ns/op
+PerformanceFewProps.ideGeneratedToString      avgt    8  9,521 ± 0,451  ns/op
+PerformanceFewProps.toStringBuilder           avgt    8  9,537 ± 0,116  ns/op
+
+PerformanceManyProps.asString                 avgt    8  9,955 ± 0,908  ns/op
+PerformanceManyProps.gsonToJson               avgt    8  9,963 ± 0,883  ns/op
+PerformanceManyProps.ideGeneratedToString     avgt    8  9,637 ± 0,631  ns/op
+PerformanceManyProps.toStringBuilder          avgt    8  9,663 ± 0,915  ns/op
+
+PerformanceFewPropsLotsOfOptions.asString     avgt    8  9,665 ± 0,652  ns/op
+PerformanceManyPropsWithPropSorting.asString  avgt    8  9,630 ± 0,868  ns/op
+
+
+Executed on:
+  Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz   2.60 GHz
+  Installed RAM-memory	32,0 GB
+  Windows 11 Pro, version 21H2
