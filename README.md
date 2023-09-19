@@ -64,9 +64,9 @@ never getting in the way when developing great code (or when troubleshooting les
 * Home-grown solutions
 
 ### How is **Kute** better?
-Below, a summary of why Kute is a better choice for your `toString()` implementations.<br>
+Below, a *summary* of why Kute is a better choice for your `toString()` implementations.<br>
 > See [→ How is Kute better than others](docs/kute-better-details.md)
-> for more details on how **Kute** compares to<br>
+> for more *details* on how **Kute** compares to<br>
 > Apache's `ToStringBuilder`, `Objects.toString()`, Lombok's `@ToString`, `Gson`
 <hr>
 

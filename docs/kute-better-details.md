@@ -94,6 +94,7 @@
 
 <br><hr><br>
 3. **Better `String` representation**
+ 
     > * You hate things like `[Ljava.lang.Object;@e3b3b2f` as much as anybody
     > * You expect that Lambdas are represented decently<br>
     > * You hate it when every object is preceded by its fully qualified package name
@@ -112,6 +113,7 @@
 
 <br><hr><br>
 4. **Kotlin first**
+
     * By default, **Kute**'s `asString()` representation of objects is equal to Kotlin's `toString()` representation of **_data_** classes
         * To be used with any object (including Lambda's, `Number`, collections, maps, custom objects, native Java & Kotlin stuff, synthetic objects, `null`, ...)
     * **Kute** offers the option to include `companion` objects in the `asString` output
