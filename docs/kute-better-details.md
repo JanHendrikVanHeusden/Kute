@@ -1,3 +1,4 @@
+[← 🏠](../)<br>
 [← README.md](../README.md)
 
 - [**Kute** aims to be a <u>better</u> alternative to other libraries](#kute-aims-to-be-a-better-alternative-to)
@@ -99,34 +100,37 @@
     > * You expect that Lambdas are represented decently<br>
     > * You hate it when every object is preceded by its fully qualified package name
     > * You hate yourself and your IDE when you forgot to include the newly added property in your IDE-generated `toString()` implementation (and even more when it's causing issues in production)
-    </span>
 
-    * Dynamic (reflective) property representation of custom Java and Kotlin classes
-    * Built-in protection against `StackOverflowError` in case of self-references, or mutual/circular references
-    * Adheres by default to implicit `toString()` representation of Kotlin data classes
-    * Adheres by default to `Array.contentDeepToString()`, and to `toString()` representation of `Collection` and `Map` (but with protection against recursive data)
-    * Adheres to Java- and Kotlin built-in `toString()` insofar implemented
+* Why better:
+   * Dynamic (reflective) property representation of custom Java and Kotlin classes
+      * Never forget adding new properties / correcting renamed properties
+   * Built-in protection against `StackOverflowError` in case of self-references, or mutual/circular references
+   * Adheres by default to implicit `toString()` representation of Kotlin data classes
+   * Adheres by default to `Array.contentDeepToString()`, and to `toString()` representation of `Collection` and `Map`
+      * But with protection against recursive data !
+   * Adheres to Java- and Kotlin `toString()` for built-in stuff
       * E.g. for `Date`, `DateTime`, `Number`, `CharSequence`, `String`, `UUID`, etc.
-    * Improved handling for Lambda's, Java's functional interface's etc. to give a much better representation than default `toString()`, IDE-generated `toString(),` Apache's `ToStringBuilder` or `Objects.toString()`
-    * 👉🏽 If your custom objects feature carefully implemented `toString()` implementations, you can have these preferred by applying `@AsStringClassOption(toStringPreference = PREFER_TOSTRING)`
+   * Improved handling for Lambdas and functional interfaces to give a much better representation
+     than default `toString()`, IDE-generated `toString(),` Apache's `ToStringBuilder` or `Objects.toString()`
+   * 👉🏽 If your custom objects feature carefully implemented `toString()` implementations, you can have these preferred by applying `@AsStringClassOption(toStringPreference = PREFER_TOSTRING)`
       > Or, alternatively, by applying `ToStringPreference.PREFER_TOSTRING` as application-wide default
 
 <br><hr><br>
 4. **Kotlin first**
 
-    * By default, **Kute**'s `asString()` representation of objects is equal to Kotlin's `toString()` representation of **_data_** classes
-        * To be used with any object (including Lambda's, `Number`, collections, maps, custom objects, native Java & Kotlin stuff, synthetic objects, `null`, ...)
-    * **Kute** offers the option to include `companion` objects in the `asString` output
-    * **Kute** handles `lateinit` properties decently, whether initialized or not
-    * Intuitive API by usage of extension methods: `asString()` can be called on *any* object (even `null.asString()`).
+* By default, **Kute**'s `asString()` representation of objects is equal to Kotlin's `toString()` representation of **_data_** classes
+  * To be used with any object (including Lambda's, `Number`, collections, maps, custom objects, native Java & Kotlin stuff, synthetic objects, `null`, ...)
+* **Kute** offers the option to include `companion` objects in the `asString` output
+* **Kute** handles `lateinit` properties decently, whether initialized or not
+* Intuitive API by usage of extension methods: `asString()` can be called on *any* object (even `null.asString()`).
 
 <br><hr><br>
 5. **Protection of <u>P</u>ersonally <u>I</u>dentifiable <u>D</u>ata / GDPR**
  > Think of properties that contain data like family names, dates of birth, bank account numbers, ID-card numbers, e-mail addresses, social media account names, login names, password data (no plain text, hopefully!), etc. etc. etc.
 
-**Kute** has several options that may help to keep Personally Identifiable Data out of your log files:
- * Property values can be masked (fully or partially) with `@AsStringMask`
- * Property values can be represented by their hashed value with `@AsStringHash`
- * Property values can be replaced (fully or partially) with `@AsStringReplace`
-     * using regular expressions, or by plain text 
- * Properties can be excluded completely with annotation `@AsStringOmit`
+* **Kute** has several options that may help to keep Personally Identifiable Data out of your log files:
+   * Property values can be masked (fully or partially) with `@AsStringMask`
+   * Property values can be represented by their hashed value with `@AsStringHash`
+   * Property values can be replaced (fully or partially) with `@AsStringReplace`
+      * using regular expressions, or by plain text 
+   * Properties can be excluded completely with annotation `@AsStringOmit`
