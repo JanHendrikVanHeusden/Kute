@@ -10,14 +10,14 @@
 ### **Kute** aims to be a <u>better</u> alternative to
 
 * Java's built-in `Objects.toString()`
-* Apache's `ToStringBuilder`
+* Apache's `ToStringBuilder` (and other, comparable solutions)
 * Lombok's `@ToString` annotation
     * Lombok's `@ToString` is really good if you get it working
     * But it does not work with later versions of IntelliJ, with maddening version dependencies between IntelliJ, Gradle, IntelliJ plugin, `javac`, and Lombok (maybe some bugs too?).<br>
       Lombok and Kotlin are not always friends either.
 * `Gson` and `Jackson`
-    * May work well for you if json is OK for you.
-    * But intended in first place for serialization, not for `String` representation in logging, etc.
+    * May work well for you if `json` is OK for you.
+    * But these are intended in first place for serialization, not for `String` representation in logging, etc.
        * `Gson` and `Jackson` do not take precautions to prevent them (e.g. `StackOverflowException` with recursive data). And they shouldn't, of course!
 * IDE generated `toString()` methods
     * IDE generated `toString()` methods are simple and light-weight, but not maintenance-friendly (refactoring)
