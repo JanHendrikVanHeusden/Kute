@@ -17,6 +17,12 @@
 
 ***Kute*** stands for **K**otlin **Ut**ility.<br>
 *And also for cute, as it was intended to be a tiny, little, cuddly, **easy to use** utility.*<br>
+
+Currently, **Kute** contains `asString()`, which is basically a `toString()` alternative,
+but customizable to fit your needs.
+> Comparable with Apache's `ToStringBuilder.reflectionToString` - but better!<br>
+> Stay with me: see [Basic ideas of Kute's <span style="font-family: monospace">asString()</span>](#basic-ideas-of-kutes-asstring) and [How is **Kute** better?](#how-is-kute-better)
+
 More advanced options are available, but basically it should be very easy to use,
 never getting in the way when developing great code (or when troubleshooting less great code).
 
@@ -53,7 +59,7 @@ never getting in the way when developing great code (or when troubleshooting les
 
 ### **Kute** aims to be a <u>better</u> alternative to:
 
-* Apache's `ToStringBuilder`
+* Apache's `ToStringBuilder` (and other, comparable solutions)
 * Java's built-in `Objects.toString()`
 * Lombok's `@ToString` annotation
     * Lombok's `@ToString` is really good but has maddening dependencies between IntelliJ, Gradle, IntelliJ plugin, `javac`, Kotlin, and Lombok, chances are well that you can't get it working in your environment.<br>
@@ -82,7 +88,8 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
        * `NullPointerException`, `RuntimeException`, `ConcurrentModificationException`, ...
     * I do want my `toString()` handle recursive data properly, without `StackOverflowError`
     * I want the option to exclude properties, e.g. `Collection`s of child records in database-stuff (JPA, Hibernate, Exposed, etc.), to avoid performance issues by reflective collection of data.
-       * Use `@AsStringOmit`
+       * Use `@AsStringOmit` for individual properties
+       * Use property filters for categories of properties
 
 
 3. **Better `String` representation**
@@ -106,7 +113,7 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
 
 
 6. **Performance**
-   * You want a String representation with performance comparable to IDE
+   * You want a String representation with performance comparable to IDE-generated `toString()` methods
    * You want the possibility to exclude individual properties or certain categories of properties
       * E.g., if your JPA entities contain lists of child entities, you want to keep the child entities
         out of the parent's String representation
@@ -117,12 +124,15 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
 ## Compatibility
 ### Java version
 * **Kute** is built for compatibility with **Java 11+**
-   * Contributors are asked to have **Kute** tested on a Java 11 JVM
-      * Not just with `sourceCompatibility` / `targetCompatibility` 11, but really have it built on a Java 11 JVM.
-      * For instance, `HexFormat` class can not be used (added in Java 17)
-      * The `Gradle` build script [build.gradle.kts](build.gradle.kts) outputs the Java version by means of<br>
-        `println("Running on JVM version: ${JavaVersion.current()}")
-* **Kute** has been tested on various JVMs with Java versions **11** to **20**.
+* **Kute** has been built and tested on various JVMs with Java versions **11** to **20**.
+* **Kute** has been built and tested on different environments, e.g. MacOs and Windows
+   * Building API documentation on Windows has known issues.
+      * Contributors: see comments in [Gradle task <span style="font-family: monospace">buildWithApiDocs</span>](build.gradle.kts) 
+* Contributors are asked to have **Kute** tested on a Java 11 JVM
+   * Not just with `sourceCompatibility` / `targetCompatibility` 11, but really have it built on a Java 11 JVM.
+   * For instance, `HexFormat` class can not be used (added in Java 17)
+   * The `Gradle` build script [build.gradle.kts](build.gradle.kts) outputs the Java version by means of<br>
+     `println("Running on JVM version: ${JavaVersion.current()}")`
 
 ### Kotlin version
 * Current Kotlin version for **Kute** is `1.9.x`
@@ -145,14 +155,17 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
 
 ### Platform: JVM
 * **Kute** is built with the `JVM` platform in mind.
-  * It uses Kotlin's reflection wherever possible; but many edge cases are not supported by Kotlin's reflection
-    * In these cases Java's reflection is used.
+   * It uses Kotlin's reflection wherever possible
+   * But some edge cases are not supported by Kotlin's reflection. In these cases, Java's reflection is used.
 * Tests are also made with the `JVM` platform in mind
-   * Using `JUnit`, `Mockito`, `AssertJ`, etc.
+   * Using `JUnit 5`, `Mockito`, `AssertJ`, `Awaitility`, etc.
 
 #### Porting to other platforms?
 Porting **Kute** to another platform won't be easy.
 It uses Kotlin's reflection wherever possible.<br>
-But many edge cases are not supported by Kotlin's reflection, in these cases Java's reflection is used.
+But, some edge cases are not supported by *Kotlin*'s reflection. In these cases *Java*'s reflection is used.
 
-In fact, the JVM-platform is omnipresent in Kute; so porting it would probably result in a need to rewrite much the code, with probably limited functionality (due to limitations of Kotlin's reflection).
+Besides that, the JVM-platform is omnipresent in Kute; so porting it would probably result in a need to rewrite quite some code, maybe with limited functionality (due to limitations of Kotlin's reflection).
+
+> **NB**: to be honest, some features after all *are* present in later versions of Kotlin's reflection, but I just had not been aware at the time.
+> * E.g. finding out if a class is a subclass of another one does not need Java's `isAssignableFrom()`; it can be done with `isSubtypeOf()`, if needed in combination with `typeOf<...>()`
