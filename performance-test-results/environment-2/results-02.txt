@@ -1,0 +1,28 @@
+Benchmark                                     Mode  Cnt   Score   Error  Units
+
+PerformanceFewJavaVars.asString               avgt    8   9,642 ± 0,430  ns/op
+PerformanceFewJavaVars.gsonToJson             avgt    8   9,575 ± 0,182  ns/op
+PerformanceFewJavaVars.ideGeneratedToString   avgt    8  10,491 ± 1,312  ns/op
+PerformanceFewJavaVars.toStringBuilder        avgt    8   9,632 ± 0,477  ns/op
+
+PerformanceFewProps.asString                  avgt    8  10,104 ± 1,708  ns/op
+PerformanceFewProps.gsonToJson                avgt    8   9,698 ± 0,414  ns/op
+PerformanceFewProps.ideGeneratedToString      avgt    8   9,560 ± 0,218  ns/op
+PerformanceFewProps.toStringBuilder           avgt    8   9,501 ± 0,249  ns/op
+
+PerformanceManyProps.asString                 avgt    8  10,051 ± 1,456  ns/op
+PerformanceManyProps.gsonToJson               avgt    8   9,506 ± 0,173  ns/op
+PerformanceManyProps.ideGeneratedToString     avgt    8  10,847 ± 2,398  ns/op
+PerformanceManyProps.toStringBuilder          avgt    8   9,675 ± 0,423  ns/op
+
+PerformanceFewPropsLotsOfOptions.asString     avgt    8   9,773 ± 0,962  ns/op
+PerformanceManyPropsWithPropSorting.asString  avgt    8   9,498 ± 0,143  ns/op
+
+Executed on:
+  Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz   2.60 GHz
+  Installed RAM-memory	32,0 GB
+  Windows 11 Pro, version 21H2
+
+Ran gradle task from IntelliJ IDE. Run-window minimized.
+Working in IDE and other apps (browser) at the same time, results may be affected slightly.
+
