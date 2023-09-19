@@ -77,12 +77,13 @@ Below, a summary of why Kute is a better choice for your `toString()` implementa
    * Fully `null`-safe & no fear for exceptions<br><br>
 
 2. **Stability**
-* **As a developer, I don't want any `toString()`-like thing get in the way**
+    * **As a developer, I don't want any `toString()`-like thing get in the way**
     * I really don't want to care about *any* exception in my `toString()` implementations:
        * `NullPointerException`, `RuntimeException`, `ConcurrentModificationException`, ...
     * I do want my `toString()` handle recursive data properly, without `StackOverflowError`
     * I want the option to exclude properties, e.g. `Collection`s of child records in database-stuff (JPA, Hibernate, Exposed, etc.), to avoid performance issues by reflective collection of data.
        * Use `@AsStringOmit`
+
 
 3. **Better `String` representation**
    > * You hate things like `[Ljava.lang.Object;@e3b3b2f` as much as anybody
@@ -102,6 +103,14 @@ Below, a summary of why Kute is a better choice for your `toString()` implementa
 
 5. **Protection of <u>P</u>ersonally <u>I</u>dentifiable <u>D</u>ata / GDPR**
    * **Kute** has several options that may help to keep Personally Identifiable Data out of your log files
+
+
+6. **Performance**
+   * You want a String representation with performance comparable to IDE
+   * You want the possibility to exclude individual properties or certain categories of properties
+      * E.g., if your JPA entities contain lists of child entities, you want to keep the child entities
+        out of the parent's String representation
+        > You don't want your `toString()` have fetching records from the database...!
 
 <hr>
 
@@ -126,8 +135,11 @@ Below, a summary of why Kute is a better choice for your `toString()` implementa
   Applications that use **Kute** shall not face _any_ additional transitive dependency through Kute. Hence:
    * **Kute**'s runtime code should not rely on any 3rd-party library
       * Just on Java and Kotlin built-ins, `kotlin-stdlib`, `kotlin-reflect`
-   * Tests of **Kute** may use any library they wish, like JUnit, Mockito, AssertJ, Awaitility, Apache's Common Lang, Gson, etc.
-   * Gradle build scripts may use any library / plugin they wish, e.g. `Dokka`, `pitest`, `kover`, Apache's `commons-io`, etc.
+   * No logging framework is included or presumed.
+   * Tests & build scripts use 3rd-party libraries, though
+      * These do not induce runtime dependencies
+      * Tests of **Kute** may use any library they wish, like `JUnit`, `Mockito`, `AssertJ`, `Awaitility`, Apache's Common Lang, `Gson`, etc.
+      * Gradle build scripts may use any library / plugin they wish, e.g. `Dokka`, `pitest`, `kover`, Apache's `commons-io`, etc.
 
 <hr>
 
