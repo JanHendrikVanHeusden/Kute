@@ -16,8 +16,6 @@ import java.util.Objects
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-// TODO: Tests!
-
 /**
  * Metadata about a property and the property's value
  * @param property The property this [PropertyValueMeta] is about
@@ -33,8 +31,9 @@ internal class PropertyValueMetaData(
     override val stringValueLength: Int?,
 ): PropertyMetaData(property, objectClass), PropertyValueMeta {
 
-    // There is no check if the property actually is a property of objectClass
-    // If ever this class were made public, such a check would be recommended
+    // There is no check if the property actually is a property of objectClass.
+    // Also, no check if the property value aligns with the property's return type and with the stringValueLength.
+    // If ever this class were made public, such checks would be recommended
     // (if so, take care of subclasses)
 
     @Suppress("unused")
