@@ -10,11 +10,13 @@ import nl.kute.asstring.core.AsStringObjectCategory.MAP
 import nl.kute.asstring.core.AsStringObjectCategory.PRIMITIVE_ARRAY
 import nl.kute.asstring.core.isBaseType
 import nl.kute.asstring.core.isCharSequenceType
-import nl.kute.asstring.core.isCollectionType
+import nl.kute.asstring.core.isCollectionLikeType
 import nl.kute.reflection.util.simplifyClassName
 import java.util.Objects
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+
+// TODO: Tests!
 
 /**
  * Metadata about a property and the property's value
@@ -30,6 +32,10 @@ internal class PropertyValueMetaData(
     propertyValue: Any?,
     override val stringValueLength: Int?,
 ): PropertyMetaData(property, objectClass), PropertyValueMeta {
+
+    // There is no check if the property actually is a property of objectClass
+    // If ever this class were made public, such a check would be recommended
+    // (if so, take care of subclasses)
 
     @Suppress("unused")
     constructor(propertyMeta: PropertyMeta, propertyValue: Any?, stringValueLength: Int?):
@@ -47,7 +53,7 @@ internal class PropertyValueMetaData(
         propertyValueCategory == BASE || propertyValue == null && returnType.isBaseType()
 
     override val isCollectionLike: Boolean =
-        propertyValueCategory in collectionLikeCategories || propertyValue == null && returnType.isCollectionType()
+        propertyValueCategory in collectionLikeCategories || propertyValue == null && returnType.isCollectionLikeType()
 
     // Not using asString() here, it will cause StackOverflowError
     override fun toString(): String {

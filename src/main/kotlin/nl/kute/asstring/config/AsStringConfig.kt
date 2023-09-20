@@ -8,9 +8,11 @@ import nl.kute.asstring.core.defaults.initialAsStringClassOption
 import nl.kute.asstring.core.defaults.initialAsStringOption
 import nl.kute.asstring.property.filter.PropertyMetaFilter
 import nl.kute.asstring.property.filter.propertyOmitFilter
+import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
+import java.util.function.Predicate
 import kotlin.reflect.KClass
 
 /**
@@ -232,6 +234,24 @@ public class AsStringConfig {
     public fun withPropertyOmitFilters(vararg filters: PropertyMetaFilter): AsStringConfig {
         propertyOmitFilters = filters
         return this
+    }
+
+    /**
+     * Sets the new [PropertyMetaFilter]s to be applied.
+     * * Is essentially a wrapper for [withPropertyOmitFilters]
+     *
+     * > Mainly for use from **Java**, where [Predicate] parameter is easier than lambdas (in [withPropertyOmitFilters])
+     * > For **Kotlin**, [withPropertyOmitFilters] is recommended (fore ease of use)
+     *
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the values as an application-wide default.
+     * * Any previously existing filters will be removed by [applyAsDefault].
+     * @see withPropertyOmitFilters
+     * @see getPropertyOmitFilters
+     * @see [applyAsDefault]
+     */
+    public fun withPropertyOmitFilterPredicates(predicate: Predicate<in PropertyMeta>): AsStringConfig {
+        return withPropertyOmitFilters({ m -> predicate.test(m) })
     }
 
     /**

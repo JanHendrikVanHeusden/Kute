@@ -180,7 +180,7 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                                     propertyOmitFilter.hasFilter() && propertyOmitFilter.getFilters()
                                         // No caching here.
                                         // * Caching by property only does not meet requirements.
-                                        // *  Maybe PropertyMetaData might be cached by Pair(prop, objClass
+                                        // *  Maybe PropertyMetaData might be cached by Pair(prop, objClass)
                                         //    But that involves constructing a Pair for each.
                                         // Construction of PropertyMetaData is not an expensive operation.
                                         // So gain of caching is probably marginal

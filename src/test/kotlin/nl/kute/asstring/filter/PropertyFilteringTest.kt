@@ -51,6 +51,43 @@ class PropertyFilteringTest {
     }
 
     @Test
+    fun `properties should be filtered by collection-like when specified`() {
+        // arrange
+        assertThat(asStringConfig().getPropertyOmitFilters()).isEmpty()
+
+        @Suppress("unused")
+        class TestPropFilter {
+            val listToExclude = listOf("I will be excluded")
+            val arrayToExclude = arrayOf("I will be excluded too")
+            val mapToExclude = mapOf("I" to "will also be excluded")
+            lateinit var lateInitToExclude: Collection<*>
+            val included = "I will be there"
+
+            override fun toString() = this.asString()
+        }
+
+        // act, assert
+        assertThat(TestPropFilter().toString())
+            .isObjectAsString("TestPropFilter",
+                "listToExclude=[I will be excluded]",
+                "arrayToExclude=[I will be excluded too]",
+                "mapToExclude={I=will also be excluded}",
+                "included=I will be there",
+                "lateInitToExclude=null"
+            )
+
+        // arrange
+        val filter: PropertyMetaFilter = { m -> m.isCollectionLike }
+        asStringConfig().withPropertyOmitFilters(filter).applyAsDefault()
+
+        // act, assert
+        assertThat(TestPropFilter().toString())
+            .isObjectAsString("TestPropFilter",
+                "included=I will be there"
+            )
+    }
+
+    @Test
     fun `properties should be filtered out according to multiple filters`() {
         // arrange
         @Suppress("unused")
@@ -67,6 +104,8 @@ class PropertyFilteringTest {
 
         // without filters
         assertThat(asStringConfig().getPropertyOmitFilters()).isEmpty()
+
+        // act, assert: no filters
         assertThat(MyClassForPropertyFiltering().asString())
             .isObjectAsString("MyClassForPropertyFiltering",
                 "shouldBeThere=I should be there",
@@ -80,7 +119,7 @@ class PropertyFilteringTest {
                 "anotherListValToFilterOut=[]"
             )
 
-        // act: apply filter
+        // arrange: filters
         val filter1: PropertyMetaFilter = { meta ->
             meta.objectClass == MyClassForPropertyFiltering::class
                     && meta.propertyName == "filterMeOut"
@@ -91,7 +130,6 @@ class PropertyFilteringTest {
         val filter3: PropertyMetaFilter = { meta ->
             meta.returnType.isSubtypeOf(typeOf<Collection<*>>())
         }
-
         // applying filters 1 & 2
         asStringConfig().withPropertyOmitFilters(filter1, filter2).applyAsDefault()
 
@@ -99,7 +137,7 @@ class PropertyFilteringTest {
             .containsExactlyInAnyOrder(filter1, filter2)
             .hasSize(2)
 
-        // assert
+        // act, assert
         assertThat(MyClassForPropertyFiltering().asString())
             .isObjectAsString("MyClassForPropertyFiltering",
                 "shouldBeThere=I should be there",
@@ -118,10 +156,28 @@ class PropertyFilteringTest {
             .containsExactlyInAnyOrder(filter1, filter2, filter3)
             .hasSize(3)
 
+        // act, assert
         assertThat(MySubClassForPropertyFiltering().asString())
             .isObjectAsString("MySubClassForPropertyFiltering",
                 "shouldBeThere=I should be there",
                 "filterMeOut=I should not be filtered out",
+            )
+
+        // arrange: reset filters
+        asStringConfig().withPropertyOmitFilters().applyAsDefault()
+
+        // act, assert: no filters
+        assertThat(MyClassForPropertyFiltering().asString())
+            .isObjectAsString("MyClassForPropertyFiltering",
+                "shouldBeThere=I should be there",
+                "filterMeOut=I should be filtered out",
+                "listValToFilterOut=[]"
+            )
+        assertThat(MySubClassForPropertyFiltering().asString())
+            .isObjectAsString("MySubClassForPropertyFiltering",
+                "shouldBeThere=I should be there",
+                "filterMeOut=I should not be filtered out",
+                "anotherListValToFilterOut=[]"
             )
     }
 

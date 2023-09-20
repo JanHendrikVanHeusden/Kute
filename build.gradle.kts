@@ -4,12 +4,22 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
 
+val appName: String = "kute"
+val appPublishedName: String = "Kute"
+val appDescription: String =
+    """Kute is basically a `toString()` alternative, but customizable to fit your needs.
+        |Any with many practice-based, developer-friendly features.""".trimMargin()
+val appGroupId: String = "nl.kute"
+val appVersion: String = "1.0-SNAPSHOT"
+val appArtifactId: String = rootProject.name
+
+group = appGroupId
+version = appVersion
+description = "Kute"
+
 val apiDocsGfmDir: File = File("./apidocs/gfm")
 val generatedGfmDir: File = File("build/dokka/gfm")
 
-group = "nl.kute"
-version = "1.0-SNAPSHOT"
-description = "Kute"
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
@@ -121,8 +131,10 @@ dependencies {
     val awaitilityVersion by System.getProperties()
     val pitestJUnit5PluginVersion by System.getProperties()
     val commonsLangVersion by System.getProperties()
+    val commonsTextVersion by System.getProperties()
     val commonsIoVersion by System.getProperties()
     val gsonVersion by System.getProperties()
+    val guavaVersion by System.getProperties()
     val jmhVersion by System.getProperties()
 
     // Kotlin
@@ -153,7 +165,9 @@ dependencies {
     // Common libraries - to be used in tests only !
     // Do NOT use these in source code, packaged Kute should not rely on ANY external dependency
     testImplementation("org.apache.commons:commons-lang3:$commonsLangVersion")
+    testImplementation("org.apache.commons:commons-text:$commonsTextVersion")
     testImplementation("com.google.code.gson:gson:$gsonVersion")
+    testImplementation("com.google.guava:guava:$guavaVersion")
 
     // Java Microbenchmark Harness, for performance tests / comparisons
     testImplementation("org.openjdk.jmh:jmh-core:$jmhVersion")
@@ -295,6 +309,29 @@ tasks.named("pitest") {
 }
 
 apply(plugin = "info.solidsoft.pitest")
+
+publishing {
+    publications {
+        create<MavenPublication>("Kute") {
+            groupId = appGroupId
+            artifactId = appArtifactId
+            version = appVersion
+            from(components["java"])
+
+            pom {
+                name.set(appPublishedName)
+                description.set(appDescription)
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = mavenLocal().name
+            url = mavenLocal().url
+            // todo: license
+        }
+    }
+}
 
 fun isVersionNonStable(version: String): Boolean {
     val hasStableKeyword = listOf("RELEASE", "FINAL", "GA")

@@ -1,12 +1,13 @@
 package nl.kute.asstring.property.filter
 
+import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.meta.PropertyMetaData
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
-/** Alias for type `(`[PropertyMetaData]`)` -> [Boolean] */
-public typealias PropertyMetaFilter = (PropertyMetaData) -> Boolean
+/** Alias for type `(`[PropertyMeta]`)` -> [Boolean] */
+public typealias PropertyMetaFilter = (PropertyMeta) -> Boolean
 
 /**
  * Class to support filtering of properties by [PropertyMetaData].

@@ -15,9 +15,13 @@ import nl.kute.util.identityHashHex
 import nl.kute.util.ifNull
 import nl.kute.util.throwableAsString
 import java.time.temporal.Temporal
+import java.time.temporal.TemporalAmount
 import java.util.Date
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.full.isSuperclassOf
+import kotlin.reflect.typeOf
 
 /**
  * Enum to provide categorization of objects.
@@ -127,36 +131,46 @@ internal val objectCategoryCache = MapCache<KClass<*>, AsStringObjectCategory>()
  * [java.util.Date], [java.time.temporal.Temporal] and their subclasses
  * * The Kotlin unsigned types ([UByte], [UShort], [UInt], [ULong])
  */
-public fun Any.isBaseType(): Boolean =
+public fun Any?.isBaseType(): Boolean =
     this is Boolean
             || this is Number
             || this is CharSequence
             || this is Char
             || this is Temporal
+            || this is TemporalAmount
             || this is Date
             || this is UByte
             || this is UShort
             || this is UInt
             || this is ULong
 
-private val baseTypes = arrayOf(
-    Number::class.java,
-    CharSequence::class.java,
-    Char::class.java,
-    Temporal::class.java,
-    Date::class.java,
-    UByte::class.java,
-    UShort::class.java,
-    UInt::class.java,
-    ULong::class.java
+private val baseClasses = arrayOf(
+    Number::class,
+    CharSequence::class,
+    Char::class,
+    Temporal::class,
+    TemporalAmount::class,
+    Date::class,
+    UByte::class,
+    UShort::class,
+    UInt::class,
+    ULong::class
 )
 
-@JvmSynthetic // avoid access from external Java code
-internal fun KType.isBaseType(): Boolean {
-    return this is KClass<*> && baseTypes.any {it.isAssignableFrom(this.java)}
-}
+private fun KType.isOfClazz(classes: Array<KClass<*>>): Boolean =
+    classes.any {
+        isOfClazz(it)
+    }
 
-private fun Any.isPrimitiveArray(): Boolean
+private fun KType.isOfClazz(clazz: KClass<*>): Boolean =
+    this.classifier.let {
+        it == clazz || (it is KClass<*> && clazz.isSuperclassOf(it))
+    }
+
+@JvmSynthetic // avoid access from external Java code
+internal fun KType.isBaseType(): Boolean = isOfClazz(baseClasses)
+
+private fun Any?.isPrimitiveArray(): Boolean
 // It's a pity the kotlin designers didn't create an interface or superclass for these arrays of primitives...
 // We must simply list them all... NB:
 //  * Java types boolean[], byte[] etc. map to kotlin's BooleanArray, ByteArray, etc.
@@ -183,28 +197,25 @@ private fun Any.primitiveArrayIterator(): Iterator<*> =
         else -> throw IllegalArgumentException("Should be called with arrays of primitives only")
     }
 
-private val collectionTypes = arrayOf(
-    Collection::class.java,
-    Array::class.java,
-    Map::class.java,
-    IntArray::class.java,
-    ByteArray::class.java,
-    CharArray::class.java,
-    LongArray::class.java,
-    FloatArray::class.java,
-    DoubleArray::class.java,
-    ShortArray::class.java,
-    BooleanArray::class.java
+private val collectionLikeClasses = arrayOf(
+    Collection::class,
+    Array::class,
+    Map::class,
+    IntArray::class,
+    ByteArray::class,
+    CharArray::class,
+    LongArray::class,
+    FloatArray::class,
+    DoubleArray::class,
+    ShortArray::class,
+    BooleanArray::class
 )
 
 @JvmSynthetic // avoid access from external Java code
-internal fun KType.isCollectionType(): Boolean {
-    return this is KClass<*> && collectionTypes.any {it.isAssignableFrom(this.java)}
-}
+internal fun KType.isCollectionLikeType(): Boolean = isOfClazz(collectionLikeClasses) || this.isSubtypeOf(typeOf<Array<*>>())
 
 @JvmSynthetic // avoid access from external Java code
-internal fun KType.isCharSequenceType(): Boolean =
-    this is KClass<*> && CharSequence::class.java.isAssignableFrom(this.java)
+internal fun KType.isCharSequenceType(): Boolean = isOfClazz(CharSequence::class)
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.objectIdentity() =
