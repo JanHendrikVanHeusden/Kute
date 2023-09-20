@@ -13,12 +13,13 @@
 * Apache's `ToStringBuilder` (and other, comparable solutions)
 * Lombok's `@ToString` annotation
     * Lombok's `@ToString` is really good if you get it working
-    * But it does not work with later versions of IntelliJ, with maddening version dependencies between IntelliJ, Gradle, IntelliJ plugin, `javac`, and Lombok (maybe some bugs too?).<br>
+    * But it does not work with later versions of IntelliJ, with maddening version dependencies between IntelliJ, Maven / Gradle plugins, IntelliJ plugin, `javac`, and Lombok (maybe some bugs too?).<br>
       Lombok and Kotlin are not always friends either.
 * `Gson` and `Jackson`
     * May work well for you if `json` is OK for you.
     * But these are intended in first place for serialization, not for `String` representation in logging, etc.
        * `Gson` and `Jackson` do not take precautions to prevent them (e.g. `StackOverflowException` with recursive data). And they shouldn't, of course!
+       * `Gson` and `Jackson` keep `transient` properties out of their output, which is correct for serialization, but may not be intended for `toString()`
 * IDE generated `toString()` methods
     * IDE generated `toString()` methods are simple and light-weight, but not maintenance-friendly (refactoring)
 
@@ -36,7 +37,7 @@
       ```obj.asString()")```**
 <br><br>
     * **No maddening issues with plugins and version dependencies**
-        * With **Lombok**, getting it working is maddening, due to combination of Lombok, IntelliJ, Kotlin, Gradle, javac and IntelliJ settings that may or may not work.
+        * With **Lombok**, getting it working may be maddening, due to combination of Lombok, IntelliJ, Kotlin, Gradle / Maven plugins, javac and IntelliJ settings and versions that may or may not work together.
             * You probably need to downgrade IntelliJ to some 2019(!) version to make it work 😭...
             * Switching from Gradle to Maven may help too 🤯...
 <br><br>

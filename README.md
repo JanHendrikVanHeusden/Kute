@@ -19,7 +19,7 @@
 *And also for cute, as it was intended to be a tiny, little, cuddly, **easy to use** utility.*<br>
 
 Currently, **Kute** contains `asString()`, which is basically a `toString()` alternative,
-but customizable to fit your needs.
+but customizable to fit your needs. And with many practice-based, developer-friendly features.
 > Comparable with Apache's `ToStringBuilder.reflectionToString` - but better!<br>
 > Stay with me: see [Basic ideas of Kute's <span style="font-family: monospace">asString()</span>](#basic-ideas-of-kutes-asstring) and [How is **Kute** better?](#how-is-kute-better)
 
@@ -129,7 +129,7 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
    * Building API documentation on Windows has known issues.
       * Contributors: see comments in [Gradle task <span style="font-family: monospace">buildWithApiDocs</span>](build.gradle.kts) 
 * Contributors are asked to have **Kute** tested on a Java 11 JVM
-   * Not just with `sourceCompatibility` / `targetCompatibility` 11, but really have it built on a Java 11 JVM.
+   * Not just with `sourceCompatibility` / `targetCompatibility` 11, but really have it built and tested on a Java 11 JVM.
    * For instance, `HexFormat` class can not be used (added in Java 17)
    * The `Gradle` build script [build.gradle.kts](build.gradle.kts) outputs the Java version by means of<br>
      `println("Running on JVM version: ${JavaVersion.current()}")`
