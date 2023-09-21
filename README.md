@@ -46,8 +46,8 @@ never getting in the way when developing great code (or when troubleshooting les
 4. **<u>Customizable</u>**
    * In practice, there will be some obstacles that you need to tackle, and where you want customization:
        * GDPR / Personally Identifiable Data
-          * You may want to keep certain data out of log files
-       * Data that you want to exclude, as it might cause performance issues
+          * You may want to keep certain data out of log files (omitted completely, or hashed, or ...)
+       * Data that you want to exclude, to prevent performance issues
           * E.g. `List` of children in JPA Entities
        * etc.
 5. **Zero transitive dependencies**
@@ -98,11 +98,13 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
        </span>
 
    * Built for `String` representations, to use in logging, etc.
+   * Informative `String` representation of lambda's and functional interfaces
+   * `Array` representation comparable to `Collection`s etc.
    * 👉🏽 If your custom objects feature carefully implemented `toString()` implementations, you can have these preferred
       * E.g. by using `@AsStringClassOption(toStringPreference = PREFER_TOSTRING)`<br><br>
 
 4. **Kotlin first**
-   * By default, **Kute**'s `asString()` representation of objects is equal to Kotlin's `toString()` representation of data classes, collections, etc.
+   * By default, **Kute**'s `asString()` representation of objects is equivalent to Kotlin's `toString()` representation of collections, Kotlin's `data` classes, etc.
    * Improved representation of Lambdas and functional interfaces
    * Proper handling of `lateinit` properties
    * Option to include `companion` objects in the `asString` output
