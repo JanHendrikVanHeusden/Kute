@@ -292,7 +292,7 @@ class PropertyFilteringTest {
 
         companion object {
             val filter: PropertyOmitFilter = { meta ->
-                meta.propertyName == PrivateLocalTestClass::propA.name // won't compile, as it's private
+                meta.propertyName == PrivateLocalTestClass::propA.name
             }
         }
     }
