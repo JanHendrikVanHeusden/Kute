@@ -16,7 +16,8 @@ import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.defaults.defaultNullString
 import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.asstring.namedvalues.PropertyValue
-import nl.kute.asstring.property.filter.propertyOmitFilter
+import nl.kute.asstring.property.filter.PropertyOmitFilter
+import nl.kute.asstring.property.filter.propertyOmitFiltering
 import nl.kute.asstring.property.getPropValueString
 import nl.kute.asstring.property.meta.PropertyMetaData
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
@@ -177,14 +178,14 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                                 .filterNot { propertyNamesToExclude.contains(it.key.name) }
                                 .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
                                 .filterNot { entry ->
-                                    propertyOmitFilter.hasFilter() && propertyOmitFilter.getFilters()
+                                    propertyOmitFiltering.hasFilter()
                                         // No caching here.
                                         // * Caching by property only does not meet requirements.
                                         // *  Maybe PropertyMetaData might be cached by Pair(prop, objClass)
                                         //    But that involves constructing a Pair for each.
                                         // Construction of PropertyMetaData is not an expensive operation.
                                         // So gain of caching is probably marginal
-                                        .any { filter -> filter(PropertyMetaData(entry.key, objClass)) }
+                                        && propertyOmitFiltering.getFilters().any { filter -> filter.applyFilter(entry.key, objClass) }
                                 }.associate { it.key to it.value }
 
                         val named: List<NameValue<*>> = nameValues
@@ -244,6 +245,22 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
         // It's probably a secondary exception somewhere. Not much more we can do here
         e.printStackTrace()
         return ""
+    }
+}
+
+private fun <T : Any> PropertyOmitFilter.applyFilter(
+    property: KProperty<*>,
+    objClass: KClass<T>
+): Boolean {
+    return try {
+        this(PropertyMetaData(property, objClass))
+    } catch (e: InterruptedException) {
+        throw e
+    } catch (e: Exception) {
+        log("PropertyOmitFilter threw ${e.throwableAsString()}, the exception will be ignored," +
+                " and the filter will be removed from the registry (not used anymore)")
+        propertyOmitFiltering.removeFilter(this)
+        false
     }
 }
 

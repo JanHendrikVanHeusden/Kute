@@ -8,6 +8,12 @@ fun [withPropertySorters](with-property-sorters.md)(vararg propertySorters: [KCl
 Sets the new default value for [AsStringClassOption.propertySorters](../../nl.kute.asstring.annotation.option/-as-string-class-option/property-sorters.md).
 
 - 
+   Any exceptions that may occur during evaluation of a [PropertyRankable](../../nl.kute.asstring.property.ranking/-property-rankable/index.md) are ignored, and:
+- 
+   The exception will be logged
+- 
+   The [PropertyRankable](../../nl.kute.asstring.property.ranking/-property-rankable/index.md) will be removed from the registry, to avoid further exceptions
+- 
    Nothing will happen effectively until [applyAsDefault](apply-as-default.md) is called on the [AsStringConfig](index.md) object.
 - 
    [applyAsDefault](apply-as-default.md) applies the value being set to the [AsStringClassOption.defaultOption](../../nl.kute.asstring.annotation.option/-as-string-class-option/-default-option/default-option.md) application-wide default.

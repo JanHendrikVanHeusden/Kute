@@ -3,8 +3,12 @@ package nl.kute.asstring.filter
 import nl.kute.asstring.config.asStringConfig
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.test.helper.isObjectAsString
-import nl.kute.asstring.property.filter.PropertyMetaFilter
-import nl.kute.asstring.property.filter.propertyOmitFilter
+import nl.kute.asstring.property.filter.PropertyOmitFilter
+import nl.kute.asstring.property.filter.propertyOmitFiltering
+import nl.kute.log.logger
+import nl.kute.log.resetStdOutLogger
+import nl.kute.reflection.util.simplifyClassName
+import nl.kute.util.throwableAsString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -17,8 +21,11 @@ class PropertyFilteringTest {
     @BeforeEach
     @AfterEach
     fun setUpAndTearDown() {
-        propertyOmitFilter.clearAllFilters()
+        propertyOmitFiltering.clearAllFilters()
+        resetStdOutLogger()
     }
+
+// region ~ Tests
 
     @Test
     fun `properties should be filtered out according to single filter`() {
@@ -37,8 +44,8 @@ class PropertyFilteringTest {
             )
 
         // act: apply filter
-        val filter: PropertyMetaFilter = { meta -> meta.propertyName == "filterMeOut" }
-        propertyOmitFilter.addFilter(filter)
+        val filter: PropertyOmitFilter = { meta -> meta.propertyName == "filterMeOut" }
+        propertyOmitFiltering.addFilter(filter)
 
         // assert
         assertThat(MyClassForPropertyFiltering().asString())
@@ -77,7 +84,7 @@ class PropertyFilteringTest {
             )
 
         // arrange
-        val filter: PropertyMetaFilter = { m -> m.isCollectionLike }
+        val filter: PropertyOmitFilter = { m -> m.isCollectionLike }
         asStringConfig().withPropertyOmitFilters(filter).applyAsDefault()
 
         // act, assert
@@ -120,14 +127,14 @@ class PropertyFilteringTest {
             )
 
         // arrange: filters
-        val filter1: PropertyMetaFilter = { meta ->
+        val filter1: PropertyOmitFilter = { meta ->
             meta.objectClass == MyClassForPropertyFiltering::class
                     && meta.propertyName == "filterMeOut"
         }
-        val filter2: PropertyMetaFilter = { meta ->
+        val filter2: PropertyOmitFilter = { meta ->
             meta.returnType.classifier == List::class
         }
-        val filter3: PropertyMetaFilter = { meta ->
+        val filter3: PropertyOmitFilter = { meta ->
             meta.returnType.isSubtypeOf(typeOf<Collection<*>>())
         }
         // applying filters 1 & 2
@@ -183,27 +190,113 @@ class PropertyFilteringTest {
 
     @Test
     fun `filter registry should not contain duplicates when applying the same filter more than once`() {
-        val filter1: PropertyMetaFilter = { _ -> true }
-        val filter2: PropertyMetaFilter = { _ -> true } // identical, but not same object
-        propertyOmitFilter.setFilters(filter1, filter2)
-        assertThat(propertyOmitFilter.getFilters())
+        val filter1: PropertyOmitFilter = { _ -> true }
+        val filter2: PropertyOmitFilter = { _ -> true } // identical, but not same object
+        propertyOmitFiltering.setFilters(filter1, filter2)
+        assertThat(propertyOmitFiltering.getFilters())
             .containsExactlyInAnyOrder(filter1, filter2)
             .hasSize(2)
 
-        propertyOmitFilter.setFilters(filter1, filter1)
-        assertThat(propertyOmitFilter.getFilters())
+        propertyOmitFiltering.setFilters(filter1, filter1)
+        assertThat(propertyOmitFiltering.getFilters())
             .containsExactly(filter1)
             .hasSize(1)
 
-        propertyOmitFilter.addFilter(filter1)
-        assertThat(propertyOmitFilter.getFilters())
+        propertyOmitFiltering.addFilter(filter1)
+        assertThat(propertyOmitFiltering.getFilters())
             .containsExactly(filter1)
             .hasSize(1)
 
-        propertyOmitFilter.addFilter(filter2)
-        assertThat(propertyOmitFilter.getFilters())
+        propertyOmitFiltering.addFilter(filter2)
+        assertThat(propertyOmitFiltering.getFilters())
             .containsExactlyInAnyOrder(filter1, filter2)
             .hasSize(2)
     }
+
+    @Test
+    fun `private nested  classes should yield a decent result`() {
+        // arrange
+        val filter: PropertyOmitFilter =
+            // this won't compile, as propA is private:
+            // { meta -> meta.propertyName == PrivateLocalTestClass::propA.name }
+
+            // same filter as comment above, but now from companion object - does it work?
+            PrivateLocalTestClass.filter
+
+        asStringConfig().withPropertyOmitFilters(filter).applyAsDefault()
+
+        // act, assert: it works :-)
+        assertThat(PrivateLocalTestClass().asString())
+            .`as`("propA should be filtered out, the filter should handle it properly even if the property is private")
+            .isObjectAsString(
+            "PrivateLocalTestClass",
+            // "propA=prop A",
+            "propB=prop B"
+        )
+    }
+
+    @Test
+    fun `filters that throw an Exception should be removed and have their Exception logged`() {
+        // arrange
+        val errorMsg = "I crashed!"
+        val exception = IllegalStateException(errorMsg)
+        val throwingFilter: PropertyOmitFilter = { _ -> throw exception }
+        val dummyFilter: PropertyOmitFilter = { _ -> false }
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        @Suppress("unused")
+        class TestClass {
+            val prop1 = "prop 1"
+            val prop2 = "prop 2"
+        }
+
+        asStringConfig().withPropertyOmitFilters(throwingFilter, dummyFilter).applyAsDefault()
+
+        // act, assert
+        assertThat(propertyOmitFiltering.getFilters()).containsExactlyInAnyOrder(throwingFilter, dummyFilter)
+        assertThat(TestClass().asString()).isObjectAsString(
+            "TestClass",
+            "prop1=prop 1",
+            "prop2=prop 2"
+        )
+        assertThat(logMsg).contains(
+            IllegalStateException::class.simplifyClassName(),
+            errorMsg,
+            exception.throwableAsString(),
+            "the exception will be ignored, and the filter will be removed from the registry (not used anymore)"
+        )
+        assertThat(propertyOmitFiltering.getFilters())
+            // throwingFilter should be removed when exception encountered
+            .containsExactly(dummyFilter)
+
+        logMsg = ""
+        assertThat(TestClass().asString()).isObjectAsString(
+            "TestClass",
+            "prop1=prop 1",
+            "prop2=prop 2"
+        )
+        assertThat(logMsg)
+            .`as`("No exception should be logged anymore because throwing filter has been removed")
+            .isEmpty()
+    }
+
+// endregion
+
+// region ~ Classes, objects, helpers  etc. to be used for testing
+
+    @Suppress("unused")
+    private open class PrivateLocalTestClass {
+        private val propA = "prop A"
+        protected val propB = "prop B"
+
+        companion object {
+            val filter: PropertyOmitFilter = { meta ->
+                meta.propertyName == PrivateLocalTestClass::propA.name // won't compile, as it's private
+            }
+        }
+    }
+
+// endregion
 
 }

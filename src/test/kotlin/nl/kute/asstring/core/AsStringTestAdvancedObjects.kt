@@ -50,7 +50,7 @@ private typealias DoubleCalculator = (Double, Double) -> Double
  * and also check the cache sizes, to verify that these objects do not blow up the cache / impair stability.
  */
 @Suppress("ClassWithTooManyDependencies")
-class AsStringTestAdvancedProperties: ObjectsStackVerifier {
+class AsStringTestAdvancedObjects: ObjectsStackVerifier {
 
     @BeforeEach
     @AfterEach
@@ -616,6 +616,29 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
             .isEmpty()
     }
 
+    @Test
+    fun `local classes should yield a decent result`() {
+        open class LocalTestClass {
+            private val propA = "prop A"
+            protected val propB = "prop B"
+        }
+        assertThat(LocalTestClass().asString()).isObjectAsString(
+            "LocalTestClass",
+            "propA=prop A",
+            "propB=prop B"
+        )
+    }
+
+    @Test
+    fun `private nested  classes should yield a decent result`() {
+        assertThat(PrivateLocalTestClass().asString()).isObjectAsString(
+            "PrivateLocalTestClass",
+            "propA=prop A",
+            "propB=prop B"
+        )
+    }
+
+
 // region ~ Classes, objects, helpers  etc. to be used for testing
 
     private val modifiersRegex = Regex("^.+ ")
@@ -623,6 +646,11 @@ class AsStringTestAdvancedProperties: ObjectsStackVerifier {
     private fun Any.getLambdaTypeName(): String =
         this::class.java.interfaces.firstOrNull()
             ?.toGenericString()?.simplifyClassName()?.replace(modifiersRegex, "") ?: ""
+
+    private open class PrivateLocalTestClass {
+        private val propA = "prop A"
+        protected val propB = "prop B"
+    }
 
     private class ClassWithLateInitVars {
         lateinit var myUninitializedLateInitVar: String

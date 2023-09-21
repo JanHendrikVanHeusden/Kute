@@ -5,7 +5,7 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
 /** Metadata about a property */
-public interface PropertyMeta {
+public sealed interface PropertyMeta {
     /** [KClass] that comprises the property */
     public val objectClass: KClass<*>?
 

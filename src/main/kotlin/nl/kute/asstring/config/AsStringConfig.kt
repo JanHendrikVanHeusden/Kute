@@ -6,8 +6,8 @@ import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.core.defaults.initialAsStringClassOption
 import nl.kute.asstring.core.defaults.initialAsStringOption
-import nl.kute.asstring.property.filter.PropertyMetaFilter
-import nl.kute.asstring.property.filter.propertyOmitFilter
+import nl.kute.asstring.property.filter.PropertyOmitFilter
+import nl.kute.asstring.property.filter.propertyOmitFiltering
 import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.util.ifNull
@@ -31,7 +31,7 @@ public class AsStringConfig {
     private var newDefaultAsStringOption: AsStringOption = AsStringOption.defaultOption
     private var newDefaultAsStringClassOption: AsStringClassOption = AsStringClassOption.defaultOption
 
-    private var propertyOmitFilters: Array<out PropertyMetaFilter> = emptyArray()
+    private var propertyOmitFilters: Array<out PropertyOmitFilter> = emptyArray()
 
     private fun setNewDefaultAsStringOption(newAsStringOption: AsStringOption) {
         this.newDefaultAsStringOption = newAsStringOption
@@ -204,6 +204,9 @@ public class AsStringConfig {
 
     /**
      * Sets the new default value for [AsStringClassOption.propertySorters].
+     * * Any exceptions that may occur during evaluation of a [PropertyRankable] are ignored, and:
+     *   * The exception will be logged
+     *   * The [PropertyRankable] will be removed from the registry, to avoid further exceptions
      *
      * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
      * * [applyAsDefault] applies the value being set to the [AsStringClassOption.defaultOption]
@@ -223,7 +226,11 @@ public class AsStringConfig {
     }
 
     /**
-     * Sets the new [PropertyMetaFilter]s to be applied.
+     * Sets the new [PropertyOmitFilter]s to be applied.
+     * * Properties for which one of more [filters] return **`true`** will be omitted in subsequent calls to [nl.kute.asstring.core.asString].
+     * * Any exceptions that may occur during evaluation of a [PropertyOmitFilter] are ignored, and:
+     *    * The exception will be logged
+     *    * The filter will be removed from the filter registry, to avoid further exceptions
      *
      * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
      * * [applyAsDefault] applies the values as an application-wide default.
@@ -231,13 +238,13 @@ public class AsStringConfig {
      * @see getPropertyOmitFilters
      * @see [applyAsDefault]
      */
-    public fun withPropertyOmitFilters(vararg filters: PropertyMetaFilter): AsStringConfig {
+    public fun withPropertyOmitFilters(vararg filters: PropertyOmitFilter): AsStringConfig {
         propertyOmitFilters = filters
         return this
     }
 
     /**
-     * Sets the new [PropertyMetaFilter]s to be applied.
+     * Sets the new [PropertyOmitFilter]s to be applied.
      * * Is essentially a wrapper for [withPropertyOmitFilters]
      *
      * > Mainly for use from **Java**, where [Predicate] parameter is easier than lambdas (in [withPropertyOmitFilters])
@@ -255,11 +262,11 @@ public class AsStringConfig {
     }
 
     /**
-     * @return The currently effective [PropertyMetaFilter]s
+     * @return The currently effective [PropertyOmitFilter]s
      * @see [withPropertyOmitFilters]
      */
-    public fun getPropertyOmitFilters(): Collection<PropertyMetaFilter> =
-        propertyOmitFilter.getRegisteredFilters().keys
+    public fun getPropertyOmitFilters(): Collection<PropertyOmitFilter> =
+        propertyOmitFiltering.getRegisteredFilters().keys
 
     /**
      * Assigns the [AsStringOption] and [AsStringClassOption] being built, to [AsStringOption.defaultOption]
@@ -269,7 +276,7 @@ public class AsStringConfig {
     public fun applyAsDefault() {
         AsStringOption.defaultOption = newDefaultAsStringOption
         AsStringClassOption.defaultOption = newDefaultAsStringClassOption
-        propertyOmitFilter.setFilters(*propertyOmitFilters)
+        propertyOmitFiltering.setFilters(*propertyOmitFilters)
     }
 
 }

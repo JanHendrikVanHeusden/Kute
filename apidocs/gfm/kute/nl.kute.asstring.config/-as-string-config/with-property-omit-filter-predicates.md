@@ -5,7 +5,7 @@
 [jvm]\
 fun [withPropertyOmitFilterPredicates](with-property-omit-filter-predicates.md)(predicate: [Predicate](https://docs.oracle.com/javase/8/docs/api/java/util/function/Predicate.html)&lt;in [PropertyMeta](../../nl.kute.asstring.property.meta/-property-meta/index.md)&gt;): [AsStringConfig](index.md)
 
-Sets the new [PropertyMetaFilter](../../nl.kute.asstring.property.filter/-property-meta-filter/index.md)s to be applied.
+Sets the new [PropertyOmitFilter](../../nl.kute.asstring.property.filter/-property-omit-filter/index.md)s to be applied.
 
 - 
    Is essentially a wrapper for [withPropertyOmitFilters](with-property-omit-filters.md)

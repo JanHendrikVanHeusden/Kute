@@ -1,6 +1,9 @@
 package nl.kute.asstring.property.ranking
 
 import nl.kute.asstring.property.meta.PropertyValueMeta
+import nl.kute.log.log
+import nl.kute.reflection.util.simplifyClassName
+import nl.kute.util.throwableAsString
 
 /**
  * [Comparator] for comparing or sorting [PropertyValueMeta] objects by the given [rankables],
@@ -17,9 +20,15 @@ internal class PropertyValueMetaComparator(private vararg val rankables: Propert
     /**
      * Compare the given [PropertyValueMeta] [meta1] and [meta2] by subsequently applying each
      * [PropertyRankable.getRank] until a non-zero compare result is found, or until the [rankables] are exhausted.
+     * > When an exception occurs when evaluating a [PropertyRankable.getRank]:
+     *  * the exception will be handled
+     *  * the [PropertyRankable] will effectively be removed from the registry
+     *  * the [compare] method will return 0
+     *  > See [evaluateRank]
      *
      * **NB:** *The comparison is **not** consistent with equality of [PropertyValueMeta]!
      * See the KDoc of this class [PropertyValueMetaComparator] for details & usage warnings.*
+     *
      * @return The compare result of the first [rankables] that yields a non-zero compare result;
      * or `0` if none of the [rankables] yields a non-zero result
      */
@@ -28,13 +37,33 @@ internal class PropertyValueMetaComparator(private vararg val rankables: Propert
         if (meta1 == null) return -1
         if (meta2 == null) return 1
         rankables.forEach { rankable ->
-            rankable.getRank(meta1).compareTo(rankable.getRank(meta2)).let {
-                if (it != 0) {
-                    return it
+            try {
+                rankable.evaluateRank(meta1).compareTo(rankable.evaluateRank(meta2)).let { compareResult ->
+                    if (compareResult != 0) {
+                        return compareResult
+                    }
                 }
+            } catch (e: Exception) {
+                // already logged, ignore, let it return 0
             }
         }
         return 0
     }
 
+    // wrapper around getRank() to log exception
+    private fun PropertyRankable<*>.evaluateRank(meta: PropertyValueMeta) : Int =
+        try {
+            this.getRank(meta)
+        } catch (e: InterruptedException) {
+            throw e
+        } catch (e: Exception) {
+            // Exceptions when sorting may happen extremely frequently.
+            // So to avoid that the logging flows over, we will replace the entry in the registry by a noop rankable
+            // So when next property ordering occurs, no exception should occur anymore
+            propertyRankingRegistryByClass[this::class] = NoOpPropertyRanking.instance
+            val className = this::class.simplifyClassName()
+            log("$className threw exception while evaluating $meta." +
+                    "The $className will be removed from the registry (so not used anymore):\n ${e.throwableAsString()}")
+            throw e
+        }
 }

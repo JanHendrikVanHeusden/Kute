@@ -83,7 +83,7 @@ public abstract class PropertyRanking : PropertyRankable<PropertyRanking> {
 }
 
 @JvmSynthetic // avoid access from external Java code
-private val propertyRankingRegistryByClass: MutableMap<KClass<out PropertyRankable<*>>, PropertyRankable<*>> =
+internal val propertyRankingRegistryByClass: MutableMap<KClass<out PropertyRankable<*>>, PropertyRankable<*>> =
     ConcurrentHashMap()
 
 @JvmSynthetic // avoid access from external Java code

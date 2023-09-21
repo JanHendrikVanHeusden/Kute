@@ -151,7 +151,7 @@ $dokka.location:nl.kute.asstring.namedvalues/NamedValue/name/#/PointingToDeclara
 $dokka.location:nl.kute.asstring.namedvalues/NamedValue/value/#/PointingToDeclaration/kute/nl.kute.asstring.namedvalues/-named-value/value.md
 $dokka.location:nl.kute.asstring.namedvalues/ValueSupplier///PointingToDeclaration/kute/nl.kute.asstring.namedvalues/-value-supplier/index.md
 $dokka.location:nl.kute.asstring.property.filter////PointingToDeclaration/kute/nl.kute.asstring.property.filter/index.md
-$dokka.location:nl.kute.asstring.property.filter/PropertyMetaFilter///PointingToDeclaration/kute/nl.kute.asstring.property.filter/-property-meta-filter/index.md
+$dokka.location:nl.kute.asstring.property.filter/PropertyOmitFilter///PointingToDeclaration/kute/nl.kute.asstring.property.filter/-property-omit-filter/index.md
 $dokka.location:nl.kute.asstring.property.meta////PointingToDeclaration/kute/nl.kute.asstring.property.meta/index.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta///PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/index.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta/equals/#kotlin.Any?/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/equals.md

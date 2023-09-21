@@ -12,7 +12,7 @@ import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.config.restoreInitialAsStringOption
 import nl.kute.asstring.core.objectCategoryCache
 import nl.kute.asstring.core.useToStringByClass
-import nl.kute.asstring.property.filter.PropertyMetaFilter
+import nl.kute.asstring.property.filter.PropertyOmitFilter
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
 import nl.kute.asstring.property.ranking.PropertyRankingByStringValueLength
 import nl.kute.log.log
@@ -67,7 +67,7 @@ open class PerformanceFewPropsLotsOfOptions {
         if (!enabled) {
             throw(IllegalStateException(disabledWarning))
         }
-        val propertyFilter : PropertyMetaFilter = { meta ->
+        val propertyFilter : PropertyOmitFilter = { meta ->
             // won't filter out anything, but it will be checked on each asString() call
             meta.returnType.classifier == Dummy::class
         }

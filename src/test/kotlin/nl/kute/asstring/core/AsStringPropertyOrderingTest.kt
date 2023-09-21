@@ -2,12 +2,14 @@ package nl.kute.asstring.core
 
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.config.AsStringConfig
+import nl.kute.asstring.config.asStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
 import nl.kute.asstring.property.meta.PropertyValueMeta
+import nl.kute.asstring.property.ranking.NoOpPropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankingByCommonNames
 import nl.kute.asstring.property.ranking.PropertyRankingByStringValueLength
@@ -16,8 +18,14 @@ import nl.kute.asstring.property.ranking.ValueLengthRanking.Companion.getRank
 import nl.kute.asstring.property.ranking.ValueLengthRanking.L
 import nl.kute.asstring.property.ranking.ValueLengthRanking.M
 import nl.kute.asstring.property.ranking.ValueLengthRanking.XL
+import nl.kute.asstring.property.ranking.propertyRankingRegistryByClass
+import nl.kute.log.logger
+import nl.kute.log.resetStdOutLogger
+import nl.kute.reflection.util.simplifyClassName
+import nl.kute.util.throwableAsString
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,6 +40,7 @@ class AsStringPropertyOrderingTest {
     @AfterEach
     fun setUpAndTearDown() {
         restoreInitialAsStringClassOption()
+        resetStdOutLogger()
     }
 
     @Test
@@ -212,6 +221,53 @@ class AsStringPropertyOrderingTest {
             )
     }
 
+    @Test
+    fun `Exceptions thrown by getRank() should be handled and logged, and the rank should not be used for property ordering`() {
+        // arrange
+        var logMsg = ""
+        logger = { msg: String? -> logMsg += msg }
+
+        @Suppress("unused")
+        class TestClass {
+            val p5 = 5
+            val p1 = 1
+            val p4 = 4
+            val p3 = 3
+            val p2 = 2
+        }
+        val testObj = TestClass()
+        val expected = testObj.asString()
+        val rankClassName = ThrowingPropertyRanking::class.simplifyClassName()
+
+        asStringConfig().withPropertySorters(ThrowingPropertyRanking::class).applyAsDefault()
+        // ThrowingPropertyRanking throws this exception on getRank()
+        val thrown = ThrowingPropertyRanking.throwingForRanking
+
+        // act, assert
+        assertThat(testObj.asString())
+            .`as`("Property ordering should not be affected because getRank() throws all the time")
+            .isEqualTo(expected)
+
+        assertThat(logMsg).contains(
+            "$rankClassName threw exception while evaluating",
+            "The $rankClassName will be removed from the registry (so not used anymore)",
+            thrown.throwableAsString()
+        )
+        assertThat(propertyRankingRegistryByClass)
+            .`as`("The $rankClassName instance registered should be replaced by a no-op instance, to avoid further exceptions")
+            .contains(entry(ThrowingPropertyRanking::class, NoOpPropertyRanking.instance))
+            .doesNotContain(entry(ThrowingPropertyRanking::class, ThrowingPropertyRanking.instance))
+
+        logMsg = ""
+        // try again
+        assertThat(testObj.asString())
+            .`as`("Property ordering should not be affected because getRank() throws all the time")
+            .isEqualTo(expected)
+        assertThat(logMsg)
+            .`as`("no exceptions should occur anymore, logMsg should be empty")
+            .isEmpty()
+    }
+
 }
 
 // region ~ Classes etc. to be used for testing
@@ -236,6 +292,14 @@ private class ReverseAlphabeticPropertyRanking2nd: PropertyRanking() {
 private class PropertyRankingByOddEvenHashCodeOfPropName: PropertyRanking() {
     override fun getRank(propertyValueMeta: PropertyValueMeta): Int =
         propertyValueMeta.propertyName.hashCode().let { if (it % 2 == 0) -it else it }
+}
+
+private class ThrowingPropertyRanking: PropertyRanking() {
+    override fun getRank(propertyValueMeta: PropertyValueMeta): Int = throw throwingForRanking
+    companion object {
+        val throwingForRanking = IllegalArgumentException("throwing IAE")
+        val instance = ThrowingPropertyRanking()
+    }
 }
 
 @Suppress("unused")

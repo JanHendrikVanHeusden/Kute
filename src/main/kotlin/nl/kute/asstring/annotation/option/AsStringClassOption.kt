@@ -57,8 +57,10 @@ import kotlin.reflect.KClass
  *
  * * This sorting is applied after alphabetic sorting is applied.
  *  The sorting is stable, so if the [propertySorters] yield an equal value, the alphabetic sorting is preserved.
- * * Usage of [propertySorters] may have a significant effect on CPU and memory footprint of [nl.kute.asstring.core.asString].
- *
+ * * Usage of [propertySorters] may have effect on CPU and memory footprint of [nl.kute.asstring.core.asString].
+ * * Any exceptions that may occur during evaluation of a [PropertyRankable] are ignored, and:
+ *   * The exception will be logged
+ *   * The [PropertyRankable] will be removed from the registry, to avoid further exceptions
  */
 @Target(AnnotationTarget.CLASS)
 @MustBeDocumented

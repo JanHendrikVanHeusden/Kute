@@ -1,7 +1,7 @@
 package nl.kute.asstring.property.meta
 
 /** Metadata about a property and the property's value */
-public interface PropertyValueMeta: PropertyMeta {
+public sealed interface PropertyValueMeta: PropertyMeta {
 
     /** The value of the actual instance of this property */
     public val stringValueLength: Int?
