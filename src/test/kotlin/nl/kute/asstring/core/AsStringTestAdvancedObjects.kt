@@ -638,6 +638,18 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
         )
     }
 
+    @Test
+    fun `anonymous classes should yield decent output`() {
+        // Something like AsStringTestAdvancedObjectsKt$anonymousDoc$1
+        val className = anonymousDoc::class.simplifyClassName()
+        assertThat(anonymousDoc.asString())
+            .isObjectAsString(className,
+                "author=Kai",
+                "title=A nice article",
+                "words=420"
+            )
+    }
+
 
 // region ~ Classes, objects, helpers  etc. to be used for testing
 
@@ -646,6 +658,10 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
     private fun Any.getLambdaTypeName(): String =
         this::class.java.interfaces.firstOrNull()
             ?.toGenericString()?.simplifyClassName()?.replace(modifiersRegex, "") ?: ""
+
+    internal abstract class Doc(val title: String, val author: String, var words: Long = 0L) {
+        abstract fun summary(): String
+    }
 
     private open class PrivateLocalTestClass {
         private val propA = "prop A"
@@ -767,5 +783,9 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
 
 private val String.extensionPropAtPackage: String
     get() = "$this; I am a package extension property"
+
+private val anonymousDoc = object : AsStringTestAdvancedObjects.Doc(title = "A nice article", author = "Kai", words = 420) {
+    override fun summary() = "Title: <$title> ($words words) By $author"
+}
 
 // endregion

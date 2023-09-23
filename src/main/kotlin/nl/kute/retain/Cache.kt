@@ -1,4 +1,4 @@
-package nl.kute.util
+package nl.kute.retain
 
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING

@@ -6,8 +6,7 @@ import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.core.defaults.initialAsStringClassOption
 import nl.kute.asstring.core.defaults.initialAsStringOption
-import nl.kute.asstring.property.filter.PropertyOmitFilter
-import nl.kute.asstring.property.filter.propertyOmitFiltering
+import nl.kute.retain.Registry
 import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.util.ifNull
@@ -15,6 +14,11 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Predicate
 import kotlin.reflect.KClass
 
+/**
+ * Alias for type `(`[PropertyMeta]`)` -> [Boolean]
+ * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
+ */
+public typealias PropertyOmitFilter = (PropertyMeta) -> Boolean
 /**
  * Builder-like class, to prepare and apply newly set values as defaults
  * for [AsStringOption] / [AsStringClassOption].
@@ -266,7 +270,7 @@ public class AsStringConfig {
      * @see [withPropertyOmitFilters]
      */
     public fun getPropertyOmitFilters(): Collection<PropertyOmitFilter> =
-        propertyOmitFiltering.getRegisteredFilters().keys
+        propertyOmitFiltering.getEntryMap().keys
 
     /**
      * Assigns the [AsStringOption] and [AsStringClassOption] being built, to [AsStringOption.defaultOption]
@@ -276,7 +280,7 @@ public class AsStringConfig {
     public fun applyAsDefault() {
         AsStringOption.defaultOption = newDefaultAsStringOption
         AsStringClassOption.defaultOption = newDefaultAsStringClassOption
-        propertyOmitFiltering.setFilters(*propertyOmitFilters)
+        propertyOmitFiltering.replaceAll(*propertyOmitFilters)
     }
 
 }
@@ -319,3 +323,11 @@ internal fun KClass<Annotation>.subscribeConfigChange(callback: () -> Unit) {
 
 private val configChangeSubscriptions:
         MutableMap<KClass<*>, MutableList<() -> Unit>> = ConcurrentHashMap()
+
+/**
+ * [Registry] instance to omit matching properties from the output
+ * of [nl.kute.asstring.core.asString]
+ * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
+ */
+@JvmSynthetic // avoid access from external Java code
+internal val propertyOmitFiltering: Registry<PropertyOmitFilter> = Registry()

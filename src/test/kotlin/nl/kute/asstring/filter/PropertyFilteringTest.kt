@@ -1,10 +1,10 @@
 package nl.kute.asstring.filter
 
+import nl.kute.asstring.config.PropertyOmitFilter
 import nl.kute.asstring.config.asStringConfig
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.test.helper.isObjectAsString
-import nl.kute.asstring.property.filter.PropertyOmitFilter
-import nl.kute.asstring.property.filter.propertyOmitFiltering
+import nl.kute.asstring.config.propertyOmitFiltering
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
@@ -21,7 +21,7 @@ class PropertyFilteringTest {
     @BeforeEach
     @AfterEach
     fun setUpAndTearDown() {
-        propertyOmitFiltering.clearAllFilters()
+        propertyOmitFiltering.clearAll()
         resetStdOutLogger()
     }
 
@@ -45,7 +45,7 @@ class PropertyFilteringTest {
 
         // act: apply filter
         val filter: PropertyOmitFilter = { meta -> meta.propertyName == "filterMeOut" }
-        propertyOmitFiltering.addFilter(filter)
+        propertyOmitFiltering.register(filter)
 
         // assert
         assertThat(MyClassForPropertyFiltering().asString())
@@ -192,23 +192,23 @@ class PropertyFilteringTest {
     fun `filter registry should not contain duplicates when applying the same filter more than once`() {
         val filter1: PropertyOmitFilter = { _ -> true }
         val filter2: PropertyOmitFilter = { _ -> true } // identical, but not same object
-        propertyOmitFiltering.setFilters(filter1, filter2)
-        assertThat(propertyOmitFiltering.getFilters())
+        propertyOmitFiltering.replaceAll(filter1, filter2)
+        assertThat(propertyOmitFiltering.getEntries())
             .containsExactlyInAnyOrder(filter1, filter2)
             .hasSize(2)
 
-        propertyOmitFiltering.setFilters(filter1, filter1)
-        assertThat(propertyOmitFiltering.getFilters())
+        propertyOmitFiltering.replaceAll(filter1, filter1)
+        assertThat(propertyOmitFiltering.getEntries())
             .containsExactly(filter1)
             .hasSize(1)
 
-        propertyOmitFiltering.addFilter(filter1)
-        assertThat(propertyOmitFiltering.getFilters())
+        propertyOmitFiltering.register(filter1)
+        assertThat(propertyOmitFiltering.getEntries())
             .containsExactly(filter1)
             .hasSize(1)
 
-        propertyOmitFiltering.addFilter(filter2)
-        assertThat(propertyOmitFiltering.getFilters())
+        propertyOmitFiltering.register(filter2)
+        assertThat(propertyOmitFiltering.getEntries())
             .containsExactlyInAnyOrder(filter1, filter2)
             .hasSize(2)
     }
@@ -254,7 +254,7 @@ class PropertyFilteringTest {
         asStringConfig().withPropertyOmitFilters(throwingFilter, dummyFilter).applyAsDefault()
 
         // act, assert
-        assertThat(propertyOmitFiltering.getFilters()).containsExactlyInAnyOrder(throwingFilter, dummyFilter)
+        assertThat(propertyOmitFiltering.getEntries()).containsExactlyInAnyOrder(throwingFilter, dummyFilter)
         assertThat(TestClass().asString()).isObjectAsString(
             "TestClass",
             "prop1=prop 1",
@@ -266,7 +266,7 @@ class PropertyFilteringTest {
             exception.throwableAsString(),
             "the exception will be ignored, and the filter will be removed from the registry (not used anymore)"
         )
-        assertThat(propertyOmitFiltering.getFilters())
+        assertThat(propertyOmitFiltering.getEntries())
             // throwingFilter should be removed when exception encountered
             .containsExactly(dummyFilter)
 

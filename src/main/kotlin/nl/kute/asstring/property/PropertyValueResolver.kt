@@ -27,7 +27,7 @@ import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationSetOfPropertySuperSubHierarchy
 import nl.kute.reflection.property.getPropValue
 import nl.kute.reflection.property.propertiesFromSubSuperHierarchy
-import nl.kute.util.MapCache
+import nl.kute.retain.MapCache
 import nl.kute.util.ifNull
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty

@@ -3,7 +3,7 @@
 package nl.kute.reflection.util
 
 import nl.kute.log.logWithCaller
-import nl.kute.util.MapCache
+import nl.kute.retain.MapCache
 import nl.kute.util.throwableAsString
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction

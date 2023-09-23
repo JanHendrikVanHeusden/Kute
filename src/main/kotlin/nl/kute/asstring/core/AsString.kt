@@ -11,13 +11,13 @@ import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.annotation.option.asStringClassOption
+import nl.kute.asstring.config.PropertyOmitFilter
+import nl.kute.asstring.config.propertyOmitFiltering
 import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.defaults.defaultNullString
 import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.asstring.namedvalues.PropertyValue
-import nl.kute.asstring.property.filter.PropertyOmitFilter
-import nl.kute.asstring.property.filter.propertyOmitFiltering
 import nl.kute.asstring.property.getPropValueString
 import nl.kute.asstring.property.meta.PropertyMetaData
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
@@ -32,7 +32,7 @@ import nl.kute.reflection.property.propertyReturnTypesToOmit
 import nl.kute.reflection.util.hasImplementedToString
 import nl.kute.reflection.util.retrieveCompanionObjectInstance
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.util.MapCache
+import nl.kute.retain.MapCache
 import nl.kute.util.asHexString
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
@@ -178,14 +178,14 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                                 .filterNot { propertyNamesToExclude.contains(it.key.name) }
                                 .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
                                 .filterNot { entry ->
-                                    propertyOmitFiltering.hasFilter()
+                                    propertyOmitFiltering.hasEntry()
                                         // No caching here.
                                         // * Caching by property only does not meet requirements.
                                         // *  Maybe PropertyMetaData might be cached by Pair(prop, objClass)
                                         //    But that involves constructing a Pair for each.
                                         // Construction of PropertyMetaData is not an expensive operation.
                                         // So gain of caching is probably marginal
-                                        && propertyOmitFiltering.getFilters().any { filter -> filter.applyFilter(entry.key, objClass) }
+                                        && propertyOmitFiltering.getEntries().any { filter -> filter.applyFilter(entry.key, objClass) }
                                 }.associate { it.key to it.value }
 
                         val named: List<NameValue<*>> = nameValues
@@ -259,7 +259,7 @@ private fun <T : Any> PropertyOmitFilter.applyFilter(
     } catch (e: Exception) {
         log("PropertyOmitFilter threw ${e.throwableAsString()}, the exception will be ignored," +
                 " and the filter will be removed from the registry (not used anymore)")
-        propertyOmitFiltering.removeFilter(this)
+        propertyOmitFiltering.remove(this)
         false
     }
 }

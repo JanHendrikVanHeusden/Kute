@@ -12,7 +12,7 @@ import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.util.MapCache
+import nl.kute.retain.MapCache
 import nl.kute.util.identityHashHex
 import nl.kute.util.ifNull
 import java.lang.annotation.Inherited

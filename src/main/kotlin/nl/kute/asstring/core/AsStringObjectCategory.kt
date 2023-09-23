@@ -10,7 +10,7 @@ import nl.kute.asstring.core.AsStringObjectCategory.SYSTEM
 import nl.kute.asstring.property.lambdaSignatureString
 import nl.kute.reflection.util.hasImplementedToString
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.util.MapCache
+import nl.kute.retain.MapCache
 import nl.kute.util.identityHashHex
 import nl.kute.util.ifNull
 import nl.kute.util.throwableAsString
