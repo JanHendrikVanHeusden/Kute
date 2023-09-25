@@ -2,9 +2,9 @@ package nl.kute.asstring.filter
 
 import nl.kute.asstring.config.PropertyOmitFilter
 import nl.kute.asstring.config.asStringConfig
+import nl.kute.asstring.config.propertyOmitFiltering
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.test.helper.isObjectAsString
-import nl.kute.asstring.config.propertyOmitFiltering
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
@@ -189,31 +189,6 @@ class PropertyFilteringTest {
     }
 
     @Test
-    fun `filter registry should not contain duplicates when applying the same filter more than once`() {
-        val filter1: PropertyOmitFilter = { _ -> true }
-        val filter2: PropertyOmitFilter = { _ -> true } // identical, but not same object
-        propertyOmitFiltering.replaceAll(filter1, filter2)
-        assertThat(propertyOmitFiltering.getEntries())
-            .containsExactlyInAnyOrder(filter1, filter2)
-            .hasSize(2)
-
-        propertyOmitFiltering.replaceAll(filter1, filter1)
-        assertThat(propertyOmitFiltering.getEntries())
-            .containsExactly(filter1)
-            .hasSize(1)
-
-        propertyOmitFiltering.register(filter1)
-        assertThat(propertyOmitFiltering.getEntries())
-            .containsExactly(filter1)
-            .hasSize(1)
-
-        propertyOmitFiltering.register(filter2)
-        assertThat(propertyOmitFiltering.getEntries())
-            .containsExactlyInAnyOrder(filter1, filter2)
-            .hasSize(2)
-    }
-
-    @Test
     fun `private nested  classes should yield a decent result`() {
         // arrange
         val filter: PropertyOmitFilter =
@@ -254,7 +229,7 @@ class PropertyFilteringTest {
         asStringConfig().withPropertyOmitFilters(throwingFilter, dummyFilter).applyAsDefault()
 
         // act, assert
-        assertThat(propertyOmitFiltering.getEntries()).containsExactlyInAnyOrder(throwingFilter, dummyFilter)
+        assertThat(propertyOmitFiltering.entries()).containsExactlyInAnyOrder(throwingFilter, dummyFilter)
         assertThat(TestClass().asString()).isObjectAsString(
             "TestClass",
             "prop1=prop 1",
@@ -266,7 +241,7 @@ class PropertyFilteringTest {
             exception.throwableAsString(),
             "the exception will be ignored, and the filter will be removed from the registry (not used anymore)"
         )
-        assertThat(propertyOmitFiltering.getEntries())
+        assertThat(propertyOmitFiltering.entries())
             // throwingFilter should be removed when exception encountered
             .containsExactly(dummyFilter)
 

@@ -185,7 +185,7 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                                         //    But that involves constructing a Pair for each.
                                         // Construction of PropertyMetaData is not an expensive operation.
                                         // So gain of caching is probably marginal
-                                        && propertyOmitFiltering.getEntries().any { filter -> filter.applyFilter(entry.key, objClass) }
+                                        && propertyOmitFiltering.entries().any { filter -> filter.applyFilter(entry.key, objClass) }
                                 }.associate { it.key to it.value }
 
                         val named: List<NameValue<*>> = nameValues

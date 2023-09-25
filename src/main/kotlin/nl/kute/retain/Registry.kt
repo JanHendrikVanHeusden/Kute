@@ -88,12 +88,16 @@ internal class Registry<T: Any> {
         }
     }
 
-    /** A new read-only map of the registered entries and their ID's */
+    /** A new immutable copy of the registered entries and their ID's */
     fun getEntryMap(): Map<T, Int> = registry.toMap()
 
     @JvmSynthetic // avoid access from external Java code
-    /** @return The [Set] of entries that have been registered */
-    internal fun getEntries(): Set<T> = registry.keys
+    /**
+     * @return The [Set] of entries that have been registered
+     * > **NB:** This is the **mutable** internal representation, *not* a defensive copy.
+     *   **Do not** modify this [Set] from the outside!
+     */
+    internal fun entries(): Set<T> = registry.keys
 
 }
 
