@@ -353,7 +353,6 @@ class ObjectsToStringDemo {
                     .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
-                threadList.forEach { it.interrupt() }
             }
         }
     }
@@ -406,7 +405,6 @@ class ObjectsToStringDemo {
                     .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
-                threadList.forEach { it.interrupt() }
             }
         }
     }

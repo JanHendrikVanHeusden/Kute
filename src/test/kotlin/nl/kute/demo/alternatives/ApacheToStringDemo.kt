@@ -449,7 +449,6 @@ class ApacheToStringDemo {
                     .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
-                threadList.forEach { it.interrupt() }
             }
         }
     }
@@ -501,7 +500,6 @@ class ApacheToStringDemo {
                     .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
-                threadList.forEach { it.interrupt() }
             }
         }
     }

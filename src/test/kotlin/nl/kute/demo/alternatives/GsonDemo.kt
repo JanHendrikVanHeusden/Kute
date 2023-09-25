@@ -346,7 +346,6 @@ class GsonDemo {
                     .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
-                threadList.forEach { it.interrupt() }
             }
         }
     }
@@ -397,7 +396,6 @@ class GsonDemo {
                     .isNotNull
             } finally {
                 executors.forEach { it.shutdownNow() }
-                threadList.forEach { it.interrupt() }
             }
         }
     }

@@ -385,7 +385,6 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                     result = unsafeList.asString()
                 } finally {
                     executors.forEach { it.shutdownNow() }
-                    threadList.forEach { it.interrupt() }
                 }
                 // assert
                 assumeThat(result)
@@ -464,7 +463,6 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                     result = unsafeMap.asString()
                 } finally {
                     executors.forEach { it.shutdownNow() }
-                    threadList.forEach { it.interrupt() }
                 }
                 // assert
                 assumeThat(result)
