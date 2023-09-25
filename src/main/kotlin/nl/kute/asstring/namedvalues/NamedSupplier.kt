@@ -3,7 +3,8 @@ package nl.kute.asstring.namedvalues
 import nl.kute.asstring.weakreference.ObjectWeakReference
 import nl.kute.log.log
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.util.throwableAsString
+import nl.kute.exception.handleWithReturn
+import nl.kute.exception.throwableAsString
 import java.util.concurrent.Callable
 
 /** Convenience type alias for `() -> T?` */
@@ -57,11 +58,10 @@ public class NamedSupplier<V: Any?>(override val name: String, supplier: ValueSu
         get() {
             return try {
                 (supplierReference.get())?.invoke()
-            } catch (e: InterruptedException) {
-                throw e
             } catch (e: Exception) {
-                log("Exception ${e::class.simplifyClassName()} while evaluating supplier of ${this::class.simplifyClassName()}: ${e.throwableAsString()} ")
-                return null
+                return handleWithReturn(e, null) {
+                    log("Exception ${e::class.simplifyClassName()} while evaluating supplier of ${this::class.simplifyClassName()}: ${e.throwableAsString()} ")
+                }
             }
         }
 

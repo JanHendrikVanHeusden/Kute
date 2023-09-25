@@ -1,5 +1,6 @@
 package nl.kute.reflection.util
 
+import nl.kute.exception.handleWithReturn
 import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility.PRIVATE
 import kotlin.reflect.KVisibility.PUBLIC
@@ -16,10 +17,8 @@ internal fun String.simplifyClassName() =
 internal fun KClass<*>.simplifyClassName(): String =
     try {
         simpleName ?: toString().simplifyClassName()
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
-        toString()
+        handleWithReturn(e, toString())
     }
 
 /**

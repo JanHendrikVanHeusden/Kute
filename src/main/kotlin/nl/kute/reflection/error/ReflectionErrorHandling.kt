@@ -4,7 +4,9 @@ import nl.kute.log.log
 import nl.kute.log.logger
 import nl.kute.reflection.util.declaringClass
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.util.throwableAsString
+import nl.kute.exception.handleException
+import nl.kute.exception.handleWithReturn
+import nl.kute.exception.throwableAsString
 import java.lang.reflect.InaccessibleObjectException
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KProperty
@@ -32,21 +34,22 @@ private val inaccessibleObjectInfo: String =
 
 @JvmSynthetic // avoid access from external Java code
 internal fun KProperty<*>?.handlePropValException(exception: Exception) {
-    val baseErrMsg: String =
+    val baseErrMsg: String by lazy(LazyThreadSafetyMode.NONE) {
         try {
-            "${exception::class.simplifyClassName()} occurred when retrieving value of property [${this?.declaringClass()?.simplifyClassName()}.${this?.name}]; exception: ${exception.throwableAsString()}"
-        } catch (e: InterruptedException) {
-            throw e
+            "${exception::class.simplifyClassName()} occurred when retrieving value of property [${
+                this?.declaringClass()?.simplifyClassName()
+            }.${this?.name}]; exception: ${exception.throwableAsString()}"
         } catch (e: Exception) {
-            "${exception::class} occurred when retrieving value of property [${this?.name}]; exception message: ${exception.message}; cause: ${exception.cause?.javaClass}"
+            handleWithReturn(e, "${exception::class} occurred when retrieving value of property [${this?.name}];" +
+                    " exception message: ${exception.message}; cause: ${exception.cause?.javaClass}")
         }
+    }
     try {
         when (exception) {
             is IllegalAccessException -> {
                 // This may happen when a security manager blocks property access
                 if (!illegalAccessReported) {
-                    log(
-                        """$baseErrMsg
+                    log("""$baseErrMsg
                 | $illegalAccessInfo
                 | Objects that are not accessible will be represented as `null`. Maybe a security manager blocks it.
                 | This warning is shown only once.""".trimMargin()
@@ -58,8 +61,7 @@ internal fun KProperty<*>?.handlePropValException(exception: Exception) {
             is InaccessibleObjectException -> {
                 // This may happen when using named modules (Java Jigsaw) that do not allow deep reflective access
                 if (!inaccessibleObjectReported) {
-                    log(
-                        """$baseErrMsg
+                    log("""$baseErrMsg
                 | $inaccessibleObjectInfo
                 | Objects that are not accessible will be represented as `null`.
                 | Maybe a module-system (Osgi, Jigsaw [Java Platform Module System]) blocks it.
@@ -81,17 +83,15 @@ internal fun KProperty<*>?.handlePropValException(exception: Exception) {
                 log(baseErrMsg)
             }
         }
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e1: Exception) {
         // Should never happen - just as a last resort
-        try {
-            logger.invoke(baseErrMsg)
-        } catch (e: InterruptedException) {
-            throw e
-        } catch (e2: Exception) {
-            // ignore
+        handleException(e1) {
+            try {
+                logger.invoke(baseErrMsg)
+            } catch (e2: Exception) {
+                handleException(e2)
+            }
+            e1.printStackTrace()
         }
-        e1.printStackTrace()
     }
 }

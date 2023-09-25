@@ -8,7 +8,8 @@ import nl.kute.log.logWithCaller
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.util.asHexString
 import nl.kute.util.byteArrayToHex
-import nl.kute.util.throwableAsString
+import nl.kute.exception.handleWithReturn
+import nl.kute.exception.throwableAsString
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.util.zip.CRC32C as JavaUtilCRC32C
@@ -55,14 +56,13 @@ internal fun hashString(input: String?, digestMethod: DigestMethod, charset: Cha
 
             else -> (digestMethod.instanceProvider!!.invoke() as MessageDigest).hashByAlgorithm(input, charset)
         }
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
-        // The property's value is probably sensitive, so make sure not to use the value in the error message
-        logWithCaller(
-            "Hashing.hashString()",
-            "${e.javaClass.name.simplifyClassName()} occurred when hashing with digestMethod $digestMethod; exception: [${e.throwableAsString()}]"
-        )
-        null
+        return handleWithReturn(e, null) {
+            // The property's value is probably sensitive, so make sure not to use the value in the error message
+            logWithCaller(
+                "Hashing.hashString()",
+                "${e.javaClass.name.simplifyClassName()} occurred when hashing with digestMethod $digestMethod; exception: [${e.throwableAsString()}]"
+            )
+        }
     }
 }

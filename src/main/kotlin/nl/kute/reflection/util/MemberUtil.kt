@@ -4,7 +4,8 @@ package nl.kute.reflection.util
 
 import nl.kute.log.logWithCaller
 import nl.kute.retain.MapCache
-import nl.kute.util.throwableAsString
+import nl.kute.exception.handleWithReturn
+import nl.kute.exception.throwableAsString
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -67,11 +68,10 @@ internal val classToStringMethodCache = MapCache<KClass<*>, Pair<KFunction<*>?, 
 internal fun KProperty<*>.declaringClass(): KClass<*>? =
     try {
         this?.javaGetter?.declaringClass?.kotlin ?: this?.javaField?.declaringClass?.kotlin
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
-        logWithCaller(fqn, "${e.javaClass.name.simplifyClassName()} occurred when retrieving declaring class of property [${this?.name}]; exception: ${e.throwableAsString()}")
-        null
+        handleWithReturn(e, null) {
+            logWithCaller(fqn, "${e.javaClass.name.simplifyClassName()} occurred when retrieving declaring class of property [${this?.name}]; exception: ${e.throwableAsString()}")
+        }
     }
 
 @JvmSynthetic // avoid access from external Java code

@@ -2,26 +2,27 @@
 
 package nl.kute.log
 
-import nl.kute.util.throwableAsString
+import nl.kute.exception.handleException
+import nl.kute.exception.throwableAsString
 import java.util.function.Consumer
 
 /** Logs message [msg] to [loggerWithCaller], prefixed by the receiver's class name  */
 public fun Any?.log(msg: Any?): Unit = try {
     loggerWithCaller("${this?.javaClass ?: ""}", msg)
-} catch (e: InterruptedException) {
-    throw e
 } catch (e: Exception) {
-    e.printStackTrace() // not much else we can do
+    handleException(e) {
+        e.printStackTrace() // not much else we can do
+    }
 }
 
 /** Logs message [msg] to [loggerWithCaller], prefixed by the [caller] String */
 @JvmSynthetic // avoid access from external Java code
 internal fun logWithCaller(caller: String, msg: Any?): Unit = try {
     loggerWithCaller(caller, msg)
-} catch (e: InterruptedException) {
-    throw e
 } catch (e: Exception) {
-    e.printStackTrace() // not much else we can do
+    handleException(e) {
+        e.printStackTrace() // not much else we can do
+    }
 }
 
 /** When no other [logger] is set, this logger is used, which simply outputs `msg` to std out (using [println]) */
@@ -55,15 +56,15 @@ public var logger: (String?) -> Unit = stdOutLogger
                 newLogger("")
             }
             field = newLogger // when no exception occurred
-        } catch (e: InterruptedException) {
-            throw e
         } catch (e: Exception) {
-            field.invoke(
-                """Tried to set logger, but logger caused exception ${e::class}.
+            handleException(e) {
+                field.invoke(
+                    """Tried to set logger, but logger caused exception ${e::class}.
                 | logger will not be changed!
                 | ${e.throwableAsString()}
                 | """.trimMargin()
-            )
+                )
+            }
         }
     }
 

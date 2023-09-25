@@ -20,7 +20,8 @@ internal fun equalSignCount(expectedCount: Int): Condition<String> =
 
 /**
  * Convenience assertion for [nl.kute.asstring.core.asString], which asserts that:
- * * the given input String starts with the given [className] (where trailing `(` is ignored) followed by `(`
+ * * the given input String starts with the given [className] (where trailing `(` of [className] is ignored),
+ *   followed by `(`
  * * that the remainder of the input String consists exactly of the given [propertyStrings], in any order
  * * with as last String [withLastPropertyString] (where trailing `)` is ignored)
  * * followed by `)`

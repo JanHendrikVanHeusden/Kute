@@ -3,6 +3,7 @@ package nl.kute.asstring.annotation.modify
 import nl.kute.asstring.core.asString
 import nl.kute.log.log
 import nl.kute.reflection.util.simplifyClassName
+import nl.kute.exception.handleWithReturn
 import nl.kute.util.ifNull
 import java.lang.annotation.Inherited
 import java.util.concurrent.ConcurrentHashMap
@@ -49,13 +50,12 @@ internal fun AsStringReplace?.replacePattern(strVal: String?): String? =
         try {
             if (isRegexpPattern) strVal?.replace(cachingRegexFactory[pattern]!!, replacement)
             else strVal?.replace(pattern, replacement)
-        } catch (e: InterruptedException) {
-            throw e
         } catch (e: Exception) {
             // The property's value is probably sensitive
             // So make sure not to use the value in the error message
-            log("${e.javaClass.name.simplifyClassName()} occurred when replacing a value using pattern `$pattern`; and replacement `$replacement` exception: [${e.asString()}]")
-            ""
+            handleWithReturn(e, "") {
+                log("${e.javaClass.name.simplifyClassName()} occurred when replacing a value using pattern `$pattern`; and replacement `$replacement` exception: [${e.asString()}]")
+            }
         }
     }
 

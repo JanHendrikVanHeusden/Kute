@@ -2,6 +2,7 @@ package nl.kute.reflection.property
 
 import nl.kute.log.log
 import nl.kute.reflection.error.handlePropValException
+import nl.kute.exception.handleWithReturn
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
@@ -50,10 +51,9 @@ internal fun <T : Any?, V : Any?> T.getPropValue(property: KProperty<V>?): V? {
                 }
             }
         }
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
-        property?.handlePropValException(e)
-        null
+        handleWithReturn(e, null) {
+            property?.handlePropValException(e)
+        }
     }
 }

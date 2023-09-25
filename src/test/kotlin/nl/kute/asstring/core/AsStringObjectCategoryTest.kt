@@ -14,7 +14,7 @@ import nl.kute.testobjects.java.advanced.JavaClassWithLambda
 import nl.kute.testobjects.kotlin.advanced.CallableFactoryWithLambda
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClass
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClassFactory
-import nl.kute.util.throwableAsString
+import nl.kute.exception.throwableAsString
 import org.apache.commons.lang3.math.Fraction
 import org.apache.commons.lang3.mutable.MutableByte
 import org.assertj.core.api.Assertions.assertThat
@@ -46,6 +46,7 @@ import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.DoubleAdder
 
+@Suppress("TestMethodWithoutAssertion") // assertions are delegated to assertion functions
 internal class AsStringObjectCategoryTest {
 
     @Test

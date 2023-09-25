@@ -3,7 +3,8 @@ package nl.kute.asstring.property.ranking
 import nl.kute.asstring.property.meta.PropertyValueMeta
 import nl.kute.log.log
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.util.throwableAsString
+import nl.kute.exception.handleException
+import nl.kute.exception.throwableAsString
 
 /**
  * [Comparator] for comparing or sorting [PropertyValueMeta] objects by the given [rankables],
@@ -54,16 +55,17 @@ internal class PropertyValueMetaComparator(private vararg val rankables: Propert
     private fun PropertyRankable<*>.evaluateRank(meta: PropertyValueMeta) : Int =
         try {
             this.getRank(meta)
-        } catch (e: InterruptedException) {
-            throw e
         } catch (e: Exception) {
-            // Exceptions when sorting may happen extremely frequently.
+            // Exceptions that occur by sorting may happen extremely frequently.
             // So to avoid that the logging flows over, we will replace the entry in the registry by a noop rankable
             // So when next property ordering occurs, no exception should occur anymore
-            propertyRankingRegistryByClass[this::class] = NoOpPropertyRanking.instance
-            val className = this::class.simplifyClassName()
-            log("$className threw exception while evaluating $meta." +
-                    "The $className will be removed from the registry (so not used anymore):\n ${e.throwableAsString()}")
+            handleException(e) {
+                propertyRankingRegistryByClass[this::class] = NoOpPropertyRanking.instance
+                val className = this::class.simplifyClassName()
+                log("$className threw exception while evaluating $meta." +
+                            "The $className will be removed from the registry (so not used anymore):\n ${e.throwableAsString()}"
+                )
+            }
             throw e
         }
 }

@@ -8,7 +8,7 @@ import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.util.throwableAsString
+import nl.kute.exception.throwableAsString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

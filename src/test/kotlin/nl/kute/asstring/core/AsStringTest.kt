@@ -37,7 +37,7 @@ import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubSubClassOfClassWithProtectedProperty
 import nl.kute.util.identityHashHex
-import nl.kute.util.throwableAsString
+import nl.kute.exception.throwableAsString
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat

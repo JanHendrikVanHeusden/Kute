@@ -22,7 +22,7 @@ import nl.kute.asstring.property.ranking.propertyRankingRegistryByClass
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.util.throwableAsString
+import nl.kute.exception.throwableAsString
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry

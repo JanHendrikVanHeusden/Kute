@@ -5,6 +5,7 @@ import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.property.meta.PropertyValueMeta
 import nl.kute.log.log
+import nl.kute.exception.handleWithReturn
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentHashMap.newKeySet
@@ -129,11 +130,8 @@ private fun <T: PropertyRankable<T>> KClass<out T>.getInstance(): T? {
             .getter
             .also { it.isAccessible = true }
             .call(this.companionObjectInstance!!) as T?
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
-        // ignore
-         null
+        handleWithReturn(e, null)
     }
 }
 
@@ -142,10 +140,7 @@ private fun <T: PropertyRankable<T>> KClass<out T>.constructInstance(): T? {
         this.constructors.firstOrNull { it.parameters.isEmpty() }
             ?.also { it.isAccessible = true }
             ?.call()
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
-        // ignore
-        null
+        handleWithReturn(e, null)
     }
 }

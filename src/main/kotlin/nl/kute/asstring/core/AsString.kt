@@ -34,11 +34,12 @@ import nl.kute.reflection.util.simplifyClassName
 import nl.kute.retain.MapCache
 import nl.kute.retain.Registry
 import nl.kute.util.asHexString
+import nl.kute.exception.handleWithReturn
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
 import nl.kute.util.joinIfNotEmpty
 import nl.kute.util.lineEnd
-import nl.kute.util.throwableAsString
+import nl.kute.exception.throwableAsString
 import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -231,20 +232,19 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                     " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
             return obj.cloneCollectionLikeStuff()?.asString(propertyNamesToExclude, *nameValues, elementsLimit = elementsLimit)
                 ?: obj.asStringFallBack()
-        } catch (e: InterruptedException) {
-            throw e
         } catch (e: Exception) {
-            log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
-                    " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
-            return obj.asStringFallBack()
+            return handleWithReturn(e, obj.asStringFallBack()) {
+                log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                            " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}"
+                )
+            }
         }
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
         // Should not happen!
         // It's probably a secondary exception somewhere. Not much more we can do here
-        e.printStackTrace()
-        return ""
+        return handleWithReturn(e, "") {
+            e.printStackTrace()
+        }
     }
 }
 
@@ -254,13 +254,13 @@ private fun <T : Any> PropertyOmitFilter.applyFilter(
 ): Boolean {
     return try {
         this(PropertyMetaData(property, objClass))
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
-        log("PropertyOmitFilter threw ${e.throwableAsString()}, the exception will be ignored," +
-                " and the filter will be removed from the registry (not used anymore)")
-        propertyOmitFiltering.remove(this)
-        false
+        handleWithReturn(e, false) {
+            log("PropertyOmitFilter threw ${e.throwableAsString()}, the exception will be ignored," +
+                        " and the filter will be removed from the registry (not used anymore)"
+            )
+            propertyOmitFiltering.remove(this)
+        }
     }
 }
 
@@ -445,11 +445,8 @@ private fun Any.cloneCollectionLikeStuff(): Any? =
                 null
             }
         }
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
-        // ignore
-        null
+        handleWithReturn(e, null)
 }
 
 @JvmSynthetic // avoid access from external Java code
@@ -471,11 +468,12 @@ internal fun KClass<*>.companionAsString(): String {
             }
             return "companion: " + this.companionObjectInstance.asString()
         }
-    } catch (e: InterruptedException) {
-        throw e
     } catch (e: Exception) {
-        log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
-                " for companion object of class ${this};$lineEnd${e.throwableAsString(50)}")
+        return handleWithReturn(e, "") {
+            log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                        " for companion object of class ${this};$lineEnd${e.throwableAsString(50)}"
+            )
+        }
     }
     return ""
 }

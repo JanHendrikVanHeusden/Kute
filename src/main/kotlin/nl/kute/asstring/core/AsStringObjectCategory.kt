@@ -13,7 +13,7 @@ import nl.kute.reflection.util.simplifyClassName
 import nl.kute.retain.MapCache
 import nl.kute.util.identityHashHex
 import nl.kute.util.ifNull
-import nl.kute.util.throwableAsString
+import nl.kute.exception.throwableAsString
 import java.time.temporal.Temporal
 import java.time.temporal.TemporalAmount
 import java.util.Date

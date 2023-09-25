@@ -1,6 +1,7 @@
-package nl.kute.util
+package nl.kute.exception
 
 import nl.kute.reflection.util.simplifyClassName
+import nl.kute.util.lineEnd
 
 /**
  * @param maxStackTraceLines The maximum number of stack trace lines to be included in the result; default = 5.

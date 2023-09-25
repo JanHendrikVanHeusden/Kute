@@ -7,7 +7,7 @@ import nl.kute.asstring.weakreference.ObjectWeakReference
 import nl.kute.log.log
 import nl.kute.reflection.util.declaringClass
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.util.throwableAsString
+import nl.kute.exception.throwableAsString
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
