@@ -2,8 +2,8 @@ package nl.kute.asstring.filter
 
 import nl.kute.asstring.config.PropertyOmitFilter
 import nl.kute.asstring.config.asStringConfig
-import nl.kute.asstring.config.propertyOmitFiltering
 import nl.kute.asstring.core.asString
+import nl.kute.asstring.core.propertyOmitFiltering
 import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger

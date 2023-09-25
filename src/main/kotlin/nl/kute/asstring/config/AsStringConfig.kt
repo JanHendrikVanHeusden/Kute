@@ -6,7 +6,7 @@ import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.core.defaults.initialAsStringClassOption
 import nl.kute.asstring.core.defaults.initialAsStringOption
-import nl.kute.retain.Registry
+import nl.kute.asstring.core.propertyOmitFiltering
 import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.util.ifNull
@@ -288,7 +288,6 @@ public class AsStringConfig {
 /** Static convenience method to construct an [AsStringConfig] object */
 public fun asStringConfig(): AsStringConfig = AsStringConfig()
 
-
 /**
  * Reset config options: resets [AsStringOption.defaultOption] to [initialAsStringOption].
  * Mainly for testing purposes.
@@ -323,11 +322,3 @@ internal fun KClass<Annotation>.subscribeConfigChange(callback: () -> Unit) {
 
 private val configChangeSubscriptions:
         MutableMap<KClass<*>, MutableList<() -> Unit>> = ConcurrentHashMap()
-
-/**
- * [Registry] instance to omit matching properties from the output
- * of [nl.kute.asstring.core.asString]
- * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
- */
-@JvmSynthetic // avoid access from external Java code
-internal val propertyOmitFiltering: Registry<PropertyOmitFilter> = Registry()

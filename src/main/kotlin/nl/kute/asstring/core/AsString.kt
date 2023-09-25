@@ -12,7 +12,6 @@ import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.annotation.option.asStringClassOption
 import nl.kute.asstring.config.PropertyOmitFilter
-import nl.kute.asstring.config.propertyOmitFiltering
 import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.defaults.defaultNullString
@@ -33,6 +32,7 @@ import nl.kute.reflection.util.hasImplementedToString
 import nl.kute.reflection.util.retrieveCompanionObjectInstance
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.retain.MapCache
+import nl.kute.retain.Registry
 import nl.kute.util.asHexString
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
@@ -312,6 +312,14 @@ internal fun Array<out PropertyRankable<*>>.hasEffectiveRankProvider() =
 
 internal fun (Array<out KClass<out PropertyRankable<*>>>)?.hasEffectiveRankProvider(): Boolean =
     !this.isNullOrEmpty() && !this.all { it::class == NoOpPropertyRanking::class }
+
+/**
+ * [Registry] instance to omit properties that match a filter from the output
+ * of [nl.kute.asstring.core.asString]
+ * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
+ */
+@JvmSynthetic // avoid access from external Java code
+internal val propertyOmitFiltering: Registry<PropertyOmitFilter> = Registry()
 
 // endregion
 

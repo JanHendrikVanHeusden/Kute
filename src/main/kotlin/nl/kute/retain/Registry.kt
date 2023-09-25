@@ -18,7 +18,7 @@ internal class Registry<T: Any> {
     private val lockObject = registry
     private val latestAddedId = AtomicInteger(0)
 
-    /** Is any [T] present in this registry? */
+    /** Has anything been registered yet in this registry? */
     fun hasEntry() : Boolean = registry.isNotEmpty()
 
     /**
@@ -86,7 +86,7 @@ internal class Registry<T: Any> {
         }
     }
 
-    /** A new immutable copy of the registered entries and their ID's */
+    /** An immutable copy of the registered entries and their ID's */
     fun getEntryMap(): Map<T, Int> = registry.toMap()
 
     @JvmSynthetic // avoid access from external Java code
