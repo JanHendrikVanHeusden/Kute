@@ -4,8 +4,6 @@ import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
-// TODO: Tests
-
 /**
  * Class to support registering entries that may not have a usable [equals] method.
  * * Stateful: each instance of [Registry] keeps its own registry of [T]s.
