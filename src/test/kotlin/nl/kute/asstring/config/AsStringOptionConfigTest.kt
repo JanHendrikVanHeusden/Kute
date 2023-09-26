@@ -149,7 +149,7 @@ class AsStringOptionConfigTest {
     }
 
     @Test
-    fun `change of AsStringOption default should notify subscriber`() {
+    fun `change of AsStringOption default should call subscribed callback`() {
         // arrange
         @Suppress("UNCHECKED_CAST")
         val asStringOptionClass: KClass<Annotation> = AsStringOption::class as KClass<Annotation>

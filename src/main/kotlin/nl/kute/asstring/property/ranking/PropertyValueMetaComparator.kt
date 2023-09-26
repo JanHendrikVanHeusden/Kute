@@ -5,6 +5,7 @@ import nl.kute.log.log
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.exception.handleException
 import nl.kute.exception.throwableAsString
+import nl.kute.util.lineEnd
 
 /**
  * [Comparator] for comparing or sorting [PropertyValueMeta] objects by the given [rankables],
@@ -63,7 +64,7 @@ internal class PropertyValueMetaComparator(private vararg val rankables: Propert
                 propertyRankingRegistryByClass[this::class] = NoOpPropertyRanking.instance
                 val className = this::class.simplifyClassName()
                 log("$className threw exception while evaluating $meta." +
-                            "The $className will be removed from the registry (so not used anymore):\n ${e.throwableAsString()}"
+                            "The $className will be removed from the registry (so not used anymore):$lineEnd ${e.throwableAsString()}"
                 )
             }
             throw e

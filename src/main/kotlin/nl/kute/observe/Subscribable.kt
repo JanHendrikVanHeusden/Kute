@@ -6,42 +6,35 @@ import java.util.concurrent.ConcurrentHashMap
 internal typealias Action = () -> Unit
 
 /**
- * Interface with implementation (through default methods) that allows subscription on (some) CRUD events
- * on the implementing class.
- * > The implementing class needs to call the `on...()` methods (e.g. [onAdd], [onRemove]).
+ * Interface with implementation (through default methods) that allows subscription
+ * to `change`-events on the implementing class.
+ * > The implementing class needs to call the [onChange] method when a `change`-event occurs
  */
 internal interface Subscribable {
-    /** [Set] of [Action]s to be executed on `add`-operations of the implementing class */
-    val additionSubscriptions: MutableSet<Action>
-    /** [Set] of [Action]s to be executed on `remove`-operations of the implementing class */
-    val removalSubscriptions: MutableSet<Action>
+    /** Executes the [Action]s to be executed on `change`-operations */
+    fun onChange()
 
-    /**
-     * Executes the [Action]s to be executed on `add`-operations
-     * @see [additionSubscriptions]
-     */
-    fun onAdd() = additionSubscriptions.forEach { action -> action() }
-
-    /**
-     * Executes the [Action]s to be executed on `remove`-operations
-     * @see [removalSubscriptions]
-     */
-    fun onRemove() = removalSubscriptions.forEach { action -> action() }
-
-    /**
-     * Add an [Action] to be executed on `add`-operations of the implementing class
-     * @see [additionSubscriptions]
-     */
-    fun subscribeOnAddition(action: Action) = additionSubscriptions.add(action)
-
-    /**
-     * Add an [Action] to be executed on `remove`-operations of the implementing class
-     * @see [removalSubscriptions]
-     */
-    fun subscribeOnRemoval(action: Action) = additionSubscriptions.add(action)
+    /** Add an [Action] to be executed on `change`-operations of the implementing class */
+    fun subscribeToChange(action: Action)
 }
 
 internal class Subscribing: Subscribable {
-    override val additionSubscriptions: MutableSet<Action> = ConcurrentHashMap.newKeySet()
-    override val removalSubscriptions: MutableSet<Action> = ConcurrentHashMap.newKeySet()
+
+    /** [Set] of [Action]s to be executed on `change`-events of the implementing class */
+    private val changeSubscriptions: MutableSet<Action> = ConcurrentHashMap.newKeySet()
+
+    /**
+     * Executes the [Action]s to be executed on `remove`-operations
+     * @see [changeSubscriptions]
+     */
+    override fun onChange() = changeSubscriptions.forEach { action -> action() }
+
+    /**
+     * Add an [Action] to be executed on `remove`-operations of the implementing class
+     * @see [changeSubscriptions]
+     */
+    override fun subscribeToChange(action: Action) {
+        changeSubscriptions.add(action)
+    }
+
 }

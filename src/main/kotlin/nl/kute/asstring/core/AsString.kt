@@ -43,6 +43,8 @@ import nl.kute.util.joinIfNotEmpty
 import nl.kute.util.lineEnd
 import nl.kute.exception.throwableAsString
 import nl.kute.retain.SubscribableRegistry
+import nl.kute.util.ifNull
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -163,12 +165,6 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                                 .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
                                 .filterNot { entry ->
                                     propertyOmitFilterRegistry.hasEntry()
-                                        // No caching here.
-                                        // * Caching 'by property only' is not feasible / desirable.
-                                        // *  Maybe PropertyMetaData might be cached by Pair(prop, objClass)
-                                        //    But that would involve constructing a Pair for each.
-                                        // Construction of PropertyMetaData is not an expensive operation.
-                                        // So the benefit of caching is probably marginal (or even negative)
                                         && propertyOmitFilterRegistry.entries().any { filter -> filter.applyFilter(entry.key, objClass) }
                                 }.associate { it.key to it.value }
 
@@ -211,7 +207,7 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
             // Seems to be an unsafe Collection, Map, Array, etc.
             // Try to create a defensive copy, and return asString() of that.
             // This is tried once only; if unsuccessful, return fallback string
-            log("Warning: Non-thread safe collection/map was modified concurrently!\n ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+            log("Warning: Non-thread safe collection/map was modified concurrently!$lineEnd ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
                     " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
             return obj.cloneCollectionLikeStuff()?.asString(propertyNamesToExclude, *nameValues, elementsLimit = elementsLimit)
                 ?: obj.asStringFallBack()
@@ -284,19 +280,48 @@ internal fun (Array<out KClass<out PropertyRankable<*>>>)?.hasEffectiveRankProvi
 
 // region ~ Filtering
 
-private fun <T : Any> PropertyOmitFilter.applyFilter(
-    property: KProperty<*>,
-    objClass: KClass<T>
-): Boolean {
-    return try {
+private fun <T : Any> PropertyOmitFilter.applyFilter(property: KProperty<*>, objClass: KClass<T>): Boolean =
+    try {
+        // No caching here.
+        //  * Maybe PropertyMetaData might be cached by Pair(prop, objClass).
+        //    But that would involve constructing a Pair for each.
+        //  * Caching 'by property only' is not feasible / desirable.
+        //  * Construction of PropertyMetaData not too expensive.
+        // Properties come in several (sub)types of KProperty, which are not mutually equal, also think
+        // of anonymous inner classes. You may end up with multiple cached entries for the same property,
+        // which reduces the benefit of caching.
+        // So the benefit of caching is probably marginal (or even negative) => no caching implemented here
         this(PropertyMetaData(property, objClass))
     } catch (e: Exception) {
         handleWithReturn(e, false) {
-            log("PropertyOmitFilter threw ${e.throwableAsString()}, the exception will be ignored," +
-                    " and the filter will be removed from the registry (not used anymore)"
+            log("PropertyOmitFilter threw ${e::class.simplifyClassName()}, the exception will be ignored," +
+                    " and this particular filter will be removed from the registry$lineEnd" +
+                    " (so it will not cause matching properties to be omitted anymore).$lineEnd" +
+                    "Exception: " + e.throwableAsString()
             )
             propertyOmitFilterRegistry.remove(this)
         }
+    }
+
+private fun KClass<*>.applyFilter(filter: ClassFilter): Boolean =
+    try {
+        filter(cachingClassMetaDataFactory[this]!!)
+    } catch (e: Exception) {
+        handleWithReturn(e, false) {
+            log("ClassFilter threw ${e::class.simplifyClassName()}, the exception will be ignored," +
+                    " and this particular filter will be removed from the registry$lineEnd" +
+                    " (so it will not force toString() for matching classes anymore).$lineEnd" +
+                    "Exception: " + e.throwableAsString()
+            )
+            forceToStringClassRegistry.remove(filter)
+        }
+    }
+
+@JvmSynthetic // avoid access from external Java code
+internal val cachingClassMetaDataFactory =
+    object: ConcurrentHashMap<KClass<*>, ClassMetaData>() {
+    override fun get(key: KClass<*>): ClassMetaData = super.get(key).ifNull {
+        ClassMetaData(key).also { this[key] = it }
     }
 }
 
@@ -313,7 +338,12 @@ internal val propertyOmitFilterRegistry: Registry<PropertyOmitFilter> = Registry
  * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
  */
 @JvmSynthetic // avoid access from external Java code
-internal val forceToStringClassRegistry: SubscribableRegistry<ClassFilter> = SubscribableRegistry()
+internal val forceToStringClassRegistry: SubscribableRegistry<ClassFilter> =
+    SubscribableRegistry<ClassFilter>()
+        .also {
+            // not using Observable delegate here, old/new values are not needed, simple notification will do
+            it.subscribeToChange { useToStringByClass.reset() }
+        }
 
 // endregion
 
@@ -380,7 +410,7 @@ private fun KClass<*>.toStringHandling(): Pair<ToStringPreference, Boolean> {
         var toStringFeasibility = toStringFeasibility()
         if (firstTime && toStringFeasibility != PREFER_TOSTRING
             && forceToStringClassRegistry.entries()
-                .any { filter -> filter(ClassMetaData(this)) }) {
+                .any { forceToStringFilter -> applyFilter(forceToStringFilter) }) {
             toStringFeasibility = PREFER_TOSTRING
         }
         return if (firstTime) Pair(toStringFeasibility, firstTime)
