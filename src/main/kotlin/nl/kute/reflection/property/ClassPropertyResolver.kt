@@ -14,6 +14,7 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.jvmErasure
 
+/** Convenience type alias for `(`[KProperty]`<*>) -> [Boolean]` */
 internal typealias PropertyFilter = (KProperty<*>) -> Boolean
 
 /**

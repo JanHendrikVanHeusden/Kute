@@ -5,6 +5,7 @@ import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.Test
 
 private typealias SomeLambda = (Any) -> Boolean
+
 class RegistryTest {
 
     @Test

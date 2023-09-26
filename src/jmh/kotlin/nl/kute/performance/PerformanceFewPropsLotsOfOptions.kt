@@ -7,7 +7,7 @@ import nl.kute.asstring.annotation.modify.cachingRegexFactory
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.asStringClassOptionCache
-import nl.kute.asstring.config.PropertyOmitFilter
+import nl.kute.asstring.core.PropertyOmitFilter
 import nl.kute.asstring.config.asStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.config.restoreInitialAsStringOption

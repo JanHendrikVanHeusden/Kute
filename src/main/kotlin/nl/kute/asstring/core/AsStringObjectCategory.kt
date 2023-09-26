@@ -128,7 +128,7 @@ internal val objectCategoryCache = MapCache<KClass<*>, AsStringObjectCategory>()
  * Currently, the following types are considered base types:
  * * Primitives / primitive wrappers
  * * Elementary Java types like [String], [Char], [CharSequence], [Number],
- * [java.util.Date], [java.time.temporal.Temporal] and their subclasses
+ * [Date], [Temporal], [TemporalAmount] and their subclasses
  * * The Kotlin unsigned types ([UByte], [UShort], [UInt], [ULong])
  */
 public fun Any?.isBaseType(): Boolean =

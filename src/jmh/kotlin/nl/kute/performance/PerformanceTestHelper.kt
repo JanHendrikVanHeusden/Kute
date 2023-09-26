@@ -5,6 +5,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
 
+/** Convenience type alias for `('[PropsToString]') -> String` */
 typealias ToStringTask = (PropsToString) -> String
 
 val disabledWarning: String =

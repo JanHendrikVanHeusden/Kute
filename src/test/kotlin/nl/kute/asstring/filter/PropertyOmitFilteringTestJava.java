@@ -16,8 +16,8 @@ import static nl.kute.asstring.config.AsStringConfigKt.asStringConfig;
 import static nl.kute.asstring.core.AsString.asString;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SuppressWarnings("LocalVariableNamingConvention")
-public class PropertyFilteringTestJava {
+@SuppressWarnings({"LocalVariableNamingConvention", "NewClassNamingConvention"})
+class PropertyOmitFilteringTestJava {
 
     @BeforeEach
     @AfterEach

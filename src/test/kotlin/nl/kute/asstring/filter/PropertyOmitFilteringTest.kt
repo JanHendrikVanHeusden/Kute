@@ -1,9 +1,9 @@
 package nl.kute.asstring.filter
 
-import nl.kute.asstring.config.PropertyOmitFilter
+import nl.kute.asstring.core.PropertyOmitFilter
 import nl.kute.asstring.config.asStringConfig
 import nl.kute.asstring.core.asString
-import nl.kute.asstring.core.propertyOmitFiltering
+import nl.kute.asstring.core.propertyOmitFilterRegistry
 import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
@@ -16,12 +16,12 @@ import org.junit.jupiter.api.Test
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.typeOf
 
-class PropertyFilteringTest {
+class PropertyOmitFilteringTest {
 
     @BeforeEach
     @AfterEach
     fun setUpAndTearDown() {
-        propertyOmitFiltering.clearAll()
+        propertyOmitFilterRegistry.clearAll()
         resetStdOutLogger()
     }
 
@@ -45,7 +45,7 @@ class PropertyFilteringTest {
 
         // act: apply filter
         val filter: PropertyOmitFilter = { meta -> meta.propertyName == "filterMeOut" }
-        propertyOmitFiltering.register(filter)
+        propertyOmitFilterRegistry.register(filter)
 
         // assert
         assertThat(MyClassForPropertyFiltering().asString())
@@ -229,7 +229,7 @@ class PropertyFilteringTest {
         asStringConfig().withPropertyOmitFilters(throwingFilter, dummyFilter).applyAsDefault()
 
         // act, assert
-        assertThat(propertyOmitFiltering.entries()).containsExactlyInAnyOrder(throwingFilter, dummyFilter)
+        assertThat(propertyOmitFilterRegistry.entries()).containsExactlyInAnyOrder(throwingFilter, dummyFilter)
         assertThat(TestClass().asString()).isObjectAsString(
             "TestClass",
             "prop1=prop 1",
@@ -241,7 +241,7 @@ class PropertyFilteringTest {
             exception.throwableAsString(),
             "the exception will be ignored, and the filter will be removed from the registry (not used anymore)"
         )
-        assertThat(propertyOmitFiltering.entries())
+        assertThat(propertyOmitFilterRegistry.entries())
             // throwingFilter should be removed when exception encountered
             .containsExactly(dummyFilter)
 

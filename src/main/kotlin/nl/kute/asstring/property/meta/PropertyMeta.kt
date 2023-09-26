@@ -1,23 +1,12 @@
 package nl.kute.asstring.property.meta
 
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
 /** Metadata about a property */
-public sealed interface PropertyMeta {
-    /** [KClass] that comprises the property */
-    public val objectClass: KClass<*>?
-
+public sealed interface PropertyMeta: ClassMeta {
     /** The property this [PropertyMeta] is about */
     public val property: KProperty<*>
-
-    /**
-     * Simplified name of the [objectClass] that comprises the property
-     *  * without package name
-     *  * without reference to the outer class, in case of inner / nested class
-     */
-    public val objectClassName: String?
 
     /** The [property]'s name */
     public val propertyName: String

@@ -4,9 +4,12 @@ import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
+import nl.kute.asstring.core.ClassFilter
+import nl.kute.asstring.core.PropertyOmitFilter
 import nl.kute.asstring.core.defaults.initialAsStringClassOption
 import nl.kute.asstring.core.defaults.initialAsStringOption
-import nl.kute.asstring.core.propertyOmitFiltering
+import nl.kute.asstring.core.forceToStringClassRegistry
+import nl.kute.asstring.core.propertyOmitFilterRegistry
 import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.util.ifNull
@@ -14,11 +17,6 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Predicate
 import kotlin.reflect.KClass
 
-/**
- * Alias for type `(`[PropertyMeta]`)` -> [Boolean]
- * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
- */
-public typealias PropertyOmitFilter = (PropertyMeta) -> Boolean
 /**
  * Builder-like class, to prepare and apply newly set values as defaults
  * for [AsStringOption] / [AsStringClassOption].
@@ -35,7 +33,11 @@ public class AsStringConfig {
     private var newDefaultAsStringOption: AsStringOption = AsStringOption.defaultOption
     private var newDefaultAsStringClassOption: AsStringClassOption = AsStringClassOption.defaultOption
 
-    private var propertyOmitFilters: Array<out PropertyOmitFilter> = emptyArray()
+    private var propertyOmitFilters: Array<out PropertyOmitFilter> =
+        propertyOmitFilterRegistry.entries().toTypedArray()
+
+    private var forceToStringFilters: Array<out ClassFilter> =
+        forceToStringClassRegistry.entries().toTypedArray()
 
     private fun setNewDefaultAsStringOption(newAsStringOption: AsStringOption) {
         this.newDefaultAsStringOption = newAsStringOption
@@ -248,6 +250,25 @@ public class AsStringConfig {
     }
 
     /**
+     * Sets the new [ClassFilter]s to be applied.
+     * * Custom [KClass]es for which one of more [filters] return **`true`** will have their [toString] called
+     *   (instead of [nl.kute.asstring.core.asString])
+     * * Any exceptions that may occur during evaluation of a [ClassFilter] are ignored, and:
+     *    * The exception will be logged
+     *    * The filter will be removed from the filter registry, to avoid further exceptions
+     *
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the values as an application-wide default.
+     * * Any previously existing filters will be removed by [applyAsDefault].
+     * @see getPropertyOmitFilters
+     * @see [applyAsDefault]
+     */
+    public fun withForceToStringFilters(vararg filters: ClassFilter): AsStringConfig {
+        forceToStringFilters = filters
+        return this
+    }
+
+    /**
      * Sets the new [PropertyOmitFilter]s to be applied.
      * * Is essentially a wrapper for [withPropertyOmitFilters]
      *
@@ -270,7 +291,20 @@ public class AsStringConfig {
      * @see [withPropertyOmitFilters]
      */
     public fun getPropertyOmitFilters(): Collection<PropertyOmitFilter> =
-        propertyOmitFiltering.getEntryMap().keys
+        propertyOmitFilterRegistry.getEntryMap().keys
+
+    /**
+     * @return The currently effective [ClassFilter]s
+     * @see [withForceToStringFilters]
+     */
+    public fun getForceToStringFilters(): Collection<PropertyOmitFilter> =
+        forceToStringClassRegistry.getEntryMap().keys
+
+    /** @return The currently effective default [AsStringOption] */
+    public fun getAsStringOptionDefault(): AsStringOption = AsStringOption.defaultOption
+
+    /** @return The currently effective default [AsStringClassOption] */
+    public fun getAsStringClassOptionDefault(): AsStringClassOption = AsStringClassOption.defaultOption
 
     /**
      * Assigns the [AsStringOption] and [AsStringClassOption] being built, to [AsStringOption.defaultOption]
@@ -280,7 +314,8 @@ public class AsStringConfig {
     public fun applyAsDefault() {
         AsStringOption.defaultOption = newDefaultAsStringOption
         AsStringClassOption.defaultOption = newDefaultAsStringClassOption
-        propertyOmitFiltering.replaceAll(*propertyOmitFilters)
+        propertyOmitFilterRegistry.replaceAll(*propertyOmitFilters)
+        forceToStringClassRegistry.replaceAll(*forceToStringFilters)
     }
 
 }

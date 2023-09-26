@@ -11,13 +11,15 @@ import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.annotation.option.asStringClassOption
-import nl.kute.asstring.config.PropertyOmitFilter
 import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.defaults.defaultNullString
 import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.asstring.namedvalues.PropertyValue
 import nl.kute.asstring.property.getPropValueString
+import nl.kute.asstring.property.meta.ClassMeta
+import nl.kute.asstring.property.meta.ClassMetaData
+import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.meta.PropertyMetaData
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.asstring.property.ranking.NoOpPropertyRanking
@@ -40,6 +42,7 @@ import nl.kute.util.identityHashHex
 import nl.kute.util.joinIfNotEmpty
 import nl.kute.util.lineEnd
 import nl.kute.exception.throwableAsString
+import nl.kute.retain.SubscribableRegistry
 import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -48,38 +51,18 @@ import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.memberProperties
 
-// region ~ AsStringProducer
+/**
+ * Alias for type `(`[PropertyMeta]`)` -> [Boolean]
+ * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
+ */
+public typealias PropertyOmitFilter = (PropertyMeta) -> Boolean
 
 /**
- * Abstract base class for implementing classes that want to expose an [asString] method
- * * Properties of this class's subclasses are excluded from rendering by [asString]
+ * Alias for type `(`[ClassMeta]`)` -> [Boolean]
+ * @see [nl.kute.asstring.config.AsStringConfig.withForceToStringFilters]
  */
-public abstract class AsStringProducer {
-// Must be in same file as private fun `objectAsString()` (to call the private method)
+public typealias ClassFilter = (ClassMeta) -> Boolean
 
-    /**
-     * Facade method allowing subclasses to access the (private) [nl.kute.asstring.core.asString] method with additional parameters
-     * [propertyNamesToExclude] and [nameValues]
-     * @param
-     */
-    @Suppress("RedundantModalityModifier")
-    protected final fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String =
-        asString(propertyNamesToExclude, *nameValues)
-
-    /** @return The resulting [String] */
-    public abstract fun asString(): String
-
-    abstract override fun toString(): String
-
-    private companion object {
-        init {
-            // Properties of this type should not be rendered by asString()
-            propertyReturnTypesToOmit.add(AsStringProducer::class)
-        }
-    }
-}
-
-// endregion
 
 // region ~ asString
 
@@ -179,14 +162,14 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
                                 .filterNot { propertyNamesToExclude.contains(it.key.name) }
                                 .filterNot { entry -> entry.value.any { annotation -> annotation is AsStringOmit } }
                                 .filterNot { entry ->
-                                    propertyOmitFiltering.hasEntry()
+                                    propertyOmitFilterRegistry.hasEntry()
                                         // No caching here.
-                                        // * Caching by property only does not meet requirements.
+                                        // * Caching 'by property only' is not feasible / desirable.
                                         // *  Maybe PropertyMetaData might be cached by Pair(prop, objClass)
-                                        //    But that involves constructing a Pair for each.
+                                        //    But that would involve constructing a Pair for each.
                                         // Construction of PropertyMetaData is not an expensive operation.
-                                        // So gain of caching is probably marginal
-                                        && propertyOmitFiltering.entries().any { filter -> filter.applyFilter(entry.key, objClass) }
+                                        // So the benefit of caching is probably marginal (or even negative)
+                                        && propertyOmitFilterRegistry.entries().any { filter -> filter.applyFilter(entry.key, objClass) }
                                 }.associate { it.key to it.value }
 
                         val named: List<NameValue<*>> = nameValues
@@ -248,22 +231,6 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
     }
 }
 
-private fun <T : Any> PropertyOmitFilter.applyFilter(
-    property: KProperty<*>,
-    objClass: KClass<T>
-): Boolean {
-    return try {
-        this(PropertyMetaData(property, objClass))
-    } catch (e: Exception) {
-        handleWithReturn(e, false) {
-            log("PropertyOmitFilter threw ${e.throwableAsString()}, the exception will be ignored," +
-                        " and the filter will be removed from the registry (not used anymore)"
-            )
-            propertyOmitFiltering.remove(this)
-        }
-    }
-}
-
 private fun Map<KProperty<*>, Set<Annotation>>.joinToStringWithOrderRank(
     obj: Any,
     vararg rankProviders: PropertyRankable<*> = emptyArray(),
@@ -313,13 +280,73 @@ internal fun Array<out PropertyRankable<*>>.hasEffectiveRankProvider() =
 internal fun (Array<out KClass<out PropertyRankable<*>>>)?.hasEffectiveRankProvider(): Boolean =
     !this.isNullOrEmpty() && !this.all { it::class == NoOpPropertyRanking::class }
 
+// endregion
+
+// region ~ Filtering
+
+private fun <T : Any> PropertyOmitFilter.applyFilter(
+    property: KProperty<*>,
+    objClass: KClass<T>
+): Boolean {
+    return try {
+        this(PropertyMetaData(property, objClass))
+    } catch (e: Exception) {
+        handleWithReturn(e, false) {
+            log("PropertyOmitFilter threw ${e.throwableAsString()}, the exception will be ignored," +
+                    " and the filter will be removed from the registry (not used anymore)"
+            )
+            propertyOmitFilterRegistry.remove(this)
+        }
+    }
+}
+
 /**
- * [Registry] instance to omit properties that match a filter from the output
+ * [Registry] instance to register filters in order to omit properties when they match any of these filters
  * of [nl.kute.asstring.core.asString]
  * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
  */
 @JvmSynthetic // avoid access from external Java code
-internal val propertyOmitFiltering: Registry<PropertyOmitFilter> = Registry()
+internal val propertyOmitFilterRegistry: Registry<PropertyOmitFilter> = Registry()
+
+/**
+ * [Registry] instance to register filters in order to force custom classes to have their [toString] called (instead of [asString])
+ * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
+ */
+@JvmSynthetic // avoid access from external Java code
+internal val forceToStringClassRegistry: SubscribableRegistry<ClassFilter> = SubscribableRegistry()
+
+// endregion
+
+// region ~ AsStringProducer
+
+/**
+ * Abstract base class for implementing classes that want to expose an [asString] method
+ * * Properties of this class's subclasses are excluded from rendering by [asString]
+ */
+public abstract class AsStringProducer {
+// Must be in same file as private fun `asString()` (in order to call the private method)
+
+    /**
+     * Facade method allowing subclasses to access the (private) [nl.kute.asstring.core.asString] method with additional parameters
+     * [propertyNamesToExclude] and [nameValues]
+     * @param
+     */
+    @Suppress("RedundantModalityModifier")
+    protected final fun <T : Any?> T?.objectAsString(propertyNamesToExclude: Collection<String>, vararg nameValues: NameValue<*>): String =
+        asString(propertyNamesToExclude, *nameValues)
+
+    /** @return The resulting [String] */
+    public abstract fun asString(): String
+
+    abstract override fun toString(): String
+
+    private companion object {
+        init {
+            // Properties of this type should not be rendered by asString()
+            propertyReturnTypesToOmit.add(AsStringProducer::class)
+        }
+    }
+}
 
 // endregion
 
@@ -350,8 +377,15 @@ private fun KClass<*>.toStringHandling(): Pair<ToStringPreference, Boolean> {
     val theCache = useToStringByClass.cache
     theCache[this].let { cachedPref ->
         val firstTime = cachedPref == null
-        return if (firstTime) Pair(toStringFeasibility(), firstTime).also { theCache[this] = it.first }
-        else Pair(cachedPref!!, firstTime)
+        var toStringFeasibility = toStringFeasibility()
+        if (firstTime && toStringFeasibility != PREFER_TOSTRING
+            && forceToStringClassRegistry.entries()
+                .any { filter -> filter(ClassMetaData(this)) }) {
+            toStringFeasibility = PREFER_TOSTRING
+        }
+        return if (firstTime) Pair(toStringFeasibility, firstTime)
+            .also { theCache[this] = it.first }
+        else Pair(cachedPref!!, false)
     }
 }
 

@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *  * All mutations are synchronized ([register], [replaceAll], [remove], [clearAll]).
  *  * Retrieval is thread-safe, it won't throw [ConcurrentModificationException]
  */
-internal class Registry<T: Any> {
+internal open class Registry<T: Any> {
 
     private val registry = ConcurrentHashMap<T, Int>()
     private val lockObject = registry
@@ -28,7 +28,7 @@ internal class Registry<T: Any> {
      *   or the [Int] value associated with the previously added [T]
      *   if that [T]-object was already present.
      */
-    fun register(entry: T): Int {
+    open fun register(entry: T): Int {
         synchronized(lockObject) {
             // If already present, returns existing ID
             return registry.entries.firstOrNull { it.key === entry }?.value.ifNull {
@@ -41,7 +41,7 @@ internal class Registry<T: Any> {
     }
 
     /** Removes any existing entries and applies the given [entries] */
-    fun replaceAll(vararg entries: T) {
+    open fun replaceAll(vararg entries: T) {
         synchronized(lockObject) {
             val currentIds: Collection<Int> = getEntryMap().values
             val newIds: List<Int> = entries.map { register(it) }
@@ -53,8 +53,7 @@ internal class Registry<T: Any> {
      * Removes existing [T] with the given [id], if present
      * @return The [T] that was removed; or `null` if it was not present
      */
-    @Suppress("MemberVisibilityCanBePrivate")
-    fun remove(id: Int): T? {
+    open fun remove(id: Int): T? {
         synchronized(lockObject) {
             return registry.entries.firstOrNull { it.value == id }?.key?.let {
                 remove(it)
@@ -68,7 +67,7 @@ internal class Registry<T: Any> {
      * > The existence-check is **not** done by equality `==`, but whether it is the exact same object (by `===` )
      * @return The ID of the [entry] that was removed; or `null` if it was not present
      */
-    fun remove(entry: T): Int? {
+    open fun remove(entry: T): Int? {
         synchronized(lockObject) {
             return registry.remove(entry)
         }
@@ -78,7 +77,7 @@ internal class Registry<T: Any> {
      * Removes all entries
      * @return the entries that have been removed
      */
-    fun clearAll(): Collection<T> {
+    open fun clearAll(): Collection<T> {
         synchronized(lockObject) {
             val existingEntries = registry.keys.toSet()
             registry.clear()
@@ -90,11 +89,7 @@ internal class Registry<T: Any> {
     fun getEntryMap(): Map<T, Int> = registry.toMap()
 
     @JvmSynthetic // avoid access from external Java code
-    /**
-     * @return The [Set] of entries that have been registered
-     * > **NB:** This is the **mutable** internal representation, *not* a defensive copy.
-     *   **Do not** modify this [Set] from the outside!
-     */
+    /** @return The [Set] of entries that have been registered */
     internal fun entries(): Set<T> = registry.keys
 
 }

@@ -26,7 +26,7 @@ import kotlin.reflect.KProperty
 @AsStringClassOption(toStringPreference = ToStringPreference.PREFER_TOSTRING) // Not using asString() here, it will cause StackOverflowError
 internal class PropertyValueMetaData(
     property: KProperty<*>,
-    objectClass: KClass<*>?,
+    objectClass: KClass<*>,
     propertyValue: Any?,
     override val stringValueLength: Int?,
 ): PropertyMetaData(property, objectClass), PropertyValueMeta {
@@ -58,8 +58,7 @@ internal class PropertyValueMetaData(
     override fun toString(): String {
         return buildString {
             append(this@PropertyValueMetaData::class.simplifyClassName())
-            append("(")
-            append("objectClassname='$objectClassName',")
+            append("(objectClassname='$objectClassName',")
             append(" stringValueLength=$stringValueLength,")
             append(" propertyName='$propertyName',")
             append(" returnType=$returnType")

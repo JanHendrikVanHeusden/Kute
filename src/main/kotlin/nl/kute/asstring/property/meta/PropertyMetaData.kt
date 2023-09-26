@@ -14,18 +14,16 @@ import kotlin.reflect.KType
 /** Metadata about a property */
 @AsStringClassOption(toStringPreference = ToStringPreference.PREFER_TOSTRING) // Not using asString() here, it will cause StackOverflowError
 internal open class PropertyMetaData(
+    final override val property: KProperty<*>,
+    objectClass: KClass<*>): ClassMetaData(objectClass), PropertyMeta {
 
     // There is no check if the property actually is a property of objectClass
     // If ever this class were made public, such a check would be recommended
     // (if so, take care of subclasses)
 
-    final override val property: KProperty<*>,
-    final override val objectClass: KClass<*>?, ) : PropertyMeta {
-
     final override val propertyName: String = property.name
     final override val returnType: KType = property.returnType
 
-    override val objectClassName: String? by lazy(LazyThreadSafetyMode.NONE) { objectClass?.simplifyClassName() }
     override val isBaseType: Boolean by lazy(LazyThreadSafetyMode.NONE) { returnType.isBaseType() }
     override val isCollectionLike: Boolean by lazy(LazyThreadSafetyMode.NONE) { returnType.isCollectionLikeType() }
     override val isCharSequence: Boolean by lazy(LazyThreadSafetyMode.NONE) { returnType.isCharSequenceType() }
@@ -34,8 +32,7 @@ internal open class PropertyMetaData(
     override fun toString(): String {
         return buildString {
             append(this@PropertyMetaData::class.simplifyClassName())
-            append("(")
-            append("objectClassname='$objectClassName',")
+            append("(objectClassname='$objectClassName',")
             append(" propertyName='$propertyName',")
             append(" returnType=$returnType")
             append(" isCharSequence=$isCharSequence,")

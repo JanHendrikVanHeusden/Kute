@@ -69,7 +69,7 @@ public annotation class AsStringOption(
 
 @JvmSynthetic // avoid access from external Java code
 internal fun AsStringOption.applyOption(strVal: String?): String =
-    (if (propMaxStringValueLength >= 0) propMaxStringValueLength else initialMaxStringValueLength).let {
-        strVal?.takeAndEllipse(it)?.surroundBy(surroundPropValue) ?: showNullAs
-    }
-
+    (if (propMaxStringValueLength >= 0) propMaxStringValueLength else initialMaxStringValueLength)
+        .let { maxLength ->
+            strVal?.takeAndEllipse(maxLength)?.surroundBy(surroundPropValue) ?: showNullAs
+        }
