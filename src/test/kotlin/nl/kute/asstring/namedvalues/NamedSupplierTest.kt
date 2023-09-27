@@ -21,12 +21,12 @@ class NamedSupplierTest: GarbageCollectionWaiter {
     fun `Retrieving the value of the supplier should evaluate the Supplier every time`() {
         // arrange
         var counter = 0
-        val namedSupplier: NamedSupplier<Int> =
+        val namedSupplier: NamedSupplier<Int?> =
             {
                 // Don't do this normally! A Supplier should not have side effects!
                 // It's just for test purpose, to verify its retrieval behaviour
                 ++counter
-            }.namedSupplier("counter") as NamedSupplier<Int>
+            }.namedSupplier("counter")
 
         // act, assert
         assertThat(counter)
@@ -81,7 +81,7 @@ class NamedSupplierTest: GarbageCollectionWaiter {
         val supplier = { suppliedValue }
         val name = "the name"
         // act
-        val namedSupplier = supplier.namedSupplier(name) as NamedSupplier<String>
+        val namedSupplier = supplier.namedSupplier(name)
         // assert
         assertThat(namedSupplier.name).isSameAs(name)
         assertThat(namedSupplier.value).isSameAs(suppliedValue)
@@ -90,7 +90,8 @@ class NamedSupplierTest: GarbageCollectionWaiter {
     @Test
     fun `NamedSupplier should accept null values`() {
         val name = "a null value"
-        val namedSupplier = { null }.namedSupplier(name)
+        @Suppress("USELESS_CAST") // not useless: it won't even compile without the cast to String?
+        val namedSupplier = { null as String? }.namedSupplier(name)
         assertThat(namedSupplier.name).isSameAs(name)
         assertThat(namedSupplier.value).isNull()
     }
@@ -106,8 +107,8 @@ class NamedSupplierTest: GarbageCollectionWaiter {
         }
         var toBeGarbageCollected: ToBeGarbageCollected? = ToBeGarbageCollected()
         var supplier: ValueSupplier<ToBeGarbageCollected?>? = { toBeGarbageCollected }
-        val namedSupplier: NamedSupplier<ToBeGarbageCollected> =
-            supplier!!.namedSupplier("to be garbage collected") as NamedSupplier
+        val namedSupplier: NamedSupplier<ToBeGarbageCollected?> =
+            supplier!!.namedSupplier("to be garbage collected")
 
         val checkGarbageCollected = { namedSupplier.value == null }
         assertThat(checkGarbageCollected.invoke()).isFalse

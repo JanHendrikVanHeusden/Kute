@@ -15,11 +15,11 @@ import nl.kute.asstring.config.restoreInitialAsStringOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.test.helper.equalSignCount
 import nl.kute.asstring.core.test.helper.isObjectAsString
-import nl.kute.asstring.namedvalues.NamedSupplier
 import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
 import nl.kute.asstring.namedvalues.namedSupplier
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
+import nl.kute.exception.throwableAsString
 import nl.kute.hashing.DigestMethod
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
@@ -37,7 +37,6 @@ import nl.kute.testobjects.kotlin.protectedvisibility.ClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubClassOfClassWithProtectedProperty
 import nl.kute.testobjects.kotlin.protectedvisibility.SubSubClassOfClassWithProtectedProperty
 import nl.kute.util.identityHashHex
-import nl.kute.exception.throwableAsString
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
@@ -243,7 +242,7 @@ class AsStringTest: ObjectsStackVerifier {
             // It's just for testing purposes, to verify that it's called only once during asString() processing
             ++counter
         }
-        val namedSupplier = supplier.namedSupplier(counterName) as NamedSupplier<Int>
+        val namedSupplier = supplier.namedSupplier(counterName)
 
         counter = 0
 

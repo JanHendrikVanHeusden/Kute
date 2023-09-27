@@ -1,6 +1,9 @@
 package nl.kute.retain
 
-import nl.kute.asstring.core.asString
+import nl.kute.asstring.annotation.option.AsStringClassOption
+import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
+import nl.kute.reflection.util.simplifyClassName
+import nl.kute.util.identityHashHex
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
@@ -13,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *  * All mutations are synchronized ([register], [replaceAll], [remove], [clearAll]).
  *  * Retrieval is thread-safe, it won't throw [ConcurrentModificationException]
  */
+@AsStringClassOption(toStringPreference = PREFER_TOSTRING)  // to avoid circular dependencies
 internal open class Registry<T: Any> {
 
     private val registry = ConcurrentHashMap<T, Int>()
@@ -93,7 +97,9 @@ internal open class Registry<T: Any> {
     /** @return The [Set] of entries that have been registered */
     internal fun entries(): Set<T> = registry.keys
 
-    override fun toString(): String = asString()
+    // Not using asString(), to avoid circular dependencies
+    override fun toString(): String =
+        "${this::class.simplifyClassName()}@${this.identityHashHex}(#registered=${registry.size}, latestAddedId=$latestAddedId)"
 
 }
 

@@ -1,14 +1,14 @@
 package nl.kute.asstring.filter
 
-import nl.kute.asstring.core.PropertyOmitFilter
 import nl.kute.asstring.config.asStringConfig
+import nl.kute.asstring.core.PropertyOmitFilter
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.propertyOmitFilterRegistry
 import nl.kute.asstring.core.test.helper.isObjectAsString
+import nl.kute.exception.throwableAsString
 import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.exception.throwableAsString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -239,7 +239,8 @@ class PropertyOmitFilteringTest {
             IllegalStateException::class.simplifyClassName(),
             errorMsg,
             exception.throwableAsString(),
-            "the exception will be ignored, and the filter will be removed from the registry (not used anymore)"
+            "PropertyOmitFilter threw IllegalStateException",
+            "this particular filter will be removed from the registry"
         )
         assertThat(propertyOmitFilterRegistry.entries())
             // throwingFilter should be removed when exception encountered

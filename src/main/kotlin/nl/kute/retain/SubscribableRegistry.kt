@@ -10,17 +10,22 @@ import nl.kute.observe.Subscribing
  */
 internal open class SubscribableRegistry<T: Any> : Registry<T>(), Subscribable by Subscribing() {
 
-    override fun register(entry: T): Int = super.register(entry)
-        .also { onChange() }
+    override fun register(entry: T): Int =
+        super.register(entry)
+            .also { onChange() }
 
-    override fun remove(entry: T): Int? = super.remove(entry)
-        .also { onChange() }
+    override fun remove(entry: T): Int? =
+        super.remove(entry)
+            .also { onChange() }
 
     /**
      * Removes all entries
      * @return the entries that have been removed
      */
-    override fun clearAll(): Collection<T> = super.clearAll()
-        .also { onChange() }
+    override fun clearAll(): Collection<T> =
+        super.clearAll()
+            .also { onChange() }
+
+    override fun toString(): String = super.toString()
 
 }

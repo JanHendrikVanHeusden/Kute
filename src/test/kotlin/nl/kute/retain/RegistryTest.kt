@@ -1,5 +1,7 @@
 package nl.kute.retain
 
+import nl.kute.asstring.core.test.helper.isObjectAsString
+import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.Test
@@ -58,6 +60,37 @@ class RegistryTest {
         val id2SecondTime = registry.register(obj2)
         val removed2: SomeLambda? = registry.remove(id2SecondTime)
         assertThat(removed2).isSameAs(obj2)
+    }
+
+    @Test
+    fun `toString() should include the identity hash and the count of registered entries`() {
+        // arrange
+        val registry = Registry<String>()
+        val idHash = registry.identityHashHex
+        val valX = "x"
+        val valY = "y"
+        registry.register(valX)
+        registry.register(valY)
+
+        // act, assert
+        assertThat(registry.toString()).isObjectAsString(
+            "Registry@$idHash",
+            "#registered=2",
+            "latestAddedId=2"
+        )
+
+        // arrange
+        registry.clearAll()
+        // act, assert
+        assertThat(registry.toString()).isObjectAsString(
+            "Registry@$idHash",
+            "#registered=0",
+            "latestAddedId=2"
+        )
+        // just to ensure that the objects are not garbage collected before the #registered was evaluated
+        assertThat(registry).isNotNull
+        assertThat(valX).isNotNull()
+        assertThat(valY).isNotNull()
     }
 
 }

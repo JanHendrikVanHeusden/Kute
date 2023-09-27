@@ -1,10 +1,10 @@
 package nl.kute.asstring.namedvalues
 
 import nl.kute.asstring.weakreference.ObjectWeakReference
-import nl.kute.log.log
-import nl.kute.reflection.util.simplifyClassName
 import nl.kute.exception.handleWithReturn
 import nl.kute.exception.throwableAsString
+import nl.kute.log.log
+import nl.kute.reflection.util.simplifyClassName
 import java.util.concurrent.Callable
 
 /** Convenience type alias for `() -> T?` */
@@ -79,5 +79,5 @@ public class NamedSupplier<V: Any?>(override val name: String, supplier: ValueSu
  * @receiver The [V] producing supplier the [NamedSupplier] is about
  * @param name The name to be associated with the value to be supplied
  */
-public fun <V: Any?> ValueSupplier<V?>.namedSupplier(name: String): NameValue<V?> =
+public fun <V: Any?> ValueSupplier<V?>.namedSupplier(name: String): NamedSupplier<V?> =
     NamedSupplier(name,this)
