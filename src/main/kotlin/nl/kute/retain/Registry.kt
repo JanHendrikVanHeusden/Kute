@@ -1,6 +1,6 @@
 package nl.kute.retain
 
-import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
+import nl.kute.asstring.core.asString
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
@@ -93,11 +93,7 @@ internal open class Registry<T: Any> {
     /** @return The [Set] of entries that have been registered */
     internal fun entries(): Set<T> = registry.keys
 
-    private val asStringBuilder = asStringBuilder()
-        .withOnlyProperties(this::registry)
-        .build()
-
-    override fun toString(): String = asStringBuilder.asString()
+    override fun toString(): String = asString()
 
 }
 
