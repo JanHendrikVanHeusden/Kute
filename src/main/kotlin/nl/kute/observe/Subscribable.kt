@@ -1,5 +1,6 @@
 package nl.kute.observe
 
+import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import java.util.concurrent.ConcurrentHashMap
 
 /** Convenience type alias for `() -> `[Unit] */
@@ -36,5 +37,11 @@ internal class Subscribing: Subscribable {
     override fun subscribeToChange(action: Action) {
         changeSubscriptions.add(action)
     }
+
+    private val asStringBuilder = asStringBuilder()
+        .withOnlyProperties(this::changeSubscriptions)
+        .build()
+
+    override fun toString(): String = asStringBuilder.asString()
 
 }
