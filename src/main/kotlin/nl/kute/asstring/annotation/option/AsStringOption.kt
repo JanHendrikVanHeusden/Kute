@@ -56,7 +56,6 @@ public annotation class AsStringOption(
          * > On change (see [nl.kute.asstring.config.AsStringConfig]), the property cache will be reset (cleared).
          */
         @Volatile
-        // TODO: make internal
         public var defaultOption: AsStringOption = initialAsStringOption
             @JvmSynthetic // avoid access from external Java code
             internal set(newDefault) {

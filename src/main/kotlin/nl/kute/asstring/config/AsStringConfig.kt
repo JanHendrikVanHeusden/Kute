@@ -335,10 +335,10 @@ public class AsStringConfig {
         forceToStringClassRegistry.replaceAll(*forceToStringFilters)
     }
 
-    /** @return The currently effective default [AsStringOption] */
+    /** @return The currently effective [AsStringOption.defaultOption] ) */
     public fun getAsStringOptionDefault(): AsStringOption = AsStringOption.defaultOption
 
-    /** @return The currently effective default [AsStringClassOption] */
+    /** @return The currently effective [AsStringClassOption.defaultOption] */
     public fun getAsStringClassOptionDefault(): AsStringClassOption = AsStringClassOption.defaultOption
 
     /**
