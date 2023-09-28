@@ -21,7 +21,13 @@ internal open class Registry<T: Any> {
 
     private val registry = ConcurrentHashMap<T, Int>()
     private val lockObject = registry
-    private val latestAddedId = AtomicInteger(0)
+
+    /**
+     * The latest `id` that has been assigned to a [register]ed [T]-entry
+     *  * Will be reset to `0` when [clearAll] is called
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
+    val latestAddedId: AtomicInteger = AtomicInteger(0)
 
     /** Has anything been registered yet in this registry? */
     fun hasEntry() : Boolean = registry.isNotEmpty()
@@ -38,7 +44,7 @@ internal open class Registry<T: Any> {
             // If already present, returns existing ID
             return registry.entries.firstOrNull { it.key === entry }?.value.ifNull {
                 // not present, add the entries and return the id
-                val id = latestAddedId.getAndIncrement()
+                val id = latestAddedId.incrementAndGet()
                 registry[entry] = id
                 id
             }
@@ -74,18 +80,20 @@ internal open class Registry<T: Any> {
      */
     open fun remove(entry: T): Int? {
         synchronized(lockObject) {
+            @Suppress("MemberVisibilityCanBePrivate")
             return registry.remove(entry)
         }
     }
 
     /**
-     * Removes all entries
+     * Removes all entries, and resets [latestAddedId] to `0`
      * @return the entries that have been removed
      */
     open fun clearAll(): Collection<T> {
         synchronized(lockObject) {
             val existingEntries = registry.keys.toSet()
             registry.clear()
+            latestAddedId.set(0)
             return existingEntries
         }
     }

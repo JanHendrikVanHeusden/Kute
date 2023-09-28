@@ -32,7 +32,7 @@ class SubscribableRegistryTest {
         Assertions.assertThat(registry.toString()).isObjectAsString(
             "SubscribableRegistry@$idHash",
             "#registered=0",
-            "latestAddedId=2"
+            "latestAddedId=0"
         )
         // just to ensure that the objects are not garbage collected before the #registered was evaluated
         Assertions.assertThat(registry).isNotNull

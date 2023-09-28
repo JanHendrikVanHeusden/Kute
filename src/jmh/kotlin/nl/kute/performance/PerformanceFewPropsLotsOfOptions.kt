@@ -7,7 +7,7 @@ import nl.kute.asstring.annotation.modify.cachingRegexFactory
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.asStringClassOptionCache
-import nl.kute.asstring.core.PropertyOmitFilter
+import nl.kute.asstring.core.PropertyMetaFilter
 import nl.kute.asstring.config.asStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.config.restoreInitialAsStringOption
@@ -67,7 +67,7 @@ open class PerformanceFewPropsLotsOfOptions {
         if (!enabled) {
             throw(IllegalStateException(disabledWarning))
         }
-        val propertyFilter : PropertyOmitFilter = { meta ->
+        val propertyFilter : PropertyMetaFilter = { meta ->
             // won't filter out anything, but it will be checked on each asString() call
             meta.returnType.classifier == Dummy::class
         }

@@ -4,12 +4,13 @@ import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
-import nl.kute.asstring.core.ClassFilter
-import nl.kute.asstring.core.PropertyOmitFilter
+import nl.kute.asstring.core.ClassMetaFilter
+import nl.kute.asstring.core.PropertyMetaFilter
 import nl.kute.asstring.core.defaults.initialAsStringClassOption
 import nl.kute.asstring.core.defaults.initialAsStringOption
 import nl.kute.asstring.core.forceToStringClassRegistry
 import nl.kute.asstring.core.propertyOmitFilterRegistry
+import nl.kute.asstring.property.meta.ClassMeta
 import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.util.ifNull
@@ -30,13 +31,25 @@ import kotlin.reflect.KClass
  */
 public class AsStringConfig {
 
+    // TODO: This class is too bulky now.
+    //       Could be refactored to 3 classes, where:
+    //        * a delegate class / interface would take care of AsStringOption
+    //        * a delegate class / interface would take care of AsStringClassOption
+    //        * a delegate class / interface would take care of global filters
+    //          (propertyOmitFilters, forceToStringFilters)
+    //       Then AsStringConfig could implement these interfaces `by ...` delegate
+    //       Maybe only interfaces needed, by using default methods
+    //       NB: all config options should still be accessible, and only be accessible,
+    //           via the single AsStringConfig class.
+    //           We shouldn't bother end-users of Kute to figure out which class to use for which option.
+
     private var newDefaultAsStringOption: AsStringOption = AsStringOption.defaultOption
     private var newDefaultAsStringClassOption: AsStringClassOption = AsStringClassOption.defaultOption
 
-    private var propertyOmitFilters: Array<out PropertyOmitFilter> =
+    private var propertyOmitFilters: Array<out PropertyMetaFilter> =
         propertyOmitFilterRegistry.entries().toTypedArray()
 
-    private var forceToStringFilters: Array<out ClassFilter> =
+    private var forceToStringFilters: Array<out ClassMetaFilter> =
         forceToStringClassRegistry.entries().toTypedArray()
 
     private fun setNewDefaultAsStringOption(newAsStringOption: AsStringOption) {
@@ -232,79 +245,83 @@ public class AsStringConfig {
     }
 
     /**
-     * Sets the new [PropertyOmitFilter]s to be applied.
+     * Sets the new [PropertyMetaFilter]s to be applied.
      * * Properties for which one of more [filters] return **`true`** will be omitted in subsequent calls to [nl.kute.asstring.core.asString].
-     * * Any exceptions that may occur during evaluation of a [PropertyOmitFilter] are ignored, and:
+     * * Any exceptions that may occur during evaluation of a [PropertyMetaFilter] are ignored, and:
      *    * The exception will be logged
      *    * The filter will be removed from the filter registry, to avoid further exceptions
      *
      * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
      * * [applyAsDefault] applies the values as an application-wide default.
      * * Any previously existing filters will be removed by [applyAsDefault].
-     * @see getPropertyOmitFilters
+     * @see [getPropertyOmitFilters]
      * @see [applyAsDefault]
      */
-    public fun withPropertyOmitFilters(vararg filters: PropertyOmitFilter): AsStringConfig {
+    public fun withPropertyOmitFilters(vararg filters: PropertyMetaFilter): AsStringConfig {
         propertyOmitFilters = filters
         return this
     }
 
     /**
-     * Sets the new [ClassFilter]s to be applied.
+     * Sets the new [ClassMetaFilter]s to be applied.
      * * Custom [KClass]es for which one of more [filters] return **`true`** will have their [toString] called
      *   (instead of [nl.kute.asstring.core.asString])
-     * * Any exceptions that may occur during evaluation of a [ClassFilter] are ignored, and:
+     * * Any exceptions that may occur during evaluation of a [ClassMetaFilter] are ignored, and:
      *    * The exception will be logged
      *    * The filter will be removed from the filter registry, to avoid further exceptions
      *
      * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
      * * [applyAsDefault] applies the values as an application-wide default.
      * * Any previously existing filters will be removed by [applyAsDefault].
-     * @see getPropertyOmitFilters
+     * @see [getPropertyOmitFilters]
      * @see [applyAsDefault]
      */
-    public fun withForceToStringFilters(vararg filters: ClassFilter): AsStringConfig {
+    public fun withForceToStringFilters(vararg filters: ClassMetaFilter): AsStringConfig {
         forceToStringFilters = filters
         return this
     }
 
     /**
-     * Sets the new [PropertyOmitFilter]s to be applied.
-     * * Is essentially a wrapper for [withPropertyOmitFilters]
+     * Sets the new [ClassMetaFilter]s to be applied.
+     * * Is essentially a wrapper for [withForceToStringFilters]
      *
      * > Mainly for use from **Java**, where [Predicate] parameter is easier than lambdas (in [withPropertyOmitFilters])
-     * > For **Kotlin**, [withPropertyOmitFilters] is recommended (fore ease of use)
+     * > For **Kotlin**, [withPropertyOmitFilters] is recommended (for ease of use)
      *
      * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
      * * [applyAsDefault] applies the values as an application-wide default.
      * * Any previously existing filters will be removed by [applyAsDefault].
-     * @see withPropertyOmitFilters
-     * @see getPropertyOmitFilters
+     * @see [withForceToStringFilters]
+     * @see [getForceToStringFilters]
      * @see [applyAsDefault]
      */
-    public fun withPropertyOmitFilterPredicates(predicate: Predicate<in PropertyMeta>): AsStringConfig {
-        return withPropertyOmitFilters({ m -> predicate.test(m) })
-    }
+    public fun withForceToStringFilterPredicates(vararg predicates: Predicate<in ClassMeta>): AsStringConfig =
+        withForceToStringFilters(*predicates.map { predicate ->
+            { m: ClassMeta ->
+                predicate.test(m)
+            }
+        }.toTypedArray())
 
     /**
-     * @return The currently effective [PropertyOmitFilter]s
+     * Sets the new [PropertyMetaFilter]s to be applied.
+     * * Is essentially a wrapper for [withPropertyOmitFilters]
+     *
+     * > Mainly for use from **Java**, where [Predicate] parameter is easier than lambdas (in [withPropertyOmitFilters])
+     * > For **Kotlin**, [withPropertyOmitFilters] is recommended (for ease of use)
+     *
+     * * Nothing will happen effectively until [applyAsDefault] is called on the [AsStringConfig] object.
+     * * [applyAsDefault] applies the values as an application-wide default.
+     * * Any previously existing filters will be removed by [applyAsDefault].
      * @see [withPropertyOmitFilters]
+     * @see [getPropertyOmitFilters]
+     * @see [applyAsDefault]
      */
-    public fun getPropertyOmitFilters(): Collection<PropertyOmitFilter> =
-        propertyOmitFilterRegistry.getEntryMap().keys
-
-    /**
-     * @return The currently effective [ClassFilter]s
-     * @see [withForceToStringFilters]
-     */
-    public fun getForceToStringFilters(): Collection<PropertyOmitFilter> =
-        forceToStringClassRegistry.getEntryMap().keys
-
-    /** @return The currently effective default [AsStringOption] */
-    public fun getAsStringOptionDefault(): AsStringOption = AsStringOption.defaultOption
-
-    /** @return The currently effective default [AsStringClassOption] */
-    public fun getAsStringClassOptionDefault(): AsStringClassOption = AsStringClassOption.defaultOption
+    public fun withPropertyOmitFilterPredicates(vararg predicates: Predicate<in PropertyMeta>): AsStringConfig =
+        withPropertyOmitFilters(*predicates.map { predicate ->
+            { m: PropertyMeta ->
+                predicate.test(m)
+            }
+        }.toTypedArray())
 
     /**
      * Assigns the [AsStringOption] and [AsStringClassOption] being built, to [AsStringOption.defaultOption]
@@ -317,6 +334,26 @@ public class AsStringConfig {
         propertyOmitFilterRegistry.replaceAll(*propertyOmitFilters)
         forceToStringClassRegistry.replaceAll(*forceToStringFilters)
     }
+
+    /** @return The currently effective default [AsStringOption] */
+    public fun getAsStringOptionDefault(): AsStringOption = AsStringOption.defaultOption
+
+    /** @return The currently effective default [AsStringClassOption] */
+    public fun getAsStringClassOptionDefault(): AsStringClassOption = AsStringClassOption.defaultOption
+
+    /**
+     * @return The currently effective [PropertyMetaFilter]s
+     * @see [withPropertyOmitFilters]
+     */
+    public fun getPropertyOmitFilters(): Map<PropertyMetaFilter, Int> =
+        propertyOmitFilterRegistry.getEntryMap()
+
+    /**
+     * @return The currently effective [ClassMetaFilter]s
+     * @see [withForceToStringFilters]
+     */
+    public fun getForceToStringFilters(): Map<ClassMetaFilter, Int> =
+        forceToStringClassRegistry.getEntryMap()
 
 }
 

@@ -28,6 +28,7 @@ class PropertyOmitFilteringTestJava {
                 .applyAsDefault();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void PropertyFiltering_should_exclude_when_specified() {
         // arrange
@@ -81,5 +82,23 @@ class PropertyOmitFilteringTestJava {
         assertThat(asString(instance))
                 .contains(expected)
                 .doesNotContain(notExpected);
+
+        @SuppressWarnings("CallToSuspiciousStringMethod") // because not i18n
+        Predicate<? super PropertyMeta> propFilterNameNotAList = meta ->
+                "notAList".equals(meta.getPropertyName());
+
+        asStringConfig()
+                .withPropertyOmitFilterPredicates(
+                        propFilterByCollectionLike,
+                        propFilterNameNotAList
+                )
+                .applyAsDefault();
+
+        // act, assert
+        assertThat(asString(instance))
+                .contains("intToExclude")
+                .doesNotContain("notAList")
+                .doesNotContain(notExpected);
+
     }
 }

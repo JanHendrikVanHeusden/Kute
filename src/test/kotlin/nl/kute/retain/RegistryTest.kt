@@ -85,7 +85,7 @@ class RegistryTest {
         assertThat(registry.toString()).isObjectAsString(
             "Registry@$idHash",
             "#registered=0",
-            "latestAddedId=2"
+            "latestAddedId=0"
         )
         // just to ensure that the objects are not garbage collected before the #registered was evaluated
         assertThat(registry).isNotNull

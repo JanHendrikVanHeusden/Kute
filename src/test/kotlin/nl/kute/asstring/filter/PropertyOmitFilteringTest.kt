@@ -1,7 +1,7 @@
 package nl.kute.asstring.filter
 
 import nl.kute.asstring.config.asStringConfig
-import nl.kute.asstring.core.PropertyOmitFilter
+import nl.kute.asstring.core.PropertyMetaFilter
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.propertyOmitFilterRegistry
 import nl.kute.asstring.core.test.helper.isObjectAsString
@@ -10,6 +10,7 @@ import nl.kute.log.logger
 import nl.kute.log.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -44,8 +45,8 @@ class PropertyOmitFilteringTest {
             )
 
         // act: apply filter
-        val filter: PropertyOmitFilter = { meta -> meta.propertyName == "filterMeOut" }
-        propertyOmitFilterRegistry.register(filter)
+        val filter: PropertyMetaFilter = { meta -> meta.propertyName == "filterMeOut" }
+        val filterId = propertyOmitFilterRegistry.register(filter)
 
         // assert
         assertThat(MyClassForPropertyFiltering().asString())
@@ -53,7 +54,7 @@ class PropertyOmitFilteringTest {
                 "shouldBeThere=I should be there"
             )
         assertThat(asStringConfig().getPropertyOmitFilters())
-            .containsExactly(filter)
+            .containsExactly(entry(filter, filterId))
             .hasSize(1)
     }
 
@@ -84,7 +85,7 @@ class PropertyOmitFilteringTest {
             )
 
         // arrange
-        val filter: PropertyOmitFilter = { m -> m.isCollectionLike }
+        val filter: PropertyMetaFilter = { m -> m.isCollectionLike }
         asStringConfig().withPropertyOmitFilters(filter).applyAsDefault()
 
         // act, assert
@@ -127,20 +128,20 @@ class PropertyOmitFilteringTest {
             )
 
         // arrange: filters
-        val filter1: PropertyOmitFilter = { meta ->
+        val filter1: PropertyMetaFilter = { meta ->
             meta.objectClass == MyClassForPropertyFiltering::class
                     && meta.propertyName == "filterMeOut"
         }
-        val filter2: PropertyOmitFilter = { meta ->
+        val filter2: PropertyMetaFilter = { meta ->
             meta.returnType.classifier == List::class
         }
-        val filter3: PropertyOmitFilter = { meta ->
+        val filter3: PropertyMetaFilter = { meta ->
             meta.returnType.isSubtypeOf(typeOf<Collection<*>>())
         }
         // applying filters 1 & 2
         asStringConfig().withPropertyOmitFilters(filter1, filter2).applyAsDefault()
 
-        assertThat(asStringConfig().getPropertyOmitFilters())
+        assertThat(asStringConfig().getPropertyOmitFilters().keys)
             .containsExactlyInAnyOrder(filter1, filter2)
             .hasSize(2)
 
@@ -159,7 +160,7 @@ class PropertyOmitFilteringTest {
         // applying filters 1, 2, 3
         asStringConfig().withPropertyOmitFilters(filter1, filter2, filter3).applyAsDefault()
 
-        assertThat(asStringConfig().getPropertyOmitFilters())
+        assertThat(asStringConfig().getPropertyOmitFilters().keys)
             .containsExactlyInAnyOrder(filter1, filter2, filter3)
             .hasSize(3)
 
@@ -191,7 +192,7 @@ class PropertyOmitFilteringTest {
     @Test
     fun `private nested  classes should yield a decent result`() {
         // arrange
-        val filter: PropertyOmitFilter =
+        val filter: PropertyMetaFilter =
             // this won't compile, as propA is private:
             // { meta -> meta.propertyName == PrivateLocalTestClass::propA.name }
 
@@ -215,8 +216,8 @@ class PropertyOmitFilteringTest {
         // arrange
         val errorMsg = "I crashed!"
         val exception = IllegalStateException(errorMsg)
-        val throwingFilter: PropertyOmitFilter = { _ -> throw exception }
-        val dummyFilter: PropertyOmitFilter = { _ -> false }
+        val throwingFilter: PropertyMetaFilter = { _ -> throw exception }
+        val dummyFilter: PropertyMetaFilter = { _ -> false }
         var logMsg = ""
         logger = { msg: String? -> logMsg += msg }
 
@@ -267,7 +268,7 @@ class PropertyOmitFilteringTest {
         protected val propB = "prop B"
 
         companion object {
-            val filter: PropertyOmitFilter = { meta ->
+            val filter: PropertyMetaFilter = { meta ->
                 meta.propertyName == PrivateLocalTestClass::propA.name
             }
         }

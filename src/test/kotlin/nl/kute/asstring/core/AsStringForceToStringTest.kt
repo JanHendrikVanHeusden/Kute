@@ -36,8 +36,8 @@ class AsStringForceToStringTest {
         )
 
         // act
-        val classFilter: ClassFilter = { meta -> meta.objectClass == TestClass::class }
-        val filterId: Int = forceToStringClassRegistry.register(classFilter)
+        val classMetaFilter: ClassMetaFilter = { meta -> meta.objectClass == TestClass::class }
+        val filterId: Int = forceToStringClassRegistry.register(classMetaFilter)
 
         // assert
         assertThat(testObj.asString())
@@ -78,11 +78,11 @@ class AsStringForceToStringTest {
             )
 
         // create some filters
-        val nonMatching1: ClassFilter = { meta -> meta.objectClass != TestClass::class }
-        val nonMatching2: ClassFilter = { meta -> meta.packageName == "" }
-        val matching1: ClassFilter = { meta -> meta.packageName == this::class.java.packageName }
-        val nonMatching4: ClassFilter = { meta -> meta.objectClassName == "just some class" }
-        val matching2: ClassFilter = { meta -> meta.objectClassName!!.contains("TestClass") }
+        val nonMatching1: ClassMetaFilter = { meta -> meta.objectClass != TestClass::class }
+        val nonMatching2: ClassMetaFilter = { meta -> meta.packageName == "" }
+        val matching1: ClassMetaFilter = { meta -> meta.packageName == this::class.java.packageName }
+        val nonMatching4: ClassMetaFilter = { meta -> meta.objectClassName == "just some class" }
+        val matching2: ClassMetaFilter = { meta -> meta.objectClassName!!.contains("TestClass") }
 
         // act: register filters
         forceToStringClassRegistry.register(nonMatching1)

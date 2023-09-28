@@ -57,13 +57,13 @@ import kotlin.reflect.full.memberProperties
  * Alias for type `(`[PropertyMeta]`)` -> [Boolean]
  * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
  */
-public typealias PropertyOmitFilter = (PropertyMeta) -> Boolean
+public typealias PropertyMetaFilter = (PropertyMeta) -> Boolean
 
 /**
  * Alias for type `(`[ClassMeta]`)` -> [Boolean]
  * @see [nl.kute.asstring.config.AsStringConfig.withForceToStringFilters]
  */
-public typealias ClassFilter = (ClassMeta) -> Boolean
+public typealias ClassMetaFilter = (ClassMeta) -> Boolean
 
 
 // region ~ asString
@@ -280,7 +280,7 @@ internal fun (Array<out KClass<out PropertyRankable<*>>>)?.hasEffectiveRankProvi
 
 // region ~ Filtering
 
-private fun <T : Any> PropertyOmitFilter.applyFilter(property: KProperty<*>, objClass: KClass<T>): Boolean =
+private fun <T : Any> PropertyMetaFilter.applyFilter(property: KProperty<*>, objClass: KClass<T>): Boolean =
     try {
         // No caching here.
         //  * Maybe PropertyMetaData might be cached by Pair(prop, objClass).
@@ -303,7 +303,7 @@ private fun <T : Any> PropertyOmitFilter.applyFilter(property: KProperty<*>, obj
         }
     }
 
-private fun KClass<*>.applyFilter(filter: ClassFilter): Boolean =
+private fun KClass<*>.applyFilter(filter: ClassMetaFilter): Boolean =
     try {
         filter(cachingClassMetaDataFactory[this]!!)
     } catch (e: Exception) {
@@ -331,15 +331,15 @@ internal val cachingClassMetaDataFactory =
  * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
  */
 @JvmSynthetic // avoid access from external Java code
-internal val propertyOmitFilterRegistry: Registry<PropertyOmitFilter> = Registry()
+internal val propertyOmitFilterRegistry: Registry<PropertyMetaFilter> = Registry()
 
 /**
  * [Registry] instance to register filters in order to force custom classes to have their [toString] called (instead of [asString])
  * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
  */
 @JvmSynthetic // avoid access from external Java code
-internal val forceToStringClassRegistry: SubscribableRegistry<ClassFilter> =
-    SubscribableRegistry<ClassFilter>()
+internal val forceToStringClassRegistry: SubscribableRegistry<ClassMetaFilter> =
+    SubscribableRegistry<ClassMetaFilter>()
         .also {
             // not using Observable delegate here, old/new values are not needed, simple notification will do
             it.subscribeToChange { useToStringByClass.reset() }

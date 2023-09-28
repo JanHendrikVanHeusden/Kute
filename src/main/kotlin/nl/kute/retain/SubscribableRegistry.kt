@@ -18,10 +18,6 @@ internal open class SubscribableRegistry<T: Any> : Registry<T>(), Subscribable b
         super.remove(entry)
             .also { onChange() }
 
-    /**
-     * Removes all entries
-     * @return the entries that have been removed
-     */
     override fun clearAll(): Collection<T> =
         super.clearAll()
             .also { onChange() }
