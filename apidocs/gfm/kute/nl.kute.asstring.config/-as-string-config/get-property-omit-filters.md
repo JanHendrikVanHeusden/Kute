@@ -3,11 +3,11 @@
 # getPropertyOmitFilters
 
 [jvm]\
-fun [getPropertyOmitFilters](get-property-omit-filters.md)(): [Collection](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html)&lt;[PropertyOmitFilter](../../nl.kute.asstring.property.filter/-property-omit-filter/index.md)&gt;
+fun [getPropertyOmitFilters](get-property-omit-filters.md)(): [Map](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html)&lt;[PropertyMetaFilter](../../nl.kute.asstring.core/-property-meta-filter/index.md), [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)&gt;
 
 #### Return
 
-The currently effective [PropertyOmitFilter](../../nl.kute.asstring.property.filter/-property-omit-filter/index.md)s
+The currently effective [PropertyMetaFilter](../../nl.kute.asstring.core/-property-meta-filter/index.md)s
 
 #### See also
 

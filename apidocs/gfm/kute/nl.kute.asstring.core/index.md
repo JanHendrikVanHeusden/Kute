@@ -8,6 +8,8 @@
 |---|---|
 | [AsStringBuilder](-as-string-builder/index.md) | [jvm]<br>class [AsStringBuilder](-as-string-builder/index.md) : [AsStringProducer](-as-string-producer/index.md)<br>Builder for more fine-grained specification of what is included/excluded in the output of [nl.kute.asstring.core.asString](as-string.md), like additional values, filtering out properties (by reference or by name), etc. |
 | [AsStringProducer](-as-string-producer/index.md) | [jvm]<br>abstract class [AsStringProducer](-as-string-producer/index.md)<br>Abstract base class for implementing classes that want to expose an [asString](-as-string-producer/as-string.md) method |
+| [ClassMetaFilter](-class-meta-filter/index.md) | [jvm]<br>typealias [ClassMetaFilter](-class-meta-filter/index.md) = ([ClassMeta](../nl.kute.asstring.property.meta/-class-meta/index.md)) -&gt; [Boolean](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)<br>Alias for type `(`[ClassMeta](../nl.kute.asstring.property.meta/-class-meta/index.md)`)` ->[Boolean](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |
+| [PropertyMetaFilter](-property-meta-filter/index.md) | [jvm]<br>typealias [PropertyMetaFilter](-property-meta-filter/index.md) = ([PropertyMeta](../nl.kute.asstring.property.meta/-property-meta/index.md)) -&gt; [Boolean](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)<br>Alias for type `(`[PropertyMeta](../nl.kute.asstring.property.meta/-property-meta/index.md)`)` ->[Boolean](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) |
 
 ## Properties
 

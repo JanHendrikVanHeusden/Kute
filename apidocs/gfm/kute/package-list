@@ -81,13 +81,18 @@ $dokka.location:nl.kute.asstring.config//asStringConfig/#/PointingToDeclaration/
 $dokka.location:nl.kute.asstring.config/AsStringConfig///PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/index.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/AsStringConfig/#/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/-as-string-config.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/applyAsDefault/#/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/apply-as-default.md
+$dokka.location:nl.kute.asstring.config/AsStringConfig/getAsStringClassOptionDefault/#/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/get-as-string-class-option-default.md
+$dokka.location:nl.kute.asstring.config/AsStringConfig/getAsStringOptionDefault/#/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/get-as-string-option-default.md
+$dokka.location:nl.kute.asstring.config/AsStringConfig/getForceToStringFilters/#/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/get-force-to-string-filters.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/getPropertyOmitFilters/#/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/get-property-omit-filters.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/withElementsLimit/#kotlin.Int/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-elements-limit.md
+$dokka.location:nl.kute.asstring.config/AsStringConfig/withForceToStringFilterPredicates/#kotlin.Array[java.util.function.Predicate[nl.kute.asstring.property.meta.ClassMeta]]/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-force-to-string-filter-predicates.md
+$dokka.location:nl.kute.asstring.config/AsStringConfig/withForceToStringFilters/#kotlin.Array[kotlin.Function1[nl.kute.asstring.property.meta.ClassMeta,kotlin.Boolean]]/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-force-to-string-filters.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/withIncludeCompanion/#kotlin.Boolean/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-include-companion.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/withIncludeIdentityHash/#kotlin.Boolean/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-include-identity-hash.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/withMaxPropertyStringLength/#kotlin.Int/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-max-property-string-length.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/withPropertiesAlphabetic/#kotlin.Boolean/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-properties-alphabetic.md
-$dokka.location:nl.kute.asstring.config/AsStringConfig/withPropertyOmitFilterPredicates/#java.util.function.Predicate[nl.kute.asstring.property.meta.PropertyMeta]/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-property-omit-filter-predicates.md
+$dokka.location:nl.kute.asstring.config/AsStringConfig/withPropertyOmitFilterPredicates/#kotlin.Array[java.util.function.Predicate[nl.kute.asstring.property.meta.PropertyMeta]]/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-property-omit-filter-predicates.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/withPropertyOmitFilters/#kotlin.Array[kotlin.Function1[nl.kute.asstring.property.meta.PropertyMeta,kotlin.Boolean]]/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-property-omit-filters.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/withPropertySorters/#kotlin.Array[kotlin.reflect.KClass[nl.kute.asstring.property.ranking.PropertyRankable[*]]]/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-property-sorters.md
 $dokka.location:nl.kute.asstring.config/AsStringConfig/withShowNullAs/#kotlin.String/PointingToDeclaration/kute/nl.kute.asstring.config/-as-string-config/with-show-null-as.md
@@ -124,6 +129,8 @@ $dokka.location:nl.kute.asstring.core/AsStringProducer///PointingToDeclaration/
 $dokka.location:nl.kute.asstring.core/AsStringProducer/AsStringProducer/#/PointingToDeclaration/kute/nl.kute.asstring.core/-as-string-producer/-as-string-producer.md
 $dokka.location:nl.kute.asstring.core/AsStringProducer/asString/#/PointingToDeclaration/kute/nl.kute.asstring.core/-as-string-producer/as-string.md
 $dokka.location:nl.kute.asstring.core/AsStringProducer/toString/#/PointingToDeclaration/kute/nl.kute.asstring.core/-as-string-producer/to-string.md
+$dokka.location:nl.kute.asstring.core/ClassMetaFilter///PointingToDeclaration/kute/nl.kute.asstring.core/-class-meta-filter/index.md
+$dokka.location:nl.kute.asstring.core/PropertyMetaFilter///PointingToDeclaration/kute/nl.kute.asstring.core/-property-meta-filter/index.md
 $dokka.location:nl.kute.asstring.namedvalues////PointingToDeclaration/kute/nl.kute.asstring.namedvalues/index.md
 $dokka.location:nl.kute.asstring.namedvalues//namedProp/kotlin.reflect.KProperty[TypeParam(bounds=[kotlin.Any?])?]#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/kute/nl.kute.asstring.namedvalues/named-prop.md
 $dokka.location:nl.kute.asstring.namedvalues//namedSupplier/kotlin.Function0[TypeParam(bounds=[kotlin.Any?])?]#kotlin.String/PointingToDeclaration/kute/nl.kute.asstring.namedvalues/named-supplier.md
@@ -150,17 +157,20 @@ $dokka.location:nl.kute.asstring.namedvalues/NamedValue/NamedValue/#kotlin.Strin
 $dokka.location:nl.kute.asstring.namedvalues/NamedValue/name/#/PointingToDeclaration/kute/nl.kute.asstring.namedvalues/-named-value/name.md
 $dokka.location:nl.kute.asstring.namedvalues/NamedValue/value/#/PointingToDeclaration/kute/nl.kute.asstring.namedvalues/-named-value/value.md
 $dokka.location:nl.kute.asstring.namedvalues/ValueSupplier///PointingToDeclaration/kute/nl.kute.asstring.namedvalues/-value-supplier/index.md
-$dokka.location:nl.kute.asstring.property.filter////PointingToDeclaration/kute/nl.kute.asstring.property.filter/index.md
-$dokka.location:nl.kute.asstring.property.filter/PropertyOmitFilter///PointingToDeclaration/kute/nl.kute.asstring.property.filter/-property-omit-filter/index.md
 $dokka.location:nl.kute.asstring.property.meta////PointingToDeclaration/kute/nl.kute.asstring.property.meta/index.md
+$dokka.location:nl.kute.asstring.property.meta/ClassMeta///PointingToDeclaration/kute/nl.kute.asstring.property.meta/-class-meta/index.md
+$dokka.location:nl.kute.asstring.property.meta/ClassMeta/equals/#kotlin.Any?/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-class-meta/equals.md
+$dokka.location:nl.kute.asstring.property.meta/ClassMeta/hashCode/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-class-meta/hash-code.md
+$dokka.location:nl.kute.asstring.property.meta/ClassMeta/objectClass/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-class-meta/object-class.md
+$dokka.location:nl.kute.asstring.property.meta/ClassMeta/objectClassName/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-class-meta/object-class-name.md
+$dokka.location:nl.kute.asstring.property.meta/ClassMeta/packageName/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-class-meta/package-name.md
+$dokka.location:nl.kute.asstring.property.meta/ClassMeta/toString/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-class-meta/to-string.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta///PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/index.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta/equals/#kotlin.Any?/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/equals.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta/hashCode/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/hash-code.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta/isBaseType/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/is-base-type.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta/isCharSequence/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/is-char-sequence.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta/isCollectionLike/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/is-collection-like.md
-$dokka.location:nl.kute.asstring.property.meta/PropertyMeta/objectClass/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/object-class.md
-$dokka.location:nl.kute.asstring.property.meta/PropertyMeta/objectClassName/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/object-class-name.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta/property/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/property.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta/propertyName/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/property-name.md
 $dokka.location:nl.kute.asstring.property.meta/PropertyMeta/returnType/#/PointingToDeclaration/kute/nl.kute.asstring.property.meta/-property-meta/return-type.md
@@ -237,7 +247,6 @@ nl.kute.asstring.config
 nl.kute.asstring.core
 nl.kute.asstring.core.defaults
 nl.kute.asstring.namedvalues
-nl.kute.asstring.property.filter
 nl.kute.asstring.property.meta
 nl.kute.asstring.property.ranking
 nl.kute.asstring.weakreference
