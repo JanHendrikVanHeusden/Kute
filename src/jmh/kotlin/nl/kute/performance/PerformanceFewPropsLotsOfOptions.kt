@@ -34,10 +34,11 @@ import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 // Set to `true` to enable the test
-private var enabled = true
+private var enabled = false
 
 internal class Dummy
 
@@ -55,7 +56,7 @@ internal class Dummy
  *     * on Mac you may run the command<br>
  *       `caffeinate -d -t 1800`
  *       <br>to keep it awake for half an hour (1800s)
- *     * on Linux and Windows, Google and/or consult documentation on how to prevent sleep mode
+ *     * for Linux and Windows, use Google :-) and/or consult documentation on how to prevent sleep mode
  *
  *  Total duration of the Gradle `jmh` task may take about 40 minutes if all tests are enabled.
  */
@@ -81,13 +82,10 @@ open class PerformanceFewPropsLotsOfOptions {
             .applyAsDefault()
 
         testObjectsFewProps.modifyFewPropValues()
-        var charCount: Long = 0
         repeat(callCountPerMethodPerIteration) {
-            charCount += asStringTask(testObjectsFewProps[Random.nextInt(0, testObjectCount)]).length.toLong()
+            charCount.addAndGet(asStringTask(testObjectsFewProps[Random.nextInt(0, testObjectCount)]).length.toLong())
         }
 
-        // charCount: just to make sure that the JVM does not eliminate the asString()/ToStringBuilder/gson/ideToString calls
-        log("Iteration yielded $charCount characters")
         log("""# of executions (total over iterations):
                | asString       : $asStringExecutionCount
         """.trimMargin())
@@ -102,6 +100,9 @@ open class PerformanceFewPropsLotsOfOptions {
         if (!enabled) {
             throw(IllegalStateException(disabledWarning))
         }
+
+        // charCount: just to make sure that the JVM does not eliminate the asString()/ToStringBuilder/gson/ideToString calls
+        log("Iteration yielded $charCount characters")
 
         log(
             """Cache sizes:
@@ -133,6 +134,7 @@ open class PerformanceFewPropsLotsOfOptions {
             asStringExecutionCount.incrementAndGet()
             plan.asString(p)
         }
+        var charCount: AtomicLong = AtomicLong(0)
 
         init {
             log("""
@@ -152,7 +154,7 @@ open class PerformanceFewPropsLotsOfOptions {
             The test typically runs in less than 5 minutes, depending on hardware & environment.
             If running it on a laptop, make sure it does not enter sleep mode.
              * on Mac you may run the command `caffeinate -d -t 1800` to keep it awake for half an hour (1800s)
-             * on Linux and Windows, Google and/or consult documentation
+             * for Linux and Windows, use Google :-) and/or consult documentation
 
         """.trimIndent())
         }

@@ -2,6 +2,7 @@
 
 package nl.kute.testobjects.performance
 
+import com.google.gson.Gson
 import nl.kute.asstring.core.asString
 import nl.kute.performance.retrieveProperties
 import org.apache.commons.lang3.RandomStringUtils
@@ -13,6 +14,8 @@ import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
+
+private val gson = Gson()
 
 val propClassesFewProps: Set<KClass<out PropsToString>> = setOf(FewPropsSub00::class,
     FewPropsSub01::class,

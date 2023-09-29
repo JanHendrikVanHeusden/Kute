@@ -26,10 +26,11 @@ import org.openjdk.jmh.annotations.TearDown
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 // Set to `true` to enable the test
-private var enabled = true
+private var enabled = false
 
 /**
  * Runs performance tests with **Kute** [nl.kute.asstring.core.asString], compared to
@@ -47,7 +48,7 @@ private var enabled = true
  *     * on Mac you may run the command<br>
  *       `caffeinate -d -t 1800`
  *       <br>to keep it awake for half an hour (1800s)
- *     * on Linux and Windows, Google and/or consult documentation on how to prevent sleep mode
+ *     * for Linux and Windows, use Google :-) and/or consult documentation on how to prevent sleep mode
  *
  *  Total duration of the Gradle `jmh` task may take about 40 minutes if all tests are enabled.
  */
@@ -60,14 +61,11 @@ open class PerformanceFewJavaVars {
             throw(IllegalStateException(disabledWarning))
         }
         testObjectsFewJavaVars.modifyFewPropValues()
-        var charCount: Long = 0
         tasks.toMutableList().shuffled().forEach { task ->
             repeat(callCountPerMethodPerIteration) {
-                charCount += task(testObjectsFewJavaVars[Random.nextInt(0, testObjectCount)]).length.toLong()
+                charCount.addAndGet(task(testObjectsFewJavaVars[Random.nextInt(0, testObjectCount)]).length.toLong())
             }
         }
-        // charCount: just to make sure that the JVM does not eliminate the asString()/ToStringBuilder/gson/ideToString calls
-        log("Iteration yielded $charCount characters")
         log("""# of executions (total over iterations):
                | asString       : $asStringExecutionCount
                | ToStringBuilder: $toStringBuilderExecutionCount
@@ -82,6 +80,9 @@ open class PerformanceFewJavaVars {
         if (!enabled) {
             throw(IllegalStateException(disabledWarning))
         }
+        // charCount: just to make sure that the JVM does not eliminate the asString()/ToStringBuilder/gson/ideToString calls
+        log("Iteration yielded $charCount characters")
+
         log(
             """Cache sizes:
 
@@ -135,6 +136,8 @@ open class PerformanceFewJavaVars {
             ConcurrentHashMap.newKeySet<ToStringTask?>()
                 .also { it.addAll(listOf(asStringTask, toStringBuilderTask, ideToStringTask, gsonStringTask)) }
 
+        var charCount: AtomicLong = AtomicLong(0)
+
         init {
             log("""
 
@@ -156,7 +159,7 @@ open class PerformanceFewJavaVars {
             The test typically runs in less than 15 minutes, depending on hardware & environment.
             If running it on a laptop, make sure it does not enter sleep mode.
              * on Mac you may run the command `caffeinate -d -t 1800` to keep it awake for half an hour (1800s)
-             * on Linux and Windows, Google and/or consult documentation
+             * for Linux and Windows, use Google :-) and/or consult documentation
 
         """.trimIndent())
         }

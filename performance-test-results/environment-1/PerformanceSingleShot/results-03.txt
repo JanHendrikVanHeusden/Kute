@@ -1,0 +1,14 @@
+Benchmark                                   Mode  Cnt   Score    Error  Units
+
+PerformanceSingleShot.asString              avgt    8  10,764 ± 21,528  ns/op
+PerformanceSingleShot.gsonToJson            avgt    8   6,595 ±  7,910  ns/op
+PerformanceSingleShot.ideGeneratedToString  avgt    8   8,390 ± 11,213  ns/op
+PerformanceSingleShot.toStringBuilder       avgt    8   5,545 ±  1,858  ns/op
+
+Executed on:
+  macOS Ventura 13.x
+  2,6 GHz 6-Core Intel Core i7
+  16 GB 2667 MHz DDR4
+Running gradle task `jmh` from IntelliJ IDE
+Several other apps running on same machine, but not actively used (no user interaction),
+run task window (text output) minimized

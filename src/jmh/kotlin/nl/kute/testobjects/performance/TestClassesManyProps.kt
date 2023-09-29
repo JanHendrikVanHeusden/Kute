@@ -21,7 +21,7 @@ import kotlin.reflect.full.memberProperties
 //         may slow down your IDE dramatically.
 // There is no KDoc, there are
 
-val gson: Gson = Gson()
+private val gson: Gson = Gson()
 
 
 val propClassesManyProps: Set<KClass<out PropsToString>> = setOf(

@@ -1,9 +1,9 @@
 Benchmark                                   Mode  Cnt  Score    Error  Units
 
-PerformanceSingleShot.asString              avgt    8  9,648 ± 23,149  ns/op
-PerformanceSingleShot.gsonToJson            avgt    8  5,809 ±  2,004  ns/op
-PerformanceSingleShot.ideGeneratedToString  avgt    8  7,425 ± 10,522  ns/op
-PerformanceSingleShot.toStringBuilder       avgt    8  8,080 ±  9,104  ns/op
+PerformanceSingleShot.asString              avgt    8  5,792 ±  2,510  ns/op
+PerformanceSingleShot.gsonToJson            avgt    8  8,654 ± 18,246  ns/op
+PerformanceSingleShot.ideGeneratedToString  avgt    8  6,625 ±  7,851  ns/op
+PerformanceSingleShot.toStringBuilder       avgt    8  6,868 ±  8,300  ns/op
 
 Executed on:
   macOS Ventura 13.x

@@ -26,6 +26,8 @@ import nl.kute.asstring.property.ranking.NoOpPropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.asstring.property.ranking.PropertyValueMetaComparator
 import nl.kute.asstring.property.ranking.getPropertyRankableInstance
+import nl.kute.exception.handleWithReturn
+import nl.kute.exception.throwableAsString
 import nl.kute.log.log
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.error.SyntheticClassException
@@ -35,15 +37,13 @@ import nl.kute.reflection.util.retrieveCompanionObjectInstance
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.retain.MapCache
 import nl.kute.retain.Registry
+import nl.kute.retain.SubscribableRegistry
 import nl.kute.util.asHexString
-import nl.kute.exception.handleWithReturn
 import nl.kute.util.identityHash
 import nl.kute.util.identityHashHex
+import nl.kute.util.ifNull
 import nl.kute.util.joinIfNotEmpty
 import nl.kute.util.lineEnd
-import nl.kute.exception.throwableAsString
-import nl.kute.retain.SubscribableRegistry
-import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlin.reflect.KClass

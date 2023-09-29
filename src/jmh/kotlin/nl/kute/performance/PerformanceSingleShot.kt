@@ -14,6 +14,7 @@ import nl.kute.testobjects.performance.modifyManyClassesPropValues
 import nl.kute.testobjects.performance.testObjectsManyClasses
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
+import org.openjdk.jmh.annotations.Fork
 import org.openjdk.jmh.annotations.Level
 import org.openjdk.jmh.annotations.Mode
 import org.openjdk.jmh.annotations.OutputTimeUnit
@@ -21,9 +22,11 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
+import org.openjdk.jmh.annotations.Warmup
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 // Set to `true` to enable the test
@@ -48,11 +51,15 @@ private var enabled = true
  *     * on Mac you may run the command<br>
  *       `caffeinate -d -t 1800`
  *       <br>to keep it awake for half an hour (1800s)
- *     * on Linux and Windows, Google and/or consult documentation on how to prevent sleep mode
+ *     * for Linux and Windows, use Google :-) and/or consult documentation on how to prevent sleep mode
  *
  *  Total duration of the Gradle `jmh` task may take about 40 minutes if all tests are enabled.
  */
 @State(Scope.Benchmark)
+@Fork(value = 1, warmups = 0)
+@BenchmarkMode(Mode.SingleShotTime)
+@Warmup(iterations = 1, batchSize = 1, time = 1, timeUnit = TimeUnit.NANOSECONDS)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 open class PerformanceSingleShot {
 
     @Setup(Level.Iteration)
@@ -61,14 +68,11 @@ open class PerformanceSingleShot {
             throw(IllegalStateException(disabledWarning))
         }
         testObjectsManyClasses.modifyManyClassesPropValues()
-        var charCount: Long = 0
         tasks.toMutableList().shuffled().forEach { task ->
             repeat(callCountPerMethodPerIteration) {
-                charCount += task(testObjectsManyClasses[Random.nextInt(0, testObjectCount)]).length.toLong()
+                charCount.addAndGet(task(testObjectsManyClasses[Random.nextInt(0, testObjectCount)]).length.toLong())
             }
         }
-        // charCount: just to make sure that the JVM does not eliminate the asString()/ToStringBuilder/gson/ideToString calls
-        log("Iteration yielded $charCount characters")
         log("""# of executions (total over iterations):
                | asString       : $asStringExecutionCount
                | ToStringBuilder: $toStringBuilderExecutionCount
@@ -83,6 +87,9 @@ open class PerformanceSingleShot {
         if (!enabled) {
             throw(IllegalStateException(disabledWarning))
         }
+        // charCount: just to make sure that the JVM does not eliminate the asString()/ToStringBuilder/gson/ideToString calls
+        log("Iteration yielded ${PerformanceManyPropsWithPropSorting.charCount} characters")
+
         log(
             """Cache sizes:
 
@@ -136,6 +143,8 @@ open class PerformanceSingleShot {
             ConcurrentHashMap.newKeySet<ToStringTask?>()
                 .also { it.addAll(listOf(asStringTask, toStringBuilderTask, ideToStringTask, gsonStringTask)) }
 
+        val charCount: AtomicLong = AtomicLong(0)
+
         init {
             log("""
 
@@ -160,29 +169,21 @@ open class PerformanceSingleShot {
             The test typically runs in less than 15 minutes, depending on hardware & environment.
             If running it on a laptop, make sure it does not enter sleep mode.
              * on Mac you may run the command `caffeinate -d -t 1800` to keep it awake for half an hour (1800s)
-             * on Linux and Windows, Google and/or consult documentation
+             * for Linux and Windows, use Google :-) and/or consult documentation
 
         """.trimIndent())
         }
     }
 
     @Benchmark
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    @BenchmarkMode(Mode.All)
     open fun asString(propsInstance: PropsToString): String = propsInstance.withAsString()
 
     @Benchmark
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    @BenchmarkMode(Mode.All)
     open fun toStringBuilder(propsInstance: PropsToString): String = propsInstance.withToStringBuilder()
 
     @Benchmark
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    @BenchmarkMode(Mode.All)
     open fun gsonToJson(propsInstance: PropsToString): String = propsInstance.withGson()
 
     @Benchmark
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    @BenchmarkMode(Mode.All)
     open fun ideGeneratedToString(propsInstance: PropsToString): String = propsInstance.withIdeGeneratedToString()
 }
