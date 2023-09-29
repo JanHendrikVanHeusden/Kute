@@ -1,0 +1,5 @@
+Benchmark                                   Mode  Cnt  Score   Error  Units
+PerformanceSingleShot.asString              avgt    8  5,242 ± 0,508  ns/op
+PerformanceSingleShot.gsonToJson            avgt    8  5,208 ± 0,767  ns/op
+PerformanceSingleShot.ideGeneratedToString  avgt    8  5,247 ± 0,603  ns/op
+PerformanceSingleShot.toStringBuilder       avgt    8  5,304 ± 0,640  ns/op
