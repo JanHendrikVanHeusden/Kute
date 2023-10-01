@@ -96,11 +96,10 @@
 
 <br><hr><br>
 3. **Better `String` representation**
- 
-    > * You hate things like `[Ljava.lang.Object;@e3b3b2f` as much as anybody
-    > * You expect that Lambdas are represented decently<br>
-    > * You hate it when every object is preceded by its fully qualified package name
-    > * You hate yourself and your IDE when you forgot to include the newly added property in your IDE-generated `toString()` implementation (and even more when it's causing issues in production)
+   > * You hate things like `[Ljava.lang.Object;@e3b3b2f` as much as anybody
+   > * You expect that Lambdas are represented decently<br>
+   > * You hate it when every object is preceded by its fully qualified package name
+   > * You hate yourself and your IDE when you forgot to include the newly added property in your IDE-generated `toString()` implementation (and even more when it's causing issues in production)
 
 * Why better:
    * Dynamic (reflective) property representation of custom Java and Kotlin classes
