@@ -12,6 +12,8 @@
         + [Dependencies](#dependencies)
         + [Platform: JVM](#platform-jvm)
             - [Porting to other platforms?](#porting-to-other-platforms)
+  * [→ How to...](docs/howto/0-howto.md)
+  * [→ FAQ](docs/faq/0-faq.md)
 
 ## **Kute**?
 
@@ -33,12 +35,12 @@ never getting in the way when developing great code (or when troubleshooting les
 1. **<u>Untroubled</u>**
    * `toString()` implementations should be as basic as possible.
    * Renaming, adding or removing properties should be followed automagically
-   > You really should not have to bother about your `toString()` implementations<br>
-     so you can focus on the functionals you are working on
+   > You really should not have to bother about your `toString()` implementations.<br>
+    So you can focus on the functionals you are working on.
 2. **<u>Helpful</u>**
    * `toString()`'s purpose is to help **solving issues**, not to cause new issues
    * Exceptions should never propagate out of your `toString()`. Period.
-       * Uhmmm... except `InterruptedException`
+       * Uhmmm... except `InterruptedException` and `CancellationException`
    * If your object model includes recursive data, you still want your `toString()` giving you the information you expect (without `StackOverflowError`)
    * If your data is modified concurrently, you still don't want to have a `ConcurrentModificationException` thrown by your `toString()` method
 3. **<u>Decent & informative</u>**
@@ -49,7 +51,7 @@ never getting in the way when developing great code (or when troubleshooting les
           * You may want to keep certain data out of log files (omitted completely, or hashed, or ...)
        * Data that you want to exclude, to prevent performance issues
           * E.g. `List` of children in JPA Entities
-       * etc.
+       * Customization to your personal or business preferences
 5. **Zero transitive dependencies**
    * See below, under [Compatibility → dependencies](#dependencies)
 
@@ -62,17 +64,18 @@ never getting in the way when developing great code (or when troubleshooting les
 * Apache's `ToStringBuilder` (and other, comparable solutions)
 * Java's built-in `Objects.toString()`
 * Lombok's `@ToString` annotation
-    * Lombok's `@ToString` is really good but has maddening dependencies between IntelliJ, Gradle, IntelliJ plugin, `javac`, Kotlin, and Lombok, chances are well that you can't get it working in your environment.<br>
+    * Lombok's `@ToString` is really good but has maddening dependencies between IntelliJ, Gradle, IntelliJ plugin, `javac`, Kotlin, and Lombok.<br>
+     Chances are well that you can't get it working in your environment.<br>
 * `Gson` and `Jackson`
-    * May work well for you if json is OK for you.
-    * But intended in first place for serialization, not for `String` representation in logging, etc.
+    * `json`-libraries may work well for you if json is OK for you.
+    * But these are intended in first place for serialization, not for `String` representation in logging, etc.
+       * Think of lengthy `Collection`s - you can't limit the amount of String data with these libs - they shouldn't!
 * IDE generated `toString()` methods
 * Home-grown solutions
 
 ### How is **Kute** better?
 Below, a *summary* of why Kute is a better choice for your `toString()` implementations.<br>
-> See [→ How is Kute better than others](docs/kute-better-details.md)
-> for more *details* on how **Kute** compares to<br>
+> Want more details? See [→ How is Kute better than others](docs/kute-better-details.md) on how **Kute** compares to:<br>
 > Apache's `ToStringBuilder`, `Objects.toString()`, Lombok's `@ToString`, `Gson`
 <hr>
 
@@ -87,7 +90,7 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
     * I really don't want to care about *any* exception in my `toString()` implementations:
        * `NullPointerException`, `RuntimeException`, `ConcurrentModificationException`, ...
     * I do want my `toString()` handle recursive data properly, without `StackOverflowError`
-    * I want the option to exclude properties, e.g. `Collection`s of child records in database-stuff (JPA, Hibernate, Exposed, etc.), to avoid performance issues by reflective collection of data.
+    * I want the option to limit or exclude properties, e.g. `Collection`s of child records in database-stuff (JPA, Hibernate, Exposed, etc.), to avoid performance issues by reflective collection of data.
        * Use `@AsStringOmit` for individual properties
        * Use property filters for categories of properties
 
@@ -98,8 +101,11 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
        </span>
 
    * Built for `String` representations, to use in logging, etc.
-   * Informative `String` representation of lambda's and functional interfaces
-   * `Array` representation comparable to `Collection`s etc.
+   * Improved representation of Lambdas and functional interfaces
+   * `Array` representation like `contentDeepToString`
+   * Automatic resolution of custom objects
+   * Options to have properties sorted by type, name, value length, etc.
+     * Especially useful for entities with (too) many properties
    * 👉🏽 If your custom objects feature carefully implemented `toString()` implementations, you can have these preferred
       * E.g. by using `@AsStringClassOption(toStringPreference = PREFER_TOSTRING)`<br><br>
 
