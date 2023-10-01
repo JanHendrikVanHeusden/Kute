@@ -1,12 +1,8 @@
 # Kute `asString`: How to ...
 
 * ### Find API documentation
-   * #### When you are on GitHub:
-      * [<u>Root</u> of API docs](../blob/main/apidocs/gfm/index.md)
-      * [API docs of <u>`asString()`</u>](../blob/main/apidocs/gfm/kute/nl.kute.asstring.core/as-string.md)
-   * #### When you have Kute checked out in your IDE or file system:
-      * [<u>Root</u> of API docs](../../apidocs/gfm/index.md)
-      * [API docs of <u>`asString()`</u>](../../apidocs/gfm/kute/nl.kute.asstring.core/as-string.md)
+   * [<u>Root</u> of API docs](../../apidocs/gfm/index.md)
+   * [API docs of <u>`asString()`</u>](../../apidocs/gfm/kute/nl.kute.asstring.core/as-string.md)
 
 <hr>
 
