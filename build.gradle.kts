@@ -20,7 +20,8 @@ group = appGroupId
 version = appVersion
 description = "Kute"
 
-val generatedJekyllDir: File = File("build/dokka/jekyll")
+val generatedJekyllRoot: File = File("build/dokka/jekyll/index.md")
+val generatedJekyllDir: File = File("build/dokka/jekyll/kute")
 val apiDocsTargetDir: File = File("docs")
 
 java {
@@ -217,6 +218,7 @@ tasks.register("cleanDokkaJekyll") {
     group = "documentation"
     doLast {
         FileUtils.deleteDirectory(generatedJekyllDir)
+        generatedJekyllRoot.delete()
     }
 }
 
@@ -231,7 +233,8 @@ tasks.register("copyApiDocs") {
     dependsOn(tasks.named("dokkaJekyll"))
     doLast {
         FileUtils.deleteDirectory(apiDocsTargetDir)
-        FileUtils.copyFile(generatedJekyllDir, apiDocsTargetDir)
+        FileUtils.copyDirectory(generatedJekyllDir, apiDocsTargetDir, true)
+        FileUtils.copyFileToDirectory(generatedJekyllRoot, apiDocsTargetDir, true)
     }
 }
 
