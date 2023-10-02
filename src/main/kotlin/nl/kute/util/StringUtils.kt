@@ -1,3 +1,5 @@
+@file:JvmName("StringUtils")
+
 package nl.kute.util
 
 /** @see [System.lineSeparator] */

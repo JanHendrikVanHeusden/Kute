@@ -1,3 +1,5 @@
+@file:JvmName("HexUtils")
+
 package nl.kute.util
 /**
  * Most of this code would not be needed in Java 17+ (would use HexFormat class in Java 17+).

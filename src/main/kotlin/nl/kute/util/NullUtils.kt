@@ -1,3 +1,5 @@
+@file:JvmName("NullUtils")
+
 package nl.kute.util
 
 /**

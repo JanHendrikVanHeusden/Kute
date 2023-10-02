@@ -1,3 +1,5 @@
+@file:JvmName("ObjectUtils")
+
 package nl.kute.util
 
 /** The identity hashCode as returned by [System.identityHashCode]. Returns `0` for `null` */
