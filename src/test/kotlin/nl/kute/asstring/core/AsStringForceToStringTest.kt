@@ -1,5 +1,6 @@
 package nl.kute.asstring.core
 
+import nl.kute.asstring.core.filter.ClassMetaFilter
 import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.reflection.util.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat

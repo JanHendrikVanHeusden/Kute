@@ -14,12 +14,12 @@ import nl.kute.asstring.annotation.option.asStringClassOption
 import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.defaults.defaultNullString
+import nl.kute.asstring.core.filter.ClassMetaFilter
+import nl.kute.asstring.core.filter.PropertyMetaFilter
 import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.asstring.namedvalues.PropertyValue
 import nl.kute.asstring.property.getPropValueString
-import nl.kute.asstring.property.meta.ClassMeta
 import nl.kute.asstring.property.meta.ClassMetaData
-import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.meta.PropertyMetaData
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
 import nl.kute.asstring.property.ranking.NoOpPropertyRanking
@@ -52,18 +52,6 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.memberProperties
-
-/**
- * Alias for type `(`[PropertyMeta]`)` -> [Boolean]
- * @see [nl.kute.asstring.config.AsStringConfig.withPropertyOmitFilters]
- */
-public typealias PropertyMetaFilter = (PropertyMeta) -> Boolean
-
-/**
- * Alias for type `(`[ClassMeta]`)` -> [Boolean]
- * @see [nl.kute.asstring.config.AsStringConfig.withForceToStringFilters]
- */
-public typealias ClassMetaFilter = (ClassMeta) -> Boolean
 
 
 // region ~ asString

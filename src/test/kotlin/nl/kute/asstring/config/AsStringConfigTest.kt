@@ -6,10 +6,10 @@ import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
-import nl.kute.asstring.core.ClassMetaFilter
-import nl.kute.asstring.core.PropertyMetaFilter
 import nl.kute.asstring.core.defaults.initialAsStringClassOption
 import nl.kute.asstring.core.defaults.initialAsStringOption
+import nl.kute.asstring.core.filter.ClassMetaFilter
+import nl.kute.asstring.core.filter.PropertyMetaFilter
 import nl.kute.asstring.core.forceToStringClassRegistry
 import nl.kute.asstring.core.propertyOmitFilterRegistry
 import nl.kute.asstring.property.meta.ClassMeta

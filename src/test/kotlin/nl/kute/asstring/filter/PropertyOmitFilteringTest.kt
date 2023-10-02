@@ -1,8 +1,8 @@
 package nl.kute.asstring.filter
 
 import nl.kute.asstring.config.asStringConfig
-import nl.kute.asstring.core.PropertyMetaFilter
 import nl.kute.asstring.core.asString
+import nl.kute.asstring.core.filter.PropertyMetaFilter
 import nl.kute.asstring.core.propertyOmitFilterRegistry
 import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.exception.throwableAsString

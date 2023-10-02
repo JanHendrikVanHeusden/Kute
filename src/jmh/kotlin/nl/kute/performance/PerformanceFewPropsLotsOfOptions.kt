@@ -7,10 +7,10 @@ import nl.kute.asstring.annotation.modify.cachingRegexFactory
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.asStringClassOptionCache
-import nl.kute.asstring.core.PropertyMetaFilter
 import nl.kute.asstring.config.asStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.config.restoreInitialAsStringOption
+import nl.kute.asstring.core.filter.PropertyMetaFilter
 import nl.kute.asstring.core.objectCategoryCache
 import nl.kute.asstring.core.useToStringByClass
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
