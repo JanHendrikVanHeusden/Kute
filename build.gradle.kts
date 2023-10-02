@@ -20,8 +20,7 @@ group = appGroupId
 version = appVersion
 description = "Kute"
 
-val generatedJekyllRoot: File = File("build/dokka/jekyll/index.md")
-val generatedJekyllDir: File = File("build/dokka/jekyll/kute")
+val generatedApidocsDir: File = File("build/dokka/html")
 val apiDocsTargetDir: File = File("docs")
 
 java {
@@ -214,23 +213,27 @@ tasks.withType<Test> {
     )
 }
 
-tasks.register("cleanDokkaJekyll") {
+tasks.register("cleanApiDocsBuildDir") {
     group = "documentation"
     doLast {
-        FileUtils.deleteDirectory(generatedJekyllDir)
-        generatedJekyllRoot.delete()
+        FileUtils.deleteDirectory(generatedApidocsDir)
     }
 }
 
-tasks.named("dokkaJekyll") {
-    dependsOn(tasks.named("cleanDokkaJekyll"))
+tasks.named("dokkaHtml") {
+    dependsOn(tasks.named("cleanApiDocsBuildDir"))
+}
+
+tasks.register("generateApiDocs") {
+    group = "documentation"
+    dependsOn(tasks.named("dokkaHtml"))
 }
 
 // Tried with a task of type Copy, but it didn't work as desired in case of non-empty directories
 // So using custom task with Apache's FileUtils instead, works nicely
 tasks.register("copyApiDocs") {
     group = "documentation"
-    dependsOn(tasks.named("dokkaJekyll"))
+    dependsOn(tasks.named("generateApiDocs"))
     doLast {
         val tmp = "tmp"
         val tmpDir = File(tmp)
@@ -244,8 +247,8 @@ tasks.register("copyApiDocs") {
         }
 
         FileUtils.deleteDirectory(apiDocsTargetDir)
-        FileUtils.copyDirectory(generatedJekyllDir, apiDocsTargetDir, true)
-        FileUtils.copyFileToDirectory(generatedJekyllRoot, apiDocsTargetDir, true)
+        FileUtils.copyDirectory(generatedApidocsDir, apiDocsTargetDir, true)
+
         if (copiedConfig) {
             FileUtils.moveFileToDirectory(File("$tmp/$docsConfig"), apiDocsTargetDir, true)
         }
@@ -267,8 +270,9 @@ tasks.register("buildWithApiDocs") {
     // If that is the case, do the following:
     //  1. Instead of `buildWithApiDocs`, run the normal `build` task
     //  2. Manually delete the API docs `kute` folder (see variable `apiDocsDir`)
-    //  3. Run the `dokkaJekyll` task
-    //  4. Manually copy the dokkaJekyll `jekyll\kute` folder (see variable `generatedJekyllDir`) to the API docs directory
+    //  3. Run the `generateApiDocs` task
+    //  4. Manually copy the contents of the generateApiDocs `html` folder (see variable `generatedApidocsDir`)
+    //     to the API docs directory
     //  5. Add the files in the `apiDocsDir` folder to git
     group = "build"
     dependsOn(tasks.named("build"))
