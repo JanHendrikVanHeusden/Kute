@@ -22,10 +22,10 @@ import nl.kute.asstring.property.getPropValueString
 import nl.kute.asstring.property.meta.ClassMetaData
 import nl.kute.asstring.property.meta.PropertyMetaData
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
-import nl.kute.asstring.property.ranking.NoOpPropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.asstring.property.ranking.PropertyValueMetaComparator
 import nl.kute.asstring.property.ranking.getPropertyRankableInstance
+import nl.kute.asstring.property.ranking.impl.NoOpPropertyRanking
 import nl.kute.exception.handleWithReturn
 import nl.kute.exception.throwableAsString
 import nl.kute.logging.log

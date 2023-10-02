@@ -12,7 +12,7 @@ import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.objectCategoryCache
 import nl.kute.asstring.core.useToStringByClass
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
-import nl.kute.asstring.property.ranking.PropertyRankingByStringValueLength
+import nl.kute.asstring.property.ranking.impl.PropertyRankingByStringValueLength
 import nl.kute.logging.log
 import nl.kute.performance.PerformanceManyPropsWithPropSorting.Companion.callCountPerMethodPerIteration
 import nl.kute.reflection.util.classToStringMethodCache

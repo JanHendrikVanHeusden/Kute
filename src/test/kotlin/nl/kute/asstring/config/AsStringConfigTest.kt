@@ -15,9 +15,9 @@ import nl.kute.asstring.core.propertyOmitFilterRegistry
 import nl.kute.asstring.property.meta.ClassMeta
 import nl.kute.asstring.property.meta.PropertyMeta
 import nl.kute.asstring.property.meta.PropertyValueMeta
-import nl.kute.asstring.property.ranking.NoOpPropertyRanking
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.asstring.property.ranking.PropertyRanking
+import nl.kute.asstring.property.ranking.impl.NoOpPropertyRanking
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
