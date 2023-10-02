@@ -1,3 +1,5 @@
+@file:JvmName("AsStringDefaults")
+
 package nl.kute.asstring.core.defaults
 
 import nl.kute.asstring.annotation.option.AsStringClassOption
@@ -35,19 +37,15 @@ public val initialPropertySorters: Array<KClass<PropertyRankable<*>>> = arrayOf(
 public val initialToStringPreference: ToStringPreference = ToStringPreference.USE_ASSTRING
 
 /** Initial default options for the output of [nl.kute.asstring.core.asString] */
-@JvmSynthetic // avoid access from external Java code
 internal val initialAsStringOption: AsStringOption = AsStringOption()
 
 /** Initial default options for the output of [nl.kute.asstring.core.asString] */
-@JvmSynthetic // avoid access from external Java code
 internal val initialAsStringClassOption: AsStringClassOption = AsStringClassOption()
 
 /** Convenience method to retrieve [AsStringOption.defaultOption]'s [AsStringOption.showNullAs] */
 internal val defaultNullString: String
-    @JvmSynthetic // avoid access from external Java code
     get() = AsStringOption.defaultOption.showNullAs
 
 /** Convenience method to retrieve [AsStringOption.defaultOption]'s [AsStringOption.propMaxStringValueLength] */
 internal val defaultMaxStringValueLength: Int
-    @JvmSynthetic // avoid access from external Java code
     get() = AsStringOption.defaultOption.propMaxStringValueLength

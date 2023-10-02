@@ -4,9 +4,13 @@ import kotlin.jvm.functions.Function0;
 import kotlin.reflect.KProperty;
 import nl.kute.asstring.annotation.modify.AsStringHash;
 import nl.kute.asstring.annotation.modify.AsStringOmit;
+import nl.kute.asstring.annotation.option.PropertyValueSurrounder;
+import nl.kute.asstring.config.AsStringConfig;
 import nl.kute.asstring.namedvalues.NamedProp;
 import nl.kute.asstring.namedvalues.NamedSupplier;
 import nl.kute.asstring.namedvalues.NamedValue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
@@ -31,6 +35,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("DuplicateStringLiteralInspection")
 class JavaAsStringBuilderTest {
 
+    @BeforeEach
+    @AfterEach
+    public void setUpAndTearDown() {
+        new AsStringConfig()
+                .withSurroundPropValue(PropertyValueSurrounder.NONE)
+                .withIncludeIdentityHash(false)
+                .applyAsDefault();
+    }
+
 // region ~ Test objects
 
     @SuppressWarnings("unused")
@@ -50,7 +63,7 @@ class JavaAsStringBuilderTest {
 // region ~ Tests
 
     @Test
-    void demoAsStringFromJava() {
+    void asStringFromJava() {
         // arrange
         String[] expectedPropStrings = {
                 "prop1=I am prop1",
@@ -73,7 +86,35 @@ class JavaAsStringBuilderTest {
     }
 
     @Test
-    void demoAsStringBuilderFromJava() {
+    void asStringWithConfigOptionsFromJava() {
+        // arrange
+        new AsStringConfig()
+                .withIncludeIdentityHash(true)
+                .withSurroundPropValue(PropertyValueSurrounder.GUILLEMETS)
+                .applyAsDefault();
+        String[] expectedPropStrings = {
+                "prop1=«I am prop1»",
+                "prop2=«I am prop2»",
+                "prop3=«I am prop3»",
+                "prop4=«I am prop4»",
+                "hashed=«#cb1a6ec1#»"
+        };
+        TestClass testObj = new TestClass();
+        String identityHashHex = Long.toHexString(System.identityHashCode(testObj));
+        // act
+        String asString = asString(testObj);
+        // assert
+        assertThat(asString)
+                .is(containsExhaustiveInAnyOrderCondition(
+                                expectedPropStrings,
+                                ", ",
+                                "TestClass@" + identityHashHex + "(",
+                                ")"
+                        )
+                );
+    }
+    @Test
+    void asStringBuilderFromJava() {
         // arrange
         long random = new Random().nextLong();
         String[] expectedPropStrings = {
@@ -112,7 +153,7 @@ class JavaAsStringBuilderTest {
     }
 
     @Test
-    void demoAsStringBuilderFromJava_with_supplier_as_Callable() {
+    void asStringBuilderFromJava_with_supplier_as_Callable() {
         // arrange
         long random = new Random().nextLong();
         String[] expectedPropStrings = {
@@ -132,6 +173,7 @@ class JavaAsStringBuilderTest {
         Callable<String> stringCallable = () -> testObj.omitted;
         NamedSupplier<String> namedSupplier =
                 new NamedSupplier<>("wouldBeOmitted", stringCallable);
+        assertThat(namedSupplier.getValue()).isNotNull();
 
         AsStringProducer asStringProducer =
                 AsStringBuilder.asStringBuilder(testObj)
