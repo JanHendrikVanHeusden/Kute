@@ -23,7 +23,7 @@ public class JavaLoggerTest {
     @Test
     void log_shouldRenderCallerAndMessage() {
         // Arrange
-        KuteLog.setLogConsumer(createStringLogger());
+        KuteLogConsumer.setLogConsumer(createStringLogger());
         String msg = "msg from testLog()";
         // Act
         KuteLog.log(this, msg);
@@ -34,7 +34,7 @@ public class JavaLoggerTest {
     @Test
     void log_shouldAcceptNull() {
         // Arrange
-        KuteLog.setLogConsumer(createStringLogger());
+        KuteLogConsumer.setLogConsumer(createStringLogger());
         String msg = null;
         // Act
         KuteLog.log(this, msg);
@@ -49,7 +49,7 @@ public class JavaLoggerTest {
         StringBuffer buffer = new StringBuffer();
 
         // act
-        KuteLog.setLogConsumer(createBufferLogger(buffer));
+        KuteLogConsumer.setLogConsumer(createBufferLogger(buffer));
         String logMsg1 = "Hi from buffered JavaLoggerTest";
         KuteLog.getLogger().invoke(logMsg1);
 
@@ -57,7 +57,7 @@ public class JavaLoggerTest {
         assertThat(buffer.toString()).isEqualTo(logMsg1);
 
         // act
-        KuteLog.setLogConsumer(createStringLogger()); // will store it in stringLog
+        KuteLogConsumer.setLogConsumer(createStringLogger()); // will store it in stringLog
         String logMsg2 = "Hi from String JavaLoggerTest";
         KuteLog.getLogger().invoke(logMsg2);
 
