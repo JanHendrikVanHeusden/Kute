@@ -2,8 +2,8 @@ package nl.kute.demo.alternatives
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import nl.kute.log.log
-import nl.kute.log.logger
+import nl.kute.logging.log
+import nl.kute.logging.logger
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
 import org.awaitility.Awaitility

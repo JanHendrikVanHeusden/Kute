@@ -1,9 +1,9 @@
 package nl.kute.asstring.annotation.modify
 
 import nl.kute.asstring.core.asString
-import nl.kute.log.log
-import nl.kute.reflection.util.simplifyClassName
 import nl.kute.exception.handleWithReturn
+import nl.kute.logging.log
+import nl.kute.reflection.util.simplifyClassName
 import nl.kute.util.ifNull
 import java.lang.annotation.Inherited
 import java.util.concurrent.ConcurrentHashMap

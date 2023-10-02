@@ -1,7 +1,7 @@
 ---
 title: ClassMetaFilter
 ---
-//[kute](../../../index.html)/[nl.kute.asstring.core](../index.html)/[ClassMetaFilter](index.html)
+//[kute](../../../index.html)/[nl.kute.asstring.core.filter](../index.html)/[ClassMetaFilter](index.html)
 
 
 

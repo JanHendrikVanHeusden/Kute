@@ -3,7 +3,7 @@ package nl.kute.asstring.namedvalues
 import nl.kute.asstring.weakreference.ObjectWeakReference
 import nl.kute.exception.handleWithReturn
 import nl.kute.exception.throwableAsString
-import nl.kute.log.log
+import nl.kute.logging.log
 import nl.kute.reflection.util.simplifyClassName
 import java.util.concurrent.Callable
 

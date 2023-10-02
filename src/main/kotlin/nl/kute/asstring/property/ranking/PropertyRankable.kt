@@ -4,8 +4,8 @@ import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.property.meta.PropertyValueMeta
-import nl.kute.log.log
 import nl.kute.exception.handleWithReturn
+import nl.kute.logging.log
 import nl.kute.util.ifNull
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentHashMap.newKeySet

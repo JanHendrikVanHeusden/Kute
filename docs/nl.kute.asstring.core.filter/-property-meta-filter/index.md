@@ -1,7 +1,7 @@
 ---
 title: PropertyMetaFilter
 ---
-//[kute](../../../index.html)/[nl.kute.asstring.core](../index.html)/[PropertyMetaFilter](index.html)
+//[kute](../../../index.html)/[nl.kute.asstring.core.filter](../index.html)/[PropertyMetaFilter](index.html)
 
 
 

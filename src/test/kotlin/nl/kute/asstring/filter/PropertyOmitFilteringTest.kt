@@ -6,8 +6,8 @@ import nl.kute.asstring.core.filter.PropertyMetaFilter
 import nl.kute.asstring.core.propertyOmitFilterRegistry
 import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.exception.throwableAsString
-import nl.kute.log.logger
-import nl.kute.log.resetStdOutLogger
+import nl.kute.logging.logger
+import nl.kute.logging.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry

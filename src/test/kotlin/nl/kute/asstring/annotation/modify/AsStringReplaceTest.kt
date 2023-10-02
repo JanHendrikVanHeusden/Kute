@@ -1,7 +1,7 @@
 package nl.kute.asstring.annotation.modify
 
-import nl.kute.log.logger
-import nl.kute.log.resetStdOutLogger
+import nl.kute.logging.logger
+import nl.kute.logging.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.AfterEach

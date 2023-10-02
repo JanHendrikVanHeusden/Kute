@@ -4,10 +4,10 @@ import nl.kute.asstring.core.defaults.defaultNullString
 import nl.kute.asstring.property.collectPropertyAnnotations
 import nl.kute.asstring.property.getPropValueString
 import nl.kute.asstring.weakreference.ObjectWeakReference
-import nl.kute.log.log
+import nl.kute.exception.throwableAsString
+import nl.kute.logging.log
 import nl.kute.reflection.util.declaringClass
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.exception.throwableAsString
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 

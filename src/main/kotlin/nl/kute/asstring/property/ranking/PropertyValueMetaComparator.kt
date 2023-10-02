@@ -1,10 +1,10 @@
 package nl.kute.asstring.property.ranking
 
 import nl.kute.asstring.property.meta.PropertyValueMeta
-import nl.kute.log.log
-import nl.kute.reflection.util.simplifyClassName
 import nl.kute.exception.handleException
 import nl.kute.exception.throwableAsString
+import nl.kute.logging.log
+import nl.kute.reflection.util.simplifyClassName
 import nl.kute.util.lineEnd
 
 /**

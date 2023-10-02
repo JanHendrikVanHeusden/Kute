@@ -10,18 +10,18 @@ title: withForceToStringFilters
 
 
 [jvm]\
-fun [withForceToStringFilters](with-force-to-string-filters.html)(vararg filters: [ClassMetaFilter](../../nl.kute.asstring.core/-class-meta-filter/index.html)): [AsStringConfig](index.html)
+fun [withForceToStringFilters](with-force-to-string-filters.html)(vararg filters: [ClassMetaFilter](../../nl.kute.asstring.core.filter/-class-meta-filter/index.html)): [AsStringConfig](index.html)
 
 
 
-Sets the new [ClassMetaFilter](../../nl.kute.asstring.core/-class-meta-filter/index.html)s to be applied.
+Sets the new [ClassMetaFilter](../../nl.kute.asstring.core.filter/-class-meta-filter/index.html)s to be applied.
 
 
 
 - 
    Custom [KClass](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html)es for which one of more [filters](with-force-to-string-filters.html) return `true` will have their toString called (instead of [nl.kute.asstring.core.asString](../../nl.kute.asstring.core/as-string.html))
 - 
-   Any exceptions that may occur during evaluation of a [ClassMetaFilter](../../nl.kute.asstring.core/-class-meta-filter/index.html) are ignored, and:
+   Any exceptions that may occur during evaluation of a [ClassMetaFilter](../../nl.kute.asstring.core.filter/-class-meta-filter/index.html) are ignored, and:
 - - 
       The exception will be logged
    - 

@@ -10,7 +10,7 @@ title: getPropertyOmitFilters
 
 
 [jvm]\
-fun [getPropertyOmitFilters](get-property-omit-filters.html)(): [Map](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html)&lt;[PropertyMetaFilter](../../nl.kute.asstring.core/-property-meta-filter/index.html), [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)&gt;
+fun [getPropertyOmitFilters](get-property-omit-filters.html)(): [Map](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html)&lt;[PropertyMetaFilter](../../nl.kute.asstring.core.filter/-property-meta-filter/index.html), [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)&gt;
 
 
 
@@ -18,7 +18,7 @@ fun [getPropertyOmitFilters](get-property-omit-filters.html)(): [Map](https://ko
 
 
 
-The currently effective [PropertyMetaFilter](../../nl.kute.asstring.core/-property-meta-filter/index.html)s
+The currently effective [PropertyMetaFilter](../../nl.kute.asstring.core.filter/-property-meta-filter/index.html)s
 
 
 

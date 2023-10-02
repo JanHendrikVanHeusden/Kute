@@ -2,10 +2,10 @@
 @file:JvmName("MemberUtil")
 package nl.kute.reflection.util
 
-import nl.kute.log.logWithCaller
-import nl.kute.retain.MapCache
 import nl.kute.exception.handleWithReturn
 import nl.kute.exception.throwableAsString
+import nl.kute.logging.logWithCaller
+import nl.kute.retain.MapCache
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty

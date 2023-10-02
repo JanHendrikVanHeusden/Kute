@@ -1,12 +1,12 @@
 package nl.kute.reflection.error
 
-import nl.kute.log.log
-import nl.kute.log.logger
-import nl.kute.reflection.util.declaringClass
-import nl.kute.reflection.util.simplifyClassName
 import nl.kute.exception.handleException
 import nl.kute.exception.handleWithReturn
 import nl.kute.exception.throwableAsString
+import nl.kute.logging.log
+import nl.kute.logging.logger
+import nl.kute.reflection.util.declaringClass
+import nl.kute.reflection.util.simplifyClassName
 import java.lang.reflect.InaccessibleObjectException
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KProperty

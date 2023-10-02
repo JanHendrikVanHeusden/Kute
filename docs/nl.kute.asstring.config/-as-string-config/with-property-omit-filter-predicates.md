@@ -14,7 +14,7 @@ fun [withPropertyOmitFilterPredicates](with-property-omit-filter-predicates.html
 
 
 
-Sets the new [PropertyMetaFilter](../../nl.kute.asstring.core/-property-meta-filter/index.html)s to be applied.
+Sets the new [PropertyMetaFilter](../../nl.kute.asstring.core.filter/-property-meta-filter/index.html)s to be applied.
 
 
 

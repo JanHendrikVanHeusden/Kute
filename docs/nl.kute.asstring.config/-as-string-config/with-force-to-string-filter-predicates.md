@@ -14,7 +14,7 @@ fun [withForceToStringFilterPredicates](with-force-to-string-filter-predicates.h
 
 
 
-Sets the new [ClassMetaFilter](../../nl.kute.asstring.core/-class-meta-filter/index.html)s to be applied.
+Sets the new [ClassMetaFilter](../../nl.kute.asstring.core.filter/-class-meta-filter/index.html)s to be applied.
 
 
 

@@ -1,4 +1,4 @@
-package nl.kute.log;
+package nl.kute.logging;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

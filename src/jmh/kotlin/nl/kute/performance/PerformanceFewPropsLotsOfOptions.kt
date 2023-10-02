@@ -15,7 +15,7 @@ import nl.kute.asstring.core.objectCategoryCache
 import nl.kute.asstring.core.useToStringByClass
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
 import nl.kute.asstring.property.ranking.PropertyRankingByStringValueLength
-import nl.kute.log.log
+import nl.kute.logging.log
 import nl.kute.performance.PerformanceFewPropsLotsOfOptions.Companion.callCountPerMethodPerIteration
 import nl.kute.reflection.util.classToStringMethodCache
 import nl.kute.testobjects.performance.PropsToString

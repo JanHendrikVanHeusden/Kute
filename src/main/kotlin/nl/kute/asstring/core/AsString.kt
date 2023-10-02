@@ -28,7 +28,7 @@ import nl.kute.asstring.property.ranking.PropertyValueMetaComparator
 import nl.kute.asstring.property.ranking.getPropertyRankableInstance
 import nl.kute.exception.handleWithReturn
 import nl.kute.exception.throwableAsString
-import nl.kute.log.log
+import nl.kute.logging.log
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.error.SyntheticClassException
 import nl.kute.reflection.property.propertyReturnTypesToOmit

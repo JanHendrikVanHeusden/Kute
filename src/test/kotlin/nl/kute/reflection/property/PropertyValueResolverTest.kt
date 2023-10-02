@@ -2,8 +2,8 @@ package nl.kute.reflection.property
 
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
-import nl.kute.log.logger
-import nl.kute.log.resetStdOutLogger
+import nl.kute.logging.logger
+import nl.kute.logging.resetStdOutLogger
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

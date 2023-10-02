@@ -1,6 +1,6 @@
 package nl.kute.test.base
 
-import nl.kute.log.log
+import nl.kute.logging.log
 import org.assertj.core.api.Assumptions.assumeThat
 import org.awaitility.Awaitility
 import org.awaitility.core.ConditionTimeoutException

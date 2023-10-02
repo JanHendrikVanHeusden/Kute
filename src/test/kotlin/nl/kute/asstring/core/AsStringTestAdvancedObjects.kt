@@ -7,8 +7,8 @@ import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
-import nl.kute.log.logger
-import nl.kute.log.resetStdOutLogger
+import nl.kute.logging.logger
+import nl.kute.logging.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.test.helper.dollar

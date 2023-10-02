@@ -2,14 +2,14 @@
 
 package nl.kute.hashing
 
+import nl.kute.exception.handleWithReturn
+import nl.kute.exception.throwableAsString
 import nl.kute.hashing.DigestMethod.CRC32C
 import nl.kute.hashing.DigestMethod.JAVA_HASHCODE
-import nl.kute.log.logWithCaller
+import nl.kute.logging.logWithCaller
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.util.asHexString
 import nl.kute.util.byteArrayToHex
-import nl.kute.exception.handleWithReturn
-import nl.kute.exception.throwableAsString
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.util.zip.CRC32C as JavaUtilCRC32C

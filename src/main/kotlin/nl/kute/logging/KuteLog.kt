@@ -1,6 +1,6 @@
 @file:JvmName("KuteLog")
 
-package nl.kute.log
+package nl.kute.logging
 
 import nl.kute.exception.handleException
 import nl.kute.exception.throwableAsString
@@ -44,7 +44,7 @@ internal val loggerWithCaller: (String, Any?) -> Unit = { caller, msg: Any? -> l
  * Typical usage for **Kotlin** with an SLF4J compatible logger might be:
  * ```
  * private val kuteLogger = Logger.getLogger("nl.kute")
- * nl.kute.log.logger = { msg -> kuteLogger.error(msg) }
+ * nl.kute.logging.logger = { msg -> kuteLogger.error(msg) }
  * ```
  * @see [KuteLogConsumer.setLogConsumer]
  */
@@ -92,7 +92,7 @@ public class KuteLogConsumer {
          * ```
          * Logger myLogger = Logger.getLogger("nl.kute")
          * Consumer<String> kuteErrorLogger = msg -> myLogger.error(msg);
-         * nl.kute.log.KuteLogConsumer.setLogConsumer(kuteErrorLogger);
+         * nl.kute.logging.KuteLogConsumer.setLogConsumer(kuteErrorLogger);
          * ```
          * @see [logger]
          */

@@ -3,9 +3,9 @@ package nl.kute.asstring.core
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringOption
-import nl.kute.log.log
-import nl.kute.log.logger
-import nl.kute.log.resetStdOutLogger
+import nl.kute.logging.log
+import nl.kute.logging.logger
+import nl.kute.logging.resetStdOutLogger
 import nl.kute.test.base.ObjectsStackVerifier
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
@@ -335,6 +335,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
     }
 
     @Test
+    @Suppress("TestMethodWithoutAssertion") // Uses assumeThat instead of assertThat. See comments in code.
     fun `non-thread safe collections should be handled without exception, with defensive copy if needed`() {
         // This test depends on a race condition that is hit in most cases, but not always.
         // So it uses assumeThat() rather than assertThat() - which means it will not really fail
@@ -417,6 +418,7 @@ class AsStringCollectionTest: ObjectsStackVerifier {
     }
 
     @Test
+    @Suppress("TestMethodWithoutAssertion") // Uses assumeThat instead of assertThat. See comments in code.
     fun `non-thread safe maps should be handled without exception, with defensive copy if needed`() {
         // This test depends on a race condition that is hit in most cases, but not always.
         // So it uses assumeThat() rather than assertThat() - which means it will not really fail

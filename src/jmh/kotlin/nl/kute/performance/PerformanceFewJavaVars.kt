@@ -6,7 +6,7 @@ import nl.kute.asstring.annotation.option.asStringClassOptionCache
 import nl.kute.asstring.core.objectCategoryCache
 import nl.kute.asstring.core.useToStringByClass
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
-import nl.kute.log.log
+import nl.kute.logging.log
 import nl.kute.performance.PerformanceFewJavaVars.Companion.callCountPerMethodPerIteration
 import nl.kute.reflection.util.classToStringMethodCache
 import nl.kute.testobjects.performance.PropsToString
