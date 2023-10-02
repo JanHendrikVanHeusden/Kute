@@ -20,8 +20,8 @@ group = appGroupId
 version = appVersion
 description = "Kute"
 
-val apiDocsDir: File = File("docs")
 val generatedJekyllDir: File = File("build/dokka/jekyll")
+val apiDocsTargetDir: File = File("docs")
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -230,8 +230,8 @@ tasks.register("copyApiDocs") {
     group = "documentation"
     dependsOn(tasks.named("dokkaJekyll"))
     doLast {
-        FileUtils.deleteDirectory(apiDocsDir)
-        FileUtils.copyDirectory(generatedJekyllDir, apiDocsDir)
+        FileUtils.deleteDirectory(apiDocsTargetDir)
+        FileUtils.copyFile(generatedJekyllDir, apiDocsTargetDir)
     }
 }
 
