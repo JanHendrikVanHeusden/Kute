@@ -1,8 +1,8 @@
 # Kute `asString`: How to ...
 
 * ### Find API documentation
-   * [<u>Root</u> of API docs](https://janhendrikvanheusden.github.io/Kute/index.html)
-   * [API docs of <u>`asString()`</u>](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.core/as-string.html)
+   * [→ API docs <u>root</u>](https://janhendrikvanheusden.github.io/Kute/index.html)
+   * [→ API docs of <u>`asString()`</u>](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.core/as-string.html)
 
 <hr>
 

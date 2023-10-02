@@ -1,6 +1,6 @@
 # Kute
 
-- [Kute](#kute)
+- ### Kute
     * [**Kute**?](#kute-1)
         + [Basic ideas of Kute's `asString()`](#basic-ideas-of-kutes-asstring)
     * [Aim of **Kute**](#aim-of-kute)
@@ -12,8 +12,17 @@
         + [Dependencies](#dependencies)
         + [Platform: JVM](#platform-jvm)
             - [Porting to other platforms?](#porting-to-other-platforms)
+<hr>
+
+- ### Documentation:
+
   * [→ How to...](md/howto/0-howto.md)
   * [→ FAQ](md/faq/0-faq.md)
+  * → [API documentation](https://janhendrikvanheusden.github.io/Kute/index.html)
+     * [→ API docs <u>root</u>](https://janhendrikvanheusden.github.io/Kute/index.html)
+     * [→ API docs of <u>`asString()`</u>](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.core/as-string.html)
+
+<hr>
 
 ## **Kute**?
 
