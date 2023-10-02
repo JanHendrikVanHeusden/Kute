@@ -3,6 +3,8 @@
 * ### Find API documentation
    * [<u>Root</u> of API docs](../../apidocs/gfm/index.md)
    * [API docs of <u>`asString()`</u>](../../apidocs/gfm/kute/nl.kute.asstring.core/as-string.md)
+  * [<u>Root</u> of HTML API docs](../../apidocs/html/index.html)
+  * [HTML API docs of <u>`asString()`</u>](../../apidocs/html/kute/nl.kute.asstring.core/as-string.html)
 
 <hr>
 
