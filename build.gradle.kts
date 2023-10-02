@@ -20,8 +20,8 @@ group = appGroupId
 version = appVersion
 description = "Kute"
 
-val apiDocsGfmDir: File = File("./apidocs/gfm")
-val generatedGfmDir: File = File("build/dokka/gfm")
+val apiDocsDir: File = File("docs")
+val generatedJekyllDir: File = File("build/dokka/jekyll")
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -213,25 +213,25 @@ tasks.withType<Test> {
     )
 }
 
-tasks.register("cleanDokkaGfm") {
+tasks.register("cleanDokkaJekyll") {
     group = "documentation"
     doLast {
-        FileUtils.deleteDirectory(generatedGfmDir)
+        FileUtils.deleteDirectory(generatedJekyllDir)
     }
 }
 
-tasks.named("dokkaGfm") {
-    dependsOn(tasks.named("cleanDokkaGfm"))
+tasks.named("dokkaJekyll") {
+    dependsOn(tasks.named("cleanDokkaJekyll"))
 }
 
 // Tried with a task of type Copy, but it didn't work as desired in case of non-empty directories
 // So using custom task with Apache's FileUtils instead, works nicely
 tasks.register("copyApiDocs") {
     group = "documentation"
-    dependsOn(tasks.named("dokkaGfm"))
+    dependsOn(tasks.named("dokkaJekyll"))
     doLast {
-        FileUtils.deleteDirectory(apiDocsGfmDir)
-        FileUtils.copyDirectory(generatedGfmDir, apiDocsGfmDir)
+        FileUtils.deleteDirectory(apiDocsDir)
+        FileUtils.copyDirectory(generatedJekyllDir, apiDocsDir)
     }
 }
 
@@ -249,18 +249,18 @@ tasks.register("buildWithApiDocs") {
     //   for a second or so after writing or deleting, this may block subsequent access
     // If that is the case, do the following:
     //  1. Instead of `buildWithApiDocs`, run the normal `build` task
-    //  2. Manually delete the API docs `gfm` folder (see variable `apiDocsGfmDir`)
-    //  3. Run the `dokkaGfm` task
-    //  4. Manually copy the dokkaGfm `gfm` folder (see variable `generatedGfmDir`) to the API docs directory
-    //  5. Add the files in the `apiDocsGfmDir` folder to git
+    //  2. Manually delete the API docs `kute` folder (see variable `apiDocsDir`)
+    //  3. Run the `dokkaJekyll` task
+    //  4. Manually copy the dokkaJekyll `jekyll\kute` folder (see variable `generatedJekyllDir`) to the API docs directory
+    //  5. Add the files in the `apiDocsDir` folder to git
     group = "build"
     dependsOn(tasks.named("build"))
     dependsOn(tasks.named("copyApiDocs"))
 }
 
+// JMH: Java Microbenchmark Harness, for performance tests / comparisons
+//      Run gradle task `jmh` to execute the performance tests
 jmh {
-    // JMH: Java Microbenchmark Harness, for performance tests / comparisons
-    //      Run gradle task `jmh` to execute the performance tests
     warmupIterations.set(2)
     warmupForks.set(2)
     warmupBatchSize.set(2)

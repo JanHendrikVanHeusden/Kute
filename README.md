@@ -12,8 +12,8 @@
         + [Dependencies](#dependencies)
         + [Platform: JVM](#platform-jvm)
             - [Porting to other platforms?](#porting-to-other-platforms)
-  * [→ How to...](docs/howto/0-howto.md)
-  * [→ FAQ](docs/faq/0-faq.md)
+  * [→ How to...](md/howto/0-howto.md)
+  * [→ FAQ](md/faq/0-faq.md)
 
 ## **Kute**?
 
@@ -75,7 +75,7 @@ never getting in the way when developing great code (or when troubleshooting les
 
 ### How is **Kute** better?
 Below, a *summary* of why Kute is a better choice for your `toString()` implementations.<br>
-> Want more details? See [→ How is Kute better than others](docs/kute-better-details.md) on how **Kute** compares to:<br>
+> Want more details? See [→ How is Kute better than others](md/kute-better-details.md) on how **Kute** compares to:<br>
 > Apache's `ToStringBuilder`, `Objects.toString()`, Lombok's `@ToString`, `Gson`
 <hr>
 
