@@ -232,9 +232,23 @@ tasks.register("copyApiDocs") {
     group = "documentation"
     dependsOn(tasks.named("dokkaJekyll"))
     doLast {
+        val tmp = "tmp"
+        val tmpDir = File(tmp)
+        val docsConfig = "_config.yml"
+        var copiedConfig = false
+
+        val docsConfigFile = File("${apiDocsTargetDir.path}/$docsConfig")
+        if (docsConfigFile.exists()) {
+            FileUtils.moveFileToDirectory(docsConfigFile, tmpDir, true)
+            copiedConfig = true
+        }
+
         FileUtils.deleteDirectory(apiDocsTargetDir)
         FileUtils.copyDirectory(generatedJekyllDir, apiDocsTargetDir, true)
         FileUtils.copyFileToDirectory(generatedJekyllRoot, apiDocsTargetDir, true)
+        if (copiedConfig) {
+            FileUtils.moveFileToDirectory(File("$tmp/$docsConfig"), apiDocsTargetDir, true)
+        }
     }
 }
 
