@@ -4,6 +4,9 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Locale
 
+// TODO: Move to gradle.properties.
+//       Example, see README.md of https://github.com/Vorlonsoft/GradleMavenPush
+
 val appName: String = "kute"
 val appPublishedName: String = "Kute"
 val appDescription: String =
