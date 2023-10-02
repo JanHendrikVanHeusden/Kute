@@ -30,7 +30,7 @@ public const val initialSortNamesAlphabetic: Boolean = false
 /** Initial default value for the choice whether to include the object's companion (if any) in the [nl.kute.asstring.core.asString] output */
 public const val initialIncludeCompanion: Boolean = false
 
-/** Initial default value for [PropertyRankable] property ranking classes to be used for sorting properties in [nl.kute.asstring.core.asString] output */
+/** Initial default value (empty array) for [PropertyRankable] property ranking classes to be used for sorting properties in [nl.kute.asstring.core.asString] output */
 public val initialPropertySorters: Array<KClass<PropertyRankable<*>>> = arrayOf()
 
 /** Initial default value for the choice whether the object's identity hash should be included in the [nl.kute.asstring.core.asString] output */

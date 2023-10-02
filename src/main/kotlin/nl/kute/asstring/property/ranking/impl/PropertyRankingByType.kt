@@ -1,8 +1,9 @@
-package nl.kute.asstring.property.ranking
+package nl.kute.asstring.property.ranking.impl
 
 import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.property.meta.PropertyValueMeta
+import nl.kute.asstring.property.ranking.PropertyRanking
 
 /**
  * Provides ranking for ordering properties in [nl.kute.asstring.core.asString] output, based

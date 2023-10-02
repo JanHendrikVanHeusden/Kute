@@ -1,6 +1,7 @@
 package nl.kute.asstring.property.ranking
 
 import nl.kute.asstring.property.meta.PropertyValueMeta
+import nl.kute.asstring.property.ranking.impl.NoOpPropertyRanking
 import nl.kute.exception.handleException
 import nl.kute.exception.throwableAsString
 import nl.kute.logging.log

@@ -1,11 +1,12 @@
-package nl.kute.asstring.property.ranking
+package nl.kute.asstring.property.ranking.impl
 
 import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.property.meta.PropertyValueMeta
-import nl.kute.asstring.property.ranking.ValueLengthRanking.S
-import nl.kute.asstring.property.ranking.ValueLengthRanking.XXL
+import nl.kute.asstring.property.ranking.PropertyRanking
+import nl.kute.asstring.property.ranking.impl.ValueLengthRanking.S
+import nl.kute.asstring.property.ranking.impl.ValueLengthRanking.XXL
 import java.util.EnumSet
 
 /**

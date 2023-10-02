@@ -1,4 +1,4 @@
-package nl.kute.asstring.property.ranking
+package nl.kute.asstring.property.ranking.impl
 
 import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.option.AsStringClassOption
@@ -7,6 +7,7 @@ import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.isBaseType
 import nl.kute.asstring.property.meta.PropertyValueMeta
 import nl.kute.asstring.property.meta.PropertyValueMetaData
+import nl.kute.asstring.property.ranking.PropertyRanking
 import java.util.UUID
 
 /**
