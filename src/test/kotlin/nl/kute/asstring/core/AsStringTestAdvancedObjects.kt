@@ -23,6 +23,7 @@ import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClass
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClassFactory
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithCallable
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithHigherOrderFunction
+import nl.kute.util.hexHashCode
 import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -650,6 +651,12 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
             )
     }
 
+    @Test
+    fun `fun interfaces should be handled correctly`() {
+        val hexHashCode = isAnswer.hexHashCode()
+        assertThat(isAnswer.asString()).endsWith("Answer<T>() @$hexHashCode")
+    }
+
 
 // region ~ Classes, objects, helpers  etc. to be used for testing
 
@@ -787,5 +794,12 @@ private val String.extensionPropAtPackage: String
 private val anonymousDoc = object : AsStringTestAdvancedObjects.Doc(title = "A nice article", author = "Kai", words = 420) {
     override fun summary() = "Title: <$title> ($words words) By $author"
 }
+
+private fun interface Answer<T> {
+    fun accept(element: T): Boolean
+}
+
+// implements fun interface
+private val isAnswer = Answer<Int> { i -> i == 42 }
 
 // endregion

@@ -5,15 +5,15 @@ import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.asStringClassOption
 import nl.kute.asstring.annotation.option.objectIdentity
-import nl.kute.asstring.core.defaults.initialElementsLimit
 import nl.kute.asstring.core.AsStringObjectCategory.SYSTEM
+import nl.kute.asstring.core.defaults.initialElementsLimit
 import nl.kute.asstring.property.lambdaSignatureString
+import nl.kute.exception.throwableAsString
 import nl.kute.reflection.util.hasImplementedToString
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.retain.MapCache
 import nl.kute.util.identityHashHex
 import nl.kute.util.ifNull
-import nl.kute.exception.throwableAsString
 import java.time.temporal.Temporal
 import java.time.temporal.TemporalAmount
 import java.util.Date
@@ -54,13 +54,13 @@ internal enum class AsStringObjectCategory(
     BASE(guardStack = false, handler = { it.toString() }),
 
     /** Override: [Collection.toString] methods are vulnerable for stack overflow (in case of recursive data) */
-    COLLECTION(guardStack = true, handlerWithSize = {it, size -> (it as Collection<*>).collectionAsString(size)}),
+    COLLECTION(guardStack = true, handlerWithSize = { it, size -> (it as Collection<*>).collectionAsString(size)}),
 
     /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
-    ARRAY(guardStack = true, handlerWithSize = {it, size -> (it as Array<*>).arrayAsString(size) }),
+    ARRAY(guardStack = true, handlerWithSize = { it, size -> (it as Array<*>).arrayAsString(size) }),
 
     /** Override: arrays of primitives (e.g. [IntArray], [BooleanArray], [CharArray] lack proper [toString] implementation */
-    PRIMITIVE_ARRAY(guardStack = false, handlerWithSize = {it, size -> it.primitiveArrayAsString(size) }),
+    PRIMITIVE_ARRAY(guardStack = false, handlerWithSize = { it, size -> it.primitiveArrayAsString(size) }),
 
     /** Override: [Map.toString] methods are vulnerable for stack overflow (in case of recursive data) */
     MAP(guardStack = true, handlerWithSize = { it, size -> (it as Map<*, *>).mapAsString(size) }),
