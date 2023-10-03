@@ -34,7 +34,7 @@
            > *`public override toString() = Objects.toString()` does not work!*<br>
              (throws `StackOverflowError`!!)
     * **`String` representation of *any* Java or Kotlin object is as simple as
-      ```obj.asString()")```**
+      ```obj.asString())```**
 <br><br>
     * **No maddening issues with plugins and version dependencies**
         * With **Lombok**, getting it working may be maddening, due to combination of Lombok, IntelliJ, Kotlin, Gradle / Maven plugins, javac and IntelliJ settings and versions that may or may not work together.

@@ -104,7 +104,7 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
        * Use property filters for categories of properties
     * Kute has been tested against various JVM's / Java versions / Kotlin versions / OS
     * Kute is tested heavily with all kinds of exotic objects and properties
-       * Think of delegates, `lateinit`, property extensions, properties with explicit `get`-ters, nested classes, anonymous classes, companion objects, recursive / mutually referencing data, etc. etc. etc.
+       * Think of delegates, `lateinit`, property extensions, properties with explicit `get`-ters, object expressions, nested classes, anonymous classes, companion objects, recursive / mutually referencing data, synthetic stuff, SAM-wrappers, callables, fun interfaces, etc. etc. etc.
          > * Apache's `ToStringBuilder` and `Objects.toString()` fail on some / several of these.<br>
          > * `Gson` and `Jackson` fail on recursive data.<br>
          They should: they are not intended for `toString()`-like usage, but for serialization.
