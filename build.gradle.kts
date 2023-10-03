@@ -7,18 +7,18 @@ import java.util.Locale
 // TODO: Move to gradle.properties.
 //       Example, see README.md of https://github.com/Vorlonsoft/GradleMavenPush
 
-val appName: String = "kute"
-val appPublishedName: String = "Kute"
+val appName: String = "asstring"
+val appPublishedName: String = "Kute asString"
 val appDescription: String =
-    """Kute is basically a `toString()` alternative, but customizable to fit your needs.
-        |Any with many practice-based, developer-friendly features.""".trimMargin()
+    """Kute asString is basically a `toString()` alternative, but customizable to fit your needs.
+        |And with many practice-based, developer-friendly features.""".trimMargin()
 val appGroupId: String = "nl.kute"
 val appVersion: String = "1.0-SNAPSHOT"
-val appArtifactId: String = rootProject.name
+val appArtifactId: String = appName
 
 group = appGroupId
 version = appVersion
-description = "Kute"
+description = appDescription
 
 val generatedApidocsDir: File = File("build/dokka/html")
 val apiDocsTargetDir: File = File("docs")
@@ -320,7 +320,7 @@ pitest {
         extensions.findByName("buildScan")?.withGroovyBuilder {
             setProperty("termsOfServiceUrl", "https://gradle.com/terms-of-service")
             // We just want to run pitest, not to perform a build scan
-            // So no need to publishing it on `scans.gradle.com`
+            // So no need to publish it on `scans.gradle.com`
             setProperty("termsOfServiceAgree", "no")
         }
     }
