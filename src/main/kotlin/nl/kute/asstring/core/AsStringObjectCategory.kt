@@ -355,9 +355,8 @@ internal fun Any.lambdaPropertyAsString(): String {
     // the replacement removes a non-informative lengthy octal number, so
     //    `JavaClassWithLambda$$Lambda$366/0x0000000800291440@27a0a5a2`
     // -> `JavaClassWithLambda$$Lambda$366
-    // (also removed identityHash, this is added again at the end)
     return this.toString().simplifyClassName()
-        .replace(javaLambdaNumberRegex, "") + "$typeSuffix @${this.identityHashHex}"
+        .replace(javaLambdaNumberRegex, "") + typeSuffix
 }
 
 private val systemClassPackagePrefixes = listOf("java.", "kotlin.")
