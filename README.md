@@ -59,7 +59,7 @@ never getting in the way when developing great code (or when troubleshooting les
        * GDPR / Personally Identifiable Data
           * You may want to keep certain data out of log files (omitted completely, or hashed, or ...)
        * Data that you want to exclude, to prevent performance issues
-          * E.g. `List` of children in JPA Entities
+          * E.g. output of a `List` of children in JPA Entities may not be desirable (think of performance, verbosity)
        * Customization to your personal or business preferences
 5. **Zero transitive dependencies**
    * See below, under [Compatibility → dependencies](#dependencies)
@@ -102,6 +102,12 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
     * I want the option to limit or exclude properties, e.g. `Collection`s of child records in database-stuff (JPA, Hibernate, Exposed, etc.), to avoid performance issues by reflective collection of data.
        * Use `@AsStringOmit` for individual properties
        * Use property filters for categories of properties
+    * Kute has been tested against various JVM's / Java versions / Kotlin versions / OS
+    * Kute is tested heavily with all kinds of exotic objects and properties
+       * Think of delegates, `lateinit`, property extensions, properties with explicit `get`-ters, nested classes, anonymous classes, companion objects, recursive / mutually referencing data, etc. etc. etc.
+         > * Apache's `ToStringBuilder` and `Objects.toString()` fail on some / several of these.<br>
+         > * `Gson` and `Jackson` fail on recursive data.<br>
+         They should: they are not intended for `toString()`-like usage, but for serialization.
 
 
 3. **Better `String` representation**
@@ -120,13 +126,13 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
 
 4. **Kotlin first**
    * By default, **Kute**'s `asString()` representation of objects is equivalent to Kotlin's `toString()` representation of collections, Kotlin's `data` classes, etc.
-   * Improved representation of Lambdas and functional interfaces
    * Proper handling of `lateinit` properties
    * Option to include `companion` objects in the `asString` output
    * Intuitive API by usage of extension methods etc.<br><br>
 
 5. **Protection of <u>P</u>ersonally <u>I</u>dentifiable <u>D</u>ata / GDPR**
-   * **Kute** has several options that may help to keep Personally Identifiable Data out of your log files
+   * **Kute** has several options that may help to keep Personally Identifiable Data out of your log files<br>
+    (or, in general, out of your `toString()` representations)
 
 
 6. **Performance**
@@ -162,10 +168,10 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
   Applications that use **Kute** shall not face _any_ additional transitive dependency through Kute. Hence:
    * **Kute**'s runtime code should not rely on any 3rd-party library
       * Just on Java and Kotlin built-ins, `kotlin-stdlib`, `kotlin-reflect`
-   * No logging framework is included or presumed.
+   * No logging framework is included or presumed
    * Tests & build scripts use 3rd-party libraries, though
       * These do not induce runtime dependencies
-      * Tests of **Kute** may use any library they wish, like `JUnit`, `Mockito`, `AssertJ`, `Awaitility`, Apache's Common Lang, `Gson`, etc.
+      * _Tests_ of **Kute** may use any library they wish, like `JUnit`, `Mockito`, `AssertJ`, `Awaitility`, Apache's Common Lang, `Gson`, etc.
       * Gradle build scripts may use any library / plugin they wish, e.g. `Dokka`, `pitest`, `kover`, Apache's `commons-io`, etc.
 
 <hr>
