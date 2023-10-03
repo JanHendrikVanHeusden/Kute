@@ -1,12 +1,11 @@
 # Kute `asString`: How to ...
 
-* ### Find API documentation
+* ### API documentation
    * [→ API docs <u>root</u>](https://janhendrikvanheusden.github.io/Kute/index.html)
    * [→ API docs of <u>`asString()`</u>](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.core/as-string.html)
-
 <hr>
 
-* ## [Start using Kute `asString()`](1-start-using-kute.md)
+* ## [Start using Kute `asString()`](1-start-using-kute-asstring.md)
    * #### Kute in Gradle / Maven
    * #### Start using `asString()` in your code
 

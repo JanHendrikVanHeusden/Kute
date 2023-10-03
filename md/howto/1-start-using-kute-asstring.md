@@ -1,26 +1,43 @@
 ### _TODO:_
 > #### Kute has not been published yet to Maven Central or any other publicly accessible directory.<br>
 > #### Of course, publishing is needed before Kute can be used by interested parties.
- 
+
+   * [Add dependency](#add-kute-asstring-to-your-dependency-section)
+      * [Gradle](#gradle)
+      * [Maven](#maven)
+   * [Start using `asString()`](#start-using-asstring)
+       * [Kotlin](#a-kotlin)
+       * [Java](#b-java)
+   * [Explore further options](#explore-further-options)
+
 <hr>
 
-1. ## Add Kute asString to your depencency sections
+1. ## Add Kute asString to your dependency section
+   > Replace `[kuteversion]` by the latest version number
+
    ### Gradle
-   > Replace `[version]` by the latest version number:
 
    * #### Kotlin `build.gradle.kts`
-     `implementation("nl.kute:asstring:[version]")`
-   * #### Groovy `build.gradle`, one of:
-      * `implementation 'nl.kute:kute:[version]'`<br>
-      * `implementation group: 'nl.kute', name: 'asstring', version: '[version]'`
+     `implementation("nl.kute:asstring:[kuteversion]")`
+   * #### Groovy `build.gradle`
+     One of:
+      * `implementation 'nl.kute:kute:[kuteversion]'`<br>
+      * `implementation group: 'nl.kute', name: 'asstring', version: '[kuteversion]'`
 
-   * #### Maven `pom.xml`
+   * ### Maven
+     In your `pom.xml` `dependencies` section:
         ```
-        <dependency>
-            <groupId>nl.kute</groupId>
-            <artifactId>asstring</artifactId>
-            <version>[version]</version>
-        </dependency>
+        <dependencies>
+            ...
+     
+            <dependency>
+                <groupId>nl.kute</groupId>
+                <artifactId>asstring</artifactId>
+                <version>[kuteversion]</version>
+            </dependency>
+            ...
+     
+        </dependencies>
         ```
 
 2. ## Start using `asString()`
