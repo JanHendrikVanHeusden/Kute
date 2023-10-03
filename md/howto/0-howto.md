@@ -6,9 +6,14 @@
 
 <hr>
 
-* ## Start using Kute `asString()`
+* ## [Start using Kute `asString()`](1-start-using-kute.md)
    * #### Kute in Gradle / Maven
    * #### Start using `asString()` in your code
+
+* ### Use `asString()` from Java
+   * In general, the documentation focuses on usage with Kotlin. Consult this section to get some guidance how to use with Java.
+ 
+* ### Use `AsStringBuilder`
 
 * ### Configure default settings
 
