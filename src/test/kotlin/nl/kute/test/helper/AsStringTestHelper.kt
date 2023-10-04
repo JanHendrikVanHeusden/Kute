@@ -1,11 +1,7 @@
 @file:JvmName("AsStringTestHelper")
 
-package nl.kute.asstring.core.test.helper
+package nl.kute.test.helper
 
-import nl.kute.test.helper.containsExactCharCount
-import nl.kute.test.helper.containsExhaustiveInAnyOrder
-import nl.kute.test.helper.trimFirstIf
-import nl.kute.test.helper.trimLastIf
 import org.assertj.core.api.AbstractStringAssert
 import org.assertj.core.api.Condition
 
