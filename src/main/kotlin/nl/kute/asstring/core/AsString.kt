@@ -195,10 +195,26 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
             // Seems to be an unsafe Collection, Map, Array, etc.
             // Try to create a defensive copy, and return asString() of that.
             // This is tried once only; if unsuccessful, return fallback string
-            log("Warning: Non-thread safe collection/map was modified concurrently!$lineEnd ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
-                    " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
             return obj.cloneCollectionLikeStuff()?.asString(propertyNamesToExclude, *nameValues, elementsLimit = elementsLimit)
-                ?: obj.asStringFallBack()
+                ?: (obj.asStringFallBack()
+                    .also { log("${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                            " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}") }
+                        )
+        } catch (e: KotlinReflectionNotSupportedError) {
+            // Actual cases where this happened have workarounds (typically by using Java reflection instead).
+            // But it might still happen in even more exotic stuff, so better catch it than having it crash the calling application
+            log("Warning: ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                    " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
+            return obj.asStringFallBack()
+        } catch (e: kotlin.reflect.jvm.internal.KotlinReflectionInternalError) {
+            // **Known issue**
+            //     Kotlin's reflection can't handle some classes, typically *Java* classes with
+            //     anonymous inner classes, classes nested inside methods, etc.
+            // Normally one should *never* handle `Error`s, but neither in Java's nor in Kotlin's reflection
+            // there seems any way to reliably and viably determine the situations when it occurs.
+            // Many operations (e.g. `memberProperties` or `superTypes`) on these classes will throw
+            // kotlin.reflect.jvm.internal.KotlinReflectionInternalError
+            return obj.asStringFallBack()
         } catch (e: Exception) {
             return handleWithReturn(e, obj.asStringFallBack()) {
                 log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +

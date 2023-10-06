@@ -1,5 +1,7 @@
 package nl.kute.asstring.filter;
 
+import kotlin.jvm.functions.Function1;
+import nl.kute.asstring.annotation.modify.AsStringOmit;
 import nl.kute.asstring.property.meta.ClassMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,26 +29,9 @@ public class ForceToStringFilteringTestJava {
     private final String class1ToString = "toString() result of TestClass1";
     private final String class2ToString = "toString() result of TestClass2";
 
-    private class TestClass1 {
-        private String prop1;
-
-        @Override
-        public String toString() {
-            return class1ToString;
-        }
-    }
-    private class TestClass2 {
-        private String prop2;
-
-        @Override
-        public String toString() {
-            return class2ToString;
-        }
-    }
-
     @Test
     @SuppressWarnings("unchecked")
-    void forceToString_filters_should_yield_toString_result_when_applied() {
+    void forceToString_predicates_should_yield_toString_result_when_applied() {
         // arrange
         TestClass1 testObj1 = new TestClass1();
         TestClass2 testObj2 = new TestClass2();
@@ -96,4 +81,52 @@ public class ForceToStringFilteringTestJava {
                 .as("Matches filter, so asString() should return toString() result")
                 .isEqualTo(class2ToString);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void forceToString_lambdas_should_yield_toString_result_when_applied() {
+        // arrange
+        String toStringResult = "toString() result";
+        TestClass3 testObj = new TestClass3(toStringResult);
+        assertThat(asString(testObj)).isEqualTo("TestClass3()");
+
+        // normally, one should use Predicate instead of Function1 (which is a *Kotlin reflection type*)
+        // but, it can be done, and should work
+        Function1<? super ClassMeta, Boolean> toStringFilter =
+                (meta) -> Objects.equals(meta.getObjectClassName(), "TestClass3");
+        asStringConfig().withForceToStringFilters(toStringFilter).applyAsDefault();
+
+        // act, assert
+        assertThat(asString(testObj)).isEqualTo(toStringResult);
+    }
+
+    private class TestClass1 {
+        private String prop1;
+
+        @Override
+        public String toString() {
+            return class1ToString;
+        }
+    }
+    private class TestClass2 {
+        private String prop2;
+
+        @Override
+        public String toString() {
+            return class2ToString;
+        }
+    }
+
+    private static class TestClass3 {
+        @AsStringOmit
+        private final String toStringResult;
+        private TestClass3(String toStringResult) {
+            this.toStringResult = toStringResult;
+        }
+        @Override
+        public String toString() {
+            return toStringResult;
+        }
+    }
+
 }
