@@ -13,8 +13,6 @@ import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.config.restoreInitialAsStringOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
-import nl.kute.asstring.core.test.helper.equalSignCount
-import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
 import nl.kute.asstring.namedvalues.namedSupplier
@@ -23,6 +21,8 @@ import nl.kute.exception.throwableAsString
 import nl.kute.hashing.DigestMethod
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
+import nl.kute.test.helper.equalSignCount
+import nl.kute.test.helper.isObjectAsString
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty

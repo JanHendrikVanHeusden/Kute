@@ -6,7 +6,9 @@ import nl.kute.asstring.config.restoreInitialAsStringOption
 import nl.kute.logging.log
 import nl.kute.logging.logger
 import nl.kute.logging.resetStdOutLogger
+import nl.kute.reflection.util.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
+import nl.kute.util.lineEnd
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat
 import org.awaitility.Awaitility
@@ -395,12 +397,13 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                     .matches("""\[(\d+, ){$elementsLimit}\.\.\.]""")
                 @Suppress("RegExpSimplifiable") // this inspection doesn't understand it actually...
                 assumeThat(logBuffer.toString())
-                    .`as`("ConcurrentModificationException should be logged;" +
-                            " but in race conditions logging may be empty" +
-                            " (notably when JVM is pre-warmed; maybe also dependent on environment)")
+                    .`as`("ConcurrentModificationException should be logged; but may be empty" +
+                            " (notably when JVM is pre-warmed; maybe also dependent on environment).$lineEnd" +
+                            "Maybe `resetStdOutLogger` (in test teardown), or `executor.shutDownNow()` kicks in too early.`")
                     .contains(
-                    "Warning: Non-thread safe collection/map was modified concurrently",
-                    ConcurrentModificationException::class.simpleName
+                        ConcurrentModificationException::class.simpleName,
+                        "occurred when retrieving string value for object of class",
+                        unsafeList::class.simplifyClassName()
                 )
 
                 resetStdOutLogger()
@@ -476,12 +479,14 @@ class AsStringCollectionTest: ObjectsStackVerifier {
                     .matches("""\{(\d+=\d+, )+((\d+=\d+)|(\.\.\.)?)}""")
 
                 assumeThat(logBuffer.toString())
-                    .`as`("ConcurrentModificationException should be logged;" +
-                            " but in race conditions logging may be empty" +
-                            " (notably when JVM is pre-warmed; maybe also dependent on environment)")
+                    .`as`("ConcurrentModificationException should be logged; but may be empty" +
+                            " (notably when JVM is pre-warmed; maybe also dependent on environment).$lineEnd" +
+                            "Maybe `resetStdOutLogger` (in test teardown), or `executor.shutDownNow()` kicks in too early.`")
+
                     .contains(
-                        "Warning: Non-thread safe collection/map was modified concurrently",
-                        ConcurrentModificationException::class.simpleName
+                        ConcurrentModificationException::class.simpleName,
+                        "occurred when retrieving string value for object of class",
+                        unsafeMap::class.simplifyClassName()
                     )
 
                 resetStdOutLogger()

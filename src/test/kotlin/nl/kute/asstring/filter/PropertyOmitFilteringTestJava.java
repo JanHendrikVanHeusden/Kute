@@ -1,7 +1,8 @@
 package nl.kute.asstring.filter;
 
-import nl.kute.testobjects.java.filter.PropertyExcludes;
+import nl.kute.asstring.config.AsStringConfig;
 import nl.kute.asstring.property.meta.PropertyMeta;
+import nl.kute.testobjects.java.filter.PropertyExcludes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,6 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static nl.kute.asstring.config.AsStringConfigKt.asStringConfig;
 import static nl.kute.asstring.core.AsString.asString;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,7 +24,7 @@ class PropertyOmitFilteringTestJava {
     @AfterEach
     @SuppressWarnings("unchecked")
     public void setUpAndTearDown() {
-        asStringConfig()
+        new AsStringConfig()
                 .withPropertyOmitFilters() // empty, so clears filters
                 .applyAsDefault();
     }
@@ -53,14 +53,14 @@ class PropertyOmitFilteringTestJava {
         // arrange
         Predicate<? super PropertyMeta> propFilterByName = meta -> meta.getPropertyName().contains("Exclude");
         // act: apply filter
-        asStringConfig()
+        new AsStringConfig()
                 .withPropertyOmitFilterPredicates(propFilterByName)
                 .applyAsDefault();
 
         // assert
         assertThat(asString(instance))
                 .contains(propNames.stream()
-                        .filter( name -> !name.contains("Exclude"))
+                        .filter(name -> !name.contains("Exclude"))
                         .collect(Collectors.toList())
                 );
 
@@ -68,7 +68,7 @@ class PropertyOmitFilteringTestJava {
         Predicate<? super PropertyMeta> propFilterByCollectionLike =
                 PropertyMeta::isCollectionLike;
         // act: apply 2nd filter
-        asStringConfig()
+        new AsStringConfig()
                 .withPropertyOmitFilterPredicates(propFilterByCollectionLike)
                 .applyAsDefault();
 
@@ -84,7 +84,7 @@ class PropertyOmitFilteringTestJava {
         Predicate<? super PropertyMeta> propFilterNameNotAList = meta ->
                 Objects.equals("notAList", meta.getPropertyName());
         // act
-        asStringConfig()
+        new AsStringConfig()
                 .withPropertyOmitFilterPredicates(
                         propFilterByCollectionLike,
                         propFilterNameNotAList
@@ -97,7 +97,7 @@ class PropertyOmitFilteringTestJava {
                 .doesNotContain(notExpected);
 
         // act
-        asStringConfig()
+        new AsStringConfig()
                 .withPropertyOmitFilterPredicates(
                         propFilterByCollectionLike
                 ).applyAsDefault();

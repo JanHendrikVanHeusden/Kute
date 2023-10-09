@@ -3,7 +3,6 @@ package nl.kute.asstring.property.meta
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.lang.StringBuilder
 import kotlin.reflect.full.memberProperties
 
 internal class PropertyMetaDataTest {

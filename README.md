@@ -12,13 +12,15 @@
         + [Dependencies](#dependencies)
         + [Platform: JVM](#platform-jvm)
             - [Porting to other platforms?](#porting-to-other-platforms)
+  * [Planned, wishes, to-do](#planned-wishes-to-do)
+  * [Open source, license](#license)
 <hr>
 
 - ### Documentation:
 
   * [→ How to...](md/howto/0-howto.md)
   * [→ FAQ](md/faq/0-faq.md)
-  * → [API documentation](https://janhendrikvanheusden.github.io/Kute/index.html)
+  * [→ API documentation](https://janhendrikvanheusden.github.io/Kute/index.html)
      * [→ API docs <u>root</u>](https://janhendrikvanheusden.github.io/Kute/index.html)
      * [→ API docs of <u>`asString()`</u>](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.core/as-string.html)
 
@@ -59,7 +61,7 @@ never getting in the way when developing great code (or when troubleshooting les
        * GDPR / Personally Identifiable Data
           * You may want to keep certain data out of log files (omitted completely, or hashed, or ...)
        * Data that you want to exclude, to prevent performance issues
-          * E.g. `List` of children in JPA Entities
+          * E.g. output of a `List` of children in JPA Entities may not be desirable (think of performance, verbosity)
        * Customization to your personal or business preferences
 5. **Zero transitive dependencies**
    * See below, under [Compatibility → dependencies](#dependencies)
@@ -102,6 +104,12 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
     * I want the option to limit or exclude properties, e.g. `Collection`s of child records in database-stuff (JPA, Hibernate, Exposed, etc.), to avoid performance issues by reflective collection of data.
        * Use `@AsStringOmit` for individual properties
        * Use property filters for categories of properties
+    * Kute has been tested against various JVM's / Java versions / Kotlin versions / OS
+    * Kute is tested heavily with all kinds of exotic objects and properties
+       * Think of delegates, `lateinit`, property extensions, properties with explicit `get`-ters, object expressions, nested classes, anonymous classes, companion objects, recursive / mutually referencing data, synthetic stuff, SAM-wrappers, callables, fun interfaces, etc. etc. etc.
+         > * Apache's `ToStringBuilder` and `Objects.toString()` fail on some / several of these.<br>
+         > * `Gson` and `Jackson` fail on recursive data.<br>
+         They should: they are not intended for `toString()`-like usage, but for serialization.
 
 
 3. **Better `String` representation**
@@ -120,13 +128,13 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
 
 4. **Kotlin first**
    * By default, **Kute**'s `asString()` representation of objects is equivalent to Kotlin's `toString()` representation of collections, Kotlin's `data` classes, etc.
-   * Improved representation of Lambdas and functional interfaces
    * Proper handling of `lateinit` properties
    * Option to include `companion` objects in the `asString` output
    * Intuitive API by usage of extension methods etc.<br><br>
 
 5. **Protection of <u>P</u>ersonally <u>I</u>dentifiable <u>D</u>ata / GDPR**
-   * **Kute** has several options that may help to keep Personally Identifiable Data out of your log files
+   * **Kute** has several options that may help to keep Personally Identifiable Data out of your log files<br>
+    (or, in general, out of your `toString()` representations)
 
 
 6. **Performance**
@@ -156,16 +164,18 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
    * But the Kotlin version should not have runtime implications
        * All versions of Kotlin produce Java 8+ compatible code
    * Also tested with Kotlin `1.3` without issues
+     * I.e., no issues at the time of writing
+     * No effort or even guarantees that 1.3 compatibility will be maintained
 
 ### Dependencies
 * **Kute** is built with **zero-dependencies** as a basic principle.<br>
   Applications that use **Kute** shall not face _any_ additional transitive dependency through Kute. Hence:
    * **Kute**'s runtime code should not rely on any 3rd-party library
       * Just on Java and Kotlin built-ins, `kotlin-stdlib`, `kotlin-reflect`
-   * No logging framework is included or presumed.
+   * No logging framework is included or presumed
    * Tests & build scripts use 3rd-party libraries, though
       * These do not induce runtime dependencies
-      * Tests of **Kute** may use any library they wish, like `JUnit`, `Mockito`, `AssertJ`, `Awaitility`, Apache's Common Lang, `Gson`, etc.
+      * _Tests_ of **Kute** may use any library they wish, like `JUnit`, `Mockito`, `AssertJ`, `Awaitility`, Apache's Common Lang, `Gson`, etc.
       * Gradle build scripts may use any library / plugin they wish, e.g. `Dokka`, `pitest`, `kover`, Apache's `commons-io`, etc.
 
 <hr>
@@ -186,3 +196,27 @@ Besides that, the JVM-platform is omnipresent in Kute; so porting it would proba
 
 > **NB**: to be honest, some features after all *are* present in later versions of Kotlin's reflection, but I just had not been aware at the time.
 > * E.g. finding out if a class is a subclass of another one does not need Java's `isAssignableFrom()`; it can be done with `isSubtypeOf()`, if needed in combination with `typeOf<...>()`
+
+### Planned, wishes, to do
+In my opinion (being the author, _Jan-Hendrik van Heusden_) **Kute** `asString` should be a mature, practice-oriented library.<br>
+The current version is heavily tested with more exotic stuff than you probably ever will have in your code-base.<br>
+Still, we all know that practice may have more tricks than you can imagine!
+> **NB:** not tested with a restrictive SecurityManager.
+
+I have a few things I'd like to test or improve yet. And maybe others may contribute!
+* Tests with a restrictive **SecurityManager**. But maybe **Kute** `asString()` isn't the best solution for that anyway; in such environments you may rather want to stick with IDE-generated `toString()` implementations.<br><br>
+
+* **Logging**: Kute only logs exceptional situations, so quite minimal.<br>
+  However, Kotlin's reflection does not like some situations (e.g. *Java* classes with anonymous inner classes, classes nested inside methods, etc.), and throws a reflection-exception.<br>
+  This situation is handled gracefully, but not logged, to avoid clogging your log files or std-out. The output is different from normal, though, so it may leave the user with questions why she does not get the expected output.<br>
+  A choice for more **verbose logging** should be implemented, to service situations like these.<br><br>
+
+#### **Other thoughts?**<br>
+I'd like to hear more about your experiences with **Kute** `asString()`, and any wishes.
+* Feel free to suggest changes by adding a [pull request](https://github.com/JanHendrikVanHeusden/Kute/pulls).
+   * See [how to contribute](md/howto/contribute/contribute.md)!
+* Or discuss what / how you want to have things [improved or extended](https://github.com/JanHendrikVanHeusden/Kute/issues).
+
+### License
+Kute is an open-source project, according to [The Open Source Definition](https://opensource.org/osd/) of the [Open Source Initiative®](https://opensource.org/osd/), under [MIT](https://opensource.org/license/mit/)-license.<br>
+The **license statement** can be found in the project root: see the **[→ LICENSE](LICENSE)**.

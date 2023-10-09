@@ -7,8 +7,8 @@ import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
-import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.reflection.util.hasImplementedToString
+import nl.kute.test.helper.isObjectAsString
 import nl.kute.util.identityHashHex
 import org.apache.commons.math3.fraction.BigFraction
 import org.apache.commons.math3.util.Decimal64

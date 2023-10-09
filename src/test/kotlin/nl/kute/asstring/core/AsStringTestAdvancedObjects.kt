@@ -5,13 +5,13 @@ package nl.kute.asstring.core
 import nl.kute.asstring.annotation.option.asStringClassOptionCache
 import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
-import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
 import nl.kute.logging.logger
 import nl.kute.logging.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.test.helper.dollar
+import nl.kute.test.helper.isObjectAsString
 import nl.kute.testobjects.java.advanced.JavaClassWithAnonymousClass
 import nl.kute.testobjects.java.advanced.JavaClassWithCallable
 import nl.kute.testobjects.java.advanced.JavaClassWithHigherOrderFunction
@@ -300,6 +300,11 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
     }
 
     @Test
+    fun `Kotlin lambda's val should yield decent output`() {
+        assertThat(supplier.asString()).isEqualTo("() -> String")
+    }
+
+    @Test
     fun `java lambda's should not cause exception and not blow up the cache`() {
         // arrange
         var logMsg = ""
@@ -310,9 +315,7 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
 
         val withLambda = JavaClassWithLambda()
         val theClassName = withLambda::class.simplifyClassName()
-        val intSupplierIdHash = withLambda.intSupplier.identityHashHex
         val intSupplierLambdaTypeName = withLambda.intSupplier.getLambdaTypeName()
-        val intsToStringIdHash = withLambda.intsToString.identityHashHex
         val intsToStringLambdaTypeName = withLambda.intsToString.getLambdaTypeName()
         // Something like
         // `JavaClassWithLambda(intSupplier=JavaClassWithLambda$$Lambda$396=Supplier<T>() @1adb7478,
@@ -320,8 +323,8 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
         // Not super meaningful, but at least it shouldn't throw exceptions
         assertThat(withLambda.asString())
             .matches("""$theClassName\(.+""")
-            .matches(""".+intSupplier=$theClassName$dollar${dollar}Lambda$dollar\d+=\Q$intSupplierLambdaTypeName()\E @$intSupplierIdHash.+""")
-            .matches(""".+intsToString=$theClassName$dollar${dollar}Lambda$dollar\d+=\Q$intsToStringLambdaTypeName()\E @$intsToStringIdHash.+""")
+            .matches(""".+intSupplier=$theClassName$dollar${dollar}Lambda$dollar\d+=\Q$intSupplierLambdaTypeName()\E.+""")
+            .matches(""".+intsToString=$theClassName$dollar${dollar}Lambda$dollar\d+=\Q$intsToStringLambdaTypeName()\E.+""")
 
         // Class itself should be cached, but lambdas not (might explode the caches)
         assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
@@ -366,7 +369,6 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
 
         val testObj = JavaClassWithAnonymousClass()
         val prop1IdHash = testObj.propWithAnonymousInnerClass.identityHashHex
-        val prop2IdHash = testObj.propWithLambda.identityHashHex
         val lambdaTypeName = testObj.propWithLambda.getLambdaTypeName()
         val className = testObj::class.simplifyClassName()
 
@@ -379,7 +381,7 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
         assertThat(asStringResult)
             .matches("""^$className\(.+$""")
             .matches("""^.+?propWithAnonymousInnerClass=$className$dollar\d+@$prop1IdHash.+?$""")
-            .matches("""^.+?propWithLambda=$className$dollar${dollar}Lambda$dollar\d+=\Q$lambdaTypeName()\E @$prop2IdHash.+?$""")
+            .matches("""^.+?propWithLambda=$className$dollar${dollar}Lambda$dollar\d+=\Q$lambdaTypeName()\E.+?$""")
 
         // Only the class should be cached, not the properties (might explode the cache)
         assertThat(propsWithAnnotationsCacheByClass.size).isEqualTo(1)
@@ -424,9 +426,8 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
     fun `weird names should be honoured`() {
         `Callable Factory With Lambda`()
         val testObj = `Callable Factory With Lambda`().getCallable()
-        val hashHex = testObj.identityHashHex
         assertThat(testObj.asString())
-            .matches("""${`Callable Factory With Lambda`::class.simpleName}$dollar${dollar}Lambda$dollar\d+=Callable<[A-Z]>\(\) @\Q$hashHex\E""")
+            .matches("""${`Callable Factory With Lambda`::class.simpleName}$dollar${dollar}Lambda$dollar\d+=Callable<[A-Z]>\(\)""")
     }
 
     @Test
@@ -440,7 +441,6 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
 
         repeat(5) {
             val testObj = KotlinClassWithAnonymousClass()
-            val propWithLambdaIdHash = testObj.propWithLambda.identityHashHex
             val lambdaTypeName = testObj.propWithLambda.getLambdaTypeName()
             val asStringResult = testObj.asString()
             val className = testObj::class.simplifyClassName()
@@ -450,7 +450,7 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
             assertThat(asStringResult)
                 .matches(
                     """$className\(propWithAnonymousInnerClass=$className${dollar}propWithAnonymousInnerClass${dollar}\d+\(\),"""
-                            + """ propWithLambda=$className$dollar${dollar}Lambda$dollar\d+=\Q$lambdaTypeName()\E @$propWithLambdaIdHash\)"""
+                            + """ propWithLambda=$className$dollar${dollar}Lambda$dollar\d+=\Q$lambdaTypeName()\E\)"""
                 )
         }
         // Only the classes should be cached, not the properties (might explode the cache)
@@ -650,6 +650,18 @@ class AsStringTestAdvancedObjects: ObjectsStackVerifier {
             )
     }
 
+    @Test
+    fun `fun interfaces should be handled correctly`() {
+        assertThat(isAnswer.asString()).endsWith("Answer<T>()")
+    }
+
+    @Test
+    fun `properties with type fun interface should be handled correctly`() {
+        val testObj = TestClassWithAnswer()
+        assertThat(testObj.asString())
+            .matches("""TestClassWithAnswer\(answer=TestClassWithAnswer$dollar${dollar}Lambda$dollar\d+=Answer<T>\(\)\)""")
+    }
+
 
 // region ~ Classes, objects, helpers  etc. to be used for testing
 
@@ -786,6 +798,19 @@ private val String.extensionPropAtPackage: String
 
 private val anonymousDoc = object : AsStringTestAdvancedObjects.Doc(title = "A nice article", author = "Kai", words = 420) {
     override fun summary() = "Title: <$title> ($words words) By $author"
+}
+
+val supplier: () -> String = { "a String supplier" }
+
+private fun interface Answer<T> {
+    fun accept(element: T): Boolean
+}
+
+// implements fun interface
+private val isAnswer = Answer<Int> { i -> i == 42 }
+
+private class TestClassWithAnswer {
+    val answer = Answer<Int> { i -> i == 42 }
 }
 
 // endregion

@@ -12,11 +12,11 @@ import nl.kute.asstring.annotation.option.asStringClassOption
 import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
-import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.hashing.DigestMethod
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.test.base.ObjectsStackVerifier
+import nl.kute.test.helper.isObjectAsString
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry

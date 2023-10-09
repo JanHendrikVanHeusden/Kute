@@ -3,7 +3,6 @@
 package nl.kute.exception
 
 import nl.kute.observe.Action
-import java.lang.Exception
 import java.util.concurrent.CancellationException
 
 @JvmSynthetic // avoid access from external Java code

@@ -2,11 +2,11 @@ package nl.kute.asstring.annotation.option
 
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder.NONE
 import nl.kute.asstring.annotation.option.PropertyValueSurrounder.`«»`
+import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.defaults.initialElementsLimit
 import nl.kute.asstring.core.defaults.initialMaxStringValueLength
 import nl.kute.asstring.core.defaults.initialShowNullAs
 import nl.kute.asstring.core.defaults.initialSurroundPropValue
-import nl.kute.asstring.core.asString
 import nl.kute.test.base.ObjectsStackVerifier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

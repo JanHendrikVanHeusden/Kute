@@ -4,11 +4,11 @@ import nl.kute.asstring.config.asStringConfig
 import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.filter.PropertyMetaFilter
 import nl.kute.asstring.core.propertyOmitFilterRegistry
-import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.exception.throwableAsString
 import nl.kute.logging.logger
 import nl.kute.logging.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
+import nl.kute.test.helper.isObjectAsString
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.AfterEach

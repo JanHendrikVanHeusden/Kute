@@ -76,14 +76,6 @@ internal fun <T : Any> KClass<T>.propertiesFromHierarchy(mostSuper: Boolean): Li
 
                         // to be handled within Kute. Must not propagate to outside-world!
                         throw SyntheticClassException(e.message, e)
-                    } catch (error: kotlin.reflect.jvm.internal.KotlinReflectionInternalError) {
-                        // Kotlin's reflection can't handle some classes, typically Java classes with
-                        // anonymous inner classes, etc.
-                        // Normally one should *never* handle `Error`s, but neither in Java's nor in Kotlin's reflection
-                        // there seems any way to reliably and viably determine these classes otherwise.
-                        // Many operations (e.g. `memberProperties` or `superTypes`) on these classes will throw
-                        // kotlin.reflect.jvm.internal.KotlinReflectionInternalError
-                        throw SyntheticClassException(error.message, error)
                     }
                 }
                 .flatten()

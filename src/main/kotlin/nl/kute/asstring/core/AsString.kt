@@ -11,6 +11,7 @@ import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.annotation.option.asStringClassOption
+import nl.kute.asstring.annotation.option.objectIdentity
 import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.defaults.defaultNullString
@@ -19,6 +20,7 @@ import nl.kute.asstring.core.filter.PropertyMetaFilter
 import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.asstring.namedvalues.PropertyValue
 import nl.kute.asstring.property.getPropValueString
+import nl.kute.asstring.property.lambdaSignatureString
 import nl.kute.asstring.property.meta.ClassMetaData
 import nl.kute.asstring.property.meta.PropertyMetaData
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
@@ -195,10 +197,26 @@ private fun <T : Any> T?.asString(propertyNamesToExclude: Collection<String>, va
             // Seems to be an unsafe Collection, Map, Array, etc.
             // Try to create a defensive copy, and return asString() of that.
             // This is tried once only; if unsuccessful, return fallback string
-            log("Warning: Non-thread safe collection/map was modified concurrently!$lineEnd ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
-                    " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
             return obj.cloneCollectionLikeStuff()?.asString(propertyNamesToExclude, *nameValues, elementsLimit = elementsLimit)
-                ?: obj.asStringFallBack()
+                ?: (obj.asStringFallBack()
+                    .also { log("${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                            " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}") }
+                        )
+        } catch (e: KotlinReflectionNotSupportedError) {
+            // Actual cases where this happened have workarounds (typically by using Java reflection instead).
+            // But it might still happen in even more exotic stuff, so better catch it than having it crash the calling application
+            log("Warning: ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
+                    " for object of class ${this.javaClass};$lineEnd${e.throwableAsString(50)}")
+            return obj.asStringFallBack()
+        } catch (e: kotlin.reflect.jvm.internal.KotlinReflectionInternalError) {
+            // **Known issue**
+            //     Kotlin's reflection can't handle some classes, typically *Java* classes with
+            //     anonymous inner classes, classes nested inside methods, etc.
+            // Normally one should *never* handle `Error`s, but neither in Java's nor in Kotlin's reflection
+            // there seems any way to reliably and viably determine the situations when it occurs.
+            // Many operations (e.g. `memberProperties` or `superTypes`) on these classes will throw
+            // kotlin.reflect.jvm.internal.KotlinReflectionInternalError
+            return obj.asStringFallBack()
         } catch (e: Exception) {
             return handleWithReturn(e, obj.asStringFallBack()) {
                 log("ERROR: Exception ${e.javaClass.name.simplifyClassName()} occurred when retrieving string value" +
@@ -376,14 +394,8 @@ private fun KClass<*>.feasibleForToString() =
     // (many of these do not override toString anyway)
     !this.java.isSynthetic && this.simpleName != null && this.hasImplementedToString()
 
-/**
- * Is this class feasible for using [toString] from [asString], and if so, does it prefer [toString]?
- * @return
- *  * If feasible for [toString], the class's [ToStringPreference]
- *  * Or [USE_ASSTRING] if not feasible for [toString]
- */
-private fun KClass<*>.toStringFeasibility() =
-    if (!this.feasibleForToString()) USE_ASSTRING else this.toStringPreference()
+@JvmSynthetic // avoid access from external Java code
+internal fun KClass<*>.toStringPreference() = this.asStringClassOption().toStringPreference
 
 /**
  * Determines the [ToStringPreference] and whether it is the first time we handle this class.
@@ -406,6 +418,15 @@ private fun KClass<*>.toStringHandling(): Pair<ToStringPreference, Boolean> {
         else Pair(cachedPref!!, false)
     }
 }
+
+/**
+ * Is this class feasible for using [toString] from [asString], and if so, does it prefer [toString]?
+ * @return
+ *  * If feasible for [toString], the class's [ToStringPreference]
+ *  * Or [USE_ASSTRING] if not feasible for [toString]
+ */
+private fun KClass<*>.toStringFeasibility() =
+    if (!this.feasibleForToString()) USE_ASSTRING else this.toStringPreference()
 
 /**
  * @return
@@ -538,6 +559,24 @@ private fun KClass<*>.registerHolderClassAnnotations(companionInstance: Any) {
         additionalAnnotations[companionInstance::class] = annotationSet
     }
 }
+
+@JvmSynthetic // avoid access from external Java code
+internal val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
+
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.syntheticClassObjectAsString(): String {
+    return this.toString().let {
+        if (it.matches(lambdaToStringRegex))
+        // Lambda's have a nice toString(), e.g. `(kotlin.Int) -> kotlin.String`,
+        // let's use that, but strip package names
+            it.lambdaSignatureString()
+        else this.asStringFallBack()
+    }
+}
+
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.objectIdentity() =
+    this.objectIdentity(this::class.asStringClassOption())
 
 // endregion
 

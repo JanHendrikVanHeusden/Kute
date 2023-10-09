@@ -1,3 +1,5 @@
+@file:JvmName("NamedPropHelper")
+
 package nl.kute.asstring.namedvalues
 
 import nl.kute.asstring.core.defaults.defaultNullString

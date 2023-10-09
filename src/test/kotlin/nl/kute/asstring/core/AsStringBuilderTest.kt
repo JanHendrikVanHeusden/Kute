@@ -5,13 +5,13 @@ import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.modify.AsStringReplace
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
-import nl.kute.asstring.core.test.helper.isObjectAsString
 import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
 import nl.kute.asstring.weakreference.ObjectWeakReference
 import nl.kute.hashing.DigestMethod
 import nl.kute.test.base.GarbageCollectionWaiter
 import nl.kute.test.base.ObjectsStackVerifier
+import nl.kute.test.helper.isObjectAsString
 import nl.kute.util.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

@@ -4,8 +4,8 @@ import nl.kute.asstring.annotation.modify.AsStringHash
 import nl.kute.asstring.annotation.modify.AsStringMask
 import nl.kute.asstring.annotation.modify.AsStringReplace
 import nl.kute.asstring.annotation.option.AsStringOption
-import nl.kute.asstring.core.defaults.defaultNullString
 import nl.kute.asstring.core.asString
+import nl.kute.asstring.core.defaults.defaultNullString
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.MapEntry
 import org.junit.jupiter.api.Test

@@ -28,3 +28,4 @@ fun String?.trimLastIf(charToTrim: Char): String? {
         if (this.endsWith(charToTrim)) this.dropLast(1) else this
     }
 }
+

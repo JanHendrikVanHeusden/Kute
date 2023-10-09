@@ -3,25 +3,17 @@ package nl.kute.asstring.core
 import nl.kute.asstring.annotation.option.AsStringClassOption
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.annotation.option.ToStringPreference
-import nl.kute.asstring.annotation.option.asStringClassOption
-import nl.kute.asstring.annotation.option.objectIdentity
-import nl.kute.asstring.core.defaults.initialElementsLimit
 import nl.kute.asstring.core.AsStringObjectCategory.SYSTEM
-import nl.kute.asstring.property.lambdaSignatureString
+import nl.kute.asstring.core.defaults.initialElementsLimit
+import nl.kute.exception.throwableAsString
 import nl.kute.reflection.util.hasImplementedToString
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.retain.MapCache
 import nl.kute.util.identityHashHex
 import nl.kute.util.ifNull
-import nl.kute.exception.throwableAsString
 import java.time.temporal.Temporal
-import java.time.temporal.TemporalAmount
 import java.util.Date
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.full.isSuperclassOf
-import kotlin.reflect.typeOf
 
 /**
  * Enum to provide categorization of objects.
@@ -42,9 +34,9 @@ import kotlin.reflect.typeOf
  */
 @AsStringClassOption(toStringPreference = ToStringPreference.PREFER_TOSTRING)
 internal enum class AsStringObjectCategory(
-    val guardStack: Boolean,
-    val handler: ((Any) -> String)? = null,
-    val handlerWithSize: ((Any, Int?) -> String)? = null,
+    internal val guardStack: Boolean,
+    internal val handler: ((Any) -> String)? = null,
+    internal val handlerWithSize: ((Any, Int?) -> String)? = null,
 ) {
     /**
      * Base stuff like [Boolean], [Number], [String], [Date], [Temporal], [Char], these have
@@ -54,13 +46,13 @@ internal enum class AsStringObjectCategory(
     BASE(guardStack = false, handler = { it.toString() }),
 
     /** Override: [Collection.toString] methods are vulnerable for stack overflow (in case of recursive data) */
-    COLLECTION(guardStack = true, handlerWithSize = {it, size -> (it as Collection<*>).collectionAsString(size)}),
+    COLLECTION(guardStack = true, handlerWithSize = { it, size -> (it as Collection<*>).collectionAsString(size)}),
 
     /** Override: [Array.contentDeepToString] is vulnerable for stack overflow (in case of recursive data) */
-    ARRAY(guardStack = true, handlerWithSize = {it, size -> (it as Array<*>).arrayAsString(size) }),
+    ARRAY(guardStack = true, handlerWithSize = { it, size -> (it as Array<*>).arrayAsString(size) }),
 
     /** Override: arrays of primitives (e.g. [IntArray], [BooleanArray], [CharArray] lack proper [toString] implementation */
-    PRIMITIVE_ARRAY(guardStack = false, handlerWithSize = {it, size -> it.primitiveArrayAsString(size) }),
+    PRIMITIVE_ARRAY(guardStack = false, handlerWithSize = { it, size -> it.primitiveArrayAsString(size) }),
 
     /** Override: [Map.toString] methods are vulnerable for stack overflow (in case of recursive data) */
     MAP(guardStack = true, handlerWithSize = { it, size -> (it as Map<*, *>).mapAsString(size) }),
@@ -122,68 +114,6 @@ internal enum class AsStringObjectCategory(
 @JvmSynthetic // avoid access from external Java code
 internal val objectCategoryCache = MapCache<KClass<*>, AsStringObjectCategory>()
 
-/**
- * Is the object's type considered a base type?
- *
- * Currently, the following types are considered base types:
- * * Primitives / primitive wrappers
- * * Elementary Java types like [String], [Char], [CharSequence], [Number],
- * [Date], [Temporal], [TemporalAmount] and their subclasses
- * * The Kotlin unsigned types ([UByte], [UShort], [UInt], [ULong])
- */
-public fun Any?.isBaseType(): Boolean =
-    this is Boolean
-            || this is Number
-            || this is CharSequence
-            || this is Char
-            || this is Temporal
-            || this is TemporalAmount
-            || this is Date
-            || this is UByte
-            || this is UShort
-            || this is UInt
-            || this is ULong
-
-private val baseClasses = arrayOf(
-    Number::class,
-    CharSequence::class,
-    Char::class,
-    Temporal::class,
-    TemporalAmount::class,
-    Date::class,
-    UByte::class,
-    UShort::class,
-    UInt::class,
-    ULong::class
-)
-
-private fun KType.isOfClazz(classes: Array<KClass<*>>): Boolean =
-    classes.any {
-        isOfClazz(it)
-    }
-
-private fun KType.isOfClazz(clazz: KClass<*>): Boolean =
-    this.classifier.let {
-        it == clazz || (it is KClass<*> && clazz.isSuperclassOf(it))
-    }
-
-@JvmSynthetic // avoid access from external Java code
-internal fun KType.isBaseType(): Boolean = isOfClazz(baseClasses)
-
-private fun Any?.isPrimitiveArray(): Boolean
-// It's a pity the kotlin designers didn't create an interface or superclass for these arrays of primitives...
-// We must simply list them all... NB:
-//  * Java types boolean[], byte[] etc. map to kotlin's BooleanArray, ByteArray, etc.
-//  * UByteArray, UShortArray, UIntArray, ULongArray are collections, these need no special handling
-        = this is BooleanArray
-        || this is ByteArray
-        || this is CharArray
-        || this is ShortArray
-        || this is IntArray
-        || this is LongArray
-        || this is FloatArray
-        || this is DoubleArray
-
 private fun Any.primitiveArrayIterator(): Iterator<*> =
     when (this) {
         is BooleanArray -> this.iterator()
@@ -196,33 +126,6 @@ private fun Any.primitiveArrayIterator(): Iterator<*> =
         is DoubleArray -> this.iterator()
         else -> throw IllegalArgumentException("Should be called with arrays of primitives only")
     }
-
-private val collectionLikeClasses = arrayOf(
-    Collection::class,
-    Array::class,
-    Map::class,
-    IntArray::class,
-    ByteArray::class,
-    CharArray::class,
-    LongArray::class,
-    FloatArray::class,
-    DoubleArray::class,
-    ShortArray::class,
-    BooleanArray::class
-)
-
-@JvmSynthetic // avoid access from external Java code
-internal fun KType.isCollectionLikeType(): Boolean = isOfClazz(collectionLikeClasses) || this.isSubtypeOf(typeOf<Array<*>>())
-
-@JvmSynthetic // avoid access from external Java code
-internal fun KType.isCharSequenceType(): Boolean = isOfClazz(CharSequence::class)
-
-@JvmSynthetic // avoid access from external Java code
-internal fun Any.objectIdentity() =
-    this.objectIdentity(this::class.asStringClassOption())
-
-@JvmSynthetic // avoid access from external Java code
-internal fun KClass<*>.toStringPreference() = this.asStringClassOption().toStringPreference
 
 @JvmSynthetic // avoid access from external Java code
 internal fun Any.collectionIdentity(includeIdentity: Boolean = AsStringClassOption.defaultOption.includeIdentityHash) =
@@ -311,33 +214,6 @@ internal fun Array<*>.arrayAsString(limit: Int? = null): String {
     ) { it.asString() }
 }
 
-@JvmSynthetic // avoid access from external Java code
-internal val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
-
-@JvmSynthetic // avoid access from external Java code
-internal fun Any.syntheticClassObjectAsString(): String {
-    return this.toString().let {
-        if (it.matches(lambdaToStringRegex))
-            // Lambda's have a nice toString(), e.g. `(kotlin.Int) -> kotlin.String`,
-            // let's use that, but strip package names
-            it.lambdaSignatureString()
-        else this.asStringFallBack()
-    }
-}
-
-private fun Any.isLambdaProperty(): Boolean =
-    // Check for lambda is not really the best check ever... but seems the best we have...
-    // It only finds lambda that is declared as an *instance property*.
-    //
-    // Lambda declared as a *local variable* (e.g., in a method) can not be detected this way,
-    // they cause downstream SyntheticClassException which then needs to be handled
-    this::class.java.let {
-        it.isSynthetic && it.toString().contains("\$\$Lambda\$")
-    }
-
-// aimed to remove a not very useful lengthy number preceded by `/0x`
-private val javaLambdaNumberRegex = Regex("/0x[0-9a-f]+@.+$")
-
 /** Removes modifiers etc. from `toGenericString()` output; so `public abstract interface Callable<V>()` => `Callable<V>()` */
 private fun String.removeModifiers(typeName: String): String =
     this.indexOf(typeName).let {
@@ -355,13 +231,9 @@ internal fun Any.lambdaPropertyAsString(): String {
     // the replacement removes a non-informative lengthy octal number, so
     //    `JavaClassWithLambda$$Lambda$366/0x0000000800291440@27a0a5a2`
     // -> `JavaClassWithLambda$$Lambda$366
-    // (also removed identityHash, this is added again at the end)
     return this.toString().simplifyClassName()
-        .replace(javaLambdaNumberRegex, "") + "$typeSuffix @${this.identityHashHex}"
+        .replace(javaLambdaNumberRegex, "") + typeSuffix
 }
 
-private val systemClassPackagePrefixes = listOf("java.", "kotlin.")
-
-private fun KClass<*>.isSystemClass() =
-    this.java.packageName == "kotlin"
-            || systemClassPackagePrefixes.any { this.java.packageName.startsWith(it) }
+// aimed to remove a not very useful lengthy number preceded by `/0x`
+private val javaLambdaNumberRegex = Regex("/0x[0-9a-f]+@.+$")
