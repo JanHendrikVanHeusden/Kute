@@ -16,20 +16,20 @@
    > Replace `[kuteversion]` by the latest version number
 
    ### Gradle
-
    * #### Kotlin `build.gradle.kts`
-     `implementation("nl.kute:asstring:[kuteversion]")`
+     `implementation("nl.kute:asstring:[kuteversion]")`<br>
+   
    * #### Groovy `build.gradle`
      One of:
-      * `implementation 'nl.kute:kute:[kuteversion]'`<br>
-      * `implementation group: 'nl.kute', name: 'asstring', version: '[kuteversion]'`
+      * `compileOnly 'nl.kute:kute:[kuteversion]'`<br>
+      * `compileOnly group: 'nl.kute', name: 'asstring', version: '[kuteversion]'`<br>
 
    * ### Maven
      In your `pom.xml` `dependencies` section:
         ```
         <dependencies>
             ...
-     
+
             <dependency>
                 <groupId>nl.kute</groupId>
                 <artifactId>asstring</artifactId>

@@ -1,3 +1,9 @@
+| [← 🏠](../)               | [← README.md](../../README.md) |
+|:--------------------------|:-------------------------------|
+| [→ How to...](0-howto.md) | [→ FAQ](../../md/faq/0-faq.md) |
+
+<hr>
+
 # Kute `asString`: How to ...
 
 * ### API documentation
@@ -6,11 +12,13 @@
 <hr>
 
 * ## [Start using Kute `asString()`](1-start-using-kute-asstring.md)
-   * #### Kute in Gradle / Maven
+   * #### Kute & build tools: Gradle / Maven
    * #### Start using `asString()` in your code
 
-* ### Use `asString()` from Java
-   * In general, the documentation focuses on usage with Kotlin. Consult this section to get some guidance how to use with Java.
+* ### [Use `asString()` from Java](use-asstring-with-java.md)
+   * `asString()` can be used very well be used from Java
+     * In general, the documentation focuses on usage with Kotlin though.
+     * [Consult this section](use-asstring-with-java.md) to get some guidance how to use with Java
  
 * ### Use `AsStringBuilder`
 

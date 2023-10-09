@@ -1,4 +1,10 @@
 Warning
+=======
+
+#########################################################################################################
+# The warning below can be found in the documentation of Apache Commons lang ReflectionToStringBuilder. #
+# For Kute asString(), the situation will probably be similar.                                          #
+#########################################################################################################
 
 This utility (Apache Commons lang ReflectionToStringBuilder) uses the class AccessibleObject in the J2SE reflection package
 to bypass access modifiers and access private member variables of an object directly.

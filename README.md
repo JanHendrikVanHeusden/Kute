@@ -12,13 +12,15 @@
         + [Dependencies](#dependencies)
         + [Platform: JVM](#platform-jvm)
             - [Porting to other platforms?](#porting-to-other-platforms)
+  * [Planned, wishes, to-do](#planned-wishes-to-do)
+  * [Open source, license](#license)
 <hr>
 
 - ### Documentation:
 
   * [→ How to...](md/howto/0-howto.md)
   * [→ FAQ](md/faq/0-faq.md)
-  * → [API documentation](https://janhendrikvanheusden.github.io/Kute/index.html)
+  * [→ API documentation](https://janhendrikvanheusden.github.io/Kute/index.html)
      * [→ API docs <u>root</u>](https://janhendrikvanheusden.github.io/Kute/index.html)
      * [→ API docs of <u>`asString()`</u>](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.core/as-string.html)
 
@@ -162,6 +164,8 @@ Below, a *summary* of why Kute is a better choice for your `toString()` implemen
    * But the Kotlin version should not have runtime implications
        * All versions of Kotlin produce Java 8+ compatible code
    * Also tested with Kotlin `1.3` without issues
+     * I.e., no issues at the time of writing
+     * No effort or even guarantees that 1.3 compatibility will be maintained
 
 ### Dependencies
 * **Kute** is built with **zero-dependencies** as a basic principle.<br>
@@ -192,3 +196,27 @@ Besides that, the JVM-platform is omnipresent in Kute; so porting it would proba
 
 > **NB**: to be honest, some features after all *are* present in later versions of Kotlin's reflection, but I just had not been aware at the time.
 > * E.g. finding out if a class is a subclass of another one does not need Java's `isAssignableFrom()`; it can be done with `isSubtypeOf()`, if needed in combination with `typeOf<...>()`
+
+### Planned, wishes, to do
+In my opinion (being the author, _Jan-Hendrik van Heusden_) **Kute** `asString` should be a mature, practice-oriented library.<br>
+The current version is heavily tested with more exotic stuff than you probably ever will have in your code-base.<br>
+Still, we all know that practice may have more tricks than you can imagine!
+> **NB:** not tested with a restrictive SecurityManager.
+
+I have a few things I'd like to test or improve yet. And maybe others may contribute!
+* Tests with a restrictive **SecurityManager**. But maybe **Kute** `asString()` isn't the best solution for that anyway; in such environments you may rather want to stick with IDE-generated `toString()` implementations.<br><br>
+
+* **Logging**: Kute only logs exceptional situations, so quite minimal.<br>
+  However, Kotlin's reflection does not like some situations (e.g. *Java* classes with anonymous inner classes, classes nested inside methods, etc.), and throws a reflection-exception.<br>
+  This situation is handled gracefully, but not logged, to avoid clogging your log files or std-out. The output is different from normal, though, so it may leave the user with questions why she does not get the expected output.<br>
+  A choice for more **verbose logging** should be implemented, to service situations like these.<br><br>
+
+#### **Other thoughts?**<br>
+I'd like to hear more about your experiences with **Kute** `asString()`, and any wishes.
+* Feel free to suggest changes by adding a [pull request](https://github.com/JanHendrikVanHeusden/Kute/pulls).
+   * See [how to contribute](md/howto/contribute/contribute.md)!
+* Or discuss what / how you want to have things [improved or extended](https://github.com/JanHendrikVanHeusden/Kute/issues).
+
+### License
+Kute is an open-source project, according to [The Open Source Definition](https://opensource.org/osd/) of the [Open Source Initiative®](https://opensource.org/osd/), under [MIT](https://opensource.org/license/mit/)-license.<br>
+The **license statement** can be found in the project root: see the **[→ LICENSE](LICENSE)**.
