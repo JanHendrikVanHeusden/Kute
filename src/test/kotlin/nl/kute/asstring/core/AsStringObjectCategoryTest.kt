@@ -3,6 +3,7 @@ package nl.kute.asstring.core
 import nl.kute.asstring.annotation.modify.AsStringHash
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.core.AsStringObjectCategory.CategoryResolver.resolveObjectCategory
+import nl.kute.exception.throwableAsString
 import nl.kute.reflection.util.hasImplementedToString
 import nl.kute.reflection.util.simplifyClassName
 import nl.kute.testobjects.java.JavaClassToTest
@@ -14,7 +15,6 @@ import nl.kute.testobjects.java.advanced.JavaClassWithLambda
 import nl.kute.testobjects.kotlin.advanced.CallableFactoryWithLambda
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClass
 import nl.kute.testobjects.kotlin.advanced.KotlinClassWithAnonymousClassFactory
-import nl.kute.exception.throwableAsString
 import org.apache.commons.lang3.math.Fraction
 import org.apache.commons.lang3.mutable.MutableByte
 import org.assertj.core.api.Assertions.assertThat

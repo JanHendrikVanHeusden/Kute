@@ -2,6 +2,7 @@ package nl.kute.asstring.filter;
 
 import kotlin.jvm.functions.Function1;
 import nl.kute.asstring.annotation.modify.AsStringOmit;
+import nl.kute.asstring.config.AsStringConfig;
 import nl.kute.asstring.property.meta.ClassMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import static nl.kute.asstring.config.AsStringConfigKt.asStringConfig;
 import static nl.kute.asstring.core.AsString.asString;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,7 +21,7 @@ public class ForceToStringFilteringTestJava {
     @AfterEach
     @SuppressWarnings("unchecked")
     void setUpAndTearDown() {
-        asStringConfig()
+        new AsStringConfig()
                 .withForceToStringFilters() // empty, so clears filters
                 .applyAsDefault();
     }
@@ -44,7 +44,7 @@ public class ForceToStringFilteringTestJava {
         Predicate<ClassMeta> filter1 = meta ->
                 Objects.equals(meta.getObjectClassName(), TestClass1.class.getSimpleName());
         // act
-        asStringConfig()
+        new AsStringConfig()
                 .withForceToStringFilterPredicates(filter1)
                 .applyAsDefault();
         // assert
@@ -60,7 +60,7 @@ public class ForceToStringFilteringTestJava {
         Predicate<ClassMeta> filter2 = meta ->
                 meta.getObjectClassName().contains("Class2");
         // act
-        asStringConfig().withForceToStringFilterPredicates(filter1, filter2).applyAsDefault();
+        new AsStringConfig().withForceToStringFilterPredicates(filter1, filter2).applyAsDefault();
 
         // assert
         assertThat(asString(testObj1))
@@ -71,7 +71,7 @@ public class ForceToStringFilteringTestJava {
                 .isEqualTo(class2ToString);
 
         // act
-        asStringConfig().withForceToStringFilterPredicates(filter2).applyAsDefault();
+        new AsStringConfig().withForceToStringFilterPredicates(filter2).applyAsDefault();
 
         // assert
         assertThat(asString(testObj1))
@@ -94,7 +94,7 @@ public class ForceToStringFilteringTestJava {
         // but, it can be done, and should work
         Function1<? super ClassMeta, Boolean> toStringFilter =
                 (meta) -> Objects.equals(meta.getObjectClassName(), "TestClass3");
-        asStringConfig().withForceToStringFilters(toStringFilter).applyAsDefault();
+        new AsStringConfig().withForceToStringFilters(toStringFilter).applyAsDefault();
 
         // act, assert
         assertThat(asString(testObj)).isEqualTo(toStringResult);

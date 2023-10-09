@@ -6,7 +6,6 @@ import java.util.Locale
 
 // TODO: Move to gradle.properties.
 //       Example, see README.md of https://github.com/Vorlonsoft/GradleMavenPush
-
 val appName: String = "asstring"
 val appPublishedName: String = "Kute asString"
 val appDescription: String =
@@ -141,14 +140,16 @@ dependencies {
     val jmhVersion by System.getProperties()
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    //  * `api`, so depending projects don't need to add these dependencies themselves
+    //  * Inheriting version from Kotlin version
+    api("org.jetbrains.kotlin:kotlin-stdlib")
+    api("org.jetbrains.kotlin:kotlin-reflect")
 
     // Used by Gradle tasks
     compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
     compileOnly("commons-io:commons-io:$commonsIoVersion")
 
-    // Test stuff that inherit version from Kotlin version
+    // Inheriting version from Kotlin version
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 
@@ -172,10 +173,10 @@ dependencies {
     testImplementation("com.google.code.gson:gson:$gsonVersion")
     testImplementation("com.google.guava:guava:$guavaVersion")
 
-    // Java Microbenchmark Harness, for performance tests / comparisons
+    // Java Microbenchmark Harness (jmh), for performance tests / comparisons
     testImplementation("org.openjdk.jmh:jmh-core:$jmhVersion")
     testImplementation("org.openjdk.jmh:jmh-generator-annprocess:$jmhVersion")
-
+    // jmh annotation processing
     annotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:$jmhVersion")
 }
 

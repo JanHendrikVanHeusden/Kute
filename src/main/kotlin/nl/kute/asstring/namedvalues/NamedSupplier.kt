@@ -1,3 +1,5 @@
+@file:JvmName("NamedSupplierHelper")
+
 package nl.kute.asstring.namedvalues
 
 import nl.kute.asstring.weakreference.ObjectWeakReference

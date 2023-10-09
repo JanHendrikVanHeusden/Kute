@@ -3,12 +3,12 @@ package nl.kute.asstring.annotation.option
 import nl.kute.asstring.annotation.additionalAnnotations
 import nl.kute.asstring.annotation.findAnnotation
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
+import nl.kute.asstring.config.notifyConfigChange
+import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.core.defaults.initialAsStringClassOption
 import nl.kute.asstring.core.defaults.initialIncludeCompanion
 import nl.kute.asstring.core.defaults.initialIncludeIdentityHash
 import nl.kute.asstring.core.defaults.initialSortNamesAlphabetic
-import nl.kute.asstring.config.notifyConfigChange
-import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.property.ranking.PropertyRankable
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.util.simplifyClassName

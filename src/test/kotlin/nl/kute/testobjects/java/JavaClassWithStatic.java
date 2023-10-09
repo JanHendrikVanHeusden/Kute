@@ -3,7 +3,7 @@ package nl.kute.testobjects.java;
 import nl.kute.asstring.core.AsStringBuilder;
 import nl.kute.asstring.core.AsStringProducer;
 
-import static nl.kute.asstring.namedvalues.NamedSupplierKt.namedSupplier;
+import static nl.kute.asstring.namedvalues.NamedSupplierHelper.namedSupplier;
 
 @SuppressWarnings("ClassInitializerMayBeStatic")
 public class JavaClassWithStatic {

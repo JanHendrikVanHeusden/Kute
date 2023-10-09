@@ -324,8 +324,7 @@ public class AsStringConfig {
         }.toTypedArray())
 
     /**
-     * Assigns the [AsStringOption] and [AsStringClassOption] being built, to [AsStringOption.defaultOption]
-     * and [AsStringClassOption.defaultOption], respectively, as the new application defaults.
+     * Assigns the options that are set, as the new application defaults.
      *  > This operation will reset (clear) the property cache and other caches, if necessary.
      */
     public fun applyAsDefault() {
@@ -357,7 +356,11 @@ public class AsStringConfig {
 
 }
 
-/** Static convenience method to construct an [AsStringConfig] object */
+/**
+ * Static convenience method to construct a new [AsStringConfig] object.
+ * > Not available in Java. From Java, use `new `[AsStringConfig]`()` instead.
+ */
+@JvmSynthetic // avoid access from external Java code
 public fun asStringConfig(): AsStringConfig = AsStringConfig()
 
 /**

@@ -2,12 +2,12 @@ package nl.kute.asstring.annotation.option
 
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.config.asStringConfig
+import nl.kute.asstring.config.restoreInitialAsStringClassOption
+import nl.kute.asstring.core.asString
 import nl.kute.asstring.core.defaults.initialIncludeIdentityHash
 import nl.kute.asstring.core.defaults.initialPropertySorters
 import nl.kute.asstring.core.defaults.initialSortNamesAlphabetic
 import nl.kute.asstring.core.defaults.initialToStringPreference
-import nl.kute.asstring.config.restoreInitialAsStringClassOption
-import nl.kute.asstring.core.asString
 import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.util.asHexString
 import nl.kute.util.identityHashHex

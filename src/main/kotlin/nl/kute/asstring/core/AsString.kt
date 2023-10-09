@@ -11,6 +11,7 @@ import nl.kute.asstring.annotation.option.ToStringPreference
 import nl.kute.asstring.annotation.option.ToStringPreference.PREFER_TOSTRING
 import nl.kute.asstring.annotation.option.ToStringPreference.USE_ASSTRING
 import nl.kute.asstring.annotation.option.asStringClassOption
+import nl.kute.asstring.annotation.option.objectIdentity
 import nl.kute.asstring.config.subscribeConfigChange
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.core.defaults.defaultNullString
@@ -19,6 +20,7 @@ import nl.kute.asstring.core.filter.PropertyMetaFilter
 import nl.kute.asstring.namedvalues.NameValue
 import nl.kute.asstring.namedvalues.PropertyValue
 import nl.kute.asstring.property.getPropValueString
+import nl.kute.asstring.property.lambdaSignatureString
 import nl.kute.asstring.property.meta.ClassMetaData
 import nl.kute.asstring.property.meta.PropertyMetaData
 import nl.kute.asstring.property.propertiesWithAsStringAffectingAnnotations
@@ -392,14 +394,8 @@ private fun KClass<*>.feasibleForToString() =
     // (many of these do not override toString anyway)
     !this.java.isSynthetic && this.simpleName != null && this.hasImplementedToString()
 
-/**
- * Is this class feasible for using [toString] from [asString], and if so, does it prefer [toString]?
- * @return
- *  * If feasible for [toString], the class's [ToStringPreference]
- *  * Or [USE_ASSTRING] if not feasible for [toString]
- */
-private fun KClass<*>.toStringFeasibility() =
-    if (!this.feasibleForToString()) USE_ASSTRING else this.toStringPreference()
+@JvmSynthetic // avoid access from external Java code
+internal fun KClass<*>.toStringPreference() = this.asStringClassOption().toStringPreference
 
 /**
  * Determines the [ToStringPreference] and whether it is the first time we handle this class.
@@ -422,6 +418,15 @@ private fun KClass<*>.toStringHandling(): Pair<ToStringPreference, Boolean> {
         else Pair(cachedPref!!, false)
     }
 }
+
+/**
+ * Is this class feasible for using [toString] from [asString], and if so, does it prefer [toString]?
+ * @return
+ *  * If feasible for [toString], the class's [ToStringPreference]
+ *  * Or [USE_ASSTRING] if not feasible for [toString]
+ */
+private fun KClass<*>.toStringFeasibility() =
+    if (!this.feasibleForToString()) USE_ASSTRING else this.toStringPreference()
 
 /**
  * @return
@@ -554,6 +559,24 @@ private fun KClass<*>.registerHolderClassAnnotations(companionInstance: Any) {
         additionalAnnotations[companionInstance::class] = annotationSet
     }
 }
+
+@JvmSynthetic // avoid access from external Java code
+internal val lambdaToStringRegex: Regex = Regex("""^\(.*?\) ->.+$""")
+
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.syntheticClassObjectAsString(): String {
+    return this.toString().let {
+        if (it.matches(lambdaToStringRegex))
+        // Lambda's have a nice toString(), e.g. `(kotlin.Int) -> kotlin.String`,
+        // let's use that, but strip package names
+            it.lambdaSignatureString()
+        else this.asStringFallBack()
+    }
+}
+
+@JvmSynthetic // avoid access from external Java code
+internal fun Any.objectIdentity() =
+    this.objectIdentity(this::class.asStringClassOption())
 
 // endregion
 
