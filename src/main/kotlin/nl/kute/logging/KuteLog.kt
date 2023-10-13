@@ -7,21 +7,25 @@ import nl.kute.exception.throwableAsString
 import java.util.function.Consumer
 
 /** Logs message [msg] to [loggerWithCaller], prefixed by the receiver's class name  */
-public fun Any?.log(msg: Any?): Unit = try {
-    loggerWithCaller("${this?.javaClass ?: ""}", msg)
-} catch (e: Exception) {
-    handleException(e) {
-        e.printStackTrace() // not much else we can do
+public fun Any?.log(msg: Any?) {
+    try {
+        loggerWithCaller("${this?.javaClass ?: ""}", msg)
+    } catch (e: Exception) {
+        handleException(e) {
+            e.printStackTrace() // not much else we can do
+        }
     }
 }
 
 /** Logs message [msg] to [loggerWithCaller], prefixed by the [caller] String */
 @JvmSynthetic // avoid access from external Java code
-internal fun logWithCaller(caller: String, msg: Any?): Unit = try {
-    loggerWithCaller(caller, msg)
-} catch (e: Exception) {
-    handleException(e) {
-        e.printStackTrace() // not much else we can do
+internal fun logWithCaller(caller: String, msg: Any?) {
+    try {
+        loggerWithCaller(caller, msg)
+    } catch (e: Exception) {
+        handleException(e) {
+            e.printStackTrace() // not much else we can do
+        }
     }
 }
 
