@@ -1,3 +1,9 @@
+| [← 🏠](../)               | [← README.md](../../README.md) |
+|:--------------------------|:-------------------------------|
+| [← How to...](0-howto.md) | [→ FAQ](../../md/faq/0-faq.md) |
+
+<hr>
+
 ### _TODO:_
 > #### Kute has not been published yet to Maven Central or any other publicly accessible directory.<br>
 > #### Of course, publishing is needed before Kute can be used by interested parties.
@@ -64,7 +70,7 @@
 
 3. ## Explore further options
    See, for instance:
-   * [→ How to...](0-howto.md)
+   * [← How to...](0-howto.md)
    * [→ Omit specific property values](omit-values.md)
    * [→ Delimit property values](delimit-property-values.md)
    * [→ Hide, replace or obscure property values](hide-replace-obscure-values.md)

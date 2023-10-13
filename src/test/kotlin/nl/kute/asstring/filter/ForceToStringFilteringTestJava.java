@@ -92,6 +92,26 @@ public class ForceToStringFilteringTestJava {
 
         // normally, one should use Predicate instead of Function1 (which is a *Kotlin reflection type*)
         // but, it can be done, and should work
+        new AsStringConfig()
+                .withForceToStringFilters(
+                        meta -> Objects.equals(meta.getObjectClassName(), "TestClass3")
+                )
+                .applyAsDefault();
+
+        // act, assert
+        assertThat(asString(testObj)).isEqualTo(toStringResult);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void forceToString_lambdas_with_explicit_type_should_yield_toString_result_when_applied() {
+        // arrange
+        String toStringResult = "toString() result";
+        TestClass3 testObj = new TestClass3(toStringResult);
+        assertThat(asString(testObj)).isEqualTo("TestClass3()");
+
+        // normally, one should use Predicate instead of Function1 (which is a *Kotlin reflection type*)
+        // but, it can be done, and should work
         Function1<? super ClassMeta, Boolean> toStringFilter =
                 (meta) -> Objects.equals(meta.getObjectClassName(), "TestClass3");
         new AsStringConfig().withForceToStringFilters(toStringFilter).applyAsDefault();
