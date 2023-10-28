@@ -16,7 +16,7 @@
 * [Exclude (omit) properties](#exclude-properties)
   * [Omit specific properties](#omit-specific-properties)
   * [By applying a filter](#exclude-properties-by-applying-filters)
-* [Add extra properties or values](#add-extra-properties-or-values)
+* [Include extra properties or values](#include-extra-properties-or-values)
 * [Modify representation of property values](#modify-representation-of-property-values)
   * [Mask / replace / obscure property values](#mask--replace--obscure-property-values)
   * [Surround (delimit) property values](#surround-delimit-property-values)
@@ -49,7 +49,7 @@
     **Kute** `asString()` is designed from scratch with Kotlin in mind.
     Even so, it can be used very well with Java.
     * In general, [the API documentation](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.core/as-string.html) focuses on usage with Kotlin though
-    * [Consult this explanation](use-asstring-with-java.md) to get some guidance on:
+    * Consult [this explanation](use-asstring-with-java.md) to get some guidance on:
        * How the Java representation can differ seemingly from what you find in the API-documentation
        * Some specifics on how to use **Kute** `asString()` with Java
 
@@ -57,10 +57,13 @@
    Basically, there are 2 ways how to exclude properties from `asString()` output:
    * #### Omit specific properties
    * #### Exclude properties by applying filters
-  Both ways are described in the documentation on [omitting properties](omit-values.md).
-  > Make sure to read it when you are using `asString()` with database entities and/or when your model features parent-child relationships, to avoid **performance issues** and messy output.
+   Both ways are described in the documentation on [excluding (omitting) properties](omit-values.md).
+   > **Performance & relationships**<br> 
+   Make sure to read it when you are using `asString()` with database entities and/or when your model features mutual parent-child relationships, to avoid **performance issues** and messy output.
 
-* ### Add extra properties or values
+* ### [Include extra properties or values](add-extra-values.md)
+   You may want to include extra values in your `asString()` output, e.g. variable values, properties of a related object, static values, plain text, etc.<br>
+   Click [here](add-extra-values.md) to read more.
 
 * ### Modify representation of property values
     * #### Mask / replace / obscure property values

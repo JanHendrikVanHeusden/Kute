@@ -31,15 +31,20 @@ class NamedValueTest: GarbageCollectionWaiter {
     }
 
     @Test
-    fun `namedValue should reflect name and value`() {
+    fun `namedValue should reflect name and original value`() {
         // arrange
-        val valueStr = "the value"
+        var valueStr = "the value"
         val name = "the name"
         // act
-        val namedValue = NamedValue(name, valueStr)
+        val namedValue = NamedValue(name = name, value = valueStr)
         // assert
         assertThat(namedValue.name).isSameAs(name)
         assertThat(namedValue.value).isEqualTo(valueStr)
+
+        valueStr = "anotherValue"
+        assertThat(namedValue.value)
+            .isEqualTo("the value")
+            .isNotEqualTo(valueStr)
     }
 
     @Test
