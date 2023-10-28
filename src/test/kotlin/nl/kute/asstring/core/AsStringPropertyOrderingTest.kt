@@ -19,10 +19,10 @@ import nl.kute.asstring.property.ranking.impl.ValueLengthRanking.M
 import nl.kute.asstring.property.ranking.impl.ValueLengthRanking.XL
 import nl.kute.asstring.property.ranking.propertyRankingRegistryByClass
 import nl.kute.exception.throwableAsString
+import nl.kute.helper.helper.isObjectAsString
 import nl.kute.logging.logger
 import nl.kute.logging.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.test.helper.isObjectAsString
 import org.apache.commons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry

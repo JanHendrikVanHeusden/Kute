@@ -7,10 +7,10 @@ import nl.kute.asstring.annotation.modify.AsStringReplace
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.core.defaults.defaultMaxStringValueLength
 import nl.kute.asstring.core.defaults.defaultNullString
+import nl.kute.helper.base.ObjectsStackVerifier
 import nl.kute.reflection.annotationfinder.annotationOfPropertySubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfSubSuperHierarchy
 import nl.kute.reflection.annotationfinder.annotationOfToStringSubSuperHierarchy
-import nl.kute.test.base.ObjectsStackVerifier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

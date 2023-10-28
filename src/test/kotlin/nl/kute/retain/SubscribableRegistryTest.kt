@@ -1,6 +1,6 @@
 package nl.kute.retain
 
-import nl.kute.test.helper.isObjectAsString
+import nl.kute.helper.helper.isObjectAsString
 import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test

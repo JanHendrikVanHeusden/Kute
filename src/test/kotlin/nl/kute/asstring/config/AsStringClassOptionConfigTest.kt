@@ -24,6 +24,8 @@ class AsStringClassOptionConfigTest {
     fun setUpAndTearDown() {
         restoreInitialAsStringOption()
         restoreInitialAsStringClassOption()
+        useToStringByClass.reset()
+        propsWithAnnotationsCacheByClass.reset()
     }
 
     @Test

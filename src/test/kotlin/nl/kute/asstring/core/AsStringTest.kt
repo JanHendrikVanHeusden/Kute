@@ -19,10 +19,10 @@ import nl.kute.asstring.namedvalues.namedSupplier
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
 import nl.kute.exception.throwableAsString
 import nl.kute.hashing.DigestMethod
+import nl.kute.helper.base.ObjectsStackVerifier
+import nl.kute.helper.helper.equalSignCount
+import nl.kute.helper.helper.isObjectAsString
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.test.base.ObjectsStackVerifier
-import nl.kute.test.helper.equalSignCount
-import nl.kute.test.helper.isObjectAsString
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
 import nl.kute.testobjects.java.packagevisibility.JavaClassWithPackageLevelProperty

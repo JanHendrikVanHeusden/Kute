@@ -3,11 +3,11 @@ package nl.kute.asstring.core
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringOption
+import nl.kute.helper.base.ObjectsStackVerifier
 import nl.kute.logging.log
 import nl.kute.logging.logger
 import nl.kute.logging.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.test.base.ObjectsStackVerifier
 import nl.kute.util.lineEnd
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assumptions.assumeThat

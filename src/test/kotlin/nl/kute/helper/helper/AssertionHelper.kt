@@ -1,6 +1,6 @@
 @file:JvmName("AssertionHelper")
 
-package nl.kute.test.helper
+package nl.kute.helper.helper
 
 import org.assertj.core.api.AbstractStringAssert
 import org.assertj.core.api.Assertions.assertThat

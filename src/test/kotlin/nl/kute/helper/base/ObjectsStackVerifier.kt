@@ -1,4 +1,4 @@
-package nl.kute.test.base
+package nl.kute.helper.base
 
 import nl.kute.asstring.core.getObjectsStackSize
 import org.assertj.core.api.Assertions

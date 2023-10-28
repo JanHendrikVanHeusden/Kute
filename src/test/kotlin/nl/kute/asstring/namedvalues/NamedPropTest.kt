@@ -10,9 +10,9 @@ import nl.kute.asstring.annotation.modify.replacePattern
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.core.asString
 import nl.kute.hashing.DigestMethod
+import nl.kute.helper.base.GarbageCollectionWaiter
 import nl.kute.logging.logger
 import nl.kute.logging.resetStdOutLogger
-import nl.kute.test.base.GarbageCollectionWaiter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

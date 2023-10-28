@@ -1,7 +1,7 @@
 package nl.kute.asstring.namedvalues
 
 import nl.kute.asstring.core.asString
-import nl.kute.test.base.GarbageCollectionWaiter
+import nl.kute.helper.base.GarbageCollectionWaiter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

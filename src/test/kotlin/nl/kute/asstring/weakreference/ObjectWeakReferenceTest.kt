@@ -1,7 +1,7 @@
 package nl.kute.asstring.weakreference
 
+import nl.kute.helper.base.GarbageCollectionWaiter
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.test.base.GarbageCollectionWaiter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.Date
@@ -32,6 +32,7 @@ internal class ObjectWeakReferenceTest : GarbageCollectionWaiter {
     }
 
     @Test
+    @Suppress("TestMethodWithoutAssertion") // assertions are present, but delegated to other method
     fun `ObjectWeakReference should not prevent garbage collection of the referenced object`() {
         var toBeReferenced: Any? = Any()
         val weakRef = ObjectWeakReference(toBeReferenced)

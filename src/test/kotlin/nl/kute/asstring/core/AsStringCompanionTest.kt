@@ -16,10 +16,10 @@ import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.hashing.DigestMethod
+import nl.kute.helper.base.ObjectsStackVerifier
+import nl.kute.helper.helper.equalSignCount
+import nl.kute.helper.helper.isObjectAsString
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.test.base.ObjectsStackVerifier
-import nl.kute.test.helper.equalSignCount
-import nl.kute.test.helper.isObjectAsString
 import nl.kute.testobjects.java.JavaClassToTest
 import nl.kute.testobjects.java.JavaClassWithStatic
 import nl.kute.util.identityHashHex

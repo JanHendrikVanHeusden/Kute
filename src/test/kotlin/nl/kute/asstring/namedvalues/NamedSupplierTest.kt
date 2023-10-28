@@ -1,9 +1,9 @@
 package nl.kute.asstring.namedvalues
 
 import nl.kute.asstring.core.asString
+import nl.kute.helper.base.GarbageCollectionWaiter
 import nl.kute.logging.logger
 import nl.kute.logging.resetStdOutLogger
-import nl.kute.test.base.GarbageCollectionWaiter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

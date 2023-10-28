@@ -2,10 +2,10 @@ package nl.kute.asstring.core
 
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
 import nl.kute.asstring.namedvalues.NamedSupplier
+import nl.kute.helper.base.ObjectsStackVerifier
+import nl.kute.helper.base.validateObjectsStack
+import nl.kute.helper.helper.isObjectAsString
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.test.base.ObjectsStackVerifier
-import nl.kute.test.base.validateObjectsStack
-import nl.kute.test.helper.isObjectAsString
 import nl.kute.testobjects.kotlin.ClassWithToStringCallingAsString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

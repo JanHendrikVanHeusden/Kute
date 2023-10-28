@@ -7,7 +7,7 @@ import nl.kute.asstring.core.defaults.initialElementsLimit
 import nl.kute.asstring.core.defaults.initialMaxStringValueLength
 import nl.kute.asstring.core.defaults.initialShowNullAs
 import nl.kute.asstring.core.defaults.initialSurroundPropValue
-import nl.kute.test.base.ObjectsStackVerifier
+import nl.kute.helper.base.ObjectsStackVerifier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

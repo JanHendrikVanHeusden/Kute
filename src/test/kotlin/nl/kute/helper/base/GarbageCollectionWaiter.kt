@@ -1,4 +1,4 @@
-package nl.kute.test.base
+package nl.kute.helper.base
 
 import nl.kute.logging.log
 import org.assertj.core.api.Assumptions.assumeThat

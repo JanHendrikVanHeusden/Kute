@@ -1,8 +1,8 @@
 package nl.kute.asstring.core
 
 import nl.kute.asstring.core.filter.ClassMetaFilter
+import nl.kute.helper.helper.isObjectAsString
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.test.helper.isObjectAsString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

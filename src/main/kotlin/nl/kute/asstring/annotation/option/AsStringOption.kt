@@ -37,7 +37,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  * * negative values mean: [initialElementsLimit] (default value).
  * * **NB**: The String representation is also capped by [propMaxStringValueLength]
  */
-@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
 @MustBeDocumented
 @Inherited
 @Retention(RUNTIME)

@@ -1,6 +1,6 @@
 @file:JvmName("TestHelper")
 
-package nl.kute.test.helper
+package nl.kute.helper.helper
 
 /** Convenience Regex-escaped String literal `\$`, for matching `$` characters in Regex String patterns. */
 const val dollar = """\$"""

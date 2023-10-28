@@ -6,12 +6,12 @@ import nl.kute.asstring.annotation.option.asStringClassOptionCache
 import nl.kute.asstring.config.AsStringConfig
 import nl.kute.asstring.config.restoreInitialAsStringClassOption
 import nl.kute.asstring.property.propsWithAnnotationsCacheByClass
+import nl.kute.helper.base.ObjectsStackVerifier
+import nl.kute.helper.helper.dollar
+import nl.kute.helper.helper.isObjectAsString
 import nl.kute.logging.logger
 import nl.kute.logging.resetStdOutLogger
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.test.base.ObjectsStackVerifier
-import nl.kute.test.helper.dollar
-import nl.kute.test.helper.isObjectAsString
 import nl.kute.testobjects.java.advanced.JavaClassWithAnonymousClass
 import nl.kute.testobjects.java.advanced.JavaClassWithCallable
 import nl.kute.testobjects.java.advanced.JavaClassWithHigherOrderFunction

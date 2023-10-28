@@ -8,7 +8,7 @@ import nl.kute.asstring.core.defaults.initialIncludeIdentityHash
 import nl.kute.asstring.core.defaults.initialPropertySorters
 import nl.kute.asstring.core.defaults.initialSortNamesAlphabetic
 import nl.kute.asstring.core.defaults.initialToStringPreference
-import nl.kute.test.base.ObjectsStackVerifier
+import nl.kute.helper.base.ObjectsStackVerifier
 import nl.kute.util.asHexString
 import nl.kute.util.identityHashHex
 import org.assertj.core.api.Assertions.assertThat

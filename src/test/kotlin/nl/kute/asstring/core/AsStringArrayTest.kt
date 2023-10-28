@@ -1,8 +1,8 @@
 package nl.kute.asstring.core
 
 import nl.kute.asstring.annotation.option.AsStringOption
+import nl.kute.helper.base.ObjectsStackVerifier
 import nl.kute.reflection.util.simplifyClassName
-import nl.kute.test.base.ObjectsStackVerifier
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
