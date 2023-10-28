@@ -4,7 +4,7 @@
 
 <hr>
 
-### _TODO:_
+### _TODO JHvH:_
 > #### Kute has not been published yet to Maven Central or any other publicly accessible directory.<br>
 > #### Of course, publishing is needed before Kute can be used by interested parties.
 
