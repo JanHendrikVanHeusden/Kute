@@ -10,9 +10,13 @@ Including extra values can, of course, be as simple as this:<br>
 `override fun toString(): String = asString() + "aVar=$aVar"`
 
 But:
-* the value will be outside the parentheses:
+* The value will be outside the parentheses, like this:<br>
 `MyClass(val1=value 1, val2=value2) aVar=a var value`
-* there may be some other inconveniences too
+* There may be some other inconveniences too
+
+Below **Kute** alternatives are given, with code examples.
+
+<hr>
 
 **Kute** `asString()` offers 3 alternatives to include name-value pairs in the `AsString()` output:<br>
 
@@ -20,20 +24,22 @@ But:
 2. [`NamedSupplier` →](#namedsupplier)
 3. [`NamedProp` →](#namedprop)
 
-All of these:
-* implement interface `NameValue`
-* involve usage of `AsStringBuilder`; see code snippet below.<br>
-* keep weak references only to the value they represent.
+All of these have the following characteristics:
+* They implement interface `NameValue`
+* They involve usage of `AsStringBuilder`; see code snippet below.<br>
+* They keep weak references only to the value they represent.
   * So they don't prevent garbage collection of the value.
 
-A typical implementation with `AsStringBuilder` and `NameValue`s might look like this:
+**Remark:**
+> If you need different characteristics, you might roll your own implementation of `NameValue` by extending `AbstractNameValue`.
+
+A typical implementation with `AsStringBuilder` and some `NameValue`s might look like this:
 
 ```
 class MyClass {
   val prop1 = "a value";
   var prop2 = "i can be reassigned"
   
-  @AsStringOmit
   private val customAsString = asStringBuilder()
       .withAlsoNamed(aNamedSupplier, aNamedVal, aNamedProp) // vararg of `NameValue`
       .build()
@@ -41,8 +47,12 @@ class MyClass {
   override fun toString(): String = customAsString.asString()
 }
 ```
+**Usage remarks:**
+> 1. `NameValue`-type properties (like `customAsString` in the example above) are automatically excluded from `asString()` output.<br>
+> So you don't need to annotate these with `@AsStringOmit`
+> <br><br>
 
-> Alternatively, you could simply do this, to avoid the declaration of `val customAsString`:
+> 2. Alternatively, you could simply do this, to avoid the declaration of `val customAsString`:
 > ```
 > override fun toString(): String =
 >   asStringBuilder().withAlsoNamed(aNamedSupplier, aNamedVal, aNamedProp).asString()
@@ -54,7 +64,7 @@ class MyClass {
 
 <br>
 
-#### Below examples for each of the 3 `NameValue` implementations:
+#### Below examples for each of the 3 provided `NameValue` implementations:
 
 1. ### `NamedValue`
    `NamedValue` is the simplest thing: it simply holds a value, as of the time of initialization:<br>
@@ -69,7 +79,7 @@ class MyClass {
    * When the value has mutable state (think of `MutableList`, `StringBuffer`, etc.), the mutable state will be reflected
 
 2. ### `NamedSupplier`
-   Chances are that you want your `NameValue` to reflect changes of non-final (`var`) variables.<br>
+   Chances are that you want your `NameValue` to reflect changes (re-assignment) of non-final (`var`) variables.<br>
    * That's where `NamedSupplier` comes in.
    * It also shines in cases where you want the value to be evaluated only when it is actually needed.
 
@@ -87,8 +97,8 @@ class MyClass {
 3. ### `NamedProp`
    If you want to include a property value in your `asString()`, you might use `NamedSupplier` or `NamedProp`.
    <br><br>
-   * `NamedProp` has the unique feature that it observes the rules of "normal" properties,
-   e.g. hashing, masking, etc.
+   * `NamedProp` has the unique feature that it observes the Kute annotations of properties,
+   e.g. for hashing, masking, etc.
    * You don't have to (and can not) provide the name: it's derived from the property
 
    ```
@@ -97,9 +107,8 @@ class MyClass {
        @AsStringMask(startMaskAt = 8, endMaskAt = 14)
        val iBan: String,
        @AsStringOmit
-       val relatedPerson: Person?
+       var relatedPerson: Person?
    ) {
-    @AsStringOmit
     private val customAsString = asStringBuilder()
         .withAlsoNamed(Person::iBan.namedProp(relatedPerson))
         .build()

@@ -3,3 +3,5 @@
 | [← How to...](0-howto.md) | [→ FAQ](../../md/faq/0-faq.md) |
 
 <hr>
+
+## Sorting properties

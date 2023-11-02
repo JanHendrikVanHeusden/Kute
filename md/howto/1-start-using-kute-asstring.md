@@ -73,7 +73,7 @@
    * [← How to...](0-howto.md)
    * [→ Omit specific property values](omit-values.md)
    * [→ Delimit property values](delimit-property-values.md)
-   * [→ Hide, replace or obscure property values](hide-replace-obscure-values.md)
+   * [→ Hide, replace or obscure property values](hide-replace-obscure-property-values.md)
    * Limit output length:
       * [→ Limit length of property values in `asString()` output](limit-output-string-length.md)
       * [→ Limit the number of elements of collections etc. in `asString()` output](limit-elements-of-collections.md)

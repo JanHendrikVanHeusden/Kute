@@ -48,6 +48,26 @@ class NamedValueTest: GarbageCollectionWaiter {
     }
 
     @Test
+    fun `namedValue should reflect changed state`() {
+        // arrange
+        val theValue = mutableListOf("value 1")
+        val name = "theValue"
+        // act
+        val namedValue = NamedValue(name = name, value = theValue)
+        // assert
+        assertThat(namedValue.name).isSameAs(name)
+        assertThat(namedValue.value)
+            .isEqualTo(theValue)
+            .containsExactly("value 1")
+
+        // arrange
+        theValue.add(0, "value 0")
+        assertThat(namedValue.value)
+            .isEqualTo(theValue)
+            .containsExactly("value 0", "value 1")
+    }
+
+    @Test
     fun `NamedValue should accept null values`() {
         val name = "a null value"
         val namedValue = NamedValue(name, null as String?)

@@ -12,7 +12,7 @@ $dokka.location:nl.kute.asstring.annotation.modify/AsStringMask/minLength/#/Poin
 $dokka.location:nl.kute.asstring.annotation.modify/AsStringMask/startMaskAt/#/PointingToDeclaration/kute/nl.kute.asstring.annotation.modify/-as-string-mask/start-mask-at.html
 $dokka.location:nl.kute.asstring.annotation.modify/AsStringOmit///PointingToDeclaration/kute/nl.kute.asstring.annotation.modify/-as-string-omit/index.html
 $dokka.location:nl.kute.asstring.annotation.modify/AsStringReplace///PointingToDeclaration/kute/nl.kute.asstring.annotation.modify/-as-string-replace/index.html
-$dokka.location:nl.kute.asstring.annotation.modify/AsStringReplace/isRegexpPattern/#/PointingToDeclaration/kute/nl.kute.asstring.annotation.modify/-as-string-replace/is-regexp-pattern.html
+$dokka.location:nl.kute.asstring.annotation.modify/AsStringReplace/isRegexPattern/#/PointingToDeclaration/kute/nl.kute.asstring.annotation.modify/-as-string-replace/is-regex-pattern.html
 $dokka.location:nl.kute.asstring.annotation.modify/AsStringReplace/pattern/#/PointingToDeclaration/kute/nl.kute.asstring.annotation.modify/-as-string-replace/pattern.html
 $dokka.location:nl.kute.asstring.annotation.modify/AsStringReplace/replacement/#/PointingToDeclaration/kute/nl.kute.asstring.annotation.modify/-as-string-replace/replacement.html
 $dokka.location:nl.kute.asstring.annotation.option////PointingToDeclaration/kute/nl.kute.asstring.annotation.option/index.html

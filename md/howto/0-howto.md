@@ -65,9 +65,10 @@
    You may want to include extra values in your `asString()` output, e.g. variable values, properties of a related object, static values, plain text, etc.<br>
    Click [here](add-extra-values.md) to read more.
 
-* ### Modify representation of property values
-    * #### Mask / replace / obscure property values
-    * #### Surround (delimit) property values
+* ### Modify representation of class & property values
+    * #### [Modify output of `asString()`](modify-output-of-asstring.md)
+       * #### [Hide, replace or obscure property values](hide-replace-obscure-property-values.md)
+       * #### [Surround (delimit) property values](delimit-property-values.md)
 
 * ### Use `AsStringBuilder`
 
