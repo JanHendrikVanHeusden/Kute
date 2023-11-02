@@ -11,7 +11,7 @@ public class WithAnnotations {
     @AsStringOmit
     private final String toBeOmitted = "I should be omitted";
 
-    @AsStringReplace(pattern = "value", replacement = "***", isRegexpPattern = false)
+    @AsStringReplace(pattern = "value", replacement = "***", isRegexPattern = false)
     private final String toBeReplaced = "My value should be replaced";
 
     @AsStringHash

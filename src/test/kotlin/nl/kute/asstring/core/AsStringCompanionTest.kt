@@ -151,7 +151,7 @@ class AsStringCompanionTest: ObjectsStackVerifier {
             @AsStringOmit
             val prop2 = "prop 2"
             val prop3 = "prop 3"
-            @AsStringReplace(".+", "[ $0 ]", isRegexpPattern = true )
+            @AsStringReplace(".+", "[ $0 ]", isRegexPattern = true )
             val prop4 = "prop 4"
         }
         class AnotherClass(val otherProp: String = "another Prop")

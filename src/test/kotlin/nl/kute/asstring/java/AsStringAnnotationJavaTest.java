@@ -4,7 +4,7 @@ import nl.kute.testobjects.java.asstringannotations.WithAnnotations;
 import org.junit.jupiter.api.Test;
 
 import static nl.kute.asstring.core.AsString.asString;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AsStringAnnotationJavaTest {
 

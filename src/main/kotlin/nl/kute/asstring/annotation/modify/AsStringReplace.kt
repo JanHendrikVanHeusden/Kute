@@ -28,12 +28,12 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
  *    > [https://regex101.com/r/iXSKTs/1/debugger](https://regex101.com/r/iXSKTs/1/debugger),
  *    [https://www.regular-expressions.info/catastrophic.html](https://www.regular-expressions.info/catastrophic.html)
  *
- * @param pattern The expression to replace, either as regular expression (when [isRegexpPattern] is `true`; default),
- *   or as a literal (when [isRegexpPattern] is `false`). Each occurrence will be replaced by [replacement].
+ * @param pattern The expression to replace, either as regular expression (when [isRegexPattern] is `true`; default),
+ *   or as a literal (when [isRegexPattern] is `false`). Each occurrence will be replaced by [replacement].
  *    * Invalid regular expression will result in an empty String being returned.
  * @param replacement The replacement; back references are allowed. Default is an empty string `""`
- *  * If [isRegexpPattern] is `true`, regex group capture is supported, Java style (`$1`, `$2` etc.).
- * @param isRegexpPattern
+ *  * If [isRegexPattern] is `true`, regex group capture is supported, Java style (`$1`, `$2` etc.).
+ * @param isRegexPattern
  *  * If `true` (default), the [pattern] will be considered a [Regex] pattern
  *  * If `false`, the [pattern] and [replacement] will be treated as a literals.
  */
@@ -42,13 +42,13 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 @Retention(RUNTIME)
 @Inherited
 @MustBeDocumented
-public annotation class AsStringReplace(val pattern: String, val replacement: String = "", val isRegexpPattern: Boolean = true)
+public annotation class AsStringReplace(val pattern: String, val replacement: String = "", val isRegexPattern: Boolean = true)
 
 @JvmSynthetic // avoid access from external Java code
 internal fun AsStringReplace?.replacePattern(strVal: String?): String? =
     if (this == null) strVal else {
         try {
-            if (isRegexpPattern) strVal?.replace(cachingRegexFactory[pattern]!!, replacement)
+            if (isRegexPattern) strVal?.replace(cachingRegexFactory[pattern]!!, replacement)
             else strVal?.replace(pattern, replacement)
         } catch (e: Exception) {
             // The property's value is probably sensitive

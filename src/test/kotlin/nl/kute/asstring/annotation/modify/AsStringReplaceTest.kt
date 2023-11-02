@@ -30,7 +30,7 @@ class AsStringReplaceTest {
         val replacementSpec = AsStringReplace(
             pattern = """^([A-Z]{2})\d{2}([A-Z]{4}\d{3})\d+?(\d{3})$""",
             replacement = """$1\00$2*****$3""",
-            isRegexpPattern = true
+            isRegexPattern = true
         )
         // act
         val replaced = replacementSpec.replacePattern(input)
@@ -109,7 +109,7 @@ class AsStringReplaceTest {
         val replacementSpec = AsStringReplace(
             pattern = "1",
             replacement = "#",
-            isRegexpPattern = false
+            isRegexPattern = false
         )
         // act
         val replaced = replacementSpec.replacePattern(input)
@@ -124,7 +124,7 @@ class AsStringReplaceTest {
         val input = "MT52QCGK45148414861965929692444"
         val replacementSpec = AsStringReplace(
             pattern = "1",
-            isRegexpPattern = false
+            isRegexPattern = false
         )
         // act
         val replaced = replacementSpec.replacePattern(input)
@@ -195,7 +195,7 @@ class AsStringReplaceTest {
             .containsKeys("some", "wow")
 
         // arrange
-        replacementSpec = AsStringReplace("literal", "literate", isRegexpPattern = false)
+        replacementSpec = AsStringReplace("literal", "literate", isRegexPattern = false)
         // act
         replacementSpec.replacePattern("is this literal?")
         // assert
