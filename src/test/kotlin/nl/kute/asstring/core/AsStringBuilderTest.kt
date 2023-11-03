@@ -5,6 +5,8 @@ import nl.kute.asstring.annotation.modify.AsStringOmit
 import nl.kute.asstring.annotation.modify.AsStringReplace
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.asstring.core.AsStringBuilder.Companion.asStringBuilder
+import nl.kute.asstring.namedvalues.NamedProp
+import nl.kute.asstring.namedvalues.NamedSupplier
 import nl.kute.asstring.namedvalues.NamedValue
 import nl.kute.asstring.namedvalues.namedProp
 import nl.kute.asstring.weakreference.ObjectWeakReference
@@ -12,6 +14,7 @@ import nl.kute.hashing.DigestMethod
 import nl.kute.helper.base.GarbageCollectionWaiter
 import nl.kute.helper.base.ObjectsStackVerifier
 import nl.kute.helper.helper.isObjectAsString
+import nl.kute.reflection.util.simplifyClassName
 import nl.kute.util.hexHashCode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -178,6 +181,65 @@ class AsStringBuilderTest: ObjectsStackVerifier, GarbageCollectionWaiter {
                 "nullable=$showNullAs",
                 withLastPropertyString = "nullable=$showNullAs2, I am a named value=some string"
             )
+    }
+
+    @Test
+    fun `AsStringBuilder should use asString() to render a NamedValue`() {
+        // arrange
+        class MyClass {
+            val myProp = "my prop value 1"
+        }
+        @Suppress("unused")
+        class MyClassWithoutToString {
+            val myPropNoToString = "my prop value 2"
+        }
+        val asString = MyClass().asStringBuilder()
+            .withAlsoNamed(NamedValue("no toString()", MyClassWithoutToString()))
+            .asString()
+        assertThat(asString).isObjectAsString(
+            MyClass::class.simplifyClassName(),
+            "${MyClass::myProp.name}=${MyClass().myProp}",
+            withLastPropertyString = "no toString()=${MyClassWithoutToString().asString()}"
+        )
+    }
+
+    @Test
+    fun `AsStringBuilder should use asString() to render a NamedSupplier`() {
+        // arrange
+        class MyClass {
+            val myProp = "my prop value 1"
+        }
+        @Suppress("unused")
+        class MyClassWithoutToString {
+            val myPropNoToString = "my prop value 2"
+        }
+        val asString = MyClass().asStringBuilder()
+            .withAlsoNamed(NamedSupplier("no toString()", { MyClassWithoutToString() }))
+            .asString()
+        assertThat(asString).isObjectAsString(
+            MyClass::class.simplifyClassName(),
+            "${MyClass::myProp.name}=${MyClass().myProp}",
+            withLastPropertyString = "no toString()=${MyClassWithoutToString().asString()}"
+        )
+    }
+
+    @Test
+    fun `AsStringBuilder should use asString() to render a NamedProp`() {
+        // arrange
+        class MyClass {
+            val myProp = "my prop value 1"
+        }
+        class MyClassWithoutToString {
+            val myPropNoToString = MyClass()
+        }
+        val asString = MyClass().asStringBuilder()
+            .withAlsoNamed(NamedProp(MyClassWithoutToString::myPropNoToString, MyClassWithoutToString()))
+            .asString()
+        assertThat(asString).isObjectAsString(
+            MyClass::class.simplifyClassName(),
+            "${MyClass::myProp.name}=${MyClass().myProp}",
+            withLastPropertyString = "${MyClassWithoutToString::myPropNoToString.name}=${MyClass().asString()}"
+        )
     }
 
     @Test
