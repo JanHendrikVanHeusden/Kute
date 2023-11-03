@@ -7,11 +7,12 @@
 ### Including extra values in `asString()` output
 
 Including extra values can, of course, be as simple as this:<br>
-`override fun toString(): String = asString() + "aVar=$aVar"`
+`override fun toString(): String = asString() + " aVar=$aVar"`
 
 But:
 * The value will be outside the parentheses, like this:<br>
 `MyClass(val1=value 1, val2=value2) aVar=a var value`
+* If the object has no `toString()` implementation, the string will not be meaningful
 * There may be some other inconveniences too
 
 Below **Kute** alternatives are given, with code examples.
@@ -30,10 +31,12 @@ All of these have the following characteristics:
 * They keep weak references only to the value they represent.
   * So they don't prevent garbage collection of the value.
 
+You can find more on `NameValue` stuff below, or [in the API documentation →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.namedvalues/index.html)
+
 **Remark:**
 > If you need different characteristics, you might roll your own implementation of `NameValue` by extending `AbstractNameValue`.
 
-A typical implementation with `AsStringBuilder` and some `NameValue`s might look like this:
+A typical implementation with `AsStringBuilder`* and some `NameValue`s might look like this:<br>
 
 ```
 class MyClass {
@@ -47,6 +50,9 @@ class MyClass {
   override fun toString(): String = customAsString.asString()
 }
 ```
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>* [More on `AsStringBuilder` here →](use-asstringbuilder.md)</sup>
+
+
 **Usage remarks:**
 > 1. `NameValue`-type properties (like `customAsString` in the example above) are automatically excluded from `asString()` output.<br>
 > So you don't need to annotate these with `@AsStringOmit`
@@ -97,7 +103,7 @@ class MyClass {
 3. ### `NamedProp`
    If you want to include a property value in your `asString()`, you might use `NamedSupplier` or `NamedProp`.
    <br><br>
-   * `NamedProp` has the unique feature that it observes the Kute annotations of properties,
+   * `NamedProp` has the unique feature that it adheres to the Kute annotations of properties,
    e.g. for hashing, masking, etc.
    * You don't have to (and can not) provide the name: it's derived from the property
 
@@ -123,6 +129,6 @@ class MyClass {
    println(me) // Person(iBan=NL14INGB******8508, name=me, iBan=NL29ABNA******7916)
    ```
    
-   So `NameProp` shines if you have `AsString...` annotations that you'd like to have obeyed in your `asString()` representation, like `@AsStringHash` or `@AsStringMask`.
+   So `NameProp` shines if you have `@AsString...` annotations that you'd like to have obeyed in your `asString()` representation, like `@AsStringHash`, `@AsStringMask`, `@AsStringOption`, etc.
    > Due to the recursive relationship in this example, we have 2 representations of an `iBan`, one of `me`, and one of related person `other`.<br>
    > `NameValue`s are always rendered at the end. So the last `iBan` (`NL29ABNA******7916`) is the value represented by the `NamedProp`
