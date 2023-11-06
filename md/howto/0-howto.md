@@ -70,7 +70,7 @@
        * #### [Hide, replace or obscure property values](hide-replace-obscure-property-values.md)
        * #### [Surround (delimit) property values](delimit-property-values.md)
 
-* ### Use `AsStringBuilder`
+* ### [Use `AsStringBuilder`](use-asstringbuilder.md)
 
 * ### Configure default settings
 

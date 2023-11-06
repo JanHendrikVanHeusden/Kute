@@ -73,7 +73,7 @@ class MyClass {
 #### Below examples for each of the 3 provided `NameValue` implementations:
 
 1. ### `NamedValue`
-   `NamedValue` is the simplest thing: it simply holds a value, as of the time of initialization:<br>
+   `NamedValue` is the simplest thing: it simply holds a value, as of the time of initialization<br>
    ```
    var valueStr = "the original value"
    val namedValue = NamedValue(name = "valueStr", value = valueStr)

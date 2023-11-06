@@ -152,7 +152,7 @@ The class `PropertyMeta` (referred to in the lambda argument), has the following
   ``` 
   @Entity class Part(@Id val id: UUID, val name: String, @field:ManyToOne val includedIn: MutableList<Product>)
 
-  // The @[OneToMany] annotation needs the site-target "field" to make filtering work!
+  // The @OneToMany annotation needs the site-target "field" to make filtering work!
   @Entity open class Product(@Id val id: UUID, val name: String, @field:OneToMany open val parts: List<Part>)
    
   @Entity class SubProduct(id: UUID, name: String, subProductParts: List<Part>): Product(id, name, subProductParts) {
@@ -205,7 +205,7 @@ The class `PropertyMeta` (referred to in the lambda argument), has the following
   ``` 
   @Entity class Part(@Id val id: UUID, val name: String, @get:ManyToOne val includedIn: MutableList<Product>)
 
-  // The @[OneToMany] annotation needs the site-target "get" to make filtering work!
+  // The @OneToMany annotation needs the site-target "get" to make filtering work!
   @Entity open class Product(@Id val id: UUID, val name: String, @get:OneToMany open val parts: List<Part>)
    
   @Entity class SubProduct(id: UUID, name: String, subProductParts: List<Part>): Product(id, name, subProductParts) {

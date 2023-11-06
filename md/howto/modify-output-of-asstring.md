@@ -65,10 +65,10 @@
 
 ### III Hide, replace, or obscure property values
 * This can be done using the annotations in package `nl.kute.asstring.annotation.modify`:
-    * [`@AsStringOmit`](#asstringomit)
-    * [`@AsStringMask`](#asstringmask)
-    * [`@AsStringHash`](#asstringhash)
-    * [`@AsStringReplace`](#asstringreplace)<br><br>
+    * `@AsStringOmit`
+    * `@AsStringMask`
+    * `@AsStringHash`
+    * `@AsStringReplace`<br><br>
 
 * For usage of those annotations:
    * see the [API-documentation](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.modify/index.html)
