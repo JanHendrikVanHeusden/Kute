@@ -32,10 +32,21 @@
       * Include the object's identity hash in `asString()`-output
       * Prefer `toString()` over `asString()`, insofar implemented
       * Include companion object's properties
-      * Sort properties, either alphabetically or by a custom sorter<br>
+      * Sort properties, either alphabetically or by a custom sorter<br><br>
    
       > #### Sorting properties
-      > * See [Sorting properties →](sort-properties.md)
+      > * See [Sorting properties →](sort-properties.md)<br><br>
+      > 
+      > #### Include companion properties
+      > By default, companion properties are not added in output of asString().<br>
+      You can opt however to have these included.
+      >
+      > Due to restrictions of Kotlin's reflection, a companion object's properties are shown only if:
+      > 
+      > 1. The class that contains the companion object must not be private
+      > 2. The companion object must be public
+      > 3. The companion object has at least 1 property
+      > <br><br>
       > 
       > #### Other features of `@AsStringClassOption`
       > * For the other topics mentioned above, see the [API-documentation of `@AsStringClassOption`](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-as-string-class-option/index.html)

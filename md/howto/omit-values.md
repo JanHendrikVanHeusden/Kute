@@ -4,19 +4,33 @@
 
 <hr>
 
-Basically, there are 2 ways how to exclude properties from `asString()` output:
-* <b>[Exclude (omit) specific properties](#exclude-omit-specific-properties)</b>
-   * [Subclasses / inheritance](#subclasses-inheritance)
-* <b>[Exclude properties by adding a filter to Kute's default settings](#exclude-properties-by-adding-a-filter-to-kutes-default-settings)</b>
+## Excluding properties
+Basically, there are **2 ways** how to exclude properties from `asString()` output:
+1. <b>[Exclude (omit) specific properties](#exclude-omit-specific-properties)</b>
+   * [The annotation is inherited by subclasses](#subclasses-inheritance)
+
+   Using `@AsStringOmit` is simple and straightforward.<br><br>
+
+2. <b>[Exclude properties by adding a filter to Kute's default settings](#exclude-properties-by-adding-a-filter-to-kutes-default-settings)</b>
    * [Why? Some typical use cases](#why-some-typical-use-cases)
    * [How? Code examples](#how-code-examples)
 
-Both ways are described below.
+   Excluding by means of a filter is a bit more involved, but, with a filter, you can apply the exclusion to all properties that match the filter, application-wide.
+
+Both ways are described below, with use-cases and example-snippets.
+
+<hr>
+
+**Remarks**
+
+* A 3<sup>rd</sup> alternative is to specify property exclusion [by means of `AsStringBuilder`](use-asstringbuilder.md)<br><br>
+
+* You may want to give special attention [to the section on how to **avoid performance issues** with child-entities](#below-some-real-world-examples-that-may-help-avoid-real-world-performance-issues-with-jpa), e.g. with JPA.
 
 <hr>
 
 ### Exclude (omit) specific properties
-Excluding a property can be done by adding the `@AsStringOmit` to the property:
+The easiest way to exclude a property is to add the `@AsStringOmit` annotation to the property:
 ```
 class MyClass {
     @AsStringOmit
@@ -56,22 +70,24 @@ Below some use cases where filtering out by a rule might be preferable.<br>
 Below you find code examples for these.
 
 1. You may have properties in your application, like description fields, that are potentially **verbose**, but that are not helpful in log output etc.
-   * If there is a naming convention for these fields, or maybe even a specific annotation, you may them exclude by filtering these out by a general rule rather than annotating them one-by-one with `@AsStringOmit`.
+   * If there is a naming convention for these fields, or maybe even a specific annotation, you may exclude them<br>
+    by filtering these out by a general rule rather than annotating them one-by-one with `@AsStringOmit`.
     <br><br>
 
 2. You may have types of properties that **make no sense at** all in your logging.
     * E.g., `Gson` objects
    <br><br>
 
-3. You may have classes (e.g. JPA-entities) with **parent-child relationships**, and your parent classes include properties that are collections of child-objects, you typically want to exclude these children from your logging and from your `toString()` / `asString()` output.
+3. You may have classes (e.g. JPA-entities) with **parent-child relationships**, and your parent classes include properties that are collections of child-objects,<br>
+ you typically want to exclude these children from your logging and from your `toString()` / `asString()` output.
    * Including child entities would make your logging too **verbose**
    * Without `asString()`, you might run into **endless loops** (note that `asString()` solves that problem)
    * You may run into serious **performance problems**, if your log-statement (`toString()`, `asString()`) would trigger your application to actually fetch records from the database.
 
-<br>
+<br><hr>
 
 ### How? Code examples
-Filtering out properties involves a lambda with the following signature: `(PropertyMeta) -> Boolean`<br>
+Filtering out properties involves a _lambda_ with the following signature: `(PropertyMeta) -> Boolean`<br>
 The class `PropertyMeta` (referred to in the lambda argument), has the following attributes:
 
 | Property           | Type           |
@@ -84,9 +100,10 @@ The class `PropertyMeta` (referred to in the lambda argument), has the following
 | `isCharSequence`   | `Boolean`      |
 
 **Filters to exclude properties should be applied when your application starts.**
-> For instance, in a Spring Boot application, in your `Application`-class, a method annotated with `@PostConstruct` would be a logical choice.
+> For instance, in a Spring Boot application, a logical choice would be to apply your filters in the `Application` class,<br>
+> in a method annotated with `@PostConstruct`..
 
-<br>
+<br><hr>
 
 ### <u>Examples</u>
 
@@ -101,7 +118,6 @@ The class `PropertyMeta` (referred to in the lambda argument), has the following
     asStringConfig().withPropertyOmitFilters(propFilter).applyAsDefault()
     ```
 
-<br>
 <hr>
 
 * **Example 2: Filtering out properties with certain return types (by class or package)**
@@ -131,23 +147,29 @@ The class `PropertyMeta` (referred to in the lambda argument), has the following
     
     ```
     val notOurCodeFilter: PropertyMetaFilter =
-        { m -> m.returnType.classifier.let { it is KClass<*> && ! it.java.packageName.startsWith("my.app") }}
+        { m -> m.returnType.classifier.let { it is KClass<*> && ! it.java.packageName.startsWith("my.app.") }}
     asStringConfig().withPropertyOmitFilters(notOurCodeFilter).applyAsDefault()
     ```
 
 <br>
 <hr>
 
-**Below some real-world examples that may help avoid real-world performance issues with JPA!**
+### Below some real-world examples that may help avoid real-world performance issues with JPA
 
-* #### **Example 3a: Filtering collection properties with annotation on <u>field</u>**
+>NB:<br>The examples below (3a, 3b) can well be combined in a single filter (by `OR`-ing the conditions),  or by applying them as separate filters
+> * `asStringConfig().withPropertyOmitFilters()` has a vararg input parameter
+
+<hr>
+
+* #### **Example 3a: Filtering collection properties with annotation on the <u>field</u>**
 
   The filter below omits properties for which the following is true:<br>
-  > a. the property's class is annotated with `@Entity`<br>
-  > b. the property's return type is collection-like, e.g. `List`, `Map`, `Array` etc.<br>
-  > c. the property's **field** is annotated with `@OneToMany`<br>
+  > 1. the property's class is annotated with `@Entity`<br>
+  > 2. the property's return type is collection-like, e.g. `List`, `Map`, `Array` etc.<br>
+  > 3. the property's **field** is annotated with `@OneToMany`<br>
   
-  The code snippet below is shortened for brevity; a working example can be found in Kute's GitHub repository (test class `nl.kute.asstring.filter.PropertyOmitFilteringTest`)
+  The code snippet below is shortened for brevity; a working example can be found in Kute's GitHub repository
+  > See test class `nl.kute.asstring.filter.PropertyOmitFilteringTest`
 
   ``` 
   @Entity class Part(@Id val id: UUID, val name: String, @field:ManyToOne val includedIn: MutableList<Product>)
@@ -188,19 +210,22 @@ The class `PropertyMeta` (referred to in the lambda argument), has the following
   3. JPA's `@OneToMany`, `@ManyToOne`, etc. are defined with `@Target({METHOD, FIELD})`.<br>
      So they apply to either fields or getter methods, but, alas, **not to properties**.<br>
       * If we apply the `@OneToMany` in `Product` without site-target `field:`, it would implicitly target the getter.
-      * In `SubProduct`, there is no ambiguity, the `@OneToMany` will implicitly apply to the field; making it explicit by adding `field:` may be a good idea, though.
-      * In this example, we are filtering by field. However, Kotlin's reflection does not advertise fields, so we have to switch to Java's reflection.
+      * In `SubProduct`, there is no ambiguity, the `@OneToMany` will implicitly apply to the field
+         * Making it explicit by adding `field:` may be a good idea, though
+      * In this example, we are filtering by field.<br>
+        However, Kotlin's reflection does not advertise fields, so we have to switch to Java's reflection.
 
 <hr>
 
-* #### **Example 3b: Filtering collection properties with annotation on <u>getter</u>**
+* #### **Example 3b: Filtering collection properties with annotation on the <u>getter</u>**
 
   The filter below omits properties for which the following is true:<br>
-  > a. the property's class is annotated with `@Entity`<br>
-  > b. the property's return type is collection-like, e.g. `List`, `Map`, `Array` etc.<br>
-  > c. the property's **getter** is annotated with `@OneToMany`<br>
+  > 1. the property's class is annotated with `@Entity`<br>
+  > 2. the property's return type is collection-like, e.g. `List`, `Map`, `Array` etc.<br>
+  > 3. the property's **getter** is annotated with `@OneToMany`<br>
 
-  The code snippet below is shortened for brevity; a working example can be found in Kute's GitHub repository (test class `nl.kute.asstring.filter.PropertyOmitFilteringTest`)
+  The code snippet below is shortened for brevity; a working example can be found in Kute's GitHub repository.
+  > See test class `nl.kute.asstring.filter.PropertyOmitFilteringTest`
 
   ``` 
   @Entity class Part(@Id val id: UUID, val name: String, @get:ManyToOne val includedIn: MutableList<Product>)

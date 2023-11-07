@@ -70,9 +70,12 @@
        * #### [Hide, replace or obscure property values](hide-replace-obscure-property-values.md)
        * #### [Surround (delimit) property values](delimit-property-values.md)
 
-* ### [Use `AsStringBuilder`](use-asstringbuilder.md)
+* ### [Configure default settings](configure-default-settings.md)
+  * To **fine-tune** the output of `asString()` globally, according to your preferences
+  * To avoid **performance issues**
 
-* ### Configure default settings
+* ### [Use `AsStringBuilder`](use-asstringbuilder.md)
+  * To control, on a per-class basis, what properties (or other values) are included in (or excluded from) your `asStringOutput`
 
 * ### Avoid performance issues
 
