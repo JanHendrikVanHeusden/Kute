@@ -9,9 +9,9 @@
   * [Using delimiters with Kute `asString()`](#using-delimiters-with-kute-asstring)
     * [At class / property-level](#at-class--property-level)
     * [Globally](#globally)
-      * [Available delimiters (Kotlin)](#bravailable-delimiters-kotlin)
+      * [Available delimiters (Kotlin)](#available-delimiters-kotlin)
   * [Usage in Java](#usage-in-java)
-      * [Available delimiters (Java & Kotlin)](#bravailable-delimiters-java--kotlin)
+      * [Available delimiters (Java & Kotlin)](#available-delimiters-java--kotlin)
 
 ## Surround (delimit) property values
 
@@ -38,7 +38,8 @@ The designers of Kotlin thought they better present clean strings. **Kute**'s `a
 Not adding quotes (or other delimiters) makes a clear point: _What You See Is What You Get_.
 
 **The problem**<br>
-That being said, if you have spaces, or `=`, `[`, `(` etc. in your properties' String representation, it may be difficult to figure out where a property starts / ends.
+That being said, if you have spaces, or `=`, `[`, `(` etc. in your properties' String representation,<br>
+it may be difficult to figure out where a property starts / ends.
 
 If you feel like that, you can have **Kute** `asString()` add delimiters.
 
@@ -53,13 +54,13 @@ You can have **Kute** `asString()` apply delimiters on a per-property of per-cla
       @AsStringOption(surroundPropValue=`""`), @AsStringOption(surroundPropValue=`«»`), etc.
 
 But you may not want to annotate all your classes one by one:
-in most cases you 'd want to apply delimiters globally.
+in most cases you'd want to apply delimiters globally.
 
 ### Globally
 Probably, if you decide to use delimiters, you want to have them application-wide.<br>
 This document shows how to.
 
-The snippet below shows how to use _guillemets_ `«»` as an application-wide choice for delimiters:
+The snippet below shows how to set _guillemets_ `«»` as an application-wide choice for delimiters:
 ```
 asStringConfig()
     .withSurroundPropValue(`«»`)
@@ -70,7 +71,7 @@ asStringConfig()
 > 2. You can use `@AsStringOption(surroundPropValue= ... )` to override delimiters for individual properties / individual classes.
 
 You can not simply use any character: **Kute** defines a pre-set choice of delimiters.<br>
-The available delimiters are defined in enum [`PropertyValueSurrounder` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-property-value-surrounder/index.html), and shown in [the table below](#bravailable-delimiters-kotlin).<br>
+The available delimiters are defined in enum [`PropertyValueSurrounder` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-property-value-surrounder/index.html), and shown in [the table below](#available-delimiters-kotlin).<br>
 
 > **NB 1:** Note the backticks: all of these are identifiers, not literals!<br>
 > [Click here for section **Usage in Java**](#usage-in-java), or if you don't like backtick'ed identifiers.
