@@ -124,11 +124,16 @@ The descriptions below gives some more context about **usage** or **code snippet
   * `@AsStringReplace` can also be used to replace literals.<br>
     The following example shows this, and also demonstrates that the annotation is `@Repeatable`:
     ```
-    // Line endings and tabs will be replaced by a single space each
-    @AsStringReplace("\n", " ")
-    @AsStringReplace("\r", " ")
-    @AsStringReplace("\t", " ")
-    val spacey = "I have \n some \r\n line endings and \t also \t tabs, but I will get rid of \r them"
+    class MyClass {
+        // Line endings and tabs will be replaced by a single space each
+        @AsStringReplace("\n", " ", isRegexPattern = false)
+        @AsStringReplace("\r", " ", isRegexPattern = false)
+        @AsStringReplace("\t", " ", isRegexPattern = false)
+        @AsStringReplace(" +", " ", isRegexPattern = true)
+        val spacey = "I have \n some \r\n line endings and \t also \t tabs, but I will get rid of \r them"
+        // output: MyClass(spacey=I have some line endings and also tabs, but I will get rid of them)
+        override fun toString() = asString()
+    }
     ```
   
   **Usage remarks:**
