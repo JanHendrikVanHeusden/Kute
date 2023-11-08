@@ -92,6 +92,30 @@ class AsStringOptionTest: ObjectsStackVerifier {
     }
 
     @Test
+    fun `subclass should inherit AsStringOption of toString()`() {
+        // arrange
+        @Suppress("unused")
+        open class MyTestClass {
+            val alooooooongValue = "x".repeat(100)
+
+            @AsStringOption(propMaxStringValueLength = 4)
+            override fun toString(): String = asString()
+        }
+
+        class MySubClass: MyTestClass()
+
+        val myTestObj = MyTestClass()
+        // act, assert
+        assertThat(myTestObj.asString()).isEqualTo("MyTestClass(alooooooongValue=xxxx...)")
+
+        // arrange
+        val mySubObj = MySubClass()
+        // act, assert
+        assertThat(mySubObj.asString()).isEqualTo("MySubClass(alooooooongValue=xxxx...)")
+        assertThat(mySubObj.toString()).isEqualTo("MySubClass(alooooooongValue=xxxx...)")
+    }
+
+    @Test
     fun `applyOption should apply AsStringOption parameters`() {
         val aString = "12345 abc"
 

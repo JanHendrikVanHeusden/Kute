@@ -2,6 +2,7 @@ package nl.kute.asstring.core
 
 import nl.kute.asstring.annotation.option.AsStringOption
 import nl.kute.helper.base.ObjectsStackVerifier
+import nl.kute.helper.helper.isObjectAsString
 import nl.kute.reflection.util.simplifyClassName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -13,25 +14,41 @@ class AsStringArrayTest: ObjectsStackVerifier {
     @Test
     fun `non-recursive array data should be rendered like contentDeepToString`() {
         // arrange, act
-        val classWithArrayString = ClassWithArrayNoElementsLimit(names).asString()
-        val dataClassWithArrayString = DataClassWithArray(names).asString()
+        val classWithArrayString =
+            ClassWithArrayNoElementsLimit(names, "a string", 3.5F).asString()
+        val dataClassWithArrayString =
+            DataClassWithArray(names, "a string", 3.5F).asString()
 
         // assert
         assertThat(classWithArrayString).contains(names.contentDeepToString())
         names.forEach {
             assertThat(classWithArrayString.contains(it))
         }
+
+        assertThat(dataClassWithArrayString).isObjectAsString(
+            "DataClassWithArray",
+            "array=${names.contentDeepToString()}",
+            "aStr=a string",
+            "aFloat=3.5"
+        )
         // same as data class with same properties
-        assertThat(classWithArrayString.replace(ClassWithArrayNoElementsLimit::class.simpleName!!, ""))
-            .isEqualTo(dataClassWithArrayString.replace(DataClassWithArray::class.simpleName!!, ""))
+        assertThat(classWithArrayString).isObjectAsString(
+            "ClassWithArrayNoElementsLimit",
+            "array=${names.contentDeepToString()}",
+            "aStr=a string",
+            "aFloat=3.5"
+        )
     }
 
     @Test
     fun `loooooooooooong array string representations should be capped at 500 chars`() {
         val array = IntArray(1000).map { it.toString() }.toTypedArray()
-        val classWithArrayString = ClassWithArrayNoElementsLimit(array).asString()
+        @Suppress("unused")
+        @AsStringOption(elementsLimit = Int.MAX_VALUE)
+        class ClassWithArray(val array: Array<String>)
+        val classWithArrayString = ClassWithArray(array).asString()
         assertThat(classWithArrayString.length)
-            .isEqualTo(500 + ClassWithArrayNoElementsLimit::class.simpleName!!.length + "(array=)".length + "...".length)
+            .isEqualTo(500 + ClassWithArray::class.simpleName!!.length + "(array=)".length + "...".length)
     }
 
     @Test
@@ -87,7 +104,7 @@ class AsStringArrayTest: ObjectsStackVerifier {
 
     @Suppress("unused")
     @AsStringOption(elementsLimit = Int.MAX_VALUE)
-    private class ClassWithArrayNoElementsLimit(val array: Array<String>) {
+    private class ClassWithArrayNoElementsLimit(val array: Array<String>, val aStr: String, val aFloat: Float) {
         override fun toString(): String = asString()
     }
 
@@ -104,7 +121,7 @@ class AsStringArrayTest: ObjectsStackVerifier {
     }
 
     @Suppress("ArrayInDataClass") // suppress warning that equals and hashCode should be overridden
-    private data class DataClassWithArray(private val array: Array<String>)
+    private data class DataClassWithArray(private val array: Array<String>, val aStr: String, val aFloat: Float)
 }
 
 // endregion
