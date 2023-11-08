@@ -28,7 +28,7 @@ Using `Kute / asString()` in Java code is not particularly difficult, but the si
 1. `Kute` heavily relies on _**extension methods**_
 2. Kotlin has `Any` as the supertype-of-everything, where Java has `Object`
 3. There is no `void` in Kotlin
-4. Kotlin uses _**properties**_ to access fields (aka instance variables)
+4. Kotlin uses _**properties**_ to access fields (_fields: aka instance variables_)
     * In Java, you see _**getters**_ (`get...()`) and _**setters**_ for these
 5. Kotlin does not have static members (variables and methods). Instead, there are:
     * Package-level methods and properties

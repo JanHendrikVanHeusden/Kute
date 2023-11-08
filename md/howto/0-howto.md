@@ -113,7 +113,7 @@ Still, it may be a good idea to have a glance over **Kute** `asString()`'s optio
     * #### ... the maximum length of property's String representation
     * #### ... the maximum number of elements of collections, arrays, etc.
   
-  This can be done on a per-property or a per-class basis (see snippet below), or [by global configuration →](configure-default-settings.md).
+  This can be done on a per-property or a per-class basis (_snippet below_), or [by means of global configuration →](configure-default-settings.md).
 
    ```
    @AsStringOption(propMaxStringValueLength = 20, elementsLimit = 5)
@@ -121,8 +121,8 @@ Still, it may be a good idea to have a glance over **Kute** `asString()`'s optio
        val str600 = RandomStringUtils.randomAlphabetic(600)
        @AsStringOption(propMaxStringValueLength = 5)
        val bigBigDecimal = BigDecimal(RandomStringUtils.randomNumeric(400).trimStart('0'))
-       val bigList: List<Int> = (0..1_000).map { it }
-       val hugeList: List<Int> = (0..10_000).map { it }
+       val bigList: List<Int> = (0..1_000).toList()
+       val hugeList: List<Int> = (0..10_000).toList()
        // Something like LengthyProps(bigBigDecimal=69525..., bigList=[0, 1, 2, 3, 4, ...], hugeList=[0, 1, 2, 3, 4, ...], str600=yOdvFyEuJSGFwoAnSUQx...)
        override fun toString(): String = asString()
    }
