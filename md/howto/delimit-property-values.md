@@ -67,7 +67,8 @@ asStringConfig()
     .applyAsDefault()
 ```
 **Usage notes:**
-> 1. See [Configure default settings](configure-default-settings.md) for more details on applying global defaults.
+> 1. Note that these settings are not persisted beyond application restart.<br>
+> More on applying global defaults: see [Configure default settings](configure-default-settings.md).
 > 2. You can use `@AsStringOption(surroundPropValue= ... )` to override delimiters for individual properties / individual classes.
 
 You can not simply use any character: **Kute** defines a pre-set choice of delimiters.<br>

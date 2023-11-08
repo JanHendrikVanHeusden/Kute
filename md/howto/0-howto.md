@@ -100,7 +100,7 @@ Still, it may be a good idea to have a glance over **Kute** `asString()`'s optio
    > e.g. in relationships with `FetchType.LAZY` in JPA.<br>
 
    The <u>**main advice**</u> with regard to performance, is to **exclude properties** that, when fetched, would cause such side effects.<br>
-   This can be done [on a per-property basis →](omit-values.md#exclude-omit-specific-properties), or [by applying a filter globally →](omit-values.md#exclude-properties-by-adding-a-filter-to-kutes-default-settings).<br><br>
+   This can be done [on a per-property basis →](omit-values.md#exclude-omit-specific-properties), or [by applying a filter globally →](omit-values.md#exclude-properties-by-adding-a-filter-to-kutes-default-settings) (recommended).<br><br>
   
     * [**This document →**](omit-values.md#below-some-real-world-examples-that-may-help-avoid-real-world-performance-issues-with-jpa) details how to exclude such properties. It has real-world examples on how to avoid performance issues by using filters.<br><br>
   * **Kute** `asString()` uses reflection to resolve property values. Saying goes that reflection is slow.<br>
