@@ -9,7 +9,9 @@
   * [Using delimiters with Kute `asString()`](#using-delimiters-with-kute-asstring)
     * [At class / property-level](#at-class--property-level)
     * [Globally](#globally)
+      * [Available delimiters (Kotlin)](#bravailable-delimiters-kotlin)
   * [Usage in Java](#usage-in-java)
+      * [Available delimiters (Java & Kotlin)](#bravailable-delimiters-java--kotlin)
 
 ## Surround (delimit) property values
 
@@ -40,6 +42,8 @@ That being said, if you have spaces, or `=`, `[`, `(` etc. in your properties' S
 
 If you feel like that, you can have **Kute** `asString()` add delimiters.
 
+<hr>
+
 ## Using delimiters with Kute `asString()`
 
 ### At class / property-level
@@ -54,12 +58,19 @@ in most cases you 'd want to apply delimiters globally.
 ### Globally
 Probably, if you decide to use delimiters, you want to have them application-wide.<br>
 This document shows how to.
-> You still can use `@AsStringOption(surroundPropValue= ... )` to override delimiters for individual properties / individual classes.
+
+The snippet below shows how to use _guillemets_ `«»` as an application-wide choice for delimiters:
+```
+asStringConfig()
+    .withSurroundPropValue(`«»`)
+    .applyAsDefault()
+```
+**Usage notes:**
+> 1. See [Configure default settings](configure-default-settings.md) for more details on applying global defaults.
+> 2. You can use `@AsStringOption(surroundPropValue= ... )` to override delimiters for individual properties / individual classes.
 
 You can not simply use any character: **Kute** defines a pre-set choice of delimiters.<br>
-The available delimiters are defined in enum [`PropertyValueSurrounder` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-property-value-surrounder/index.html).<br>
-The snippet below shows how to use double quotes as delimiters:
-
+The available delimiters are defined in enum [`PropertyValueSurrounder` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-property-value-surrounder/index.html), and shown in [the table below](#bravailable-delimiters-kotlin).<br>
 
 > **NB 1:** Note the backticks: all of these are identifiers, not literals!<br>
 > [Click here for section **Usage in Java**](#usage-in-java), or if you don't like backtick'ed identifiers.
@@ -69,8 +80,7 @@ The snippet below shows how to use double quotes as delimiters:
 > _**But**_ they may not display as expected, if the environment (e.g. log server or log viewer) does not have `UTF-...` as default encoding<br>
 (e.g. in Microsoft Windows environments). 
 
-<br><br>
-
+#### <br>Available delimiters (Kotlin)
 |      Enum entry      | Resulting prefix / postfix  | Remarks | ASCII > 127 ? |
 |:--------------------:|:---------------------------:|:-------:|:-------------:|
 |        `NONE`        |                             | Default |               |
@@ -92,6 +102,9 @@ The snippet below shows how to use double quotes as delimiters:
 |     `BACKTICKS`      | <pre>&grave;  &grave;</pre> |         |               |
 |  &grave;`**`&grave;  |          `*`  `*`           |         |               |
 
+<br>
+<hr>
+
 ## Usage in Java
 In Java, you can't work with backtick-ed identifiers.<br>
 **Kute** offers alternative names to be used in Java, by means of [`PropertyValueSurrounder.Companion` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-property-value-surrounder/-companion/index.html):<br>
@@ -101,6 +114,8 @@ In Java, you can't work with backtick-ed identifiers.<br>
 > These delimiter characters are not usually present in normal text, which makes them good choices for delimiters.<br><br>
 > _**But**_ they may not display as expected, if the environment (e.g. log server or log viewer) does not have `UTF-...` as default encoding<br>
 (e.g. in Microsoft Windows environments).
+
+#### <br>Available delimiters (Java & Kotlin)
 
 |    Identifier     | Resulting prefix / postfix  | Remarks | ASCII > 127 ? |
 |:-----------------:|:---------------------------:|:-------:|:-------------:|
