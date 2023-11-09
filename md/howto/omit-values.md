@@ -213,7 +213,7 @@ The class `PropertyMeta` (referred to in the lambda argument), has the following
       * In `SubProduct`, there is no ambiguity, the `@OneToMany` will implicitly apply to the field
          * Making it explicit by adding `field:` may be a good idea, though
       * In this example, we are filtering by field.<br>
-        However, Kotlin's reflection does not advertise fields, so we have to switch to Java's reflection.
+        However, Kotlin's reflection does not disclose fields, so we have to switch to Java's reflection.
 
 <hr>
 
@@ -267,6 +267,6 @@ The class `PropertyMeta` (referred to in the lambda argument), has the following
        So they apply to either fields or getter methods, but, alas, **not to properties**.<br>
         * If we apply the `@OneToMany` in `Product` without site-target `get:`, it would implicitly target the constructor parameter.
         * If we apply the `@OneToMany` in `SubProduct` without site-target `get:`, it would implicitly target the field.
-        * Kotlin's reflection does advertise getters, so, unlike with fields, we don't have to switch to Java's reflection here.
+        * Kotlin's reflection does disclose getters, so, unlike with fields, we don't have to switch to Java's reflection here.
 
 <hr>

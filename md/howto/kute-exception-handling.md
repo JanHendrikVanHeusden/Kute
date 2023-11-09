@@ -9,7 +9,7 @@
 * [What kind of exceptions can be avoided?](#what-kind-of-exceptions-can-be-avoided)<br>
      * [`KotlinReflectionInternalError`, `KotlinReflectionNotSupportedError`](#kotlinreflectioninternalerror-kotlinreflectionnotsupportederror)<br>
      * [`StackOverflowError`](#stackoverflowerror)<br>
-* [How do other libraries do?**<br>](#how-do-other-libraries-do)
+* [How do other libraries do?](#how-do-other-libraries-do)
 * [What kind of exceptions can NOT be avoided?](#what-kind-of-exceptions-can-not-be-avoided)
 * [`Error` & `Throwable`](#error--throwable)
 
@@ -103,7 +103,7 @@ Known situations where exceptions may occur are:
   }
   ``` 
   Kotlin's reflection can't handle these. Instead of the expected output, you may get something like `MyClass@b2c9a9c`.
-  > The equivalent in Kotlin is handled properly, though.
+  > The equivalent in Kotlin, with "method-local classes", does not cause issues; it yields normal, expected output.
 
 * **Uninitialized `lateinit` properties**<br>
   Resolving the value of an uninitialized `lateinit` property causes an `UninitializedPropertyAccessException`<br>
@@ -125,7 +125,10 @@ Known situations where exceptions may occur are:
 <u>
 
 * #### `Error` & `Throwable`
-  </u>`Error`s and `Throwable`s are not caught.
+
+</u>
+
+  `Error`s and `Throwable`s are not caught.
   > Except specific known cases of
   `KotlinReflectionInternalError` and `KotlinReflectionNotSupportedError`<br>
   > (as documented above).

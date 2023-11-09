@@ -54,7 +54,7 @@ The default settings of **Kute** `asString()` fall into the 5 categories shown b
    * Want to have properties sorted: none, alphabetically, or by custom sorting?<br>
      See [Sorting properties →](sort-properties.md)
      > Especially useful for, say, JPA entities with many properties.<br>
-     You will definitely appreciate this, if you've ever had to work with entities with 100+ or even 200+ properties! :-() 
+     You will definitely appreciate this, if you've ever had to work with entities with 100+ or even 200+ properties! `:-()` 
 
 3. #### Prefer existing `toString()`
    * If classes have a `toString()` method implemented, should it be preferred,<br>
@@ -115,7 +115,7 @@ The table below shows the methods of `AsStringConfig` that can be used to set ne
 | `Tweak output`| `withShowNullAs(showNullAs: String): AsStringConfig`| How `null` is represented; default: `null` |
 | `Tweak output`| `withMaxPropertyStringLength(propMaxLength: Int): AsStringConfig`| Maximum length of the string-value of a property in `asString()` output.<br> Longer strings are truncated and and an ellipsis `...` is added |
 | `Tweak output`| `withElementsLimit(elementsLimit: Int): AsStringConfig`| Maximum number of elements of collections, maps, arrays etc. that are included in `asString()` output. <br> Values exceeding that number are not included, and an ellipsis `...` is added |
-| `Tweak output`| `withIncludeCompanion(includeCompanion: Boolean): AsStringConfig`| By default, `companion` properties are not included in `asString()` output. <br> You can specify to have these included. <br> There are some restrictions however; see [Kute ways to modify the output of `asString() →`](modify-output-of-asstring.md#include companion-properties) |
+| `Tweak output`| `withIncludeCompanion(includeCompanion: Boolean): AsStringConfig`| By default, `companion` properties are not included in `asString()` output. <br> You can specify to have these included. <br> There are some restrictions however; see [Kute ways to modify the output of `asString() →`](modify-output-of-asstring.md#include-companion-properties) |
 | `Tweak output`| `withIncludeIdentityHash(includeHash: Boolean): AsStringConfig`| Include the object's identity hash (hexadecimal) in the output. <br> You may prefer this, to facilitate tracking an object through log entries. |
 | `Tweak output`| `withSurroundPropValue(surroundPropValue: PropertyValueSurrounder): AsStringConfig`| By default, string representations of property values are _not_ surrounded by delimiters. <br> E.g., `a String`, `2023-11-06`, etc.. <br> You can specify delimiters (surrounders) though, e.g. to have them render them like this: <ul><li>`"a String"`<br>`"2023-11-06"`</li> <li>`«a String»`<br>`«2023-11-06»`</li> </ul> etc. |
 ||| |
