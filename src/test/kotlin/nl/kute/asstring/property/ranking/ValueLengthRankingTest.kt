@@ -41,5 +41,4 @@ internal class ValueLengthRankingTest {
         assertThat(ValueLengthRanking.getRank(Random.nextInt(Int.MIN_VALUE, -1))).isSameAs(S)
     }
 
-
 }

@@ -6,6 +6,16 @@ import nl.kute.asstring.core.asString
  * Abstract base class to provide ranking for ordering properties in [nl.kute.asstring.core.asString] output.
  * * Features basic [toString], [equals], and [hashCode] implementations.
  * * On construction, it automatically registers the concrete class to  be used for ordering properties.
+ *
+ * **In order to be used for *property ranking*** (see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]),
+ * the concrete class must either (in this order of prevalence):
+ * * Be pre-instantiated, by having a concrete [PropertyRanking]-subclass object constructed
+ * * Allow reflective instantiation, by one of the following methods:
+ *   1. Have a reachable (`public`) companion object with a `val` property named **`instance`** that returns
+ *   an instance of the concrete [PropertyRankable] subclass.
+ *   2. Have a no-arg constructor that is reachable (`public`) or that can be set accessible reflectively
+ *   by means of [kotlin.reflect.KProperty.isAccessible]
+ *
  * @see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]
  */
 public abstract class PropertyRanking : PropertyRankable<PropertyRanking> {

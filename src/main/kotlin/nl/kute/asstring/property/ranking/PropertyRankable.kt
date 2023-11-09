@@ -20,15 +20,6 @@ import kotlin.reflect.jvm.isAccessible
  * > **NB:** This interface is sealed, so it can not be implemented directly.
  * > Concrete implementations should extend [PropertyRanking] instead.
  *
- * **In order to be used for *property ranking*** (see [nl.kute.asstring.annotation.option.AsStringClassOption.propertySorters]),
- * the concrete class must either (in this order of prevalence):
- * * Be pre-instantiated, by having a concrete [PropertyRanking]-subclass object constructed
- * * Allow reflective instantiation, by one of the following methods:
- *   1. Have a reachable (`public`) companion object with a `val` property named **`instance`** that returns
- *   an instance of the concrete [PropertyRankable] subclass.
- *   2. Have a no-arg constructor that is reachable (`public`) or that can be set accessible reflectively
- *   by means of [kotlin.reflect.KProperty.isAccessible]
- *
  * This interface is sealed, so external code can not implement it.
  * Concrete implementations should extend [PropertyRanking] instead.
  * @see [PropertyRanking]
