@@ -112,7 +112,7 @@ The results (on different machines, MacOs & Windows) can be [found here](https:/
 > **Remarks**<br>
 > 1. These JMH tests are performed on a Mac laptop, and on a Windows desktop machine, from within the IntelliJ IDE.<br>
 >   Although I have tried to minimize disturbing factors (minimizing all window, not doing any other work while running the tests),<br>
->   the results can not be interpreted as solid benchmark results. They give an indication, though.
+>   the results can not be interpreted as solid benchmark results. They may give an indication, though.
 > 
 > 2. The kind of job that **Kute** `asString()` does is, in general, not the stuff that makes or breaks your application's performance (think of nanoseconds);<br>
 > usually, the real performance challenges come from database access, remote web calls, concurrency etc. 
