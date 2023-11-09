@@ -75,6 +75,8 @@
    * [→ Delimit property values](delimit-property-values.md)
    * [→ Hide, replace or obscure property values](hide-replace-obscure-property-values.md)
    * Limit output length:
-      * [→ Limit length of property values in `asString()` output](limit-output-string-length.md)
-      * [→ Limit the number of elements of collections etc. in `asString()` output](limit-elements-of-collections.md)
+      * Limit length of property values in `asString()` output
+      * Limit the number of elements of collections etc. in `asString()`
+     
+     See: [How to - limit or extend...](0-howto.md#limit-or-extend)
    * [→ Prefer existing `toString()`-implementations](prefer-existing-tostring.md)

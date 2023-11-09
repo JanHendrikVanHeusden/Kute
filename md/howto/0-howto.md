@@ -102,12 +102,12 @@ Still, it may be a good idea to have a glance over **Kute** `asString()`'s optio
    The <u>**main advice**</u> with regard to performance, is to **exclude properties** that, when fetched, would cause such side effects.<br>
    This can be done [on a per-property basis →](omit-values.md#exclude-omit-specific-properties), or [by applying a filter globally →](omit-values.md#exclude-properties-by-adding-a-filter-to-kutes-default-settings) (recommended).<br><br>
   
-    * [**This document →**](omit-values.md#below-some-real-world-examples-that-may-help-avoid-real-world-performance-issues-with-jpa) details how to exclude such properties. It has real-world examples on how to avoid performance issues by using filters.<br><br>
+    * [**This document on excluding values →**](omit-values.md#below-some-real-world-examples-that-may-help-avoid-real-world-performance-issues-with-jpa) details how to exclude such properties. It has real-world examples on how to avoid performance issues by using filters.<br><br>
   * **Kute** `asString()` uses reflection to resolve property values. Saying goes that reflection is slow.<br>
     However, there's not much difference in getting a value from a property than getting a value by calling a getter.<br><br>
     
   In most cases, **Kute** `asString()` **is at least as fast** as IDE-generated `toString()`-methods.<br>
-    [**This document →**](asstring-performance.md) gives more details on performance, caching / optimizations,<br> and refers to micro-benchmark tests of **Kute** `asString()`.
+    **[Kute asString() performance →](asstring-performance.md)** gives more details on performance, caching / optimizations.<br> It also refers to micro-benchmark tests of **Kute** `asString()` (in comparison with others).
 
 * ### Limit or extend...
     * #### ... the maximum length of property's String representation
@@ -127,7 +127,9 @@ Still, it may be a good idea to have a glance over **Kute** `asString()`'s optio
        override fun toString(): String = asString()
    }
    ```
-   See [Kute ways to modify the output of `asString()` →](modify-output-of-asstring.md)
+   See
+    * [Kute ways to modify the output of `asString()` →](modify-output-of-asstring.md)
+    * [Configure default settings →](configure-default-settings.md)
 
 * ### Include identity hashes to object's String representation
   See [Kute ways to modify the output of `asString()` →](modify-output-of-asstring.md)
@@ -144,7 +146,7 @@ Still, it may be a good idea to have a glance over **Kute** `asString()`'s optio
     * #### Apply custom sorting
 
 * ### Include companion properties
-  See [Kute ways to modify the output of `asString()` →](modify-output-of-asstring.md#include-companion-properties)
+  See [Include companion properties →](include-companion-properties.md)
 
 * ### Have Kute's error messages directed to a log framework
   See [How to have Kute's error messages directed to a log framework →](direct-kute-messages-to-my-logging-framework.md)

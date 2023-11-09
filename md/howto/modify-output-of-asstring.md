@@ -48,7 +48,7 @@ By default, **Kute** `asString()` formats its output the same way as Kotlin's de
 
    > **Usage / Remarks**<u>
    > 1. #### Annotation vs. global settings 
-   >   </u>**All settings** of `@AsStringOption` and `@AsStringClassOption` can also be set globally,
+   >   </u>**All settings** of `@AsStringOption` and `@AsStringClassOption` can also be set globally,<br>
    > by [configuring default settings →](configure-default-settings.md)<br><br><u>
    > 
    > 2. #### Inheritance / overriding
@@ -76,7 +76,7 @@ By default, **Kute** `asString()` formats its output the same way as Kotlin's de
 
    1. ### **At class level: `@AsStringClassOption`**
 
-      See the [API-documentation of `@AsStringClassOption`  →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-as-string-class-option/index.html)
+      See the [API-documentation of `@AsStringClassOption` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-as-string-class-option/index.html)
 
       **A summary:**
       * Include the object's identity hash in `asString()`-output
@@ -85,30 +85,26 @@ By default, **Kute** `asString()` formats its output the same way as Kotlin's de
       * Include companion object's properties
    
       > #### Prefer `toString()`
-      > * See [Prefer `toString()` vs. dynamic property resolution](prefer-existing-tostring.md) <br><br>
+      > * See [Prefer `toString()` vs. dynamic property resolution →](prefer-existing-tostring.md) <br><br>
       >
       > #### Sorting properties
       > * See [Sorting properties →](sort-properties.md)<br><br>
       >
       > #### Include companion properties
-      > By default, companion properties are not added in output of asString().<br>
-      You can opt however to have these included.
+      > * By default, companion properties are not added in output of asString().<br>
+        You can opt however to have these included.
       >
-      > Due to restrictions of Kotlin's reflection, a companion object's properties are shown only if:
-      > 
-      > 1. The class that contains the companion object must not be private
-      > 2. The companion object must be public
-      > 3. The companion object has at least 1 property
-      > <br><br>
+      > * There are some restrictions however, due to restrictions of Kotlin's reflection.<br>
+         See [Include companion properties →](include-companion-properties.md)<br><br>
       > 
       > #### Other features of `@AsStringClassOption`
-      > * For the other topics mentioned above, see the [API-documentation of `@AsStringClassOption`  →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-as-string-class-option/index.html)
+      > * For the other topics mentioned above, see the [API-documentation of `@AsStringClassOption` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-as-string-class-option/index.html)
       
        `@AsStringClassOption` is inherited. It can be overridden by subclasses.
 
    2. ### **At class, property or method level: `@AsStringOption`**
    
-      See the [API-documentation of `@AsStringOption`  →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-as-string-option/index.html)
+      See the [API-documentation of `@AsStringOption` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.annotation.option/-as-string-option/index.html)
       * How to show `null` values
          * Default is: `null`; but you may like something else
       * Whether you want values to be surrounded by some delimiter

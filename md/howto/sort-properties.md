@@ -1,4 +1,4 @@
-| [← 🏠](../../)            | [← README.md](../../README.md) |
+| [← 🏠](../../) | [← README.md](../../README.md) |
 |:--------------------------|:-------------------------------|
 | [← How to...](0-howto.md) | [→ FAQ](../../md/faq/0-faq.md) |
 
@@ -15,6 +15,7 @@
     * [Example 1: nulls first](#example-1-nulls-first)
     * [Example 2: `@Id` first](#example-2-id-first)
   * [Kute pre-defined implementations of `PropertyRanking`](#kute-pre-defined-implementations-of-propertyranking)
+    * [Suggestions](#suggestions)
 
 
 ### Do you need sorting?
@@ -105,19 +106,19 @@ See the examples below ([here](#example-1-nulls-first) and [here](#example-2-id-
 
 `PropertyValueMeta` has these public properties:
 
-| Signature                   | Description                                                                                        |
+| Signature | Description |
 |:----------------------------|----------------------------------------------------------------------------------------------------|
-| `objectClass: KClass<*>`    | The class of the object of which you want the properties to be sorted                              |
-| `objectClassName: String?`  | The class-name of the object _(may be null for synthetic classes etc.)_                            |
-| `packageName: String?`      | The package-name of the object _(may be null for synthetic classes etc/)_                          |
-| `property: KProperty<*>`    | The property for which a rank (ordering) is to be returned                                         |
-| `propertyName: String`      | The property's name                                                                                |
-| `returnType: KType`         | The return-type of the property                                                                    |
-| `isBaseType: Boolean`       | Is the return-type of the property a base-type?<br>E.g. numbers, date/time, `String`, `Char`, etc. |
-| `isCharSequence: Boolean`   | Is the return-type of the property a `CharSequence` (`String`, `StringBuilder`, etc.)?             |
-| `isCollectionLike: Boolean` | Is the return-type of the property collection-like?<br>(`Collection`, `Map`, `Array`, etc.)        |
-| `isNull: Boolean`           | Has the property a `null`-value?                                                                   |
-| `stringValueLength: Int?`   | The length of the property-value's `asString()` representation                                     |
+| `objectClass: KClass<*>` | The class of the object of which you want the properties to be sorted |
+| `objectClassName: String?` | The class-name of the object _(may be null for synthetic classes etc.)_ |
+| `packageName: String?` | The package-name of the object _(may be null for synthetic classes etc/)_ |
+| `property: KProperty<*>` | The property for which a rank (ordering) is to be returned |
+| `propertyName: String` | The property's name |
+| `returnType: KType` | The return-type of the property |
+| `isBaseType: Boolean` | Is the return-type of the property a base-type?<br>E.g. numbers, date/time, `String`, `Char`, etc. |
+| `isCharSequence: Boolean` | Is the return-type of the property a `CharSequence` (`String`, `StringBuilder`, etc.)? |
+| `isCollectionLike: Boolean` | Is the return-type of the property collection-like?<br>(`Collection`, `Map`, `Array`, etc.) |
+| `isNull: Boolean` | Has the property a `null`-value? |
+| `stringValueLength: Int?` | The length of the property-value's `asString()` representation |
 ___
 
 #### Example 1: nulls first
@@ -141,11 +142,11 @@ asStringConfig()
 #### Example 2: `@Id` first
 This is slightly more involved, due to some limitations of Kotlin's reflection.
 
-1. If your property is annotated with JPA's `@Id`, you want it to be rendered first.
+1. If your property is annotated with JPA's `@Id`, you want it to be rendered first.<br>
 2. After that, you want to use **Kute**'s pre-defined `PropertyRankingByType` to order them according to their return type
 3. Within the same type, you want to have them ordered alphabetically
 
-Your first thought may be this:
+Your first thought to resolve the `@Id` annotation may be something like this:
 
 <s>
 
@@ -178,12 +179,14 @@ asStringConfig()
 Resolved!<br>
 ___
 
-For more information / inspiration, you can have a look at the documentation and/or the source code<br> of **Kute**'s pre-defined implementations of `PropertyRanking`.
-
 ### Kute pre-defined implementations of `PropertyRanking`
-| Name                                                                                                                                                                                  | Goal                                                                                                                                                                                                                                                      |
-|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`PropertyRankingByType` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.property.ranking.impl/-property-ranking-by-type/index.html)                             | Ranking in this order: <ol><li>Basic types (e.g. numbers, date/time, `Char`, etc.)</li> <li>`String`</li><li>Collection-like types (`Collection`, `Map`, `Array`, etc.)</li></ol>                                                                         |
-| [`PropertyRankingByStringValueLength` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.property.ranking.impl/-property-ranking-by-string-value-length/index.html) | Ranking by the length of the property's `asString()`-result<br>E.g.: `"short val"` before `"loooong value"`                                                                                                                                               |
-| [`PropertyRankingByCommonNames` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.property.ranking.impl/-property-ranking-by-common-names/index.html)              | Applies ranking by a combination of chararcteristics. E.g.:<ul><li>properties with `id` first</li><li>then properties that end at `Id`</li><li>then base types (e.g. numbers, date/time, `Char`, etc.)</li></ul>and so on, based on type and value length |
+
+#### Suggestions
+* For more information / inspiration, you can have a look at the documentation and/or the source code<br> of **Kute**'s pre-defined implementations of `PropertyRanking`.
+
+| Name | Goal |
+|:---|:---|
+| [`PropertyRankingByType` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.property.ranking.impl/-property-ranking-by-type/index.html) | Ranking in this order: <ol><li>Basic types (e.g. numbers, date/time, `Char`, etc.)</li> <li>`String`</li><li>Collection-like types (`Collection`, `Map`, `Array`, etc.)</li></ol> |
+| [`PropertyRankingByStringValueLength` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.property.ranking.impl/-property-ranking-by-string-value-length/index.html) | Ranking by the length of the property's `asString()`-result<br>E.g.: `"short"` before `"looooooooooooooooooong value"`; <br> Ranking by T-shirt sizing `S` to `XXL` |
+| [`PropertyRankingByCommonNames` →](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.property.ranking.impl/-property-ranking-by-common-names/index.html) | Applies ranking by a combination of chararcteristics. E.g.:<ul><li>properties with `id` first</li><li>then properties that end at `Id`</li><li>then base types (e.g. numbers, date/time, `Char`, etc.)</li></ul>and so on, based on type and value length |
 
