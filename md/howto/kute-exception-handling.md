@@ -19,19 +19,41 @@ It is well known that exceptions are very costly, in terms of performance.<br>
 So if you can, you better avoid these.
 
 ##### What kind of exceptions can be avoided?
-Well, not that much, actually...<br>
-Yet there are some exceptions (or even `Error`s), that can be avoided.
+There are actually some exceptions (or even `Error`s), that can be avoided, or, prevent them to re-occur.
 
-<hr><u>
+<hr>
 
-##### `KotlinReflectionInternalError`, `KotlinReflectionNotSupportedError`
-</u>Some situations are not handled well by Kotlin's reflection; specifically certain types of `lambda`-properties, and synthetic classes.<br>
-In many cases this can be detected beforehand, and **Kute** `asString()` switches to Java's reflection when applicable; or another workaround is applied.
+##### Exceptions while handling user-provided filters, classes, etc.
 
-<u>
 
-##### `StackOverflowError`
-</u>You might expect that **Kute** `asString()` would run into `StackOverflowError`s when your model looks like this:
+* **Kute** `asString()` offers various features where users can define filters, predicates or classes, like for:
+   * [Property sorting](sort-properties.md)
+   * [Omitting (excluding) properties](omit-values.md#exclude-properties-by-adding-a-filter-to-kutes-default-settings) based on filter criteria
+      * Or, for Java, based on `Predicate`s
+   * Filters to [have existing `toString()`-implementations favoured](prefer-existing-tostring.md#by-using-filters)
+     * Or, for Java, based on `Predicate`s
+
+   This poses the risk that such filters or classes throw exceptions.<br>
+   Especially when sorting properties, the class's method may be applied very frequently.
+   
+   This would pose the risks that vast amounts of exceptions are thrown.<br>
+   If such exception is detected, **Kute** will remove the trespassing filter or class from its registry,<br> to avoid running in the same exception over and over.
+
+   <u>
+
+* ##### `KotlinReflectionInternalError`, `KotlinReflectionNotSupportedError`
+   </u>
+
+   Some situations are not handled well by Kotlin's reflection; specifically certain types of `lambda`-properties, and synthetic classes.<br>
+   In many cases this can be detected beforehand, and **Kute** `asString()` switches to Java's reflection when applicable; or another workaround is applied.
+
+   <u>
+
+* ##### `StackOverflowError`
+   </u>
+
+   You might expect that **Kute** `asString()` could run into `StackOverflowError`s when your model looks like this,<br>
+   with mutual parent-child relationships:
    ```
    interface Entity {
        val id: Long
@@ -57,37 +79,49 @@ In many cases this can be detected beforehand, and **Kute** `asString()` switche
    println(parent)
    ```
 
-But, hurrah! Given the model and snippet above, **Kute** `asString()` does **not** run into a `StackOverflowError`, because it keeps track of the objects being processed.<br>
-**Kute** `asString()` detects the recursion beforehand, instead of entering an endless loop.<br>
-It adds a placeholder `recursive: < className > (...)` to the output, to inform the reader about the recursive relationship.
-
-> **Remarks**
-> 1. Mark that, in the above snippet, it would be recommended to exclude the `children` in `Parent` from `asString()`.<br>
-> The same goes for the `parent`-attribute in `Child`.<br>
-> See [exclude properties by adding a filter →](omit-values.md#exclude-properties-by-adding-a-filter-to-kutes-default-settings).<br>
-> This avoids both performance issues and cluttered output.
-> <br><br>
-> 2. **Remark on _data_ classes with recursive relationships**<br>
->   When you would change the `Parent` and the `Child` entities in the snippet above to be `data class`es, you will encounter a `StackOverflowError`.<br>
->   That's not because of **Kute** `asString()`, but because of Kotlin's default `hashCode()` implementation.<br>
->   To make the snippet above work with data classes, you have to explicitly call `super.hashCode()` in the `Parent` and `Child` classes.
+   But, hurrah! Given the model and snippet above, **Kute** `asString()` does **not** run into a `StackOverflowError`, because it keeps track of the objects being processed.<br>
+   **Kute** `asString()` detects the recursion beforehand, instead of entering an endless loop.<br>
+   It adds a placeholder `recursive: < className > (...)` to the output, to inform the reader about the recursive relationship.
+   
+   > **Remarks**
+   > 1. Note that, in the above snippet, it would be recommended to exclude the `children` in `Parent` from `asString()`.<br>
+   > The same goes for the `parent`-attribute in `Child`.<br>
+   > See [exclude properties by adding a filter →](omit-values.md#exclude-properties-by-adding-a-filter-to-kutes-default-settings).<br>
+   > This avoids both performance issues and cluttered output.
+   > <br><br>
+   > 2. **Remark on _data_ classes with recursive relationships**<br>
+   >   When you would change the `Parent` and the `Child` entities in the snippet above to be `data class`es, you will encounter a `StackOverflowError`.<br>
+   >   That's not because of **Kute** `asString()`, but because of Kotlin's default `hashCode()` implementation.<br>
+   >   To make the snippet above work with data classes, you have to explicitly call `super.hashCode()` in the `Parent` and `Child` classes.
 
 <hr>
 
 #### How do other libraries do?
 Other libraries, like Apache's _ToStringBuilder_, run into a `StackOverflowError` in such cases.<br>
-In general, other libraries are not as stable (in not throwing exceptions) as you might hope or think.<br>
-This is one of the main reasons actually to start writing **Kute** `asString()`.
+`ConcurrentModificationException`s and `NullPointerException`s will also be thrown by Apache's _ToStringBuilder_.
+> `Gson` and `Jackson` also throw such exceptions; but they have a completely different goal
+>  * They shouldn't catch such exceptions
 
-I (_JHvH_) was really disappointed & dissatisfied to learn how many situations made these libraries crash (throw exceptions or errors).<br>
-> For those interested, you may check out ['this' repo (**Kute** `asString()`)](https://github.com/JanHendrikVanHeusden/Kute) and run the test demos in package `package nl.kute.demo.alternatives`.<br>
-> These demos of (among others) Apache's _ToStringBuilder_ and `Objects.toString()` run a number of test cases<br>
-> (both usual and more exotic stuff), that are handled smoothly by **Kute** `asString()`, but where the other libraries / tools often fail.<br>
+In general, other `toString()`-like libraries are not as stable (in not throwing exceptions) as you might hope or think.<br>
+**After ease-of-use and maintenance friendliness, the lack of stability of other tools was one of the main reasons to start writing Kute `asString()`.**
+
+> I _(JHvH)_ really think that `toString()`-like stuff is not the place throw exceptions in the user's face.<br>
+> See the thoughts on this in [README.md →](../../README.md#basic-ideas-of-kutes-asstring).
 > 
+> I was really disappointed & dissatisfied to learn how many situations made these libraries crash (throw exceptions or errors).
+> 
+> For those interested, you may check out ['this' repo (**Kute** `asString()`)](https://github.com/JanHendrikVanHeusden/Kute) and run the test demos in package<br>
+> `nl.kute.demo.alternatives`.<br>
+> These demos of (among others) Apache's _ToStringBuilder_ and `Objects.toString()` run a number of test cases<br>
+> (both usual and more exotic stuff), that are handled smoothly by **Kute** `asString()`, but where the other libraries / tools fail.
+> 
+> Be amazed at the many situations where exceptions occur!
 
 <hr>
 
-#### What kind of exceptions can NOT be avoided?<br>
+#### What kind of exceptions can NOT be avoided?
+
+
 **Kute** can't always avoid exceptions / errors; but it **handles all exceptions gracefully**,<br>
 it never throws exceptions to the calling code.
 
@@ -126,9 +160,9 @@ Known situations where exceptions may occur are:
 
 * #### `Error` & `Throwable`
 
-</u>
+   </u>
 
-  `Error`s and `Throwable`s are not caught.
+  `Error`s and `Throwable`s are not caught or handled.
   > Except specific known cases of
   `KotlinReflectionInternalError` and `KotlinReflectionNotSupportedError`<br>
   > (as documented above).
