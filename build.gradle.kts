@@ -55,23 +55,6 @@ sourceSets.test {
     kotlin.srcDirs("src/test/kotlin")
 }
 
-sourceSets.jmh {
-    // JMH: Java Microbenchmark Harness, for performance tests / comparisons
-    val commonsLangVersion by System.getProperties()
-    val gsonVersion by System.getProperties()
-
-    java.srcDirs("src/jmh/kotlin")
-    kotlin.srcDirs("src/main/kotlin", "src/jmh/kotlin")
-    resources.srcDirs("src/jmh/resources")
-    dependencies {
-        // Common libraries - to be used in tests only !
-        // Do NOT use these in source code, packaged Kute should not rely on ANY external dependency
-        implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
-        implementation("com.google.code.gson:gson:$gsonVersion")
-
-    }
-}
-
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
@@ -105,7 +88,6 @@ plugins {
     val dokkaVersion: String by System.getProperties()
     val pitestPluginVersion: String by System.getProperties()
     val koverVersion: String by System.getProperties()
-    val jmhPluginVersion: String by System.getProperties()
 
     kotlin("jvm") version kotlinJvmPluginVersion
 
@@ -119,9 +101,6 @@ plugins {
     id("info.solidsoft.pitest") version pitestPluginVersion
     id("org.jetbrains.kotlinx.kover") version koverVersion
     id("org.jetbrains.dokka") version dokkaVersion
-
-    // JMH: Java Microbenchmark Harness, for performance tests / comparisons
-    id("me.champeau.jmh") version jmhPluginVersion
 }
 
 dependencies {
@@ -137,7 +116,6 @@ dependencies {
     val commonsIoVersion by System.getProperties()
     val gsonVersion by System.getProperties()
     val guavaVersion by System.getProperties()
-    val jmhVersion by System.getProperties()
 
     // Kotlin
     //  * `api`, so depending projects don't need to add these dependencies themselves
@@ -172,12 +150,6 @@ dependencies {
     testImplementation("org.apache.commons:commons-text:$commonsTextVersion")
     testImplementation("com.google.code.gson:gson:$gsonVersion")
     testImplementation("com.google.guava:guava:$guavaVersion")
-
-    // Java Microbenchmark Harness (jmh), for performance tests / comparisons
-    testImplementation("org.openjdk.jmh:jmh-core:$jmhVersion")
-    testImplementation("org.openjdk.jmh:jmh-generator-annprocess:$jmhVersion")
-    // jmh annotation processing
-    annotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:$jmhVersion")
 }
 
 dependencyCheck {
@@ -278,25 +250,6 @@ tasks.register("buildWithApiDocs") {
     group = "build"
     dependsOn(tasks.named("build"))
     dependsOn(tasks.named("copyApiDocs"))
-}
-
-// JMH: Java Microbenchmark Harness, for performance tests / comparisons
-//      Run gradle task `jmh` to execute the performance tests
-jmh {
-    warmupIterations.set(2)
-    warmupForks.set(2)
-    warmupBatchSize.set(2)
-    warmupMode.set("INDI")
-
-    iterations.set(4)
-    fork.set(2)
-    batchSize.set(2)
-    threads.set(4)
-    timeOnIteration.set("1s")
-
-    includeTests.set(false)
-    failOnError.set(true)
-    benchmarkMode.set( listOf("AverageTime") )
 }
 
 pitest {
