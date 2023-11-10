@@ -10,7 +10,8 @@
 * [Does Kute `asString()` use annotation processing?](#does-kute-asstring-use-annotation-processing)
 * [Is **Kute** `asString()` stable?](#is-kute-asstring-stable)
 * [OK, but is **Kute** `asString()`'s <u>API</u> stable?](#ok-but-is-kute-asstrings-api-stable)
-* [Is Kute `asString()`'s output guaranteed to stay the same, over versions?](#is-kute-asstrings-output-guaranteed-to-stay-the-same-over-versions)
+* [Is **Kute** `asString()`'s output guaranteed to stay the same, over versions?](#is-kute-asstrings-output-guaranteed-to-stay-the-same-over-versions)
+* [Are there plans to improve or extend **Kute** `asString()` with new features?](#are-there-plans-to-improve-or-extend-kute-asstring-with-new-features)
 * [Is **Kute** `asString()` open-source?](#is-kute-asstring-open-source)
 
 <hr>
@@ -58,16 +59,34 @@
 
 * #### Is Kute `asString()`'s output guaranteed to stay the same, over versions?
   > No.
-  > * Newer versions may cause variations in how properties are rendered
+  > * Newer versions of **Kute** `asString()` may cause variations in how properties are rendered
   > * Users may suggest improvements
+  > * Bugs may need to be fixed
   > * Kotlin's reflection libraries may introduce new features
   > 
-  > So you shouldn't take the current output for granted.
+  > So you shouldn't take the current output for granted.<br>
+  > That being said, changes in the output should be limited / minimal.
   >
-  > That being said, changes in the output should be limited / minimal, and if, feasible, have a toggle<br>
-  > (i.e. a parameter or annotation that you can use to choose for that new behaviour).
-  >
-  > Summarized, it would not be realistic to promise that it will stay the same forever.
+  > Summarized: it would not be realistic to promise that it will stay the same forever.
+
+* #### Are there plans to improve or extend Kute `asString()` with new features?
+> There are no concrete plans for new features, currently.<br>
+> There are some ideas, but for now, the main aim is to have it incorporated and used by projects, and learn from experiences.
+> 
+> **Kute** `asString()` is considered stable and robust, and it is already tested in different environments / frameworks / systems.<br>
+> Tests in a greater variety of environments are under development, e.g.:
+>  * Multi-module projects using Java 11 module system (JigSaw)
+>  * Multi-module OSGI projects
+>  * Database centered systems
+>  * System with enhanced security (SecurityManager)
+>  * ...
+> 
+> So **Kute** `asString()` in its current form is considered a feature-complete, stable, usable and robust library.<br>
+> It is reasonable to say that it is even more robust than some other widely used tools or libraries.<br>
+> The focus is now mainly on additional testing in a multitude of environments.
+> 
+> That being said, if users come with viable suggestions for new features,<br>
+> these will be considered seriously!
 
 * #### Is **Kute** `asString()` open-source?
   > Yes, in accordance to [The Open Source Definition](https://opensource.org/osd/) of the [Open Source Initiative®](https://opensource.org/osd/).
