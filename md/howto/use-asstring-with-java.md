@@ -45,7 +45,6 @@ In that case, the following <u>brief explanation of Kotlin vs. Java</u> may be h
 
 1. #### `Any` vs. `Object`
    * Kotlin’s `Any` is pretty similar to Java’s `Object`, which means it’s the supertype of all other classes.
-   * Type `Any` translates 1-to-1 to `Object` when seen from Java code (JVM)
 
 <hr>
 
@@ -151,13 +150,15 @@ In that case, the following <u>brief explanation of Kotlin vs. Java</u> may be h
 ### II. Some tips about using `asString()` in Java
 
 #### 1. `Any` vs. `Object`
-Type `Any` translates 1-to-1 to `Object` when seen from Java code (JVM)
-
-For instance, class `AsStringBuilder` has `var obj: Any?` as constructor argument.<br>
-
-As far as Java is concerned:
+Kotlin's type `Any` is equivalent to Java's `Object`<br> 
+Or, more precise:
 * Kotlin's `Any` is equivalent to 'non-nullable `Object`'
 * Kotlin's `Any?` is equivalent to 'nullable `Object`'
+
+For instance, class `AsStringBuilder` has `var obj: Any?` as constructor argument,<br>
+which indicates that it can receive "anything" as actual input.<br>
+That "anything"  includes any type of Java objects, of course.<br>
+
 
 <hr>
 
@@ -191,6 +192,8 @@ or<br>
 **Kute** has a log method, defined as:<br>
 `fun Any?.log(msg: Any?)`<br>
 As you would expect, it does not return anything; so from the Java perspective, it is a `void` method.
+
+<hr>
 
 #### 4. Kotlin properties vs. Java getters & setters
 You definitely recognise this if you have ever used Lombok.<br>

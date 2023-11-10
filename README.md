@@ -24,6 +24,9 @@
      * [→ API docs <u>root</u>](https://janhendrikvanheusden.github.io/Kute/index.html)
      * [→ API docs of <u>`asString()`</u>](https://janhendrikvanheusden.github.io/Kute/kute/nl.kute.asstring.core/as-string.html)
 
+| You are especially encouraged to check out the [_How to..._ page →](md/howto/0-howto.md) <br><br> It gives an overview of _all options_ of Kute `asString()`, with further links:<br>e.g. on how to start with Kute `asString()`,  examples / snippets, etc.) |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
 <hr>
 
 ## **Kute**?

@@ -47,7 +47,7 @@ by executing the lambda with an empty String.
 <hr>
 
 ### Java
-Working with Kotlin lambdas is not really convenient in Java.<br>
+Working with Kotlin consumer-type lambdas is not really convenient in Java.<br>
 Java programmers may want to use a different method, like this:
 
 ```

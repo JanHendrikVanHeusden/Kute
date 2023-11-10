@@ -83,7 +83,9 @@ One of the second-best ways is to execute code not more often than you need to: 
 
 ### Micro benchmarks
 
-The **Kute** repository contains a number of [micro-benchmarks](https://github.com/JanHendrikVanHeusden/Kute/tree/main/src/jmh/kotlin/nl/kute/performance), using the [JMH Java Micro Benchmark Harness](https://github.com/openjdk/jmh).<br>
+The micro-benchmark tests of **Kute** can be found in a [separate repository](https://github.com/JanHendrikVanHeusden/Kute-JMH/tree/main/src/jmh/kotlin/nl/kute/performance)<br> 
+It contains a number of micro-benchmark tests, using the [JMH Java Micro Benchmark Harness](https://github.com/openjdk/jmh).<br>
+> Read about the results [below](#results)
 
 #### Competitors
 Most of these JMH tests compare the following libraries, to retrieve a String-representation of objects:
