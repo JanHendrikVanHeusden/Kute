@@ -113,6 +113,7 @@ dependencies {
     val pitestJUnit5PluginVersion by System.getProperties()
     val commonsLangVersion by System.getProperties()
     val commonsTextVersion by System.getProperties()
+    val commonsMathVersion by System.getProperties()
     val commonsIoVersion by System.getProperties()
     val gsonVersion by System.getProperties()
     val guavaVersion by System.getProperties()
@@ -148,6 +149,7 @@ dependencies {
     // Do NOT use these in source code, packaged Kute should not rely on ANY external dependency
     testImplementation("org.apache.commons:commons-lang3:$commonsLangVersion")
     testImplementation("org.apache.commons:commons-text:$commonsTextVersion")
+    testImplementation("org.apache.commons:commons-math3:$commonsMathVersion")
     testImplementation("com.google.code.gson:gson:$gsonVersion")
     testImplementation("com.google.guava:guava:$guavaVersion")
 }
