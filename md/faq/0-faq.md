@@ -7,12 +7,15 @@
 ### Kute `asString` <u>F</u>requently <u>A</u>sked <u>Q</u>uestions
 
 * [I saw in the `README.md` that Kute is written in Kotlin, and meant for Kotlin. <br> Can I use **Kute** `asString()` with <u>Java</u>?](#i-saw-in-the-readmemd-that-kute-is-written-in-kotlin-and-meant-for-kotlin-can-i-use-kute-asstring-with-java)
+* [I want to have Personally Identifiable Data masked. Does **Kute** `asString()` have that option?](#i-want-to-have-personally-identifiable-data-masked-in-my-log-files-does-kute-asstring-have-that-option)
 * [Does Kute `asString()` use annotation processing?](#does-kute-asstring-use-annotation-processing)
 * [Is **Kute** `asString()` stable?](#is-kute-asstring-stable)
 * [OK, but is **Kute** `asString()`'s <u>API</u> stable?](#ok-but-is-kute-asstrings-api-stable)
 * [Is **Kute** `asString()`'s output guaranteed to stay the same, over versions?](#is-kute-asstrings-output-guaranteed-to-stay-the-same-over-versions)
 * [Are there plans to improve or extend **Kute** `asString()` with new features?](#are-there-plans-to-improve-or-extend-kute-asstring-with-new-features)
 * [Is **Kute** `asString()` open-source?](#is-kute-asstring-open-source)
+* [Can I contribute to **Kute** `asString()`?](can-i-contribute-to-kute-asstring) 
+* [Does **Kute** `asString()` feature different output styles, like Apache's `toStringBuilder`?](#does-kute-asstring-feature-different-output-styles-like-apaches-tostringbuilder)
 
 <hr>
 
@@ -24,6 +27,10 @@
 
 * #### Does Kute `asString()` use annotation processing?
   > No
+
+* #### I want to have Personally Identifiable Data masked in my log files.<br>Does **Kute** `asString()` have that option?
+  > Yes!<br>
+  > You should check out this documentation page: [Hide, replace, or obscure property values →](../howto/hide-replace-obscure-property-values.md). 
 
 * #### Is **Kute** `asString()` stable?
   > It should be!
@@ -40,6 +47,9 @@
   > But as everyone knows, practice can always come up with new surprises.<br>
   > 
   > In any case, **Kute** `asString()` handles all `Exception`s, so it should not come in your way, anyway.
+  >
+  > Also note:
+  > * **Kute** `asString()` has been tested on Java versions from 11 to 21, and on different OS's.
 
 * #### OK, but is **Kute** `asString()`'s <u>API</u> stable?
 
@@ -51,11 +61,11 @@
   > See the instructions [here](../howto/contribute/contribute.md).
   > 
   > Also note:
-  > * **Kute** `asString()` is tested on Java versions from 11 to 21, and on different OS's.
   > * **Kute** `asString()` has hundreds of tests, both Kotlin and Java, written over a span of some years.<br>
-  >   During development of the initial version, when things did not feel logical or intuitive anymore,<br>
-  > the code (package structure) has been reorganised to correct that.<br>
-  > It has been reviewed a few times too, to make sure it was logical to others too.
+  >   During development of the initial version, when things did not feel logical anymore,<br>
+  > the code (package structure) and API have been changed in order to make it more logical and intuitive.<br>
+  > Also, over time, when the API didn't feel intuitive, this has been corrected during development.
+  > It has been reviewed a few times too.
 
 * #### Is Kute `asString()`'s output guaranteed to stay the same, over versions?
   > No.
@@ -70,25 +80,62 @@
   > Summarized: it would not be realistic to promise that it will stay the same forever.
 
 * #### Are there plans to improve or extend Kute `asString()` with new features?
-> There are no concrete plans for new features, currently.<br>
-> There are some ideas, but for now, the main aim is to have it incorporated and used by projects, and learn from experiences.
-> 
-> **Kute** `asString()` is considered stable and robust, and it is already tested in different environments / frameworks / systems.<br>
-> Tests in a greater variety of environments are under development, e.g.:
->  * Multi-module projects using Java 11 module system (JigSaw)
->  * Multi-module OSGI projects
->  * Database centered systems
->  * System with enhanced security (SecurityManager)
->  * ...
-> 
-> So **Kute** `asString()` in its current form is considered a feature-complete, stable, usable and robust library.<br>
-> It is reasonable to say that it is even more robust than some other widely used tools or libraries.<br>
-> The focus is now mainly on additional testing in a multitude of environments.
-> 
-> That being said, if users come with viable suggestions for new features,<br>
-> these will be considered seriously!
+  > There are no concrete plans for new features, currently.<br>
+  > There are some ideas, but for now, the main aim is to have it incorporated and used by projects, and learn from experiences.
+  > 
+  > **Kute** `asString()` is considered stable and robust, and it is already tested in different environments / frameworks / systems.<br>
+  > Tests in a greater variety of environments are under development, e.g.:
+  >  * Multi-module projects using Java 11 module system (JigSaw)
+  >  * Multi-module OSGI projects
+  >  * Database centered systems
+  >  * System with enhanced security (SecurityManager)
+  >  * ...
+  > 
+  > So **Kute** `asString()` in its current form is considered a feature-complete, stable, usable and robust library.<br>
+  > It is reasonable to say that it is even more robust than some other widely used tools or libraries.<br>
+  > The focus is now mainly on additional testing in a multitude of environments.
+  > 
+  > That being said, if users come with viable suggestions for new features,<br>
+  > these will be considered seriously!
 
 * #### Is **Kute** `asString()` open-source?
   > Yes, in accordance to [The Open Source Definition](https://opensource.org/osd/) of the [Open Source Initiative®](https://opensource.org/osd/).
   > * It is under [MIT](https://opensource.org/license/mit/)-license.<br>
       The license statement can be found in the project root: see the **[LICENSE](../../LICENSE)**.
+
+* #### Can I contribute to Kute `asString()`?
+> If you feel you could add some value to **Kute** `asString()`, see: [How to contribute to Kute `asString()` →](../howto/contribute/contribute.md)<br><br>
+> E.g. by:
+> * reviewing
+> * improving code
+> * extending tests
+> * suggestions for features
+ 
+* #### Does **Kute** `asString()` feature different output styles, like Apache's `toStringBuilder`?
+  > No.
+  > 
+  > * Apache's `toStringBuilder` features different styles:<br>
+  > `DEFAULT_STYLE`, `MULTI_LINE_STYLE`, `NO_FIELD_NAMES_STYLE`, `SHORT_PREFIX_STYLE`, `SIMPLE_STYLE`, `NO_CLASS_NAME_STYLE`, `JSON_STYLE`
+  > * Besides that, there are different classes like `ToStringStyle`, `StandardToStringStyle` and `RecursiveToStringStyle`
+  >    * With loads of options that you can tweak
+  >    * And you can write your own style.
+  >
+  > An overload of options has never been the aim of **Kute** `asString()`<br>
+  > **Kute** `asString()` has a different, practice-based approach.
+  > * It opts for a single basic style, equivalent to Kotlin's `toString()` of data classes.
+  > * **Kute** `asString()` does provide practice-based options to tweak the output.
+  >    * Things like delimiters, settings at which length values should be truncated, etc.
+  >    * Whether to include identity hashes, whether to include `companion` properties etc.
+  >    * [Keeping <u>P</u>ersonally <u>I</u>dentifiable <u>D</u>ata away from prying eyes →](../howto/hide-replace-obscure-property-values.md)
+  >       * Think of GDPR-regulations
+  > 
+  > So **Kute** `asString()` focuses on practice-based options
+  >  * Not: making everything possible for everyone.
+  > 
+  > Specifaclly: No `Json`-like output.
+  > * `Json`-output suggests serialization; **Kute** `asString()` does not pretend to accomplish that.
+  >    * For instance, **Kute** `asString()` truncates too verbose values and collections.<br>
+  >        * Developers and admins usually are "_not interested_" in (i.e., _annoyed by_) endless strings of 1000+ chars in their log files
+  >        * But you can't truncate do that if you pretend to produce `Json`.
+  > * There are excellent other libraries for `Json`-izing
+  > 

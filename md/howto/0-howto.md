@@ -9,9 +9,9 @@
 <hr>
 
 ## Contents
-* [Goal / introduction of Kute `asString()`](#goal--introduction-of-kute-asstring)
-* [Start using Kute `asString()`](#start-using-kute-asstring-)
-  * [Kute & build tools: Gradle / Maven](#kute--build-tools-gradle--maven)
+* [Goal / introduction of **Kute** `asString()`](#goal--introduction-of-kute-asstring)
+* [Start using **Kute** `asString()`](#start-using-kute-asstring-)
+  * [**Kute** & build tools: Gradle / Maven](#kute--build-tools-gradle--maven)
   * [Start using `asString()` in your code](#start-using-asstring-in-your-code)
 * [Use `asString()` from Java](#use-asstring-from-java-)
 * [Exclude (omit) properties](#exclude-properties-)
@@ -35,7 +35,11 @@
   * [Alphabetically](#sorted-alphabetically)
   * [Custom](#apply-custom-sorting)
 * [Include companion properties](#include-companion-properties)
-* [Have Kute's error messages directed to log framework](#have-kutes-error-messages-directed-to-a-log-framework)
+* [Have **Kute**'s error messages directed to log framework](#have-kutes-error-messages-directed-to-a-log-framework)
+
+<hr>
+
+* [How to contribute to **Kute** `asString()`?](#how-to-contribute-to-kute-asString)
 
 <hr>
 
@@ -150,3 +154,14 @@ Still, it may be a good idea to have a glance over **Kute** `asString()`'s optio
 
 * ### Have Kute's error messages directed to a log framework
   See [How to have Kute's error messages directed to a log framework →](direct-kute-messages-to-my-logging-framework.md)
+
+<hr>
+
+## How to contribute to Kute `asString()`?
+   If you feel you could add some value to **Kute** `asString()`, see: [How to contribute to Kute `asString()` →](contribute/contribute.md)<br>
+   E.g. by:
+   * reviewing
+   * improving code
+   * extending tests
+   * suggestions for features
+   
