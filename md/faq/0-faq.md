@@ -104,12 +104,12 @@
       The license statement can be found in the project root: see the **[LICENSE](../../LICENSE)**.
 
 * #### Can I contribute to Kute `asString()`?
-> If you feel you could add some value to **Kute** `asString()`, see: [How to contribute to Kute `asString()` →](../howto/contribute/contribute.md)<br><br>
-> E.g. by:
-> * reviewing
-> * improving code
-> * extending tests
-> * suggestions for features
+  > If you feel you could add some value to **Kute** `asString()`, see: [How to contribute to Kute `asString()` →](../howto/contribute/contribute.md)<br><br>
+  > E.g. by:
+  > * reviewing
+  > * improving code
+  > * extending tests
+  > * suggestions for features
  
 * #### Does **Kute** `asString()` feature different output styles, like Apache's `toStringBuilder`?
   > No.
