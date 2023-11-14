@@ -12,7 +12,7 @@ val appDescription: String =
     """Kute asString is basically a `toString()` alternative, but customizable to fit your needs.
         |And with many practice-based, developer-friendly features.""".trimMargin()
 val appGroupId: String = "nl.kute"
-val appVersion: String = "1.0.0"
+val appVersion: String = "1.0.1"
 val appArtifactId: String = appName
 
 group = appGroupId

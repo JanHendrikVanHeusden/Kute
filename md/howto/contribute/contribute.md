@@ -28,7 +28,7 @@ Some suggestions for things you could contribute to:
   You may start / improve / contribute to a test project
     * There are a few test projects already, but more / other are welcome
     * Separate projects to test **Kute** `asString()` with different technology stacks;<br>
-     e.g. OSGI, database, Java 11 module system (JigSaw), Quarkus, and/or with a restrictive SecurityManager, etc.
+     e.g. OSGI, database, Java 9 module system (JigSaw), Quarkus, and/or with a restrictive SecurityManager, etc.
 * **Reviewing**
   <br>You may review existing code, or pull requests
     * Always be friendly in your comments
@@ -37,26 +37,39 @@ Some suggestions for things you could contribute to:
 
 ### Pull requests - guidelines
 
-Feel free to issue a pull request! Some guidelines for pull requests:
+Feel free to issue a pull request!
+<br>Some guidelines for code changes / pull requests:
 
-* **Honour the [principles mentioned below](#principles-of-kute-asstring)**
+1. **Honour the [principles mentioned below](#principles-of-kute-asstring)**
    * Existing API should not change
    * Zero dependencies
-* Only expose what is actually **needed to use the API**
+<br><br>
+2. Only expose what is actually **needed to use the API**
    * Stuff that the end-users do not need, should be `internal` or `private`
    * Java does not recognise `internal` visibility.<br>
      To avoid unwanted exposure of `internal` stuff, **all** `internal` properties and methods **must** be annotated with `@JvmSynthetic`
-* Create and run **tests**
+<br><br>
+3. Create and run **tests**
    * Let tests fully cover all use cases of your new or changed code
-* **Test your code with a Java 11 API**
-   * It's not enough that code / target compatibility is set to 11
-   * You actually have to install a Java 11 JVM and have it run on that JVM
-* You may want to test your code with Java 20+ too
-* **Document** your code with **KDoc**
+<br><br>
+4. **Test your code with a Java 11 JVM**
+   * It is <u>not enough</u> that `sourceCompatibility` / `targetCompatibility` are set to Java 11
+   * You actually have to install a Java 11 JVM and have it run on that JVM<br>
+     > For instance, `HexFormat` (added in Java 17) class must not be used in **Kute** `asString()`
+     > * On a 17+ JVM, code using `HexFormat` would run successfully,<br>
+        _even while `sourceCompatibility` / `targetCompatibility` are set to Java 11_
+     > * But on a Java 11 JVM **it won't compile / run**, so it's an incompatible change!
+   * The `Gradle` build script [build.gradle.kts](build.gradle.kts) outputs the JVM version by means of<br>
+    `println("Running on JVM version: ${JavaVersion.current()}")`
+<br><br>
+5. You may want to test your code additionally with Java 20+<br><br>
+6. **Document** your code with **KDoc**
    * All public stuff should be documented
    * Generate the new API-documentation (it uses the _KDoc_) by running Gradle task `buildWithApiDocs`, and commit any changed / new documentation pages (in the `docs` directory)
-* **Further documentation**
-   * If needed, also add / adjust other documentation (in the `md` directory)
+<br><br>
+7. **Adjust documentation**
+   * If needed, also add / adjust other documentation (the `md` directory in the project's root)
+<br><br>
 
 ### Principles of Kute `asString()`
 There are a few important principles to keep in mind, when working on **Kute**:

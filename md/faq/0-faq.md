@@ -14,6 +14,7 @@
 * [Is **Kute** `asString()`'s output guaranteed to stay the same, over versions?](#is-kute-asstrings-output-guaranteed-to-stay-the-same-over-versions)
 * [Are there plans to improve or extend **Kute** `asString()` with new features?](#are-there-plans-to-improve-or-extend-kute-asstring-with-new-features)
 * [Is **Kute** `asString()` open-source?](#is-kute-asstring-open-source)
+* [Does Kute `asString()` use semantic versioning?](#does-kute-asstring-use-semantic-versioning)
 * [Can I contribute to **Kute** `asString()`?](#can-i-contribute-to-kute-asstring) 
 * [Does **Kute** `asString()` feature different output styles, like Apache's `toStringBuilder`?](#does-kute-asstring-feature-different-output-styles-like-apaches-tostringbuilder)
 
@@ -40,7 +41,7 @@
   > 
   > * Think of lambdas, both Kotlin and Java, both as instance variables and as local variables,<br>
   > SAM-wrappers, extension-methods, anonymous inner classes, method-local classes, property extensions, callables, functional interfaces, delegates, etc. etc. etc.
-  > * The tests with other applications involve tests with Java 11 module system, JPA, and others.
+  > * The tests with other applications involve tests with Java 9 module system, JPA, and others.
   > 
   > **Kute** `asString()` is tested on Java versions from 11 to 21 <br>
   > So yes, **Kute** `asString()` should be stable.<br>
@@ -85,7 +86,7 @@
   > 
   > **Kute** `asString()` is considered stable and robust, and it is already tested in different environments / frameworks / systems.<br>
   > Tests in a greater variety of environments are under development, e.g.:
-  >  * Multi-module projects using Java 11 module system (JigSaw)
+  >  * Multi-module projects using Java 9 module system (JigSaw)
   >  * Multi-module OSGI projects
   >  * Database centered systems
   >  * System with enhanced security (SecurityManager)
@@ -98,10 +99,26 @@
   > That being said, if users come with viable suggestions for new features,<br>
   > these will be considered seriously!
 
-* #### Is **Kute** `asString()` open-source?
+* #### Is Kute `asString()` open-source?
   > Yes, in accordance to [The Open Source Definition](https://opensource.org/osd/) of the [Open Source Initiative®](https://opensource.org/osd/).
   > * It is under [MIT](https://opensource.org/license/mit/)-license.<br>
       The license statement can be found in the project root: see the **[LICENSE](../../LICENSE)**.
+
+* #### Does Kute `asString()` use semantic versioning?
+  > Yes, with the following semantics:<br>
+  > `A.b.c-beta`
+  > Where, from minor to major (right to left):
+  > * `-alpha or -beta` are added when needed for alpha-test / beta-test versions (insofar applicable)
+  > * Increase of `c` indicates minor updates without changed functionality, e.g.:
+  >    * Bugfixes
+  >    * Typos
+  >    * Documentation
+  > * Increase of `b` indicates that functionality is added without breaking the API
+  >    * Note that output of **Kute** `asString()` might change slightly though:<br>
+  >      see [Is **Kute** `asString()`'s output guaranteed to stay the same, over versions?](#is-kute-asstrings-output-guaranteed-to-stay-the-same-over-versions)
+  > * Increase of `A` would indicate a major version update with breaking changes.
+  >    * The idea is that this won't ever happen<br>:
+  >      API-stability is one of the main principles of **Kute** `asString()` is .
 
 * #### Can I contribute to Kute `asString()`?
   > If you feel you could add some value to **Kute** `asString()`, see: [How to contribute to Kute `asString()` →](../howto/contribute/contribute.md)<br><br>
