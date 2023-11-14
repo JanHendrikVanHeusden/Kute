@@ -14,7 +14,7 @@
 * [Is **Kute** `asString()`'s output guaranteed to stay the same, over versions?](#is-kute-asstrings-output-guaranteed-to-stay-the-same-over-versions)
 * [Are there plans to improve or extend **Kute** `asString()` with new features?](#are-there-plans-to-improve-or-extend-kute-asstring-with-new-features)
 * [Is **Kute** `asString()` open-source?](#is-kute-asstring-open-source)
-* [Can I contribute to **Kute** `asString()`?](can-i-contribute-to-kute-asstring) 
+* [Can I contribute to **Kute** `asString()`?](#can-i-contribute-to-kute-asstring) 
 * [Does **Kute** `asString()` feature different output styles, like Apache's `toStringBuilder`?](#does-kute-asstring-feature-different-output-styles-like-apaches-tostringbuilder)
 
 <hr>
@@ -22,7 +22,7 @@
 * #### I saw in the `README.md` that Kute is written in Kotlin, and meant for Kotlin <br> Can I use **Kute** `asString()` with <u>Java</u>?
   > Sure! All features of **Kute** `asString()` are available in Java as well<br>
   > * **Kute** `asString()` has various features aimed to make using it in Java as easy as it is in Kotlin
-  >    * See [the documentation with more about usage in Java →]((#use-asstring-from-java-))
+  >    * See [this documentation page with more about usage with Java →]((#use-asstring-from-java-))
   > * Several tests and/or test objects of **Kute** are Java-code, to ensure that it interoperates smoothly with Java
 
 * #### Does Kute `asString()` use annotation processing?
@@ -81,7 +81,7 @@
 
 * #### Are there plans to improve or extend Kute `asString()` with new features?
   > There are no concrete plans for new features, currently.<br>
-  > There are some ideas, but for now, the main aim is to have it incorporated and used by projects, and learn from experiences.
+  > There are some ideas (see [README.md →](../../README.md)), but, for now, the main aim is to have it incorporated and used by projects, and learn from experiences.
   > 
   > **Kute** `asString()` is considered stable and robust, and it is already tested in different environments / frameworks / systems.<br>
   > Tests in a greater variety of environments are under development, e.g.:

@@ -35,11 +35,12 @@
 *And also for cute, as it was intended to be a tiny, little, cuddly, **easy to use** utility.*<br>
 
 Currently, **Kute** contains `asString()`, which is basically a `toString()` alternative,
-but customizable to fit your needs. And with many practice-based, developer-friendly features.
+but customizable to fit your needs.<br>
+And with many practice-based, developer-friendly features.
 > Comparable with Apache's `ToStringBuilder.reflectionToString` - but better!<br>
 > Stay with me: see [Basic ideas of Kute's <span style="font-family: monospace">asString()</span>](#basic-ideas-of-kutes-asstring) and [How is **Kute** better?](#how-is-kute-better)
 
-More advanced options are available, but basically it should be very easy to use,
+More advanced options are available, but basically it should be very easy to use,<br>
 never getting in the way when developing great code (or when troubleshooting less great code).
 
 <hr>
@@ -222,6 +223,9 @@ I have a few things I'd like to **improve** yet. And maybe others may contribute
   This situation is handled gracefully, but not logged, to avoid clogging your log files or std-out.<br>
   The output is different from normal, though, so it may leave the user with questions why she does not get the expected output.<br>
   A choice for more **verbose logging** should be implemented, to service situations like these.<br><br>
+
+* Option to have **all** provided `NameValue` implementations honour annotations.<br>
+  Currently this is only the case for `NamedProp`.
 
 #### **Other thoughts?**<br>
 I'd like to hear more about your experiences with **Kute** `asString()`, and any wishes.
