@@ -117,7 +117,7 @@
   >    * Note that output of **Kute** `asString()` might change slightly though:<br>
   >      see [Is **Kute** `asString()`'s output guaranteed to stay the same, over versions?](#is-kute-asstrings-output-guaranteed-to-stay-the-same-over-versions)
   > * Increase of `A` would indicate a major version update with breaking changes.
-  >    * The idea is that this won't ever happen<br>:
+  >    * The idea is that this won't ever happen:<br>
   >      API-stability is one of the main principles of **Kute** `asString()` is .
 
 * #### Can I contribute to Kute `asString()`?

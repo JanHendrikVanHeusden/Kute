@@ -306,9 +306,13 @@ publishing {
     }
     repositories {
         maven {
-            name = mavenLocal().name
-            url = mavenLocal().url
-            // todo: license
+//            credentials {
+//                username = "$usr"
+//                password = "$pwd"
+//            }
+//            name = mavenLocal().name
+//            url = mavenLocal().url
+//            // todo: license
         }
     }
 }
